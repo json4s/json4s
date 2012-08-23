@@ -1,0 +1,25 @@
+digraph json {
+  s -> ast [label="parse"]
+  dsl -> ast [label="'implicit'"]
+  ast -> ser [label="serialize"]
+  ser -> ast [label="deserialize"]
+
+  ast -> ast [label="map, \\, merge, diff, remove, ..."]
+
+  ast -> class [label="extract"]
+  class -> ast [label="decompose"]
+
+  ast -> xml [label="toXml"]
+  xml -> ast [label="toJson"]
+
+  ast -> doc [label="render"]
+  doc -> String [label="compact, pretty"]
+
+  ast [label="Json AST"]
+  dsl [label="Json DSL"]
+  ser [label="Serialized\nstring"]
+  doc [label="<<scala.text>>\nDocument"]
+  s [label="String"]
+  class [label="Case class"]
+  xml [label="XML"]
+}

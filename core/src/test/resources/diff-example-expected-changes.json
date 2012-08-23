@@ -1,0 +1,30 @@
+{
+    "content": {
+        "content": [
+            {
+                "style": {
+                    "underline": 2
+                }
+            },
+            {
+                "style": {
+                    "underline": 2,
+                    "color": "4DC2FF"
+                },
+                "content": "foo"
+            },
+            {
+                "style": {
+                    "underline": 2
+                }
+            },
+            {
+                "style": {
+                    "underline": 2,
+                    "color": "4DC2FF"
+                }
+            }
+        ]
+    },
+    "version": 4.0
+}

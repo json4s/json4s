@@ -1,0 +1,58 @@
+{
+    "format": "example",
+    "content": [
+        {
+            "align": "center",
+            "depth": 0,
+            "list": false,
+            "content": [
+                {
+                    "style": {
+                        "underline": 1,
+                        "bold": 2,
+                        "size": 20,
+                        "italic": 2,
+                        "color": "FFFFFF",
+                        "fontFamily": "Arial"
+                    },
+                    "content": "And please, feel free to send us your feedback and comments to "
+                },
+                {
+                    "style": {
+                        "underline": 1,
+                        "bold": 2,
+                        "size": 20,
+                        "italic": 2,
+                        "color": "4DC3FF",
+                        "fontFamily": "Arial"
+                    },
+                    "content": "hello world"
+                },
+                {
+                    "style": {
+                        "underline": 1,
+                        "bold": 2,
+                        "size": 20,
+                        "italic": 2,
+                        "color": "FFFFFF",
+                        "fontFamily": "Arial"
+                    },
+                    "content": ", or just by clicking on the "
+                },
+                {
+                    "style": {
+                        "underline": 1,
+                        "bold": 2,
+                        "size": 20,
+                        "italic": 2,
+                        "color": "4DC3FF",
+                        "fontFamily": "Arial"
+                    },
+                    "content": "feedback"
+                }
+            ],
+            "ordered": false
+        }
+    ],
+    "version": 3.0
+}
