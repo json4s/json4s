@@ -20,9 +20,9 @@ package ext
 import org.joda.time._
 
 import org.specs.Specification
-
-import common._
-import json.Serialization.{read, write => swrite}
+import native._
+import ext.JodaTimeSerializers
+import Serialization.{read, write => swrite}
 
 
 /**
@@ -41,7 +41,7 @@ object JodaTimeSerializerSpec extends Specification("JodaTimeSerializer Specific
   }
 
   "DateTime and DateMidnight use configured date format" in {
-    implicit val formats = new net.liftweb.json.DefaultFormats {                      
+    implicit val formats = new DefaultFormats {
       override def dateFormatter = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'")
     } ++ JodaTimeSerializers.all
 

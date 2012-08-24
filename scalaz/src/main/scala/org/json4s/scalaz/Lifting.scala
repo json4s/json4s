@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package net.liftweb.json.scalaz
+package org.json4s
+package scalaz
 
-import scalaz._
+
+import _root_.scalaz._
 import Scalaz._
-import net.liftweb.json._
 
 trait Lifting { this: Types =>
   implicit def Func2ToJSON[A: JSONR, B: JSONR, R](z: (A, B) => R) = new {

@@ -15,12 +15,14 @@
  */
 
 package org.json4s
+package native
 package ext
+
 
 import java.io._
 import java.lang.reflect.ParameterizedType
 import scala.reflect.Manifest
-import common._
+import net.liftweb.common._
 import Extraction.{decompose, extract}
 import org.apache.commons.codec.binary.Base64
 

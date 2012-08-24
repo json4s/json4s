@@ -4,7 +4,7 @@ import java.util.Date
 
 /** Conversions between String and Date.
  */
-trait DateFormat[T] {
-  def parse(s: String): Option[T]
-  def format(d: T): String
+trait DateFormat {
+  def parse(s: String): Option[Date]
+  def format(d: Date): String
 }

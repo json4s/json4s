@@ -19,7 +19,7 @@ package native
 package ext
 
 class EnumSerializer[E <: Enumeration: ClassManifest](enum: E)
-  extends json.Serializer[E#Value] {
+  extends Serializer[E#Value] {
   import JsonDSL._
 
   val EnumerationClass = classOf[E#Value]
@@ -39,7 +39,7 @@ class EnumSerializer[E <: Enumeration: ClassManifest](enum: E)
 }
 
 class EnumNameSerializer[E <: Enumeration: ClassManifest](enum: E)
-  extends json.Serializer[E#Value] {
+  extends Serializer[E#Value] {
   import JsonDSL._
 
   val EnumerationClass = classOf[E#Value]

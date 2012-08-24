@@ -64,7 +64,7 @@ object Json4sBuild extends Build {
     id = "json4s",
     base = file("."),
     settings = json4sSettings
-  ) aggregate(core, native, nativeExt, jacksonSupport, jacksonExt, scalazExt, json4sTests)
+  ) aggregate(core, native, nativeExt, nativeLift, jacksonSupport, jacksonExt, scalazExt, json4sTests)
 
   lazy val core = Project(
     id = "json4s-core",
@@ -82,7 +82,6 @@ object Json4sBuild extends Build {
     id = "json4s-native-ext",
     base = file("native-ext"),
     settings = json4sSettings ++ Seq(
-      libraryDependencies ++= Seq(commonsCodec),
       libraryDependencies ++= jodaTime)
   ) dependsOn(native % "compile;test->test")
 
@@ -90,7 +89,7 @@ object Json4sBuild extends Build {
   lazy val nativeLift = Project(
     id = "json4s-native-lift",
     base = file("native-lift"),
-    settings = json4sSettings ++ Seq(libraryDependencies ++= Seq(liftCommon))
+    settings = json4sSettings ++ Seq(libraryDependencies ++= Seq(liftCommon, commonsCodec))
   )  dependsOn(native % "compile;test->test")
 
   lazy val jacksonSupport = Project(
@@ -109,11 +108,11 @@ object Json4sBuild extends Build {
     id = "json4s-scalaz",
     base = file("scalaz"),
     settings = json4sSettings ++ Seq(libraryDependencies ++= Seq(scalaz))
-  ) dependsOn(core % "compile;test->test")
+  ) dependsOn(core % "compile;test->test", native, jacksonSupport)
 
   lazy val json4sTests = Project(
     id = "json4s-tests",
     base = file("tests"),
     settings = json4sSettings ++ Seq(libraryDependencies ++= Seq(specs2, scalaCheck, mockito))
-  ) dependsOn(core, native, nativeExt, scalazExt, jacksonSupport, jacksonExt)
+  ) dependsOn(core, native, nativeExt, nativeLift, scalazExt, jacksonSupport, jacksonExt)
 }

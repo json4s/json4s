@@ -6,7 +6,7 @@ object Dependencies {
 
   val jodaTime = Seq("joda-time" % "joda-time" % "2.1", "org.joda" % "joda-convert" % "1.2")
 
-  val specs2 = "org.specs2" %% "specs2" % "1.12" % "test"
+  val specs2 = "org.scala-tools.testing" %% "specs" % "1.6.9" % "test"
 
   val jackson = Seq(
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.0.5",

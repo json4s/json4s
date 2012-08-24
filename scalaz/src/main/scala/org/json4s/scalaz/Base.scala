@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package net.liftweb.json.scalaz
+package org.json4s
+package scalaz
 
-import scalaz._
+import _root_.scalaz._
 import Scalaz._
-import net.liftweb.json._
 import scala.collection.breakOut
 
 trait Base { this: Types =>

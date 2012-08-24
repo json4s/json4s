@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package net.liftweb.json.scalaz
+package org.json4s
+package scalaz
 
-import scalaz._
+import _root_.scalaz._
 import Scalaz._
-import net.liftweb.json._
 
 trait Types {
   type Result[A] = ValidationNEL[Error, A]
@@ -34,10 +34,6 @@ trait Types {
 
     def apply[A](key: String, desc: String): Result[A] = 
       UncategorizedError(key, desc, Nil).fail.liftFailNel
-  }
-
-  implicit def JValueShow[A <: JValue]: Show[A] = new Show[A] {
-    def show(json: A) = compact(render(json)).toList
   }
 
   implicit def JValueZero: Zero[JValue] = zero(JNothing)

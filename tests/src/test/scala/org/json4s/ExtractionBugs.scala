@@ -16,10 +16,9 @@
 
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.specs.Specification
 
-object ExtractionBugs extends Specification {
-  title("Extraction bugs Specification")
+object ExtractionBugs extends Specification("Extraction bugs Specification") {
 
   implicit val formats = DefaultFormats
 
