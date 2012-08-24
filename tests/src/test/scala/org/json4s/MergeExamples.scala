@@ -17,6 +17,7 @@
 package org.json4s
 
 import org.specs.Specification
+import native._
 
 
 

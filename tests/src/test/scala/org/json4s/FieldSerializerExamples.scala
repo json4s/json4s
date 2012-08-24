@@ -17,6 +17,7 @@
 package org.json4s
 
 import org.specs.Specification
+import native._
 
 object FieldSerializerExamples extends Specification {  
   import Serialization.{read, write => swrite}

@@ -19,6 +19,7 @@ package org.json4s
 import util.control.Exception._
 
 import org.specs.Specification
+import native._
 
 object ParserBugs extends Specification {
   "Unicode ffff is a valid char in string literal" in {

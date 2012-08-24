@@ -18,6 +18,7 @@ package org.json4s
 
 import java.util.Date
 import org.specs.Specification
+import native._
 
 object SerializationExamples extends Specification {
   import Serialization.{read, write => swrite}

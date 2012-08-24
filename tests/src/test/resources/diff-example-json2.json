@@ -1,0 +1,69 @@
+{
+    "format": "example",
+    "version": 4.0,
+    "content": [
+        {
+            "list": false,
+            "depth": 0,
+            "ordered": false,
+            "content": [
+                {
+                    "content": "And please, feel free to send us your feedback and comments to ",
+                    "style": {
+                        "size": 20,
+                        "color": "FFFFFF",
+                        "name": "Arial",
+                        "bold": 2,
+                        "italic": 2,
+                        "underline": 2
+                    }
+                },
+                {
+                    "content": "foo",
+                    "style": {
+                        "size": 20,
+                        "color": "4DC2FF",
+                        "name": "Arial",
+                        "bold": 2,
+                        "italic": 2,
+                        "underline": 2
+                    }
+                },
+                {
+                    "content": ", or just by clicking on the ",
+                    "style": {
+                        "size": 20,
+                        "color": "FFFFFF",
+                        "name": "Arial",
+                        "bold": 2,
+                        "italic": 2,
+                        "underline": 2
+                    }
+                },
+                {
+                    "content": "feedback",
+                    "style": {
+                        "size": 20,
+                        "color": "4DC2FF",
+                        "name": "Arial",
+                        "bold": 2,
+                        "italic": 2,
+                        "underline": 2
+                    }
+                },
+                {
+                    "content": " button up above.",
+                    "style": {
+                        "size": 20,
+                        "color": "FFFFFF",
+                        "name": "Arial",
+                        "bold": 2,
+                        "italic": 2,
+                        "underline": 2
+                    }
+                }
+            ],
+            "align": "center"
+        }
+    ]
+}

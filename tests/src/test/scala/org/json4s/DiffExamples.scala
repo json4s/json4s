@@ -17,7 +17,7 @@
 package org.json4s
 
 import org.specs.Specification
-
+import native._
 
 /**
  * System under specification for Diff Examples.

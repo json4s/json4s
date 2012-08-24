@@ -20,6 +20,7 @@ import org.specs.Specification
 
 
 object Examples extends Specification {
+  import native._
   import JsonAST.concat
   import JsonDSL._
 

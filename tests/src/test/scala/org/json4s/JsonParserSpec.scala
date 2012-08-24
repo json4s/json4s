@@ -19,6 +19,7 @@ package org.json4s
 import org.specs.{ScalaCheck, Specification}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop._
+import native._
 
 
 /**

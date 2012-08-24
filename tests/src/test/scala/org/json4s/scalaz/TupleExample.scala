@@ -1,9 +1,10 @@
-package net.liftweb.json.scalaz
+package org.json4s.scalaz
 
 import scalaz._
 import Scalaz._
 import JsonScalaz._
-import net.liftweb.json._
+import org.json4s._
+import native._
 
 import org.specs.Specification
 

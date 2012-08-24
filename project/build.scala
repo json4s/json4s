@@ -30,9 +30,9 @@ object Json4sBuild extends Build {
   }
 
   val mavenCentralFrouFrou = Seq(
-    homepage := Some(new URL("http://www.json4s.org/")),
+    homepage := Some(new URL("https://github.com/json4s/json4s")),
     startYear := Some(2009),
-    licenses := Seq(("BSD", new URL("http://github.com/json4s/json4s/raw/HEAD/LICENSE"))),
+    licenses := Seq(("ASL", new URL("http://github.com/json4s/json4s/raw/HEAD/LICENSE"))),
     pomExtra <<= (pomExtra, name, description) {(pom, name, desc) => pom ++ Group(
       <scm>
         <url>http://github.com/json4s/json4s</url>
@@ -84,7 +84,6 @@ object Json4sBuild extends Build {
     settings = json4sSettings ++ Seq(
       libraryDependencies ++= jodaTime)
   ) dependsOn(native % "compile;test->test")
-
 
   lazy val nativeLift = Project(
     id = "json4s-native-lift",

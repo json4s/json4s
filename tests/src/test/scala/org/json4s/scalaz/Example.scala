@@ -4,6 +4,8 @@ import scalaz._
 import Scalaz._
 import JsonScalaz._
 import org.json4s._
+import native._
+import org.json4s.native.scalaz.JValueShow._
 
 import org.specs.Specification
 
