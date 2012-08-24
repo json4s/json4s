@@ -11,4 +11,6 @@ package object native {
   def render(value: JValue): Document = JsonAST.render(value)
   def compact(d: Document): String = Printer.compact(d)
   def pretty(d: Document): String = Printer.pretty(d)
+
+  implicit def jvalue2jvalueWithExtraction(jv: JValue) = new JValueExt(jv)
 }

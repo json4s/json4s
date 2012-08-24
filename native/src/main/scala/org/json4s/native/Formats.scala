@@ -15,6 +15,7 @@
  */
 
 package org.json4s
+package native
 
 import java.util.{Date, TimeZone}
 

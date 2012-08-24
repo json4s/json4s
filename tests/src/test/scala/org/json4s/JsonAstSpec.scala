@@ -16,7 +16,8 @@
 
 package org.json4s
 
-import org.specs.{ScalaCheck, Specification}
+import org.specs2.mutable.Specification
+import org.specs2.ScalaCheck
 import org.scalacheck._
 import org.scalacheck.Prop.{forAll, forAllNoShrink}
 
@@ -24,7 +25,9 @@ import org.scalacheck.Prop.{forAll, forAllNoShrink}
 /**
  * System under specification for JSON AST.
  */
-object JsonAstSpec extends Specification("JSON AST Specification") with JValueGen with ScalaCheck {
+object JsonAstSpec extends Specification with JValueGen with ScalaCheck {
+  title("JSON AST Specification")
+
   "Functor identity" in {
     val identityProp = (json: JValue) => json == (json map identity)
     forAll(identityProp) must pass

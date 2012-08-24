@@ -15,6 +15,7 @@
  */
 
 package org.json4s
+package native
 import java.lang.reflect.{Constructor => JConstructor, Type}
 import java.lang.{Integer => JavaInteger, Long => JavaLong, Short => JavaShort, Byte => JavaByte, Boolean => JavaBoolean, Double => JavaDouble, Float => JavaFloat}
 import java.util.Date

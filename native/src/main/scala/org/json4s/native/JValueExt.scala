@@ -1,4 +1,5 @@
 package org.json4s
+package native
 
 class JValueExt(jv: JValue) {
   /** Extract a value from a JSON.
@@ -17,7 +18,7 @@ class JValueExt(jv: JValue) {
    * </pre>
    */
   def extract[A](implicit formats: Formats, mf: scala.reflect.Manifest[A]): A =
-    Extraction.extract(this)(formats, mf)
+    Extraction.extract(jv)(formats, mf)
 
   /** Extract a value from a JSON.
    * <p>
@@ -35,7 +36,7 @@ class JValueExt(jv: JValue) {
    * </pre>
    */
   def extractOpt[A](implicit formats: Formats, mf: scala.reflect.Manifest[A]): Option[A] =
-    Extraction.extractOpt(this)(formats, mf)
+    Extraction.extractOpt(jv)(formats, mf)
 
   /** Extract a value from a JSON using a default value.
    * <p>
@@ -53,5 +54,5 @@ class JValueExt(jv: JValue) {
    * </pre>
    */
   def extractOrElse[A](default: => A)(implicit formats: Formats, mf: scala.reflect.Manifest[A]): A =
-    Extraction.extractOpt(this)(formats, mf).getOrElse(default)
+    Extraction.extractOpt(jv)(formats, mf).getOrElse(default)
 }

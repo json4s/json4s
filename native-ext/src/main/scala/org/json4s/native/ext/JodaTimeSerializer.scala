@@ -15,6 +15,7 @@
  */
 
 package org.json4s
+package native
 package ext
 
 import org.joda.time._
