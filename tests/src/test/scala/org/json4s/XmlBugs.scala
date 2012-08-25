@@ -1,25 +1,25 @@
 /*
- * Copyright 2009-2011 WorldWide Conferencing, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright 2009-2011 WorldWide Conferencing, LLC
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package org.json4s
 
 import org.specs.Specification
 import text.Document
 
-object NativeXmlBugs extends XmlBugs[Document]("Native") with native.JsonMethods
+object NativeXmlBugs extends XmlBugs[Document]("Native") with NativeJsonMethods
 abstract class XmlBugs[T](mod: String) extends Specification(mod+" XML Bugs") with JsonMethods[T]{
   import Xml._
   import scala.xml.{Group, Text}
@@ -58,7 +58,7 @@ abstract class XmlBugs[T](mod: String) extends Specification(mod+" XML Bugs") wi
 
   "XML with empty node is converted correctly to JSON" in {
     val xml =
-      <tips><group type="Foo"></group><group type="Bar"><tip><text>xxx</text></tip><tip><text>yyy</text></tip></group></tips> 
+      <tips><group type="Foo"></group><group type="Bar"><tip><text>xxx</text></tip><tip><text>yyy</text></tip></group></tips>
     val expected = """{"tips":{"group":[{"type":"Foo"},{"type":"Bar","tip":[{"text":"xxx"},{"text":"yyy"}]}]}}"""
     compact(render(toJson(xml))) mustEqual expected
   }

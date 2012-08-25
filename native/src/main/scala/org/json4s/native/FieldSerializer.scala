@@ -1,5 +1,4 @@
 package org.json4s
-package native
 
 /**
  * Serializer which serializes all fields of a class too.

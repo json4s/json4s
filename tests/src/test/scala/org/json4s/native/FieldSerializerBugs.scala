@@ -1,9 +1,10 @@
 package org.json4s
-package native
+
 
 import org.specs.Specification
 
 object FieldSerializerBugs extends Specification {
+  import NativeImports._
   import Serialization.{read, write => swrite}
 
   implicit val formats = DefaultFormats + FieldSerializer[AnyRef]()

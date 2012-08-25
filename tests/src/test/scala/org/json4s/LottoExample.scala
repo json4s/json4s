@@ -1,27 +1,27 @@
 /*
- * Copyright 2009-2011 WorldWide Conferencing, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright 2009-2011 WorldWide Conferencing, LLC
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package org.json4s
 
 import org.specs.Specification
-import org.json4s.LottoExample.{Winner, Lotto}
 import text.Document
 
-object NativeLottoExample extends LottoExample[Document]("Native") with native.JsonMethods {
-  import native._
+object NativeLottoExample extends LottoExample[Document]("Native") with NativeJsonMethods {
+  import NativeImports._
+  import LottoExample._
   implicit val formats = DefaultFormats
   def extractWinner(jv: _root_.org.json4s.JValue): Winner = jv.extract[Winner]
 
@@ -30,8 +30,8 @@ object NativeLottoExample extends LottoExample[Document]("Native") with native.J
 
 
 /**
- * System under specification for Lotto Examples.
- */
+* System under specification for Lotto Examples.
+*/
 abstract class LottoExample[T](mod: String) extends Specification(mod + " Lotto Examples") with JsonMethods[T] {
   import LottoExample._
 
@@ -52,7 +52,7 @@ object LottoExample extends Specification("Lotto Examples") {
   import JsonDSL._
 
   case class Winner(`winner-id`: Long, numbers: List[Int])
-  case class Lotto(id: Long, `winning-numbers`: List[Int], winners: List[Winner], 
+  case class Lotto(id: Long, `winning-numbers`: List[Int], winners: List[Winner],
                    `draw-date`: Option[java.util.Date])
 
   val winners = List(Winner(23, List(2, 45, 34, 23, 3, 5)), Winner(54, List(52, 3, 12, 11, 18, 22)))

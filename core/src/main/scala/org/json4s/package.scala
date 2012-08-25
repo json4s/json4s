@@ -26,6 +26,8 @@ package object json4s {
   val  JString  = JsonAST.JString
   type JDouble  = JsonAST.JDouble
   val  JDouble  = JsonAST.JDouble
+  type JDecimal = JsonAST.JDecimal
+  val  JDecimal = JsonAST.JDecimal
   type JInt     = JsonAST.JInt
   val  JInt     = JsonAST.JInt
   type JBool    = JsonAST.JBool

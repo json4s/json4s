@@ -1,13 +1,13 @@
 package org.json4s
-package native
+
 
 import org.specs.Specification
-import JsonMethods._
 
 /**
- * System under specification for JSON Formats.
- */
+* System under specification for JSON Formats.
+*/
 object JsonFormatsSpec extends Specification("JsonFormats Specification") with TypeHintExamples {
+  import NativeImports._
   implicit val formats = ShortTypeHintExamples.formats + FullTypeHintExamples.formats.typeHints
 
   val hintsForFish   = ShortTypeHintExamples.formats.typeHints.hintFor(classOf[Fish])

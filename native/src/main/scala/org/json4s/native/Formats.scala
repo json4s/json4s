@@ -15,7 +15,7 @@
  */
 
 package org.json4s
-package native
+
 
 import java.util.{Date, TimeZone}
 
@@ -104,176 +104,174 @@ trait Formats { self: Formats =>
     }
 }
 
+  trait Serializer[A] {
+    def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), A]
+    def serialize(implicit format: Formats): PartialFunction[Any, JValue]
+  }
 
-
-trait Serializer[A] {
-  def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), A]
-  def serialize(implicit format: Formats): PartialFunction[Any, JValue]
-}
-
-/** Type hints can be used to alter the default conversion rules when converting
- * Scala instances into JSON and vice versa. Type hints must be used when converting
- * class which is not supported by default (for instance when class is not a case class).
- * <p>
- * Example:<pre>
- * class DateTime(val time: Long)
- *
- * val hints = new ShortTypeHints(classOf[DateTime] :: Nil) {
- *   override def serialize: PartialFunction[Any, JObject] = {
- *     case t: DateTime => JObject(JField("t", JInt(t.time)) :: Nil)
- *   }
- *
- *   override def deserialize: PartialFunction[(String, JObject), Any] = {
- *     case ("DateTime", JObject(JField("t", JInt(t)) :: Nil)) => new DateTime(t.longValue)
- *   }
- * }
- * implicit val formats = DefaultFormats.withHints(hints)
- * </pre>
- */
-trait TypeHints {
-  import ClassDelta._
-
-  val hints: List[Class[_]]
-
-  /** Return hint for given type.
+  /** Type hints can be used to alter the default conversion rules when converting
+   * Scala instances into JSON and vice versa. Type hints must be used when converting
+   * class which is not supported by default (for instance when class is not a case class).
+   * <p>
+   * Example:<pre>
+   * class DateTime(val time: Long)
+   *
+   * val hints = new ShortTypeHints(classOf[DateTime] :: Nil) {
+   *   override def serialize: PartialFunction[Any, JObject] = {
+   *     case t: DateTime => JObject(JField("t", JInt(t.time)) :: Nil)
+   *   }
+   *
+   *   override def deserialize: PartialFunction[(String, JObject), Any] = {
+   *     case ("DateTime", JObject(JField("t", JInt(t)) :: Nil)) => new DateTime(t.longValue)
+   *   }
+   * }
+   * implicit val formats = DefaultFormats.withHints(hints)
+   * </pre>
    */
-  def hintFor(clazz: Class[_]): String
+  trait TypeHints {
+    import ClassDelta._
 
-  /** Return type for given hint.
-   */
-  def classFor(hint: String): Option[Class[_]]
+    val hints: List[Class[_]]
 
-  def containsHint_?(clazz: Class[_]) = hints exists (_ isAssignableFrom clazz)
-  def deserialize: PartialFunction[(String, JObject), Any] = Map()
-  def serialize: PartialFunction[Any, JObject] = Map()
+    /** Return hint for given type.
+     */
+    def hintFor(clazz: Class[_]): String
 
-  def components: List[TypeHints] = List(this)
+    /** Return type for given hint.
+     */
+    def classFor(hint: String): Option[Class[_]]
 
-  /**
-   * Adds the specified type hints to this type hints.
-   */
-  def + (hints: TypeHints): TypeHints = CompositeTypeHints(hints.components ::: components)
+    def containsHint_?(clazz: Class[_]) = hints exists (_ isAssignableFrom clazz)
+    def deserialize: PartialFunction[(String, JObject), Any] = Map()
+    def serialize: PartialFunction[Any, JObject] = Map()
 
-  private[TypeHints] case class CompositeTypeHints(override val components: List[TypeHints]) extends TypeHints {
-    val hints: List[Class[_]] = components.flatMap(_.hints)
+    def components: List[TypeHints] = List(this)
 
     /**
-     * Chooses most specific class.
+     * Adds the specified type hints to this type hints.
      */
-    def hintFor(clazz: Class[_]): String = components.filter(_.containsHint_?(clazz))
-        .map(th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error("hintFor/classFor not invertible for " + th))))
-        .sort((x, y) => (delta(x._2, clazz) - delta(y._2, clazz)) < 0).head._1
+    def + (hints: TypeHints): TypeHints = CompositeTypeHints(hints.components ::: components)
 
-    def classFor(hint: String): Option[Class[_]] = {
-      def hasClass(h: TypeHints) =
-        scala.util.control.Exception.allCatch opt (h.classFor(hint)) map (_.isDefined) getOrElse(false)
+    private[TypeHints] case class CompositeTypeHints(override val components: List[TypeHints]) extends TypeHints {
+      val hints: List[Class[_]] = components.flatMap(_.hints)
 
-      components find (hasClass) flatMap (_.classFor(hint))
-  }
+      /**
+       * Chooses most specific class.
+       */
+      def hintFor(clazz: Class[_]): String = components.filter(_.containsHint_?(clazz))
+          .map(th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error("hintFor/classFor not invertible for " + th))))
+          .sort((x, y) => (delta(x._2, clazz) - delta(y._2, clazz)) < 0).head._1
 
-    override def deserialize: PartialFunction[(String, JObject), Any] = components.foldLeft[PartialFunction[(String, JObject),Any]](Map()) {
-      (result, cur) => result.orElse(cur.deserialize)
+      def classFor(hint: String): Option[Class[_]] = {
+        def hasClass(h: TypeHints) =
+          scala.util.control.Exception.allCatch opt (h.classFor(hint)) map (_.isDefined) getOrElse(false)
+
+        components find (hasClass) flatMap (_.classFor(hint))
     }
 
-    override def serialize: PartialFunction[Any, JObject] = components.foldLeft[PartialFunction[Any, JObject]](Map()) {
-      (result, cur) => result.orElse(cur.serialize)
-    }
-  }
-}
+      override def deserialize: PartialFunction[(String, JObject), Any] = components.foldLeft[PartialFunction[(String, JObject),Any]](Map()) {
+        (result, cur) => result.orElse(cur.deserialize)
+      }
 
-private[json4s] object ClassDelta {
-  def delta(class1: Class[_], class2: Class[_]): Int = {
-    if (class1 == class2) 0
-    else if (class1.getInterfaces.contains(class2)) 0
-    else if (class2.getInterfaces.contains(class1)) 0
-    else if (class1.isAssignableFrom(class2)) {
-      1 + delta(class1, class2.getSuperclass)
-    }
-    else if (class2.isAssignableFrom(class1)) {
-      1 + delta(class1.getSuperclass, class2)
-    }
-    else sys.error("Don't call delta unless one class is assignable from the other")
-  }
-}
-
-/** Do not use any type hints.
- */
-case object NoTypeHints extends TypeHints {
-  val hints = Nil
-  def hintFor(clazz: Class[_]) = sys.error("NoTypeHints does not provide any type hints.")
-  def classFor(hint: String) = None
-}
-
-/** Use short class name as a type hint.
- */
-case class ShortTypeHints(hints: List[Class[_]]) extends TypeHints {
-  def hintFor(clazz: Class[_]) = clazz.getName.substring(clazz.getName.lastIndexOf(".")+1)
-  def classFor(hint: String) = hints find (hintFor(_) == hint)
-}
-
-/** Use full class name as a type hint.
- */
-case class FullTypeHints(hints: List[Class[_]]) extends TypeHints {
-  def hintFor(clazz: Class[_]) = clazz.getName
-  def classFor(hint: String) = Some(Thread.currentThread.getContextClassLoader.loadClass(hint))
-}
-
-/** Default date format is UTC time.
- */
-object DefaultFormats extends DefaultFormats {
-  val losslessDate = new ThreadLocal(new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"))
-  val UTC = TimeZone.getTimeZone("UTC")
-}
-
-trait DefaultFormats extends Formats {
-  import java.text.{ParseException, SimpleDateFormat}
-
-  val dateFormat = new DateFormat {
-    def parse(s: String) = try {
-      Some(formatter.parse(s))
-    } catch {
-      case e: ParseException => None
-    }
-
-    def format(d: Date) = formatter.format(d)
-
-    private def formatter = {
-      val f = dateFormatter
-      f.setTimeZone(DefaultFormats.UTC)
-      f
+      override def serialize: PartialFunction[Any, JObject] = components.foldLeft[PartialFunction[Any, JObject]](Map()) {
+        (result, cur) => result.orElse(cur.serialize)
+      }
     }
   }
 
-  protected def dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+  private[json4s] object ClassDelta {
+    def delta(class1: Class[_], class2: Class[_]): Int = {
+      if (class1 == class2) 0
+      else if (class1.getInterfaces.contains(class2)) 0
+      else if (class2.getInterfaces.contains(class1)) 0
+      else if (class1.isAssignableFrom(class2)) {
+        1 + delta(class1, class2.getSuperclass)
+      }
+      else if (class2.isAssignableFrom(class1)) {
+        1 + delta(class1.getSuperclass, class2)
+      }
+      else sys.error("Don't call delta unless one class is assignable from the other")
+    }
+  }
 
-  /** Lossless date format includes milliseconds too.
+  /** Do not use any type hints.
    */
-  def lossless = new DefaultFormats {
-    override def dateFormatter = DefaultFormats.losslessDate()
+  case object NoTypeHints extends TypeHints {
+    val hints = Nil
+    def hintFor(clazz: Class[_]) = sys.error("NoTypeHints does not provide any type hints.")
+    def classFor(hint: String) = None
   }
 
-  /** Default formats with given <code>TypeHint</code>s.
+  /** Use short class name as a type hint.
    */
-  def withHints(hints: TypeHints) = new DefaultFormats {
-    override val typeHints = hints
-  }
-}
-
-private[json4s] class ThreadLocal[A](init: => A) extends java.lang.ThreadLocal[A] with (() => A) {
-  override def initialValue = init
-  def apply = get
-}
-
-class CustomSerializer[A: Manifest](
-  ser: Formats => (PartialFunction[JValue, A], PartialFunction[Any, JValue])) extends Serializer[A] {
-
-  val Class = implicitly[Manifest[A]].erasure
-
-  def deserialize(implicit format: Formats) = {
-    case (TypeInfo(Class, _), json) =>
-      if (ser(format)._1.isDefinedAt(json)) ser(format)._1(json)
-      else throw new MappingException("Can't convert " + json + " to " + Class)
+  case class ShortTypeHints(hints: List[Class[_]]) extends TypeHints {
+    def hintFor(clazz: Class[_]) = clazz.getName.substring(clazz.getName.lastIndexOf(".")+1)
+    def classFor(hint: String) = hints find (hintFor(_) == hint)
   }
 
-  def serialize(implicit format: Formats) = ser(format)._2
-}
+  /** Use full class name as a type hint.
+   */
+  case class FullTypeHints(hints: List[Class[_]]) extends TypeHints {
+    def hintFor(clazz: Class[_]) = clazz.getName
+    def classFor(hint: String) = Some(Thread.currentThread.getContextClassLoader.loadClass(hint))
+  }
+
+  /** Default date format is UTC time.
+   */
+  object DefaultFormats extends DefaultFormats {
+    val losslessDate = new ThreadLocal(new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"))
+    val UTC = TimeZone.getTimeZone("UTC")
+  }
+
+  trait DefaultFormats extends Formats {
+    import java.text.{ParseException, SimpleDateFormat}
+
+    val dateFormat = new DateFormat {
+      def parse(s: String) = try {
+        Some(formatter.parse(s))
+      } catch {
+        case e: ParseException => None
+      }
+
+      def format(d: Date) = formatter.format(d)
+
+      private def formatter = {
+        val f = dateFormatter
+        f.setTimeZone(DefaultFormats.UTC)
+        f
+      }
+    }
+
+    protected def dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+
+    /** Lossless date format includes milliseconds too.
+     */
+    def lossless = new DefaultFormats {
+      override def dateFormatter = DefaultFormats.losslessDate()
+    }
+
+    /** Default formats with given <code>TypeHint</code>s.
+     */
+    def withHints(hints: TypeHints) = new DefaultFormats {
+      override val typeHints = hints
+    }
+  }
+
+  private[json4s] class ThreadLocal[A](init: => A) extends java.lang.ThreadLocal[A] with (() => A) {
+    override def initialValue = init
+    def apply = get
+  }
+
+  class CustomSerializer[A: Manifest](
+    ser: Formats => (PartialFunction[JValue, A], PartialFunction[Any, JValue])) extends Serializer[A] {
+
+    val Class = implicitly[Manifest[A]].erasure
+
+    def deserialize(implicit format: Formats) = {
+      case (TypeInfo(Class, _), json) =>
+        if (ser(format)._1.isDefinedAt(json)) ser(format)._1(json)
+        else throw new MappingException("Can't convert " + json + " to " + Class)
+    }
+
+    def serialize(implicit format: Formats) = ser(format)._2
+  }

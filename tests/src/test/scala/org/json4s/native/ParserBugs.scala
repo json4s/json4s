@@ -1,11 +1,11 @@
 package org.json4s
-package native
+
 
 import util.control.Exception._
 import org.specs.Specification
-import JsonMethods._
 
 object ParserBugs extends Specification {
+  import NativeImports._
   "Unicode ffff is a valid char in string literal" in {
     parseOpt(""" {"x":"\uffff"} """).isDefined mustEqual true
   }

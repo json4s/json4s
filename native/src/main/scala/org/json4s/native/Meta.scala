@@ -15,7 +15,6 @@
  */
 
 package org.json4s
-package native
 
 import java.lang.reflect.{Constructor => JConstructor, Field, Type, ParameterizedType, GenericArrayType}
 import java.util.Date

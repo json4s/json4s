@@ -1,25 +1,25 @@
 /*
- * Copyright 2009-2011 WorldWide Conferencing, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright 2009-2011 WorldWide Conferencing, LLC
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package org.json4s
 
 import org.specs.Specification
 import text.Document
 
-object NativeMergeExamples extends MergeExamples[Document]("Native") with native.JsonMethods
+object NativeMergeExamples extends MergeExamples[Document]("Native") with NativeJsonMethods
 abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge Examples") with JsonMethods[T] {
   "Merge example" in {
     (scala1 merge scala2) mustEqual expectedMergeResult
@@ -32,7 +32,7 @@ abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge E
       "tags": ["fp", "oo"],
       "features": {
         "key1":"val1",
-        "key2":"val2" 
+        "key2":"val2"
       }
     }""")
 
@@ -78,7 +78,7 @@ abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge E
 
   val lotto2 = parse("""
     {
-      "lotto":{ 
+      "lotto":{
         "winners":[{
           "winner-id":54,
           "numbers":[52,3,12,11,18,22]

@@ -1,11 +1,9 @@
-package org.json4s.scalaz
+package org.json4s
+package scalaz
 
-import scalaz._
+import _root_.scalaz._
 import Scalaz._
 import JsonScalaz._
-import org.json4s._
-import native._
-import JsonMethods._
 
 import org.specs.Specification
 

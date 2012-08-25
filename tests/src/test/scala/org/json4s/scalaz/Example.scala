@@ -4,8 +4,7 @@ import scalaz._
 import Scalaz._
 import JsonScalaz._
 import org.json4s._
-import native._
-import JsonMethods._
+import NativeImports._
 import org.json4s.native.scalaz.JValueShow._
 
 import org.specs.Specification
@@ -14,7 +13,7 @@ object Example extends Specification {
 
   case class Address(street: String, zipCode: String)
   case class Person(name: String, age: Int, address: Address)
-  
+
   "Parse address in an Applicative style" in {
     val json = parse(""" {"street": "Manhattan 2", "zip": "00223" } """)
     val a1 = field[String]("zip")(json) <*> (field[String]("street")(json) map Address.curried)
@@ -43,15 +42,15 @@ object Example extends Specification {
 
   "Format Person with Address" in {
     implicit def addrJSON: JSONW[Address] = new JSONW[Address] {
-      def write(a: Address) = 
+      def write(a: Address) =
         makeObj(("street" -> toJSON(a.street)) :: ("zip" -> toJSON(a.zipCode)) :: Nil)
     }
 
     val p = Person("joe", 34, Address("Manhattan 2", "00223"))
-    val json = makeObj(("name" -> toJSON(p.name)) :: 
-                       ("age" -> toJSON(p.age)) :: 
+    val json = makeObj(("name" -> toJSON(p.name)) ::
+                       ("age" -> toJSON(p.age)) ::
                        ("address" -> toJSON(p.address)) :: Nil)
-    json.shows mustEqual 
+    json.shows mustEqual
       """{"name":"joe","age":34,"address":{"street":"Manhattan 2","zip":"00223"}}"""
   }
 

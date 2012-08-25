@@ -1,9 +1,7 @@
 package org.json4s
-package native
 
 import org.specs.Specification
 import java.util.UUID
-import JsonMethods._
 
 object SerializationBugs extends Specification {
   import Serialization.{read, write => swrite}

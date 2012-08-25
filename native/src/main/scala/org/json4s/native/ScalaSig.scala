@@ -15,7 +15,6 @@
  */
 
 package org.json4s
-package native
 
 import scala.tools.scalap.scalax.rules.scalasig._
 

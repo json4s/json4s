@@ -6,10 +6,8 @@ import _root_.scalaz.Show
 
 object JValueShow {
 
-  import org.json4s.native.JsonMethods._
-
   implicit def JValueShow[A <: JValue]: Show[A] = new Show[A] {
-    def show(json: A) = compact(render(json)).toList
+    def show(json: A) = NativeJsonMethods.compact(NativeJsonMethods.render(json)).toList
   }
 
 }

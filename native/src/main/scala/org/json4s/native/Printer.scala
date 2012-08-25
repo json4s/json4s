@@ -1,5 +1,4 @@
 package org.json4s
-package native
 
 
 /** Printer converts JSON to String.

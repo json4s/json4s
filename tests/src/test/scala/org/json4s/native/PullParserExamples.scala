@@ -1,12 +1,12 @@
 package org.json4s
-package native
+
 
 import org.specs.Specification
 
 
 /**
- * System under specification for JSON Pull Parser.
- */
+* System under specification for JSON Pull Parser.
+*/
 object PullParserExamples extends Specification("JSON Pull Parser Examples") {
   import JsonParser._
 
@@ -24,7 +24,7 @@ object PullParserExamples extends Specification("JSON Pull Parser Examples") {
       parse
     }
 
-    val postalCode = parse(json, parser)
+    val postalCode = JsonParser.parse(json, parser)
     postalCode mustEqual 10021
   }
 
@@ -44,5 +44,5 @@ object PullParserExamples extends Specification("JSON Pull Parser Examples") {
      ],
      "newSubscription": false,
      "companyName": null
- }"""
+}"""
 }

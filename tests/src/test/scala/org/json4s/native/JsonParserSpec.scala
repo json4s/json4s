@@ -1,15 +1,19 @@
 package org.json4s
-package native
+
 
 import org.specs.{ScalaCheck, Specification}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop._
-import JsonMethods._
+
 
 /**
 * System under specification for JSON Parser.
 */
 object JsonParserSpec extends Specification("JSON Parser Specification") with JValueGen with ScalaCheck {
+  import scala.text.Document
+  import JsonParser._
+  import NativeImports.render
+
   "Any valid json can be parsed" in {
     val parsing = (json: JValue) => { parse(Printer.pretty(render(json))); true }
     forAll(parsing) must pass
@@ -40,6 +44,10 @@ object JsonParserSpec extends Specification("JSON Parser Specification") with JV
     parseOpt("{\"foo\":\"sd}") mustEqual None
   }
 
+  "parses doubles as bigdecimal" in {
+    JsonParser.parse("[1.234]", useBigDecimalForDouble = true) must_== JArray(JDecimal(BigDecimal("1.234"))::Nil)
+  }
+
   "The EOF has reached when the Reader returns EOF" in {
     class StingyReader(s: String) extends java.io.StringReader(s) {
       override def read(cbuf: Array[Char], off: Int, len: Int): Int = {
@@ -63,7 +71,7 @@ object JsonParserSpec extends Specification("JSON Parser Specification") with JV
     try {
       JsonParser.Segments.segmentSize = bufSize
       JsonParser.Segments.clear
-      JsonParser.parse(compact(render(json)))
+      JsonParser.parse(NativeImports.compact(NativeImports.render(json)))
     } finally {
       JsonParser.Segments.segmentSize = existingSize
     }

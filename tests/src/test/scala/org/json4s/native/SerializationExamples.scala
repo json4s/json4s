@@ -1,5 +1,5 @@
 package org.json4s
-package native
+
 
 import java.util.Date
 import org.specs.Specification

@@ -1,28 +1,27 @@
 /*
- * Copyright 2009-2011 WorldWide Conferencing, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright 2009-2011 WorldWide Conferencing, LLC
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package org.json4s
 
 import org.specs.Specification
 import text.Document
 
-object NativeExamples extends Examples[Document]("Native") with native.JsonMethods
+object NativeExamples extends Examples[Document]("Native") with NativeJsonMethods
 
 object Examples {
-  import JsonAST.concat
   import JsonDSL._
 
   val lotto = """
@@ -116,7 +115,7 @@ abstract class Examples[T](mod: String) extends Specification(mod + " Examples")
   "Transformation example" in {
     val uppercased = parse(person).transform { case JField(n, v) => JField(n.toUpperCase, v) }
     val rendered = compact(render(uppercased))
-    rendered mustEqual 
+    rendered mustEqual
       """{"PERSON":{"NAME":"Joe","AGE":35,"SPOUSE":{"PERSON":{"NAME":"Marilyn","AGE":33}}}}"""
   }
 
@@ -203,7 +202,7 @@ abstract class Examples[T](mod: String) extends Specification(mod + " Examples")
   }
 
   "Generate JSON with DSL example" in {
-    val json: JValue = 
+    val json: JValue =
       ("id" -> 5) ~
       ("tags" -> Map("a" -> 5, "b" -> 7))
     compact(render(json)) mustEqual """{"id":5,"tags":{"a":5,"b":7}}"""

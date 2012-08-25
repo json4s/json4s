@@ -1,35 +1,35 @@
 /*
- * Copyright 2009-2011 WorldWide Conferencing, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright 2009-2011 WorldWide Conferencing, LLC
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package org.json4s
 
 import org.specs.Specification
 import text.Document
 
-object NativeXmlExamples extends XmlExamples[Document]("Native") with native.JsonMethods
+object NativeXmlExamples extends XmlExamples[Document]("Native") with NativeJsonMethods
 /**
- * System under specification for Xml Examples.
- */
+* System under specification for Xml Examples.
+*/
 abstract class XmlExamples[T](mod: String) extends Specification(mod+" XML Examples") with JsonMethods[T]{
   import JsonDSL._
   import Xml._
   import scala.xml.{Group, Text}
 
   "Basic conversion example" in {
-    val json = toJson(users1) 
+    val json = toJson(users1)
     compact(render(json)) mustEqual """{"users":{"count":"2","user":[{"disabled":"true","id":"1","name":"Harry"},{"id":"2","name":"David","nickname":"Dave"}]}}"""
   }
 
@@ -130,7 +130,7 @@ abstract class XmlExamples[T](mod: String) extends Specification(mod+" XML Examp
         <id>2</id>
         <name nickname="Dave">David</name>
       </user>
-    </users>   
+    </users>
 
   val users2 =
     <users>
@@ -159,20 +159,20 @@ abstract class XmlExamples[T](mod: String) extends Specification(mod+" XML Examp
     case JField(n, x: JObject) if n == attrName => JField(fieldName, x)
   }
 
-  "Example with multiple attributes, multiple nested elements " in  {  
+  "Example with multiple attributes, multiple nested elements " in  {
     val a1 = attrToObject("stats", "count", s => JInt(s.s.toInt)) _
     val a2 = attrToObject("messages", "href", identity) _
     val json = a1(a2(toJson(messageXml1)))
     (json diff parse(expected1)) mustEqual Diff(JNothing, JNothing, JNothing)
   }
 
-  "Example with one attribute, one nested element " in { 
+  "Example with one attribute, one nested element " in {
     val a = attrToObject("stats", "count", s => JInt(s.s.toInt)) _
     compact(render(a(toJson(messageXml2)))) mustEqual expected2
     compact(render(a(toJson(messageXml3)))) mustEqual expected2
   }
 
-  val messageXml1 = 
+  val messageXml1 =
     <message expiry_date="20091126" text="text" word="ant" self="me">
       <stats count="0"></stats>
       <messages href="https://domain.com/message/ant"></messages>
@@ -180,7 +180,7 @@ abstract class XmlExamples[T](mod: String) extends Specification(mod+" XML Examp
 
   val expected1 = """{"message":{"expiry_date":"20091126","word":"ant","text":"text","self":"me","stats":{"count":0},"messages":{"href":"https://domain.com/message/ant"}}}"""
 
-  val messageXml2 = 
+  val messageXml2 =
     <message expiry_date="20091126">
       <stats count="0"></stats>
     </message>
