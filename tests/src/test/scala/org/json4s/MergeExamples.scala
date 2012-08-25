@@ -17,11 +17,10 @@
 package org.json4s
 
 import org.specs.Specification
-import native._
+import text.Document
 
-
-
-object MergeExamples extends Specification("Merge Examples") {
+object NativeMergeExamples extends MergeExamples[Document]("Native") with native.JsonMethods
+abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge Examples") with JsonMethods[T] {
   "Merge example" in {
     (scala1 merge scala2) mustEqual expectedMergeResult
   }

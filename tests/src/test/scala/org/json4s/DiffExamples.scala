@@ -17,20 +17,24 @@
 package org.json4s
 
 import org.specs.Specification
-import native._
+import text.Document
+
+object NativeDiffExamples extends DiffExamples[Document]("Native") with native.JsonMethods
 
 /**
  * System under specification for Diff Examples.
  */
-object DiffExamples extends Specification("Diff Examples") {
-  import MergeExamples.{scala1, scala2, lotto1, lotto2, mergedLottoResult}
+abstract class DiffExamples[T](mod: String) extends Specification(mod + " Diff Examples") with JsonMethods[T]  {
+
+  import NativeMergeExamples.{scala1, scala2, lotto1, lotto2, mergedLottoResult}
 
   "Diff example" in {
-    val Diff(changed, added, deleted) = scala1 diff scala2
-    changed mustEqual expectedChanges
-    added mustEqual expectedAdditions
-    deleted mustEqual expectedDeletions
-  }
+      val Diff(changed, added, deleted) = scala1 diff scala2
+      changed mustEqual expectedChanges
+      added mustEqual expectedAdditions
+      deleted mustEqual expectedDeletions
+    }
+
 
   val expectedChanges = parse("""
     {

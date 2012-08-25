@@ -19,13 +19,17 @@ package org.json4s
 import org.specs.{ScalaCheck, Specification}
 import org.scalacheck.Arbitrary
 import org.scalacheck.Prop.forAll
-import native._
+import text.Document
 
+//import native._
+//import JsonMethods._
+
+object NativeJsonXmlSpec extends JsonXmlSpec[Document]("Native") with native.JsonMethods
 
 /**
  * System under specification for JSON XML.
  */
-object JsonXmlSpec extends Specification("JSON XML Specification") with NodeGen with JValueGen with ScalaCheck {
+abstract class JsonXmlSpec[T](mod: String) extends Specification(mod+" JSON XML Specification") with NodeGen with JValueGen with ScalaCheck with JsonMethods[T] {
   import Xml._
   import scala.xml.Node
 

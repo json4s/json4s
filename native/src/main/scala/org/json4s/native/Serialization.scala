@@ -31,6 +31,7 @@ import scala.reflect.Manifest
  */
 object Serialization {
   import java.io.{Reader, StringWriter, Writer}
+  import JsonMethods._
 
   /** Serialize to String.
    */

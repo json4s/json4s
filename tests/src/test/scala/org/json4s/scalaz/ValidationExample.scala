@@ -5,6 +5,7 @@ import Scalaz._
 import JsonScalaz._
 import org.json4s._
 import native._
+import JsonMethods._
 
 import org.specs.Specification
 

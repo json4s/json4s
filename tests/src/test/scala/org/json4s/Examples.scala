@@ -17,12 +17,86 @@
 package org.json4s
 
 import org.specs.Specification
+import text.Document
 
+object NativeExamples extends Examples[Document]("Native") with native.JsonMethods
 
-object Examples extends Specification {
-  import native._
+object Examples {
   import JsonAST.concat
   import JsonDSL._
+
+  val lotto = """
+{
+  "lotto":{
+    "lotto-id":5,
+    "winning-numbers":[2,45,34,23,7,5,3],
+    "winners":[ {
+      "winner-id":23,
+      "numbers":[2,45,34,23,3, 5]
+    },{
+      "winner-id" : 54 ,
+      "numbers":[ 52,3, 12,11,18,22 ]
+    }]
+  }
+}
+"""
+
+  val person = """
+{
+  "person": {
+    "name": "Joe",
+    "age": 35,
+    "spouse": {
+      "person": {
+        "name": "Marilyn",
+        "age": 33
+      }
+    }
+  }
+}
+"""
+
+  val personDSL =
+    ("person" ->
+      ("name" -> "Joe") ~
+      ("age" -> 35) ~
+      ("spouse" ->
+        ("person" ->
+          ("name" -> "Marilyn") ~
+          ("age" -> 33)
+        )
+      )
+    )
+
+  val objArray =
+"""
+{ "name": "joe",
+  "address": {
+    "street": "Bulevard",
+    "city": "Helsinki"
+  },
+  "children": [
+    {
+      "name": "Mary",
+      "age": 5
+    },
+    {
+      "name": "Mazy",
+      "age": 3
+    }
+  ]
+}
+"""
+
+  val nulls = ("f1" -> null) ~ ("f2" -> List(null, "s"))
+  val quoted = """["foo \" \n \t \r bar"]"""
+  val symbols = ("f1" -> 'foo) ~ ("f2" -> 'bar)
+}
+abstract class Examples[T](mod: String) extends Specification(mod + " Examples") with JsonMethods[T] {
+
+  import JsonAST.concat
+  import JsonDSL._
+  import Examples._
 
   "Lotto example" in {
     val json = parse(lotto)
@@ -32,7 +106,7 @@ object Examples extends Specification {
 
   "Person example" in {
     val json = parse(person)
-    val renderedPerson = Printer.pretty(render(json))
+    val renderedPerson = pretty(render(json))
     json mustEqual parse(renderedPerson)
     render(json) mustEqual render(personDSL)
     compact(render(json \\ "name")) mustEqual """{"name":"Joe","name":"Marilyn"}"""
@@ -135,70 +209,4 @@ object Examples extends Specification {
     compact(render(json)) mustEqual """{"id":5,"tags":{"a":5,"b":7}}"""
   }
 
-  val lotto = """
-{
-  "lotto":{
-    "lotto-id":5,
-    "winning-numbers":[2,45,34,23,7,5,3],
-    "winners":[ {
-      "winner-id":23,
-      "numbers":[2,45,34,23,3, 5]
-    },{
-      "winner-id" : 54 ,
-      "numbers":[ 52,3, 12,11,18,22 ]
-    }]
-  }
-}
-"""
-
-  val person = """
-{ 
-  "person": {
-    "name": "Joe",
-    "age": 35,
-    "spouse": {
-      "person": {
-        "name": "Marilyn",
-        "age": 33
-      }
-    }
-  }
-}
-"""
-
-  val personDSL = 
-    ("person" ->
-      ("name" -> "Joe") ~
-      ("age" -> 35) ~
-      ("spouse" -> 
-        ("person" -> 
-          ("name" -> "Marilyn") ~
-          ("age" -> 33)
-        )
-      )
-    )
-
-  val objArray = 
-"""
-{ "name": "joe",
-  "address": {
-    "street": "Bulevard",
-    "city": "Helsinki"
-  },
-  "children": [
-    {
-      "name": "Mary",
-      "age": 5
-    },
-    {
-      "name": "Mazy",
-      "age": 3
-    }
-  ]
-}
-"""
-
-  val nulls = ("f1" -> null) ~ ("f2" -> List(null, "s"))
-  val quoted = """["foo \" \n \t \r bar"]"""
-  val symbols = ("f1" -> 'foo) ~ ("f2" -> 'bar)
 }

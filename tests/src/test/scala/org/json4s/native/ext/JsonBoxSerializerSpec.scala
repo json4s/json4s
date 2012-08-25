@@ -21,6 +21,7 @@ import org.specs.Specification
 
 import net.liftweb.common._
 import native._
+import JsonMethods._
 import ext.JsonBoxSerializer
 import Serialization.{read, write => swrite}
 

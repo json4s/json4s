@@ -17,13 +17,13 @@
 package org.json4s
 
 import org.specs.Specification
-import native._
+import text.Document
 
-
+object NativeXmlExamples extends XmlExamples[Document]("Native") with native.JsonMethods
 /**
  * System under specification for Xml Examples.
  */
-object XmlExamples extends Specification("XML Examples") {
+abstract class XmlExamples[T](mod: String) extends Specification(mod+" XML Examples") with JsonMethods[T]{
   import JsonDSL._
   import Xml._
   import scala.xml.{Group, Text}

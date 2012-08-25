@@ -19,6 +19,7 @@ package org.json4s
 import java.util.Date
 import org.specs.Specification
 import native._
+import JsonMethods._
 
 object ExtractionExamples extends Specification("Extraction Examples Specification") {
 

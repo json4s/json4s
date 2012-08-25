@@ -21,6 +21,7 @@ import org.joda.time._
 
 import org.specs.Specification
 import native._
+import JsonMethods._
 import ext.JodaTimeSerializers
 import Serialization.{read, write => swrite}
 

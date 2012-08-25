@@ -17,10 +17,10 @@
 package org.json4s
 
 import org.specs.Specification
-import native._
+import text.Document
 
-
-object XmlBugs extends Specification {
+object NativeXmlBugs extends XmlBugs[Document]("Native") with native.JsonMethods
+abstract class XmlBugs[T](mod: String) extends Specification(mod+" XML Bugs") with JsonMethods[T]{
   import Xml._
   import scala.xml.{Group, Text}
 
@@ -32,7 +32,7 @@ object XmlBugs extends Specification {
 
   "HarryH's XML with attributes parses correctly" in {
     val json = toJson(<tips><group type="Nearby"><tip><id>10</id></tip></group></tips>)
-    Printer.compact(render(json)) mustEqual """{"tips":{"group":{"type":"Nearby","tip":{"id":"10"}}}}"""
+    compact(render(json)) mustEqual """{"tips":{"group":{"type":"Nearby","tip":{"id":"10"}}}}"""
   }
 
   "Jono's XML with attributes parses correctly" in {
@@ -53,13 +53,13 @@ object XmlBugs extends Specification {
         <n id="11" x="bcd" />
       </root>
     val expected = """{"root":{"n":[{"x":"abc","id":"10"},{"x":"bcd","id":"11"}]}}"""
-    Printer.compact(render(toJson(xml))) mustEqual expected
+    compact(render(toJson(xml))) mustEqual expected
   }
 
   "XML with empty node is converted correctly to JSON" in {
     val xml =
       <tips><group type="Foo"></group><group type="Bar"><tip><text>xxx</text></tip><tip><text>yyy</text></tip></group></tips> 
     val expected = """{"tips":{"group":[{"type":"Foo"},{"type":"Bar","tip":[{"text":"xxx"},{"text":"yyy"}]}]}}"""
-    Printer.compact(render(toJson(xml))) mustEqual expected
+    compact(render(toJson(xml))) mustEqual expected
   }
 }
