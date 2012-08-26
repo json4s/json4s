@@ -25,6 +25,7 @@ import text.Document
 //import JsonMethods._
 
 object NativeJsonXmlSpec extends JsonXmlSpec[Document]("Native") with NativeJsonMethods
+object JacksonXmlSpec extends JsonXmlSpec[JValue]("Jackson") with jackson.JacksonJsonMethods
 
 /**
 * System under specification for JSON XML.

@@ -20,12 +20,13 @@ import org.specs.Specification
 import text.Document
 
 object NativeMergeExamples extends MergeExamples[Document]("Native") with NativeJsonMethods
+//object JacksonMergeExamples extends MergeExamples[JValue]("Jackson") with jackson.JacksonJsonMethods
 abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge Examples") with JsonMethods[T] {
   "Merge example" in {
     (scala1 merge scala2) mustEqual expectedMergeResult
   }
 
-  val scala1 = parse("""
+  lazy val scala1 = parse("""
     {
       "lang": "scala",
       "year": 2006,
@@ -36,7 +37,7 @@ abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge E
       }
     }""")
 
-  val scala2 = parse("""
+  lazy val scala2 = parse("""
     {
       "tags": ["static-typing","fp"],
       "compiled": true,
@@ -47,7 +48,7 @@ abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge E
       }
     }""")
 
-  val expectedMergeResult = parse("""
+  lazy val expectedMergeResult = parse("""
     {
       "lang": "scala",
       "year": 2006,
@@ -64,7 +65,7 @@ abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge E
     (lotto1 merge lotto2) mustEqual mergedLottoResult
   }
 
-  val lotto1 = parse("""
+  lazy val lotto1 = parse("""
     {
       "lotto":{
         "lotto-id":5,
@@ -76,7 +77,7 @@ abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge E
       }
     }""")
 
-  val lotto2 = parse("""
+  lazy val lotto2 = parse("""
     {
       "lotto":{
         "winners":[{
@@ -86,7 +87,7 @@ abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge E
       }
     }""")
 
-  val mergedLottoResult = parse("""
+  lazy val mergedLottoResult = parse("""
     {
       "lotto":{
         "lotto-id":5,

@@ -16,10 +16,13 @@
 
 package org.json4s
 
+import jackson.JacksonJsonMethods
 import org.specs.Specification
 import text.Document
 
 object NativeJsonQueryExamples extends JsonQueryExamples[Document]("Native") with NativeJsonMethods
+//object JacksonJsonQueryExamples extends JsonQueryExamples[JValue]("Jackson") with JacksonJsonMethods
+
 /**
 * System under specification for JSON Query Examples.
 */
@@ -70,7 +73,7 @@ abstract class JsonQueryExamples[T](mod: String) extends Specification(mod+" JSO
     clusters mustEqual List("cluster2")
   }
 
-  val json = parse("""
+  lazy val json = parse("""
     { "data_center": [
       {
         "name": "cluster1",

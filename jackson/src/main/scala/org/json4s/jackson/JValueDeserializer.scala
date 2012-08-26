@@ -24,7 +24,15 @@ class JValueDeserializer(factory: TypeFactory, klass: Class[_]) extends JsonDese
       case JsonToken.VALUE_TRUE => JBool(true)
       case JsonToken.VALUE_FALSE => JBool(false)
       case JsonToken.START_ARRAY => {
-        JArray(jp.getCodec.readValue(jp, Types.build(factory, manifest[List[JValue]])))
+        val values = new ArrayBuffer[JValue]()
+        while(jp.getCurrentToken != JsonToken.END_ARRAY) {
+          val name = jp.getCurrentName
+          jp.nextToken()
+          if (jp.getCurrentToken != JsonToken.END_ARRAY) {
+            values += jp.getCodec.readValue(jp, Types.build(factory, manifest[JValue]))
+          }
+        }
+        JArray(values.toList)
       }
       case JsonToken.START_OBJECT => {
         jp.nextToken()

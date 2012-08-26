@@ -28,30 +28,33 @@ object NativeLottoExample extends LottoExample[Document]("Native") with NativeJs
 
   def extractLotto(jv: _root_.org.json4s.JValue): Lotto = jv.extract[Lotto]
 }
-//object JacksonLottoExample extends LottoExample[Document]("Jackson") with JacksonJsonMethods {
+//object JacksonLottoExample extends LottoExample[JValue]("Jackson") with JacksonJsonMethods {
 //  import LottoExample._
-//  def extractWinner(jv: _root_.org.json4s.JValue): Winner = mapper.readValue(j)
+//  def extractWinner(jv: _root_.org.json4s.JValue): Winner = mapper.readValue(compact(jv), classOf[Winner])
 //
-//  def extractLotto(jv: _root_.org.json4s.JValue): Lotto = jv.extract[Lotto]
+//  def extractLotto(jv: _root_.org.json4s.JValue): Lotto = mapper.readValue(compact(jv), classOf[Lotto])
 //}
 
 abstract class LottoExample[T](mod: String) extends Specification(mod + " Lotto Examples") with JsonMethods[T] {
   import LottoExample._
 
-  compact(render(json)) mustEqual """{"lotto":{"id":5,"winning-numbers":[2,45,34,23,7,5,3],"winners":[{"winner-id":23,"numbers":[2,45,34,23,3,5]},{"winner-id":54,"numbers":[52,3,12,11,18,22]}]}}"""
+  "The Lotto Examples" should {
+    "pass" in {
+      compact(render(json)) mustEqual """{"lotto":{"id":5,"winning-numbers":[2,45,34,23,7,5,3],"winners":[{"winner-id":23,"numbers":[2,45,34,23,3,5]},{"winner-id":54,"numbers":[52,3,12,11,18,22]}]}}"""
 
-  extractWinner((json \ "lotto" \ "winners")(0)) mustEqual Winner(23, List(2, 45, 34, 23, 3, 5))
+      extractWinner((json \ "lotto" \ "winners")(0)) mustEqual Winner(23, List(2, 45, 34, 23, 3, 5))
 
-  extractLotto(json \ "lotto") mustEqual lotto
+      extractLotto(json \ "lotto") mustEqual lotto
 
-  json.values mustEqual Map("lotto" -> Map("id" -> 5, "winning-numbers" -> List(2, 45, 34, 23, 7, 5, 3), "draw-date" -> None, "winners" -> List(Map("winner-id" -> 23, "numbers" -> List(2, 45, 34, 23, 3, 5)), Map("winner-id" -> 54, "numbers" -> List(52, 3, 12, 11, 18, 22)))))
-
+      json.values mustEqual Map("lotto" -> Map("id" -> 5, "winning-numbers" -> List(2, 45, 34, 23, 7, 5, 3), "draw-date" -> None, "winners" -> List(Map("winner-id" -> 23, "numbers" -> List(2, 45, 34, 23, 3, 5)), Map("winner-id" -> 54, "numbers" -> List(52, 3, 12, 11, 18, 22)))))
+    }
+  }
 
   def extractWinner(jv: JValue): Winner
   def extractLotto(jv: JValue): Lotto
 
 }
-object LottoExample extends Specification("Lotto Examples") {
+object LottoExample {
   import JsonDSL._
 
   case class Winner(`winner-id`: Long, numbers: List[Int])

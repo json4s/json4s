@@ -21,7 +21,7 @@ import org.specs.Specification
 import text.Document
 
 object NativeExamples extends Examples[Document]("Native") with NativeJsonMethods
-//object JacksonExamples extends Examples[JValue]("Jackson") with JacksonJsonMethods
+object JacksonExamples extends Examples[JValue]("Jackson") with JacksonJsonMethods
 
 object Examples {
   import JsonDSL._
@@ -93,6 +93,7 @@ object Examples {
   val quoted = """["foo \" \n \t \r bar"]"""
   val symbols = ("f1" -> 'foo) ~ ("f2" -> 'bar)
 }
+
 abstract class Examples[T](mod: String) extends Specification(mod + " Examples") with JsonMethods[T] {
 
   import JsonAST.concat
@@ -184,7 +185,7 @@ abstract class Examples[T](mod: String) extends Specification(mod + " Examples")
   }
 
   "JSON building example" in {
-    val json = JObject(("name", JString("joe")), ("age", JInt(34))) ++ JObject(("name", ("mazy")), ("age", JInt(31)))
+    val json = JObject(("name", JString("joe")), ("age", JInt(34))) ++ JObject(("name", JString("mazy")), ("age", JInt(31)))
     compact(render(json)) mustEqual """[{"name":"joe","age":34},{"name":"mazy","age":31}]"""
   }
 

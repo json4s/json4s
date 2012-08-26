@@ -11,8 +11,7 @@ trait JValueModule extends JacksonModule {
 }
 
 class Json4sScalaModule
-            extends JacksonModule
-            with JValueModule
+            extends JValueModule
             with EnumerationModule
             with OptionModule
             with SeqModule
@@ -22,4 +21,5 @@ class Json4sScalaModule
             with CaseClassModule
             with SetModule
             with UntypedObjectDeserializerModule
+
 object Json4sScalaModule extends Json4sScalaModule

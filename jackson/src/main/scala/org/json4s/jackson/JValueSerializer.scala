@@ -15,13 +15,11 @@ class JValueSerializer extends JsonSerializer[JValue]{
       case JString(v) => json.writeString(v)
       case JBool(v) => json.writeBoolean(v)
       case JArray(elements) => json.writeObject(elements)
-      case JField(name, value) => {
-        json.writeFieldName(name)
-        json.writeObject(value)
-      }
       case JObject(fields) => {
         json.writeStartObject()
-        fields.foreach(json.writeObject)
+        fields filterNot (_._2 == JNothing) foreach {
+          case (n, v) => json.writeObjectField(n, v)
+        }
         json.writeEndObject()
       }
       case JNull => json.writeNull()
