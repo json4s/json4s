@@ -16,12 +16,11 @@
 
 package org.json4s
 
-import jackson.JacksonJsonMethods
 import org.specs.Specification
 import text.Document
 
 object NativeJsonQueryExamples extends JsonQueryExamples[Document]("Native") with NativeJsonMethods
-//object JacksonJsonQueryExamples extends JsonQueryExamples[JValue]("Jackson") with JacksonJsonMethods
+object JacksonJsonQueryExamples extends JsonQueryExamples[JValue]("Jackson") with jackson.JacksonJsonMethods
 
 /**
 * System under specification for JSON Query Examples.
@@ -92,7 +91,7 @@ abstract class JsonQueryExamples[T](mod: String) extends Specification(mod+" JSO
         "name": "cluster2",
         "servers": [
           {"ip": "192.168.2.125", "uptime": 453423, "specs": {"cpus":  4, "ram": 2048}},
-          {"ip": "192.168.2.126", "uptime": 214312, "specs": {"cpus":  4, "ram": 2048}},
+          {"ip": "192.168.2.126", "uptime": 214312, "specs": {"cpus":  4, "ram": 2048}}
         ],
         "links": [
           {"href": "http://www.example2.com/admin", "name": "admin"},

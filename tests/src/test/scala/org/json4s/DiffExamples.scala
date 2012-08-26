@@ -21,7 +21,7 @@ import org.specs.Specification
 import text.Document
 
 object NativeDiffExamples extends DiffExamples[Document]("Native") with NativeJsonMethods
-//object JacksonDiffExamples extends DiffExamples[JValue]("Jackson") with JacksonJsonMethods
+object JacksonDiffExamples extends DiffExamples[JValue]("Jackson") with JacksonJsonMethods
 
 abstract class DiffExamples[T](mod: String) extends Specification(mod + " Diff Examples") with JsonMethods[T]  {
 
@@ -35,7 +35,7 @@ abstract class DiffExamples[T](mod: String) extends Specification(mod + " Diff E
     }
 
 
-  val expectedChanges = parse("""
+  lazy val expectedChanges = parse("""
     {
       "tags": ["static-typing","fp"],
       "features": {
@@ -43,7 +43,7 @@ abstract class DiffExamples[T](mod: String) extends Specification(mod + " Diff E
       }
     }""")
 
-  val expectedAdditions = parse("""
+  lazy val expectedAdditions = parse("""
     {
       "features": {
         "key3":"val3"
@@ -51,7 +51,7 @@ abstract class DiffExamples[T](mod: String) extends Specification(mod + " Diff E
       "compiled": true
     }""")
 
-  val expectedDeletions = parse("""
+  lazy val expectedDeletions = parse("""
     {
       "year":2006,
       "features":{ "key1":"val1" }

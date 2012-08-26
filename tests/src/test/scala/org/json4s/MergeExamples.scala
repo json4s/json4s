@@ -20,7 +20,7 @@ import org.specs.Specification
 import text.Document
 
 object NativeMergeExamples extends MergeExamples[Document]("Native") with NativeJsonMethods
-//object JacksonMergeExamples extends MergeExamples[JValue]("Jackson") with jackson.JacksonJsonMethods
+object JacksonMergeExamples extends MergeExamples[JValue]("Jackson") with jackson.JacksonJsonMethods
 abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge Examples") with JsonMethods[T] {
   "Merge example" in {
     (scala1 merge scala2) mustEqual expectedMergeResult
@@ -58,7 +58,7 @@ abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge E
         "key2":"newval2",
         "key3":"val3"
       },
-      "compiled": true,
+      "compiled": true
     }""")
 
   "Lotto example" in {
@@ -69,7 +69,7 @@ abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge E
     {
       "lotto":{
         "lotto-id":5,
-        "winning-numbers":[2,45,34,23,7,5,3]
+        "winning-numbers":[2,45,34,23,7,5,3],
         "winners":[{
           "winner-id":23,
           "numbers":[2,45,34,23,3,5]
