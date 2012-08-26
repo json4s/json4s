@@ -64,7 +64,7 @@ object Extraction {
    */
   def decompose(a: Any)(implicit formats: Formats): JValue = {
     def prependTypeHint(clazz: Class[_], o: JObject) =
-      JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) ++ o
+      JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
 
     def mkObject(clazz: Class[_], fields: List[JField]) = formats.typeHints.containsHint_?(clazz) match {
       case true  => prependTypeHint(clazz, JObject(fields))
@@ -102,7 +102,7 @@ object Extraction {
                       .getOrElse(JField(n, JNothing))
                 }
               } getOrElse Nil
-              val uniqueFields = fields filterNot (f => args.find(_.name == f.name).isDefined)
+              val uniqueFields = fields filterNot (f => args.find(_._1 == f._1).isDefined)
               mkObject(x.getClass, uniqueFields ++ args)
           }
       }
@@ -123,7 +123,9 @@ object Extraction {
         case JInt(num)           => Map(path -> num.toString)
         case JBool(value)        => Map(path -> value.toString)
         case JField(name, value) => flatten0(path + escapePath(name), value)
-        case JObject(obj)        => obj.foldLeft(Map[String, String]()) { (map, field) => map ++ flatten0(path + ".", field) }
+        case JObject(obj)        => obj.foldLeft(Map[String, String]()) { case (map, (name, value)) =>
+          map ++ flatten0(path + "." + escapePath(name), value)
+        }
         case JArray(arr)         => arr.length match {
           case 0 => Map(path -> "[]")
           case _ => arr.foldLeft((Map[String, String](), 0)) {
@@ -213,8 +215,7 @@ object Extraction {
         if (constructor.choices.size == 1) constructor.choices.head // optimized common case
         else {
           val argNames = json match {
-            case JObject(fs) => fs.map(_.name)
-            case JField(name, _) => List(name)
+            case JObject(fs) => fs.map(_._1)
             case x => Nil
           }
           constructor.bestMatching(argNames)
@@ -272,7 +273,7 @@ object Extraction {
       }
 
       def mkWithTypeHint(typeHint: String, fields: List[JField], typeInfo: TypeInfo) = {
-        val obj = JObject(fields filterNot (_.name == formats.typeHintFieldName))
+        val obj = JObject(fields filterNot (_._1 == formats.typeHintFieldName))
         val deserializer = formats.typeHints.deserialize
         if (!deserializer.isDefinedAt(typeHint, obj)) {
           val concreteClass = formats.typeHints.classFor(typeHint) getOrElse fail("Do not know how to deserialize '" + typeHint + "'")
@@ -287,7 +288,6 @@ object Extraction {
       else json match {
         case JNull => null
         case JObject(TypeHint(t, fs)) => mkWithTypeHint(t, fs, constructor.targetType)
-        case JField(_, JObject(TypeHint(t, fs))) => mkWithTypeHint(t, fs, constructor.targetType)
         case _ => instantiate
       }
     }
@@ -296,9 +296,9 @@ object Extraction {
       def unapply(fs: List[JField]): Option[(String, List[JField])] =
         if (formats.typeHints == NoTypeHints) None
         else {
-          val grouped = fs groupBy (_.name == formats.typeHintFieldName)
+          val grouped = fs groupBy (_._1 == formats.typeHintFieldName)
           if (grouped.isDefinedAt(true))
-            Some((grouped(true).head.value.values.toString, grouped.get(false).getOrElse(Nil)))
+            Some((grouped(true).head._2.values.toString, grouped.get(false).getOrElse(Nil)))
           else None
         }
     }
@@ -319,7 +319,7 @@ object Extraction {
       case Value(targetType) => convert(root, targetType, formats)
       case c: Constructor => newInstance(c, root)
       case Cycle(targetType) => build(root, mappingOf(targetType))
-      case Arg(path, m, optional) => mkValue(fieldValue(root), m, path, optional)
+      case Arg(path, m, optional) => mkValue(root, m, path, optional)
       case Col(targetType, m) =>
         val custom = formats.customDeserializer(formats)
         val c = targetType.clazz
@@ -330,7 +330,7 @@ object Extraction {
         else if (classOf[Seq[_]].isAssignableFrom(c)) newCollection(root, m, a => List(a: _*))
         else fail("Expected collection but got " + m + " for class " + c)
       case Dict(m) => root match {
-        case JObject(xs) => Map(xs.map(x => (x.name, build(x.value, m))): _*)
+        case JObject(xs) => Map(xs.map(x => (x._1, build(x._2, m))): _*)
         case x => fail("Expected object but got " + x)
       }
     }
@@ -362,11 +362,6 @@ object Extraction {
             if (optional) None else fail("No usable value for " + path + "\n" + msg, e)
         }
       }
-
-    def fieldValue(json: JValue): JValue = json match {
-      case JField(_, value) => value
-      case x => x
-    }
 
     build(json, mapping)
   }
@@ -416,7 +411,6 @@ object Extraction {
     case j: JArray if (targetType == classOf[JArray]) => j
     case JNull => null
     case JNothing => fail("Did not find value which can be converted into " + targetType.getName)
-    case JField(_, x) => convert(x, targetType, formats)
     case _ =>
       val custom = formats.customDeserializer(formats)
       val typeInfo = TypeInfo(targetType, None)

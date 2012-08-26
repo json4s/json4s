@@ -16,6 +16,7 @@
 
 package org.json4s
 
+import jackson.JacksonJsonMethods
 import org.specs.Specification
 import text.Document
 
@@ -27,11 +28,13 @@ object NativeLottoExample extends LottoExample[Document]("Native") with NativeJs
 
   def extractLotto(jv: _root_.org.json4s.JValue): Lotto = jv.extract[Lotto]
 }
+//object JacksonLottoExample extends LottoExample[Document]("Jackson") with JacksonJsonMethods {
+//  import LottoExample._
+//  def extractWinner(jv: _root_.org.json4s.JValue): Winner = mapper.readValue(j)
+//
+//  def extractLotto(jv: _root_.org.json4s.JValue): Lotto = jv.extract[Lotto]
+//}
 
-
-/**
-* System under specification for Lotto Examples.
-*/
 abstract class LottoExample[T](mod: String) extends Specification(mod + " Lotto Examples") with JsonMethods[T] {
   import LottoExample._
 

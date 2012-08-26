@@ -21,10 +21,6 @@ import org.specs.ScalaCheck
 import org.scalacheck._
 import org.scalacheck.Prop.{forAll, forAllNoShrink}
 
-
-/**
- * System under specification for JSON AST.
- */
 object JsonAstSpec extends Specification("JSON AST Specification") with JValueGen with ScalaCheck {
 
   "Functor identity" in {
@@ -95,12 +91,11 @@ object JsonAstSpec extends Specification("JSON AST Specification") with JValueGe
     forAll(removeNothingProp) must pass
   }
 
-  "Remove removes only matching elements (in case of a field, its value is set to JNothing)" in {
+  "Remove removes only matching elements" in {
     forAllNoShrink(genJValue, genJValueClass) { (json: JValue, x: Class[_ <: JValue]) => {
       val removed = json remove typePredicate(x)
       val Diff(c, a, d) = json diff removed
       val elemsLeft = removed filter {
-        case JField(_, JNothing) => false
         case _ => true
       }
       c == JNothing && a == JNothing && elemsLeft.forall(_.getClass != x)
@@ -110,9 +105,8 @@ object JsonAstSpec extends Specification("JSON AST Specification") with JValueGe
   "Replace one" in {
     val anyReplacement = (x: JValue, replacement: JObject) => {
       def findOnePath(jv: JValue, l: List[String]): List[String] = jv match {
-        case JField(name, value) => findOnePath(value, name :: l)
         case JObject(fl) => fl match {
-          case field :: xs => findOnePath(field, l)
+          case field :: xs => findOnePath(field._2, l)
           case Nil => l
         }
         case _ => l

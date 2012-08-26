@@ -34,8 +34,6 @@ private[json4s] trait LowPriorityMergeDep {
     private def merge(val1: JValue, val2: JValue): JValue = (val1, val2) match {
       case (JObject(xs), JObject(ys)) => JObject(Merge.mergeFields(xs, ys))
       case (JArray(xs), JArray(ys)) => JArray(Merge.mergeVals(xs, ys))
-      case (JField(n1, v1), JField(n2, v2)) if n1 == n2 => JField(n1, merge(v1, v2))
-      case (f1: JField, f2: JField) => f2
       case (JNothing, x) => x
       case (x, JNothing) => x
       case (_, y) => y
@@ -60,7 +58,7 @@ object Merge {
    * <p>
    * Example:<pre>
    * val m = ("name", "joe") ~ ("age", 10) merge ("name", "joe") ~ ("iq", 105)
-   * m: JObject(List(JField(name,JString(joe)), JField(age,JInt(10)), JField(iq,JInt(105))))
+   * m: JObject(List((name,JString(joe)), (age,JInt(10)), (iq,JInt(105))))
    * </pre>
    */
   def merge[A <: JValue, B <: JValue, R <: JValue]
@@ -69,8 +67,8 @@ object Merge {
   private[json4s] def mergeFields(vs1: List[JField], vs2: List[JField]): List[JField] = {
     def mergeRec(xleft: List[JField], yleft: List[JField]): List[JField] = xleft match {
       case Nil => yleft
-      case JField(xn, xv) :: xs => yleft find (_.name == xn) match {
-        case Some(y @ JField(yn, yv)) => 
+      case (xn, xv) :: xs => yleft find (_._1 == xn) match {
+        case Some(y @ (yn, yv)) =>
           JField(xn, merge(xv, yv)) :: mergeRec(xs, yleft filterNot (_ == y))
         case None => JField(xn, xv) :: mergeRec(xs, yleft)
       }

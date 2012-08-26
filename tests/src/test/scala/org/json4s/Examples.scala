@@ -16,10 +16,12 @@
 
 package org.json4s
 
+import jackson.JacksonJsonMethods
 import org.specs.Specification
 import text.Document
 
 object NativeExamples extends Examples[Document]("Native") with NativeJsonMethods
+//object JacksonExamples extends Examples[JValue]("Jackson") with JacksonJsonMethods
 
 object Examples {
   import JsonDSL._
@@ -113,26 +115,26 @@ abstract class Examples[T](mod: String) extends Specification(mod + " Examples")
   }
 
   "Transformation example" in {
-    val uppercased = parse(person).transform { case JField(n, v) => JField(n.toUpperCase, v) }
+    val uppercased = parse(person).transformField { case JField(n, v) => JField(n.toUpperCase, v) }
     val rendered = compact(render(uppercased))
     rendered mustEqual
       """{"PERSON":{"NAME":"Joe","AGE":35,"SPOUSE":{"PERSON":{"NAME":"Marilyn","AGE":33}}}}"""
   }
 
   "Remove example" in {
-    val json = parse(person) remove { _ == JField("name", "Marilyn") }
+    val json = parse(person) removeField { _ == JField("name", "Marilyn") }
     compact(render(json \\ "name")) mustEqual """{"name":"Joe"}"""
   }
 
   "Queries on person example" in {
     val json = parse(person)
-    val filtered = json filter {
+    val filtered = json filterField {
       case JField("name", _) => true
       case _ => false
     }
     filtered mustEqual List(JField("name", JString("Joe")), JField("name", JString("Marilyn")))
 
-    val found = json find {
+    val found = json findField {
       case JField("name", _) => true
       case _ => false
     }
@@ -141,10 +143,10 @@ abstract class Examples[T](mod: String) extends Specification(mod + " Examples")
 
   "Object array example" in {
     val json = parse(objArray)
-    compact(render(json \ "children" \ "name")) mustEqual """["name":"Mary","name":"Mazy"]"""
+    compact(render(json \ "children" \ "name")) mustEqual """["Mary","Mazy"]"""
     compact(render((json \ "children")(0) \ "name")) mustEqual "\"Mary\""
     compact(render((json \ "children")(1) \ "name")) mustEqual "\"Mazy\""
-    (for { JField("name", JString(y)) <- json } yield y) mustEqual List("joe", "Mary", "Mazy")
+    (for { JObject(o) <- json; JField("name", JString(y)) <- o } yield y) mustEqual List("joe", "Mary", "Mazy")
   }
 
   "Unbox values using XPath-like type expression" in {
@@ -182,13 +184,13 @@ abstract class Examples[T](mod: String) extends Specification(mod + " Examples")
   }
 
   "JSON building example" in {
-    val json = concat(JField("name", JString("joe")), JField("age", JInt(34))) ++ concat(JField("name", JString("mazy")), JField("age", JInt(31)))
+    val json = JObject(("name", JString("joe")), ("age", JInt(34))) ++ JObject(("name", ("mazy")), ("age", JInt(31)))
     compact(render(json)) mustEqual """[{"name":"joe","age":34},{"name":"mazy","age":31}]"""
   }
 
   "JSON building with implicit primitive conversions example" in {
     import Implicits._
-    val json = concat(JField("name", "joe"), JField("age", 34)) ++ concat(JField("name", "mazy"), JField("age", 31))
+    val json = JObject(("name", "joe"), ("age", 34)) ++ JObject(("name", "mazy"), ("age", 31))
     compact(render(json)) mustEqual """[{"name":"joe","age":34},{"name":"mazy","age":31}]"""
   }
 

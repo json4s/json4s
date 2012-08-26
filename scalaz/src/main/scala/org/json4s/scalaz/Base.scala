@@ -105,12 +105,12 @@ trait Base { this: Types =>
   implicit def mapJSONR[A: JSONR]: JSONR[Map[String, A]] = new JSONR[Map[String, A]] {
     def read(json: JValue) = json match {
       case JObject(fs) => 
-        val r = fs.map(f => fromJSON[A](f.value).map(v => (f.name, v))).sequence[PartialApply1Of2[ValidationNEL, Error]#Apply, (String, A)]
+        val r = fs.map(f => fromJSON[A](f._2).map(v => (f._1, v))).sequence[PartialApply1Of2[ValidationNEL, Error]#Apply, (String, A)]
         r.map(_.toMap)
       case x => UnexpectedJSONError(x, classOf[JObject]).fail.liftFailNel
     }
   }
   implicit def mapJSONW[A: JSONW]: JSONW[Map[String, A]] = new JSONW[Map[String, A]] {
-    def write(values: Map[String, A]) = JObject(values.map { case (k, v) => JField(k, toJSON(v)) }(breakOut))
+    def write(values: Map[String, A]) = JObject(values.map { case (k, v) => JField(k, toJSON(v)) }(breakOut).toList)
   }
 }

@@ -3,16 +3,20 @@ Parsing and formatting utilities for JSON.
 A central concept in lift-json library is Json AST which models the structure of
 a JSON document as a syntax tree. 
 
-    sealed abstract class JValue
-    case object JNothing extends JValue // 'zero' for JValue
-    case object JNull extends JValue
-    case class JString(s: String) extends JValue
-    case class JDouble(num: Double) extends JValue
-    case class JInt(num: BigInt) extends JValue
-    case class JBool(value: Boolean) extends JValue
-    case class JField(name: String, value: JValue) extends JValue
-    case class JObject(obj: List[JField]) extends JValue 
-    case class JArray(arr: List[JValue]) extends JValue
+```scala
+sealed abstract class JValue
+case object JNothing extends JValue // 'zero' for JValue
+case object JNull extends JValue
+case class JString(s: String) extends JValue
+case class JDouble(num: Double) extends JValue
+case class JDecimal(num: BigDecimal) extends JValue
+case class JInt(num: BigInt) extends JValue
+case class JBool(value: Boolean) extends JValue
+case class JObject(obj: List[JField]) extends JValue
+case class JArray(arr: List[JValue]) extends JValue
+
+type JField = (String, JValue)
+```
 
 All features are implemented in terms of above AST. Functions are used to transform
 the AST itself, or to transform the AST between different formats. Common transformations
@@ -50,7 +54,7 @@ Add dependency to your project description:
 Add dependency to your pom:
 
     <dependency>
-      <groupId>org.scalatra.json4s</groupId>
+      <groupId>org.json4s</groupId>
       <artifactId>json4s</artifactId>
       <version>XXX</version>
     </dependency>
@@ -66,16 +70,37 @@ Download following jars:
 Extras
 ------
 
-* [lift-json-ext](https://github.com/lift/framework/tree/master/core/json-ext)
+* [native-ext](https://github.com/json4s/json4s/tree/master/native-ext)
 
 Support for Box, Enum, Joda-Time, ...
 
-* [lift-json-scalaz](https://github.com/lift/framework/tree/master/core/json-scalaz)
+* [native-scalaz](https://github.com/json4s/json4s/tree/master/scalaz)
 
 Applicative style parsing with Scalaz
 
 Migration from older versions
 =============================
+
+3.x (FIXME: add correct version once released) ->
+-------------------------------------------------
+
+JField is no longer a JValue. This means more type safety since it is no longer possible
+to create invalid JSON where JFields are added directly into JArrays for instance. Most
+noticeable consequence of this change is that map, transform, find and filter come in
+two versions:
+
+```scala
+def map(f: JValue => JValue): JValue
+def mapField(f: JField => JField): JValue
+def transform(f: PartialFunction[JValue, JValue]): JValue
+def transformField(f: PartialFunction[JField, JField]): JValue
+def find(p: JValue => Boolean): Option[JValue]
+def findField(p: JField => Boolean): Option[JField]
+//...
+```
+
+Use *Field functions to traverse fields in the JSON, and use the functions without 'Field'
+in the name to traverse values in the JSON.
 
 2.2 ->
 ------
@@ -98,7 +123,7 @@ Any valid json can be parsed into internal AST format.
     scala> import net.liftweb.json._
     scala> parse(""" { "numbers" : [1, 2, 3, 4] } """)
     res0: net.liftweb.json.JsonAST.JValue = 
-          JObject(List(JField(numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
+          JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
 
 Producing JSON
 ==============
@@ -148,28 +173,30 @@ DSL rules
 Example
 -------
 
-    object JsonExample extends Application {
-      import net.liftweb.json._
-      import net.liftweb.json.JsonDSL._
+```scala
+object JsonExample extends Application {
+  import net.liftweb.json._
+  import net.liftweb.json.JsonDSL._
 
-      case class Winner(id: Long, numbers: List[Int])
-      case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[java.util.Date])
+  case class Winner(id: Long, numbers: List[Int])
+  case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[java.util.Date])
 
-      val winners = List(Winner(23, List(2, 45, 34, 23, 3, 5)), Winner(54, List(52, 3, 12, 11, 18, 22)))
-      val lotto = Lotto(5, List(2, 45, 34, 23, 7, 5, 3), winners, None)
+  val winners = List(Winner(23, List(2, 45, 34, 23, 3, 5)), Winner(54, List(52, 3, 12, 11, 18, 22)))
+  val lotto = Lotto(5, List(2, 45, 34, 23, 7, 5, 3), winners, None)
 
-      val json = 
-        ("lotto" ->
-          ("lotto-id" -> lotto.id) ~
-          ("winning-numbers" -> lotto.winningNumbers) ~
-          ("draw-date" -> lotto.drawDate.map(_.toString)) ~
-          ("winners" ->
-            lotto.winners.map { w =>
-              (("winner-id" -> w.id) ~
-               ("numbers" -> w.numbers))}))
+  val json =
+    ("lotto" ->
+      ("lotto-id" -> lotto.id) ~
+      ("winning-numbers" -> lotto.winningNumbers) ~
+      ("draw-date" -> lotto.drawDate.map(_.toString)) ~
+      ("winners" ->
+        lotto.winners.map { w =>
+          (("winner-id" -> w.id) ~
+           ("numbers" -> w.numbers))}))
 
-      println(compact(render(json)))
-    }
+  println(compact(render(json)))
+}
+```
 
     scala> JsonExample
     {"lotto":{"lotto-id":5,"winning-numbers":[2,45,34,23,7,5,3],"winners":
@@ -241,8 +268,8 @@ Please see more examples in src/test/scala/net/liftweb/json/MergeExamples.scala 
     scala> val Diff(changed, added, deleted) = mergedLotto diff lotto1
     changed: net.liftweb.json.JsonAST.JValue = JNothing
     added: net.liftweb.json.JsonAST.JValue = JNothing
-    deleted: net.liftweb.json.JsonAST.JValue = JObject(List(JField(lotto,JObject(List(JField(winners,
-    JArray(List(JObject(List(JField(winner-id,JInt(54)), JField(numbers,JArray(
+    deleted: net.liftweb.json.JsonAST.JValue = JObject(List((lotto,JObject(List(JField(winners,
+    JArray(List(JObject(List((winner-id,JInt(54)), (numbers,JArray(
     List(JInt(52), JInt(3), JInt(12), JInt(11), JInt(18), JInt(22))))))))))))))
 
 
@@ -322,7 +349,7 @@ Json AST can be queried using XPath like functions. Following REPL session shows
 
     scala> json \\ "spouse"
     res0: net.liftweb.json.JsonAST.JValue = JObject(List(
-          JField(person,JObject(List(JField(name,JString(Marilyn)), JField(age,JInt(33)))))))
+          (person,JObject(List((name,JString(Marilyn)), (age,JInt(33)))))))
 
     scala> compact(render(res0))
     res1: String = {"person":{"name":"Marilyn","age":33}}
@@ -330,7 +357,7 @@ Json AST can be queried using XPath like functions. Following REPL session shows
     scala> compact(render(json \\ "name"))
     res2: String = {"name":"Joe","name":"Marilyn"}
 
-    scala> compact(render((json remove { _ == JField("name", JString("Marilyn")) }) \\ "name"))
+    scala> compact(render((json removeField { _ == JField("name", JString("Marilyn")) }) \\ "name"))
     res3: String = {"name":"Joe"}
 
     scala> compact(render(json \ "person" \ "name"))
@@ -339,24 +366,24 @@ Json AST can be queried using XPath like functions. Following REPL session shows
     scala> compact(render(json \ "person" \ "spouse" \ "person" \ "name"))
     res5: String = "Marilyn"
 
-    scala> json find {
+    scala> json findField {
              case JField("name", _) => true
              case _ => false
            }
-    res6: Option[net.liftweb.json.JsonAST.JValue] = Some(JField(name,JString(Joe)))
+    res6: Option[net.liftweb.json.JsonAST.JValue] = Some((name,JString(Joe)))
 
-    scala> json filter {
+    scala> json filterField {
              case JField("name", _) => true
              case _ => false
            }
-    res7: List[net.liftweb.json.JsonAST.JValue] = List(JField(name,JString(Joe)), JField(name,JString(Marilyn)))
+    res7: List[net.liftweb.json.JsonAST.JField] = List(JField(name,JString(Joe)), JField(name,JString(Marilyn)))
 
-    scala> json transform {
-             case JField("name", JString(s)) => JField("NAME", JString(s.toUpperCase))
+    scala> json transformField {
+             case JField("name", JString(s)) => ("NAME", JString(s.toUpperCase))
            }
-    res8: net.liftweb.json.JsonAST.JValue = JObject(List(JField(person,JObject(List(
-    JField(NAME,JString(JOE)), JField(age,JInt(35)), JField(spouse,JObject(List(
-    JField(person,JObject(List(JField(NAME,JString(MARILYN)), JField(age,JInt(33)))))))))))))
+    res8: net.liftweb.json.JsonAST.JValue = JObject(List((person,JObject(List(
+    (NAME,JString(JOE)), (age,JInt(35)), (spouse,JObject(List(
+    (person,JObject(List((NAME,JString(MARILYN)), (age,JInt(33)))))))))))))
 
     scala> json.values
     res8: scala.collection.immutable.Map[String,Any] = Map(person -> Map(name -> Joe, age -> 35, spouse -> Map(person -> Map(name -> Marilyn, age -> 33))))
@@ -379,7 +406,7 @@ Indexed path expressions work too and values can be unboxed using type expressio
            """)
 
     scala> (json \ "children")(0)
-    res0: net.liftweb.json.JsonAST.JValue = JObject(List(JField(name,JString(Mary)), JField(age,JInt(5))))
+    res0: net.liftweb.json.JsonAST.JValue = JObject(List((name,JString(Mary)), (age,JInt(5))))
 
     scala> (json \ "children")(1) \ "name"
     res1: net.liftweb.json.JsonAST.JValue = JString(Mazy)
@@ -389,9 +416,6 @@ Indexed path expressions work too and values can be unboxed using type expressio
 
     scala> json \ "children" \\ classOf[JString]
     res3: List[net.liftweb.json.JsonAST.JString#Values] = List(Mary, Mazy)
-
-    scala> json \ "children" \ classOf[JField] 
-    res4: List[net.liftweb.json.JsonAST.JField#Values] = List((name,Mary), (age,5), (name,Mazy), (age,3))
 
 Extracting values
 =================
@@ -440,8 +464,8 @@ Use back ticks.
 Use transform function to postprocess AST.
 
     scala> case class Person(firstname: String)
-    scala> json transform {
-             case JField("first-name", x) => JField("firstname", x)
+    scala> json transformField {
+             case ("first-name", x) => ("firstname", x)
            }
 
 Extraction function tries to find the best matching constructor when case class has auxiliary
@@ -645,9 +669,9 @@ decides to use JSON array because there's more than one user-element in XML. The
 XML document which happens to have just one user-element will generate a JSON document without JSON array. This
 is rarely a desired outcome. These both problems can be fixed by following transformation function.
 
-    scala> json transform {
-             case JField("id", JString(s)) => JField("id", JInt(s.toInt))
-             case JField("user", x: JObject) => JField("user", JArray(x :: Nil))
+    scala> json transformField {
+             case ("id", JString(s)) => ("id", JInt(s.toInt))
+             case ("user", x: JObject) => ("user", JArray(x :: Nil))
            }
 
 Other direction is supported too. Converting JSON to XML:

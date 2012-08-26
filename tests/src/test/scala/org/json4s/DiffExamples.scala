@@ -16,14 +16,13 @@
 
 package org.json4s
 
+import jackson.JacksonJsonMethods
 import org.specs.Specification
 import text.Document
 
 object NativeDiffExamples extends DiffExamples[Document]("Native") with NativeJsonMethods
+//object JacksonDiffExamples extends DiffExamples[JValue]("Jackson") with JacksonJsonMethods
 
-/**
-* System under specification for Diff Examples.
-*/
 abstract class DiffExamples[T](mod: String) extends Specification(mod + " Diff Examples") with JsonMethods[T]  {
 
   import NativeMergeExamples.{scala1, scala2, lotto1, lotto2, mergedLottoResult}

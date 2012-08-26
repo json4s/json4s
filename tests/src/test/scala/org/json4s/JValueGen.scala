@@ -38,7 +38,7 @@ trait JValueGen {
 
   def genJValueClass: Gen[Class[_ <: JValue]] = oneOf(
     JNull.getClass.asInstanceOf[Class[JValue]], JNothing.getClass.asInstanceOf[Class[JValue]], classOf[JInt], 
-    classOf[JDouble], classOf[JBool], classOf[JString], classOf[JField], classOf[JArray], classOf[JObject])
+    classOf[JDouble], classOf[JBool], classOf[JString], classOf[JArray], classOf[JObject])
 
   def listSize = choose(0, 5).sample.get
 }

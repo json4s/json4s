@@ -12,7 +12,7 @@ trait JacksonJsonMethods extends JsonMethods[JValue] {
 
 
   def parse(s: String): _root_.org.json4s.JValue = {
-    mapper.readValue[JValue](s, classOf[JValue])
+    mapper.readValue(s, classOf[JValue])
   }
 
   def parseOpt(s: String): Option[_root_.org.json4s.JValue] = try {

@@ -24,14 +24,13 @@ trait NativeJsonMethods extends org.json4s.JsonMethods[Document] {
     case JString(null) => text("null")
     case JString(s)    => text("\"" + quote(s) + "\"")
     case JArray(arr)   => text("[") :: series(trimArr(arr).map(render)) :: text("]")
-    case JField(n, v)  => text("\"" + quote(n) + "\":") :: render(v)
     case JObject(obj)  =>
-      val nested = break :: fields(trimObj(obj).map(f => text("\"" + quote(f.name) + "\":") :: render(f.value)))
+      val nested = break :: fields(trimObj(obj).map({case (n,v) => text("\"" + quote(n) + "\":") :: render(v)}))
       text("{") :: nest(2, nested) :: break :: text("}")
   }
 
   private def trimArr(xs: List[JValue]) = xs.filter(_ != JNothing)
-  private def trimObj(xs: List[JField]) = xs.filter(_.value != JNothing)
+  private def trimObj(xs: List[JField]) = xs.filter(_._2 != JNothing)
   private def series(docs: List[Document]) = punctuate(text(","), docs)
   private def fields(docs: List[Document]) = punctuate(text(",") :: break, docs)
 
