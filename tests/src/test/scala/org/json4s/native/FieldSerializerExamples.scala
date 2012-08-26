@@ -1,10 +1,9 @@
 package org.json4s
-import NativeImports._
-
+import native.JsonMethods._
 import org.specs.Specification
 
 object FieldSerializerExamples extends Specification {
-  import Serialization.{read, write => swrite}
+  import native.Serialization.{read, write => swrite}
   import FieldSerializer._
 
   val dog = new WildDog("black")

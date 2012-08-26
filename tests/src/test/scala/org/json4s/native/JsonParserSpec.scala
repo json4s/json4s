@@ -11,8 +11,8 @@ import org.scalacheck.Prop._
 */
 object JsonParserSpec extends Specification("JSON Parser Specification") with JValueGen with ScalaCheck {
   import scala.text.Document
-  import JsonParser._
-  import NativeImports.render
+  import native.{JsonParser,Printer}
+  import native.JsonMethods._
 
   "Any valid json can be parsed" in {
     val parsing = (json: JValue) => { parse(Printer.pretty(render(json))); true }
@@ -71,7 +71,7 @@ object JsonParserSpec extends Specification("JSON Parser Specification") with JV
     try {
       JsonParser.Segments.segmentSize = bufSize
       JsonParser.Segments.clear
-      JsonParser.parse(NativeImports.compact(NativeImports.render(json)))
+      JsonParser.parse(compact(render(json)))
     } finally {
       JsonParser.Segments.segmentSize = existingSize
     }

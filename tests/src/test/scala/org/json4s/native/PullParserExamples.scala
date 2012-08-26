@@ -8,6 +8,7 @@ import org.specs.Specification
 * System under specification for JSON Pull Parser.
 */
 object PullParserExamples extends Specification("JSON Pull Parser Examples") {
+  import native.JsonParser
   import JsonParser._
 
   "Pull parsing example" in {

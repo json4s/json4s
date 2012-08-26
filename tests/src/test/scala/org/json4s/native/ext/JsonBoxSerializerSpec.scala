@@ -20,9 +20,9 @@ package ext
 import org.specs.Specification
 
 import net.liftweb.common._
-import NativeImports._
+import native.JsonMethods._
 import native.ext.JsonBoxSerializer
-import Serialization.{read, write => swrite}
+import native.Serialization.{read, write => swrite}
 
 
 /**

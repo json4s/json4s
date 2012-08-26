@@ -2,6 +2,7 @@ package org.json4s
 
 import org.specs.Specification
 import java.util.UUID
+import org.json4s.native.Serialization
 
 object SerializationBugs extends Specification {
   import Serialization.{read, write => swrite}

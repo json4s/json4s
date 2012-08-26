@@ -19,6 +19,7 @@ package org.json4s
 import java.lang.reflect.{Constructor => JConstructor, Field, Type, ParameterizedType, GenericArrayType}
 import java.util.Date
 import java.sql.Timestamp
+import com.thoughtworks.paranamer.{ParameterNamesNotFoundException, BytecodeReadingParanamer, CachingParanamer}
 
 case class TypeInfo(clazz: Class[_], parameterizedType: Option[ParameterizedType])
 

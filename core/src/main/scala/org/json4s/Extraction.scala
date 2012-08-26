@@ -23,6 +23,7 @@ import java.math.{BigDecimal => JavaBigDecimal}
 import java.util.Date
 import java.sql.Timestamp
 import scala.reflect.Manifest
+import java.nio.CharBuffer
 
 /** Function to extract values from JSON AST using case classes.
  *
@@ -117,7 +118,7 @@ object Extraction {
     def flatten0(path: String, json: JValue): Map[String, String] = {
       json match {
         case JNothing | JNull    => Map()
-        case JString(s)          => Map(path -> ("\"" + NativeJsonMethods.quote(s) + "\""))
+        case JString(s)          => Map(path -> ("\"" + JsonAST.quote(s) + "\""))
         case JDouble(num)        => Map(path -> num.toString)
         case JDecimal(num)       => Map(path -> num.toString)
         case JInt(num)           => Map(path -> num.toString)
@@ -138,6 +139,7 @@ object Extraction {
     flatten0("", json)
   }
 
+
   /** Unflattens a key/value map to a JSON object.
    */
   def unflatten(map: Map[String, String], useBigDecimalForDouble: Boolean = false): JValue = {
@@ -153,11 +155,11 @@ object Extraction {
         if (value.charAt(0).isDigit) {
           if (value.indexOf('.') == -1) JInt(BigInt(value))
           else {
-            if (!useBigDecimalForDouble) JDouble(JsonParser.parseDouble(value))
+            if (!useBigDecimalForDouble) JDouble(native.JsonParser.parseDouble(value))
             else JDecimal(BigDecimal(value))
           }
         }
-        else JString(JsonParser.unquote(value.substring(1)))
+        else JString(native.JsonParser.unquote(value.substring(1)))
     }
 
     def submap(prefix: String): Map[String, String] =
@@ -418,62 +420,6 @@ object Extraction {
       else fail("Do not know how to convert " + json + " into " + targetType)
   }
 
-  
 
-}
 
-class JValueExt(jv: JValue) {
-  /** Extract a value from a JSON.
-   * <p>
-   * Value can be:
-   * <ul>
-   *   <li>case class</li>
-   *   <li>primitive (String, Boolean, Date, etc.)</li>
-   *   <li>supported collection type (List, Seq, Map[String, _], Set)</li>
-   *   <li>any type which has a configured custom deserializer</li>
-   * </ul>
-   * <p>
-   * Example:<pre>
-   * case class Person(name: String)
-   * JObject(JField("name", JString("joe")) :: Nil).extract[Person] == Person("joe")
-   * </pre>
-   */
-  def extract[A](implicit formats: Formats, mf: scala.reflect.Manifest[A]): A =
-    Extraction.extract(jv)(formats, mf)
-
-  /** Extract a value from a JSON.
-   * <p>
-   * Value can be:
-   * <ul>
-   *   <li>case class</li>
-   *   <li>primitive (String, Boolean, Date, etc.)</li>
-   *   <li>supported collection type (List, Seq, Map[String, _], Set)</li>
-   *   <li>any type which has a configured custom deserializer</li>
-   * </ul>
-   * <p>
-   * Example:<pre>
-   * case class Person(name: String)
-   * JObject(JField("name", JString("joe")) :: Nil).extractOpt[Person] == Some(Person("joe"))
-   * </pre>
-   */
-  def extractOpt[A](implicit formats: Formats, mf: scala.reflect.Manifest[A]): Option[A] =
-    Extraction.extractOpt(jv)(formats, mf)
-
-  /** Extract a value from a JSON using a default value.
-   * <p>
-   * Value can be:
-   * <ul>
-   *   <li>case class</li>
-   *   <li>primitive (String, Boolean, Date, etc.)</li>
-   *   <li>supported collection type (List, Seq, Map[String, _], Set)</li>
-   *   <li>any type which has a configured custom deserializer</li>
-   * </ul>
-   * <p>
-   * Example:<pre>
-   * case class Person(name: String)
-   * JNothing.extractOrElse(Person("joe")) == Person("joe")
-   * </pre>
-   */
-  def extractOrElse[A](default: => A)(implicit formats: Formats, mf: scala.reflect.Manifest[A]): A =
-    Extraction.extractOpt(jv)(formats, mf).getOrElse(default)
 }

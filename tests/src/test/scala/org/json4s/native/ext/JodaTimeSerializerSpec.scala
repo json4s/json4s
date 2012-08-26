@@ -20,6 +20,7 @@ package ext
 import org.joda.time._
 import native.ext._
 import org.specs.Specification
+import org.json4s.native.Serialization
 import Serialization.{read, write => swrite}
 
 

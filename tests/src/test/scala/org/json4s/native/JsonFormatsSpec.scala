@@ -7,7 +7,7 @@ import org.specs.Specification
 * System under specification for JSON Formats.
 */
 object JsonFormatsSpec extends Specification("JsonFormats Specification") with TypeHintExamples {
-  import NativeImports._
+  import native.JsonMethods._
   implicit val formats = ShortTypeHintExamples.formats + FullTypeHintExamples.formats.typeHints
 
   val hintsForFish   = ShortTypeHintExamples.formats.typeHints.hintFor(classOf[Fish])

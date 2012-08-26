@@ -4,7 +4,8 @@ package org.json4s
 import org.specs.Specification
 
 object ExtractionBugs extends Specification("Extraction bugs Specification") {
-  import NativeImports._
+  import native.JsonMethods._
+  import native.JsonParser
   implicit val formats = DefaultFormats
 
   "ClassCastException (BigInt) regression 2 must pass" in {

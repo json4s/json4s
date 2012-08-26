@@ -1,3 +1,3 @@
 package org.json4s
 
-package object native extends NativeImports
+package object native extends native.JsonMethods

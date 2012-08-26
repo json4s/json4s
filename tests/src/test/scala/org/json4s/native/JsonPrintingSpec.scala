@@ -10,7 +10,8 @@ import org.scalacheck.Prop.forAll
 */
 object JsonPrintingSpec extends Specification("JSON Printing Specification") with JValueGen with ScalaCheck {
   import scala.text.Document
-  import NativeImports._
+  import native.Printer
+  import native.JsonMethods._
 
   "rendering does not change semantics" in {
     val rendering = (json: Document) => parse(Printer.pretty(json)) == parse(Printer.compact(json))

@@ -364,6 +364,60 @@ object JsonAST {
       case x => x
     }
 
+    /** Extract a value from a JSON.
+     * <p>
+     * Value can be:
+     * <ul>
+     *   <li>case class</li>
+     *   <li>primitive (String, Boolean, Date, etc.)</li>
+     *   <li>supported collection type (List, Seq, Map[String, _], Set)</li>
+     *   <li>any type which has a configured custom deserializer</li>
+     * </ul>
+     * <p>
+     * Example:<pre>
+     * case class Person(name: String)
+     * JObject(JField("name", JString("joe")) :: Nil).extract[Person] == Person("joe")
+     * </pre>
+     */
+    def extract[A](implicit formats: Formats, mf: scala.reflect.Manifest[A]): A =
+      Extraction.extract(this)(formats, mf)
+
+    /** Extract a value from a JSON.
+     * <p>
+     * Value can be:
+     * <ul>
+     *   <li>case class</li>
+     *   <li>primitive (String, Boolean, Date, etc.)</li>
+     *   <li>supported collection type (List, Seq, Map[String, _], Set)</li>
+     *   <li>any type which has a configured custom deserializer</li>
+     * </ul>
+     * <p>
+     * Example:<pre>
+     * case class Person(name: String)
+     * JObject(JField("name", JString("joe")) :: Nil).extractOpt[Person] == Some(Person("joe"))
+     * </pre>
+     */
+    def extractOpt[A](implicit formats: Formats, mf: scala.reflect.Manifest[A]): Option[A] =
+      Extraction.extractOpt(this)(formats, mf)
+
+    /** Extract a value from a JSON using a default value.
+     * <p>
+     * Value can be:
+     * <ul>
+     *   <li>case class</li>
+     *   <li>primitive (String, Boolean, Date, etc.)</li>
+     *   <li>supported collection type (List, Seq, Map[String, _], Set)</li>
+     *   <li>any type which has a configured custom deserializer</li>
+     * </ul>
+     * <p>
+     * Example:<pre>
+     * case class Person(name: String)
+     * JNothing.extractOrElse(Person("joe")) == Person("joe")
+     * </pre>
+     */
+    def extractOrElse[A](default: => A)(implicit formats: Formats, mf: scala.reflect.Manifest[A]): A =
+      Extraction.extractOpt(this)(formats, mf).getOrElse(default)
+
     def toOpt: Option[JValue] = this match {
       case JNothing => None
       case json     => Some(json)
@@ -424,6 +478,24 @@ object JsonAST {
     def unapply(f: JField): Option[(String, JValue)] = Some(f)
   }
 
+  private[json4s] def quote(s: String): String = {
+    val buf = new StringBuilder
+    for (i <- 0 until s.length) {
+      val c = s.charAt(i)
+      buf.append(c match {
+        case '"'  => "\\\""
+        case '\\' => "\\\\"
+        case '\b' => "\\b"
+        case '\f' => "\\f"
+        case '\n' => "\\n"
+        case '\r' => "\\r"
+        case '\t' => "\\t"
+        case c if ((c >= '\u0000' && c < '\u001f') || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100')) => "\\u%04x".format(c: Int)
+        case c => c
+      })
+    }
+    buf.toString
+  }
 }
 
 /** Basic implicit conversions from primitive types into JSON.

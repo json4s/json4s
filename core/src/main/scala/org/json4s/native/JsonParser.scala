@@ -15,6 +15,7 @@
  */
 
 package org.json4s
+package native
 
 /** JSON parser.
  */
@@ -105,6 +106,14 @@ object JsonParser {
       case e: Exception => throw new ParseException("parsing failed", e)
     } finally { buf.release }
   }
+
+  private val BrokenDouble = BigDecimal("2.2250738585072012e-308")
+  private[json4s] def parseDouble(s: String) = {
+    val d = BigDecimal(s)
+    if (d == BrokenDouble) sys.error("Error parsing 2.2250738585072012e-308")
+    else d.doubleValue
+  }
+
   
   private[json4s] def unquote(string: String): String = 
     unquote(new JsonParser.Buffer(new java.io.StringReader(string), false))
@@ -151,14 +160,7 @@ object JsonParser {
     buf.substring
   }
 
-  // FIXME fail fast to prevent infinite loop, see 
-  // http://www.exploringbinary.com/java-hangs-when-converting-2-2250738585072012e-308/
-  private val BrokenDouble = BigDecimal("2.2250738585072012e-308")
-  private[json4s] def parseDouble(s: String) = {
-    val d = BigDecimal(s)
-    if (d == BrokenDouble) sys.error("Error parsing 2.2250738585072012e-308")
-    else d.doubleValue
-  }
+
 
   private val astParser = (p: Parser, useBigDecimal: Boolean) => {
     val vals = new ValStack(p)

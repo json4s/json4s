@@ -15,6 +15,7 @@
  */
 
 package org.json4s
+package native
 
 import scala.reflect.Manifest
 
@@ -30,9 +31,6 @@ import scala.reflect.Manifest
  */
 object Serialization {
   import java.io.{Reader, StringWriter, Writer}
-
-  private[this] implicit def extractableJValue(jv: JValue) = new JValueExt(jv)
-
   /** Serialize to String.
    */
   def write[A <: AnyRef](a: A)(implicit formats: Formats): String =
@@ -41,7 +39,7 @@ object Serialization {
   /** Serialize to Writer.
    */
   def write[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W =
-    Printer.compact(NativeJsonMethods.render(Extraction.decompose(a)(formats)), out)
+    Printer.compact(JsonMethods.render(Extraction.decompose(a)(formats)), out)
 
   /** Serialize to String (pretty format).
    */
@@ -51,7 +49,7 @@ object Serialization {
   /** Serialize to Writer (pretty format).
    */
   def writePretty[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W = 
-    Printer.pretty(NativeJsonMethods.render(Extraction.decompose(a)(formats)), out)
+    Printer.pretty(JsonMethods.render(Extraction.decompose(a)(formats)), out)
 
   /** Deserialize from a String.
    */

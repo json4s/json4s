@@ -22,8 +22,7 @@ import text.Document
 import com.fasterxml.jackson.databind.util.TokenBuffer
 import com.fasterxml.jackson.core.JsonGenerator
 
-object NativeLottoExample extends LottoExample[Document]("Native") with NativeJsonMethods {
-  import NativeImports._
+object NativeLottoExample extends LottoExample[Document]("Native") with native.JsonMethods {
   import LottoExample._
   implicit val formats = DefaultFormats
   def extractWinner(jv: JValue): Winner = jv.extract[Winner]

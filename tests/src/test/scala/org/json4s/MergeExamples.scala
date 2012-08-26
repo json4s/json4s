@@ -19,7 +19,7 @@ package org.json4s
 import org.specs.Specification
 import text.Document
 
-object NativeMergeExamples extends MergeExamples[Document]("Native") with NativeJsonMethods
+object NativeMergeExamples extends MergeExamples[Document]("Native") with native.JsonMethods
 object JacksonMergeExamples extends MergeExamples[JValue]("Jackson") with jackson.JacksonJsonMethods
 abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge Examples") with JsonMethods[T] {
   "Merge example" in {

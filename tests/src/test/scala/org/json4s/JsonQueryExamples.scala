@@ -19,7 +19,7 @@ package org.json4s
 import org.specs.Specification
 import text.Document
 
-object NativeJsonQueryExamples extends JsonQueryExamples[Document]("Native") with NativeJsonMethods
+object NativeJsonQueryExamples extends JsonQueryExamples[Document]("Native") with native.JsonMethods
 object JacksonJsonQueryExamples extends JsonQueryExamples[JValue]("Jackson") with jackson.JacksonJsonMethods
 
 /**

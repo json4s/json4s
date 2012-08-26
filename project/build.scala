@@ -69,13 +69,13 @@ object Json4sBuild extends Build {
   lazy val core = Project(
     id = "json4s-core",
     base = file("core"),
-    settings = json4sSettings
+    settings = json4sSettings ++ Seq(libraryDependencies ++= Seq(paranamer, scalap))
   )
 
   lazy val native = Project(
     id = "json4s-native",
     base = file("native"),
-    settings = json4sSettings ++ Seq(libraryDependencies ++= Seq(paranamer, scalap))
+    settings = json4sSettings
   ) dependsOn(core % "compile;test->test")
 
   lazy val nativeExt = Project(

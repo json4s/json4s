@@ -32,9 +32,9 @@ trait JacksonJsonMethods extends JsonMethods[JValue] {
 }
 
 
-class JValueExt(jv: JValue) {
-  def extract[T:Manifest:Reader]: T = implicitly[Reader[T]].read(jv)
-  def extractOpt[T:Manifest:Reader]: Option[T] = allCatch.withApply(_ => None) { Option(extract) }
-  def extractOrElse[T:Manifest:Reader](default: => T) = extractOpt getOrElse default
-}
+//class JValueExt(jv: JValue) {
+//  def extract[T:Manifest:Reader]: T = implicitly[Reader[T]].read(jv)
+//  def extractOpt[T:Manifest:Reader]: Option[T] = allCatch.withApply(_ => None) { Option(extract) }
+//  def extractOrElse[T:Manifest:Reader](default: => T) = extractOpt getOrElse default
+//}
 object JacksonJsonMethods extends JacksonJsonMethods

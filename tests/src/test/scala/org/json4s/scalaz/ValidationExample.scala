@@ -18,7 +18,7 @@ object ValidationExample extends Specification {
     def max(x: Int): Int => Result[Int] = (y: Int) =>
       if (y > x) Fail("max", y + " > " + x) else y.success
 
-    val json = JsonParser.parse(""" {"name":"joe","age":17} """)
+    val json = native.JsonParser.parse(""" {"name":"joe","age":17} """)
 
     // Note 'apply _' is not needed on Scala 2.8.1 >=
     "fail when age is less than min age" in {

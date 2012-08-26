@@ -1,5 +1,5 @@
 package org.json4s
-
+package native
 
 /** Printer converts JSON to String.
  * Before printing a <code>JValue</code> needs to be rendered into scala.text.Document.

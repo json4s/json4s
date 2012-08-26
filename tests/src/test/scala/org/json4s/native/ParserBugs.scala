@@ -5,7 +5,9 @@ import util.control.Exception._
 import org.specs.Specification
 
 object ParserBugs extends Specification {
-  import NativeImports._
+  import native.JsonParser
+  import native.JsonMethods._
+
   "Unicode ffff is a valid char in string literal" in {
     parseOpt(""" {"x":"\uffff"} """).isDefined mustEqual true
   }

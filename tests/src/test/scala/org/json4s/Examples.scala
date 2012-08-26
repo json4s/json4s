@@ -20,7 +20,7 @@ import jackson.JacksonJsonMethods
 import org.specs.Specification
 import text.Document
 
-object NativeExamples extends Examples[Document]("Native") with NativeJsonMethods
+object NativeExamples extends Examples[Document]("Native") with native.JsonMethods
 object JacksonExamples extends Examples[JValue]("Jackson") with JacksonJsonMethods
 
 object Examples {

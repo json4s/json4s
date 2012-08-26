@@ -3,6 +3,7 @@ package org.json4s
 
 import java.util.Date
 import org.specs.Specification
+import org.json4s.native.Serialization
 
 object SerializationExamples extends Specification {
   import Serialization.{read, write => swrite}
@@ -130,9 +131,9 @@ object ShortTypeHintExamples extends TypeHintExamples {
 }
 
 object FullTypeHintExamples extends TypeHintExamples {
-  import Serialization.{read, write => swrite}
+  import native.Serialization.{read, write => swrite}
 
-  implicit val formats = Serialization.formats(FullTypeHints(List[Class[_]](classOf[Animal], classOf[True], classOf[False], classOf[Falcon], classOf[Chicken])))
+  implicit val formats = native.Serialization.formats(FullTypeHints(List[Class[_]](classOf[Animal], classOf[True], classOf[False], classOf[Falcon], classOf[Chicken])))
 
   "Ambiguous field decomposition example" in {
     val a = Ambiguous(False())
@@ -180,7 +181,7 @@ object CustomTypeHintFieldNameExample extends TypeHintExamples {
 }
 
 trait TypeHintExamples extends Specification {
-  import Serialization.{read, write => swrite}
+  import native.Serialization.{read, write => swrite}
 
   implicit val formats: Formats
 
