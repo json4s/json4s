@@ -1,15 +1,14 @@
 package org.json4s
 package jackson
 
-import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
+import com.fasterxml.jackson.databind.ObjectMapper
+import util.control.Exception.allCatch
 
 trait JacksonJsonMethods extends JsonMethods[JValue] {
 
   private val _defaultMapper = new ObjectMapper()
   def mapper = _defaultMapper
   mapper.registerModule(Json4sScalaModule)
-  mapper.enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)
-
 
   def parse(s: String): _root_.org.json4s.JValue = {
     mapper.readValue[JValue](s, classOf[JValue])
@@ -27,6 +26,15 @@ trait JacksonJsonMethods extends JsonMethods[JValue] {
     val writer = mapper.writerWithDefaultPrettyPrinter()
     writer.writeValueAsString(d)
   }
+
+
+
 }
 
+
+class JValueExt(jv: JValue) {
+  def extract[T:Manifest:Reader]: T = implicitly[Reader[T]].read(jv)
+  def extractOpt[T:Manifest:Reader]: Option[T] = allCatch.withApply(_ => None) { Option(extract) }
+  def extractOrElse[T:Manifest:Reader](default: => T) = extractOpt getOrElse default
+}
 object JacksonJsonMethods extends JacksonJsonMethods

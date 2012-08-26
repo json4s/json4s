@@ -18,7 +18,7 @@ class Json4sScalaModule
             with IterableModule
             with TupleModule
             with MapModule
-            with CaseClassModule
+            with Json4sCaseClassModule
             with SetModule
             with UntypedObjectDeserializerModule
 

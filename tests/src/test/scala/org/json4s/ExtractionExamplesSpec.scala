@@ -231,7 +231,7 @@ object ExtractionExamples extends Specification("Extraction Examples Specificati
   "children": [
     {
       "name": "Mary",
-      "age": 5
+      "age": 5,
       "birthdate": "2004-09-04T18:06:22Z"
     },
     {
