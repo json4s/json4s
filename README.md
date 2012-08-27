@@ -1,7 +1,7 @@
 # JSON4S
 
 At this moment there are at least 6 json libraries for scala, not counting the java json libraries.
-All these libraries have a very similar AST this project aims to provide a single AST to be used by other scala
+All these libraries have a very similar AST. This project aims to provide a single AST to be used by other scala
 json libraries.
 
 At this moment the approach taken to working with the AST has been taken from lift-json and the native package
