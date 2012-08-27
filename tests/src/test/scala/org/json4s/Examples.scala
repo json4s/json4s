@@ -16,12 +16,11 @@
 
 package org.json4s
 
-import jackson.JacksonJsonMethods
 import org.specs.Specification
 import text.Document
 
 object NativeExamples extends Examples[Document]("Native") with native.JsonMethods
-object JacksonExamples extends Examples[JValue]("Jackson") with JacksonJsonMethods
+object JacksonExamples extends Examples[JValue]("Jackson") with jackson.JsonMethods
 
 object Examples {
   import JsonDSL._

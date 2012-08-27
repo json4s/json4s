@@ -20,7 +20,7 @@ import org.specs.Specification
 import text.Document
 
 object NativeXmlExamples extends XmlExamples[Document]("Native") with native.JsonMethods
-object JacksonXmlExamples extends XmlExamples[JValue]("Jackson") with jackson.JacksonJsonMethods
+object JacksonXmlExamples extends XmlExamples[JValue]("Jackson") with jackson.JsonMethods
 
 abstract class XmlExamples[T](mod: String) extends Specification(mod+" XML Examples") with JsonMethods[T]{
   import JsonDSL._

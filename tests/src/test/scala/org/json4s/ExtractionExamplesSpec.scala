@@ -19,10 +19,13 @@ package org.json4s
 import java.util.Date
 import org.specs.Specification
 import java.text.SimpleDateFormat
+import text.Document
 
-object NativeExtractionExamples extends Specification("Native Extraction Examples Specification") {
+object NativeExtractionExamples extends ExtractionExamples[Document]("Native") with native.JsonMethods
+object JacksonExtractionExamples extends ExtractionExamples[JValue]("Jackson") with jackson.JsonMethods
 
-  import native.JsonMethods._
+abstract class ExtractionExamples[T](mod: String) extends Specification(mod+" Extraction Examples Specification") with JsonMethods[T] {
+
   implicit val formats = DefaultFormats
 
   "Extraction example" in {

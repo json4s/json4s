@@ -16,11 +16,8 @@
 
 package org.json4s
 
-import jackson.JacksonJsonMethods
 import org.specs.Specification
 import text.Document
-import com.fasterxml.jackson.databind.util.TokenBuffer
-import com.fasterxml.jackson.core.JsonGenerator
 
 object NativeLottoExample extends LottoExample[Document]("Native") with native.JsonMethods {
   import LottoExample._
@@ -29,7 +26,7 @@ object NativeLottoExample extends LottoExample[Document]("Native") with native.J
 
   def extractLotto(jv: JValue): Lotto = jv.extract[Lotto]
 }
-object JacksonLottoExample extends LottoExample[JValue]("Jackson") with JacksonJsonMethods {
+object JacksonLottoExample extends LottoExample[JValue]("Jackson") with jackson.JsonMethods {
   import LottoExample._
   def extractWinner(jv: JValue): Winner = {
     val str = mapper.writeValueAsString(jv)

@@ -3,7 +3,7 @@ package jackson
 
 import com.fasterxml.jackson.databind.`type`.TypeFactory
 import com.fasterxml.jackson.databind.{DeserializationFeature, DeserializationContext, JsonDeserializer}
-import com.fasterxml.jackson.core.{JsonToken, JsonParser}
+import com.fasterxml.jackson.core.{FormatSchema, JsonToken, JsonParser}
 import org.json4s._
 import scala._
 import collection.mutable.ArrayBuffer
@@ -13,7 +13,6 @@ class JValueDeserializer(factory: TypeFactory, klass: Class[_]) extends JsonDese
     if (jp.getCurrentToken == null) {
       jp.nextToken()
     }
-
     val value = jp.getCurrentToken match {
       case JsonToken.VALUE_NULL => JNull
       case JsonToken.VALUE_NUMBER_INT => JInt(BigInt(jp.getText))
@@ -27,7 +26,7 @@ class JValueDeserializer(factory: TypeFactory, klass: Class[_]) extends JsonDese
         val values = new ArrayBuffer[JValue]()
         jp.nextToken()
         while(jp.getCurrentToken != JsonToken.END_ARRAY) {
-          values += jp.getCodec.readValue(jp, Types.build(factory, manifest[JValue]))
+          values += deserialize(jp, ctxt).asInstanceOf[JValue]
           jp.nextToken()
         }
         JArray(values.toList)
@@ -41,7 +40,7 @@ class JValueDeserializer(factory: TypeFactory, klass: Class[_]) extends JsonDese
         while (jp.getCurrentToken != JsonToken.END_OBJECT) {
           val name = jp.getCurrentName
           jp.nextToken()
-          fields += JField(name, jp.getCodec.readValue(jp, Types.build(factory, manifest[JValue])))
+          fields += JField(name, deserialize(jp, ctxt).asInstanceOf[JValue])
           jp.nextToken()
         }
         JObject(fields.toList)

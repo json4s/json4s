@@ -20,7 +20,7 @@ import org.specs.Specification
 import text.Document
 
 object NativeJsonQueryExamples extends JsonQueryExamples[Document]("Native") with native.JsonMethods
-object JacksonJsonQueryExamples extends JsonQueryExamples[JValue]("Jackson") with jackson.JacksonJsonMethods
+object JacksonJsonQueryExamples extends JsonQueryExamples[JValue]("Jackson") with jackson.JsonMethods
 
 /**
 * System under specification for JSON Query Examples.

@@ -20,7 +20,7 @@ import org.specs.Specification
 import text.Document
 
 object NativeMergeExamples extends MergeExamples[Document]("Native") with native.JsonMethods
-object JacksonMergeExamples extends MergeExamples[JValue]("Jackson") with jackson.JacksonJsonMethods
+object JacksonMergeExamples extends MergeExamples[JValue]("Jackson") with jackson.JsonMethods
 abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge Examples") with JsonMethods[T] {
   "Merge example" in {
     (scala1 merge scala2) mustEqual expectedMergeResult

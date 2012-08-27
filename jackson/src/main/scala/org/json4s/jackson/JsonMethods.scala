@@ -3,12 +3,14 @@ package jackson
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import util.control.Exception.allCatch
+import org.json4s
 
-trait JacksonJsonMethods extends JsonMethods[JValue] {
+trait JsonMethods extends json4s.JsonMethods[JValue] {
 
   private val _defaultMapper = new ObjectMapper()
   def mapper = _defaultMapper
   mapper.registerModule(Json4sScalaModule)
+
 
   def parse(s: String): _root_.org.json4s.JValue = {
     mapper.readValue[JValue](s, classOf[JValue])
@@ -37,4 +39,4 @@ trait JacksonJsonMethods extends JsonMethods[JValue] {
 //  def extractOpt[T:Manifest:Reader]: Option[T] = allCatch.withApply(_ => None) { Option(extract) }
 //  def extractOrElse[T:Manifest:Reader](default: => T) = extractOpt getOrElse default
 //}
-object JacksonJsonMethods extends JacksonJsonMethods
+object JsonMethods extends JsonMethods

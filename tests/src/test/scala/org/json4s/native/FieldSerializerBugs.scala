@@ -1,6 +1,5 @@
 package org.json4s
 
-
 import org.specs.Specification
 
 object FieldSerializerBugs extends Specification {

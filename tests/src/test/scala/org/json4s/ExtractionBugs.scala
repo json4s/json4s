@@ -1,11 +1,36 @@
 package org.json4s
 
-
 import org.specs.Specification
+import text.Document
 
-object ExtractionBugs extends Specification("Extraction bugs Specification") {
-  import native.JsonMethods._
-  import native.JsonParser
+object NativeExtractionBugs extends ExtractionBugs[Document]("Native") with native.JsonMethods
+object JacksonExtractionBugs extends ExtractionBugs[JValue]("Native") with jackson.JsonMethods
+
+object ExtractionBugs {
+  case class Response(data: List[Map[String, Int]])
+
+  case class OptionOfInt(opt: Option[Int])
+
+  case class PMap(m: Map[String, List[String]])
+
+  case class ManyConstructors(id: Long, name: String, lastName: String, email: String) {
+    def this() = this(0, "John", "Doe", "")
+    def this(name: String) = this(0, name, "Doe", "")
+    def this(name: String, email: String) = this(0, name, "Doe", email)
+  }
+
+  case class ExtractWithAnyRef()
+
+  case class UnicodeFieldNames(`foo.bar,baz`: String)
+
+  object HasCompanion {
+    def hello = "hello"
+  }
+  case class HasCompanion(nums: List[Int])
+}
+abstract class ExtractionBugs[T](mod: String) extends Specification(mod+" Extraction bugs Specification") with JsonMethods[T] {
+
+  import ExtractionBugs._
   implicit val formats = DefaultFormats
 
   "ClassCastException (BigInt) regression 2 must pass" in {
@@ -39,29 +64,10 @@ object ExtractionBugs extends Specification("Extraction bugs Specification") {
   }
 
   "Issue 1169" in {
-    val json = JsonParser.parse("""{"data":[{"one":1, "two":2}]}""")
+    val json = parse("""{"data":[{"one":1, "two":2}]}""")
     json.extract[Response] mustEqual Response(List(Map("one" -> 1, "two" -> 2)))
   }
 
-  case class Response(data: List[Map[String, Int]])
 
-  case class OptionOfInt(opt: Option[Int])
-
-  case class PMap(m: Map[String, List[String]])
-
-  case class ManyConstructors(id: Long, name: String, lastName: String, email: String) {
-    def this() = this(0, "John", "Doe", "")
-    def this(name: String) = this(0, name, "Doe", "")
-    def this(name: String, email: String) = this(0, name, "Doe", email)
-  }
-
-  case class ExtractWithAnyRef()
-
-  case class UnicodeFieldNames(`foo.bar,baz`: String)
-
-  object HasCompanion {
-    def hello = "hello"
-  }
-  case class HasCompanion(nums: List[Int])
 }
 
