@@ -174,9 +174,9 @@ Parsing JSON
 
 Any valid json can be parsed into internal AST format.
 
-    scala> import net.liftweb.json._
+    scala> import org.json4s._
     scala> parse(""" { "numbers" : [1, 2, 3, 4] } """)
-    res0: net.liftweb.json.JsonAST.JValue =
+    res0: org.json4s.JsonAST.JValue =
           JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
 
 Producing JSON
@@ -229,8 +229,8 @@ Example
 
 ```scala
 object JsonExample extends Application {
-  import net.liftweb.json._
-  import net.liftweb.json.JsonDSL._
+  import org.json4s._
+  import org.json4s.JsonDSL._
 
   case class Winner(id: Long, numbers: List[Int])
   case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[java.util.Date])
@@ -280,7 +280,7 @@ Merging & Diffing
 Two JSONs can be merged and diffed with each other.
 Please see more examples in src/test/scala/net/liftweb/json/MergeExamples.scala and src/test/scala/net/liftweb/json/DiffExamples.scala
 
-    scala> import net.liftweb.json._
+    scala> import org.json4s._
 
     scala> val lotto1 = parse("""{
              "lotto":{
@@ -320,9 +320,9 @@ Please see more examples in src/test/scala/net/liftweb/json/MergeExamples.scala 
     }
 
     scala> val Diff(changed, added, deleted) = mergedLotto diff lotto1
-    changed: net.liftweb.json.JsonAST.JValue = JNothing
-    added: net.liftweb.json.JsonAST.JValue = JNothing
-    deleted: net.liftweb.json.JsonAST.JValue = JObject(List((lotto,JObject(List(JField(winners,
+    changed: org.json4s.JsonAST.JValue = JNothing
+    added: org.json4s.JsonAST.JValue = JNothing
+    deleted: org.json4s.JsonAST.JValue = JObject(List((lotto,JObject(List(JField(winners,
     JArray(List(JObject(List((winner-id,JInt(54)), (numbers,JArray(
     List(JInt(52), JInt(3), JInt(12), JInt(11), JInt(18), JInt(22))))))))))))))
 
@@ -336,7 +336,7 @@ Querying JSON
 JSON values can be extracted using for-comprehensions.
 Please see more examples in src/test/scala/net/liftweb/json/JsonQueryExamples.scala
 
-    scala> import net.liftweb.json._
+    scala> import org.json4s._
     scala> val json = parse("""
              { "name": "joe",
                "children": [
@@ -386,8 +386,8 @@ Json AST can be queried using XPath like functions. Following REPL session shows
 
     Translated to DSL syntax:
 
-    scala> import net.liftweb.json._
-    scala> import net.liftweb.json.JsonDSL._
+    scala> import org.json4s._
+    scala> import org.json4s.JsonDSL._
 
     scala> val json =
       ("person" ->
@@ -402,7 +402,7 @@ Json AST can be queried using XPath like functions. Following REPL session shows
       )
 
     scala> json \\ "spouse"
-    res0: net.liftweb.json.JsonAST.JValue = JObject(List(
+    res0: org.json4s.JsonAST.JValue = JObject(List(
           (person,JObject(List((name,JString(Marilyn)), (age,JInt(33)))))))
 
     scala> compact(render(res0))
@@ -424,18 +424,18 @@ Json AST can be queried using XPath like functions. Following REPL session shows
              case JField("name", _) => true
              case _ => false
            }
-    res6: Option[net.liftweb.json.JsonAST.JValue] = Some((name,JString(Joe)))
+    res6: Option[org.json4s.JsonAST.JValue] = Some((name,JString(Joe)))
 
     scala> json filterField {
              case JField("name", _) => true
              case _ => false
            }
-    res7: List[net.liftweb.json.JsonAST.JField] = List(JField(name,JString(Joe)), JField(name,JString(Marilyn)))
+    res7: List[org.json4s.JsonAST.JField] = List(JField(name,JString(Joe)), JField(name,JString(Marilyn)))
 
     scala> json transformField {
              case JField("name", JString(s)) => ("NAME", JString(s.toUpperCase))
            }
-    res8: net.liftweb.json.JsonAST.JValue = JObject(List((person,JObject(List(
+    res8: org.json4s.JsonAST.JValue = JObject(List((person,JObject(List(
     (NAME,JString(JOE)), (age,JInt(35)), (spouse,JObject(List(
     (person,JObject(List((NAME,JString(MARILYN)), (age,JInt(33)))))))))))))
 
@@ -460,16 +460,16 @@ Indexed path expressions work too and values can be unboxed using type expressio
            """)
 
     scala> (json \ "children")(0)
-    res0: net.liftweb.json.JsonAST.JValue = JObject(List((name,JString(Mary)), (age,JInt(5))))
+    res0: org.json4s.JsonAST.JValue = JObject(List((name,JString(Mary)), (age,JInt(5))))
 
     scala> (json \ "children")(1) \ "name"
-    res1: net.liftweb.json.JsonAST.JValue = JString(Mazy)
+    res1: org.json4s.JsonAST.JValue = JString(Mazy)
 
     scala> json \\ classOf[JInt]
-    res2: List[net.liftweb.json.JsonAST.JInt#Values] = List(5, 3)
+    res2: List[org.json4s.JsonAST.JInt#Values] = List(5, 3)
 
     scala> json \ "children" \\ classOf[JString]
-    res3: List[net.liftweb.json.JsonAST.JString#Values] = List(Mary, Mazy)
+    res3: List[org.json4s.JsonAST.JString#Values] = List(Mary, Mazy)
 
 Extracting values
 =================
@@ -479,7 +479,7 @@ can be extracted into scala.Option and strings can be automatically converted in
 java.util.Dates.
 Please see more examples in src/test/scala/net/liftweb/json/ExtractionExamplesSpec.scala
 
-    scala> import net.liftweb.json._
+    scala> import org.json4s._
     scala> implicit val formats = DefaultFormats // Brings in default date formats etc.
     scala> case class Child(name: String, age: Int, birthdate: Option[java.util.Date])
     scala> case class Address(street: String, city: String)
@@ -576,8 +576,8 @@ Serialization
 Case classes can be serialized and deserialized.
 Please see other examples in src/test/scala/net/liftweb/json/SerializationExamples.scala
 
-    scala> import net.liftweb.json._
-    scala> import net.liftweb.json.Serialization.{read, write}
+    scala> import org.json4s._
+    scala> import org.json4s.Serialization.{read, write}
     scala> implicit val formats = Serialization.formats(NoTypeHints)
     scala> val ser = write(Child("Mary", 5, None))
     scala> read[Child](ser)
@@ -674,15 +674,15 @@ Extensions
 Module json4s-ext contains extensions to extraction and serialization. Following types are supported.
 
     // Lift's box
-    implicit val formats = net.liftweb.json.DefaultFormats + new JsonBoxSerializer
+    implicit val formats = org.json4s.DefaultFormats + new org.json4s.native.ext.JsonBoxSerializer
 
     // Scala enums
-    implicit val formats = net.liftweb.json.DefaultFormats + new EnumSerializer(MyEnum)
+    implicit val formats = org.json4s.DefaultFormats + new org.json4s.ext.EnumSerializer(MyEnum)
     // or
-    implicit val formats = net.liftweb.json.DefaultFormats + new EnumNameSerializer(MyEnum)
+    implicit val formats = org.json4s.DefaultFormats + new org.json4s.ext.EnumNameSerializer(MyEnum)
 
     // Joda Time
-    implicit val formats = net.liftweb.json.DefaultFormats ++ JodaTimeSerializers.all
+    implicit val formats = org.json4s.DefaultFormats ++ org.json4s.ext.JodaTimeSerializers.all
 
 XML support
 ===========
@@ -690,7 +690,7 @@ XML support
 JSON structure can be converted to XML node and vice versa.
 Please see more examples in src/test/scala/net/liftweb/json/XmlExamples.scala
 
-    scala> import net.liftweb.json.Xml.{toJson, toXml}
+    scala> import org.json4s.Xml.{toJson, toXml}
     scala> val xml =
              <users>
                <user>
@@ -793,7 +793,7 @@ Q1: I have a JSON object and I want to extract it to a case class:
 But extraction fails:
 
     scala> parse(json).extract[Person]
-    net.liftweb.json.MappingException: Parsed JSON values do not match with class constructor
+    org.json4s.MappingException: Parsed JSON values do not match with class constructor
 
 A1:
 

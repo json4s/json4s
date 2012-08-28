@@ -27,9 +27,9 @@ import scala.reflect.Manifest
  * implicit val formats = Serialization.formats(hints)
  * </pre>
  *
- * @see net.liftweb.json.TypeHints
+ * @see org.json4s.TypeHints
  */
-object Serialization {
+object Serialization extends Serialization  {
   import java.io.{Reader, StringWriter, Writer}
   /** Serialize to String.
    */
@@ -61,15 +61,4 @@ object Serialization {
   def read[A](in: Reader)(implicit formats: Formats, mf: Manifest[A]): A =
     JsonParser.parse(in).extract(formats, mf)
 
-  /** Create Serialization formats with given type hints.
-   * <p>
-   * Example:<pre>
-   * val hints = new ShortTypeHints( ... )
-   * implicit val formats = Serialization.formats(hints)
-   * </pre>
-   */
-  def formats(hints: TypeHints) = new Formats {
-    val dateFormat = DefaultFormats.lossless.dateFormat
-    override val typeHints = hints
-  }
 }

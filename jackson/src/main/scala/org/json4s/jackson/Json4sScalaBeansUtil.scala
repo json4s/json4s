@@ -1,13 +1,10 @@
 package org.json4s
 package jackson
 
-import org.scalastuff.scalabeans.types.ScalaType
 import org.scalastuff.scalabeans.sig.{Mirror, ClassDeclExtractor}
 import org.scalastuff.scalabeans._
-import org.scalastuff.scalabeans.Preamble._
 import java.lang.reflect._
 import com.thoughtworks.paranamer.BytecodeReadingParanamer
-import collection.JavaConversions._
 import Preamble._
 import org.scalastuff.scalabeans.types.ScalaType
 
@@ -142,7 +139,7 @@ object WorkingBeanIntrospector {
       println(prefix + "    " + f.getName + static(f.getModifiers))
     }
     println(prefix + "  Enum Values: ")
-    for (f <- c.getMethods filter (m => m.getParameterTypes.isEmpty && classOf[Enumeration$Value].isAssignableFrom(m.getReturnType))) {
+    for (f <- c.getMethods filter (m => m.getParameterTypes.isEmpty && classOf[Enumeration#Value].isAssignableFrom(m.getReturnType))) {
       val instance = new Enumeration{}
       println(prefix + "    a" )
     }

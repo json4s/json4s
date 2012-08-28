@@ -500,7 +500,7 @@ object JsonAST {
 
 /** Basic implicit conversions from primitive types into JSON.
  * Example:<pre>
- * import net.liftweb.json.Implicits._
+ * import org.json4s.Implicits._
  * JObject(JField("name", "joe") :: Nil) == JObject(JField("name", JString("joe")) :: Nil)
  * </pre>
  */
@@ -518,7 +518,7 @@ trait Implicits {
 
 /** A DSL to produce valid JSON.
  * Example:<pre>
- * import net.liftweb.json.JsonDSL._
+ * import org.json4s.JsonDSL._
  * ("name", "joe") ~ ("age", 15) == JObject(JField("name",JString("joe")) :: JField("age",JInt(15)) :: Nil)
  * </pre>
  */

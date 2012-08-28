@@ -15,11 +15,12 @@
  */
 
 package org.json4s
-package native
 package ext
 
 import org.joda.time._
 import JsonDSL._
+
+
 
 object JodaTimeSerializers {
   def all = List(DurationSerializer, InstantSerializer, DateTimeSerializer,
@@ -58,7 +59,7 @@ case object InstantSerializer extends CustomSerializer[Instant](format => (
 ))
 
 object DateParser {
-  def parse(s: String, format: Formats) = 
+  def parse(s: String, format: Formats) =
     format.dateFormat.parse(s).map(_.getTime).getOrElse(throw new MappingException("Invalid date format " + s))
 }
 
@@ -90,21 +91,21 @@ object IntervalSerializer {
   })
 }
 
-private[ext] case class _LocalDate(year: Int, month: Int, day: Int) 
+private[ext] case class _LocalDate(year: Int, month: Int, day: Int)
 object LocalDateSerializer {
   def apply() = new ClassSerializer(new ClassType[LocalDate, _LocalDate]() {
     def unwrap(d: _LocalDate)(implicit format: Formats) = new LocalDate(d.year, d.month, d.day)
-    def wrap(d: LocalDate)(implicit format: Formats) = 
+    def wrap(d: LocalDate)(implicit format: Formats) =
       _LocalDate(d.getYear(), d.getMonthOfYear, d.getDayOfMonth)
   })
 }
 
-private[ext] case class _LocalTime(hour: Int, minute: Int, second: Int, millis: Int) 
+private[ext] case class _LocalTime(hour: Int, minute: Int, second: Int, millis: Int)
 object LocalTimeSerializer {
   def apply() = new ClassSerializer(new ClassType[LocalTime, _LocalTime]() {
-    def unwrap(t: _LocalTime)(implicit format: Formats) = 
+    def unwrap(t: _LocalTime)(implicit format: Formats) =
       new LocalTime(t.hour, t.minute, t.second, t.millis)
-    def wrap(t: LocalTime)(implicit format: Formats) = 
+    def wrap(t: LocalTime)(implicit format: Formats) =
       _LocalTime(t.getHourOfDay, t.getMinuteOfHour, t.getSecondOfMinute, t.getMillisOfSecond)
   })
 }
@@ -129,3 +130,4 @@ case class ClassSerializer[A : Manifest, B : Manifest](t: ClassType[A, B]) exten
     case a: A if a.asInstanceOf[AnyRef].getClass == Class => Extraction.decompose(t.wrap(a))
   }
 }
+

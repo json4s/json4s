@@ -15,7 +15,6 @@
  */
 
 package org.json4s
-package native
 package ext
 
 class EnumSerializer[E <: Enumeration: ClassManifest](enum: E)

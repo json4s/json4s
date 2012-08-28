@@ -17,8 +17,8 @@ Simple example
 
     scala> import scalaz._
     scala> import Scalaz._
-    scala> import net.liftweb.json.scalaz.JsonScalaz._
-    scala> import net.liftweb.json._
+    scala> import org.json4s.scalaz.JsonScalaz._
+    scala> import org.json4s._
 
     scala> case class Address(street: String, zipCode: String)
     scala> case class Person(name: String, age: Int, address: Address)

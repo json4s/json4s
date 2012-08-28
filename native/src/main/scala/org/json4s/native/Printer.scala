@@ -8,7 +8,7 @@ package native
  * pretty(render(json))
  * </pre>
  *
- * @see net.liftweb.json.JsonAST#render
+ * @see org.json4s.JsonAST#render
  */
 object Printer extends Printer
 trait Printer {

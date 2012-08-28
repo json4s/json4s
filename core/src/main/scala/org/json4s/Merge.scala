@@ -94,7 +94,7 @@ object Merge {
 
     class MergeSyntax[A <: JValue](json: A) {
       /** Return merged JSON.
-       * @see net.liftweb.json.Merge#merge
+       * @see org.json4s.Merge#merge
        */
       def merge[B <: JValue, R <: JValue](other: B)(implicit instance: MergeDep[A, B, R]): R = 
         Merge.merge(json, other)(instance)

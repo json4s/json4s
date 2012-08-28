@@ -74,12 +74,12 @@ object JsonParser {
 
   /** Parse in pull parsing style.
    * Use <code>p.nextToken</code> to parse tokens one by one from a string.
-   * @see net.liftweb.json.JsonParser.Token
+   * @see org.json4s.JsonParser.Token
    */
   def parse[A](s: String, p: Parser => A): A = parse(s, p, useBigDecimalForDouble = false)
   /** Parse in pull parsing style.
    * Use <code>p.nextToken</code> to parse tokens one by one from a string.
-   * @see net.liftweb.json.JsonParser.Token
+   * @see org.json4s.JsonParser.Token
    */
   def parse[A](s: String, p: Parser => A, useBigDecimalForDouble: Boolean): A =
     parse(new StringReader(s), p, useBigDecimalForDouble)
@@ -87,13 +87,13 @@ object JsonParser {
   /** Parse in pull parsing style.
    * Use <code>p.nextToken</code> to parse tokens one by one from a stream.
    * The Reader must be closed when parsing is stopped.
-   * @see net.liftweb.json.JsonParser.Token
+   * @see org.json4s.JsonParser.Token
    */
   def parse[A](s: Reader, p: Parser => A): A = parse(s, p, useBigDecimalForDouble = false)
   /** Parse in pull parsing style.
    * Use <code>p.nextToken</code> to parse tokens one by one from a stream.
    * The Reader must be closed when parsing is stopped.
-   * @see net.liftweb.json.JsonParser.Token
+   * @see org.json4s.JsonParser.Token
    */
   def parse[A](s: Reader, p: Parser => A, useBigDecimalForDouble: Boolean): A =
     p(new Parser(new Buffer(s, false), useBigDecimalForDouble))

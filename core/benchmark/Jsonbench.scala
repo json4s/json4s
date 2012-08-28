@@ -8,7 +8,7 @@ object Jsonbench extends Benchmark {
   import scala.util.parsing.json.JSON
   import org.codehaus.jackson._
   import org.codehaus.jackson.map._
-  import net.liftweb.json.JsonParser
+  import org.json4s.JsonParser
 
   def main(args: Array[String]) = {
     benchmark("Scala std") { JSON.parse(json) }

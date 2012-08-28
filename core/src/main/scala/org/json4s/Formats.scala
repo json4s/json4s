@@ -18,13 +18,11 @@ package org.json4s
 
 
 import java.util.{Date, TimeZone}
-import org.json4s._
-import scala.Some
 
 /** Formats to use when converting JSON.
  * Formats are usually configured by using an implicit parameter:
  * <pre>
- * implicit val formats = net.liftweb.json.DefaultFormats
+ * implicit val formats = org.json4s.DefaultFormats
  * </pre>
  */
 trait Formats { self: Formats =>

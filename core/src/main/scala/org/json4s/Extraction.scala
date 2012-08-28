@@ -34,7 +34,7 @@ object Extraction {
   import Meta.Reflection._
 
   /** Extract a case class from JSON.
-   * @see net.liftweb.json.JsonAST.JValue#extract
+   * @see org.json4s.JsonAST.JValue#extract
    * @throws MappingException is thrown if extraction fails
    */
   def extract[A](json: JValue)(implicit formats: Formats, mf: Manifest[A]): A = {
@@ -50,7 +50,7 @@ object Extraction {
   }
 
   /** Extract a case class from JSON.
-   * @see net.liftweb.json.JsonAST.JValue#extract
+   * @see org.json4s.JsonAST.JValue#extract
    */
   def extractOpt[A](json: JValue)(implicit formats: Formats, mf: Manifest[A]): Option[A] =
     try { Some(extract(json)(formats, mf)) } catch { case _: MappingException => None }
@@ -59,7 +59,7 @@ object Extraction {
    * <p>
    * Example:<pre>
    * case class Person(name: String, age: Int)
-   * implicit val formats = net.liftweb.json.DefaultFormats
+   * implicit val formats = org.json4s.DefaultFormats
    * Extraction.decompose(Person("joe", 25)) == JObject(JField("age",JInt(25)) :: JField("name",JString("joe")) :: Nil)
    * </pre>
    */

@@ -4,8 +4,6 @@ package jackson
 import com.fasterxml.jackson.databind.`type`.TypeFactory
 import com.fasterxml.jackson.databind.{DeserializationFeature, DeserializationContext, JsonDeserializer}
 import com.fasterxml.jackson.core.{FormatSchema, JsonToken, JsonParser}
-import org.json4s._
-import scala._
 import collection.mutable.ArrayBuffer
 
 class JValueDeserializer(factory: TypeFactory, klass: Class[_]) extends JsonDeserializer[Object] {
@@ -17,7 +15,7 @@ class JValueDeserializer(factory: TypeFactory, klass: Class[_]) extends JsonDese
       case JsonToken.VALUE_NULL => JNull
       case JsonToken.VALUE_NUMBER_INT => JInt(BigInt(jp.getText))
       case JsonToken.VALUE_NUMBER_FLOAT =>
-        if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) JDecimal(jp.getDecimalValue)
+        if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) JDecimal(BigDecimal(jp.getDecimalValue))
         else JDouble(jp.getDoubleValue)
       case JsonToken.VALUE_STRING => JString(jp.getText)
       case JsonToken.VALUE_TRUE => JBool(true)

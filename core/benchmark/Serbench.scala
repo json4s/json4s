@@ -1,5 +1,5 @@
-import net.liftweb.json._
-import net.liftweb.json.Serialization.{read, write}
+import org.json4s._
+import org.json4s.Serialization.{read, write}
 import java.io._
 import java.util.Date
 

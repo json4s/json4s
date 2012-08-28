@@ -21,7 +21,6 @@ import org.specs.Specification
 
 import net.liftweb.common._
 import native.JsonMethods._
-import native.ext.JsonBoxSerializer
 import native.Serialization.{read, write => swrite}
 
 
@@ -30,7 +29,7 @@ import native.Serialization.{read, write => swrite}
 */
 object JsonBoxSerializerSpec extends Specification("JsonBoxSerializer Specification") {
 
-  implicit val formats = DefaultFormats + new JsonBoxSerializer
+  implicit val formats = DefaultFormats + new native.ext.JsonBoxSerializer
 
   "Extract empty age" in {
     parse("""{"name":"joe"}""").extract[Person] mustEqual Person("joe", Empty, Empty)
