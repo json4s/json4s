@@ -189,7 +189,7 @@ abstract class Examples[T](mod: String) extends Specification(mod + " Examples")
   }
 
   "JSON building with implicit primitive conversions example" in {
-    import Implicits._
+    import DoubleMode._
     val json = JObject(("name", "joe"), ("age", 34)) ++ JObject(("name", "mazy"), ("age", 31))
     compact(render(json)) mustEqual """[{"name":"joe","age":34},{"name":"mazy","age":31}]"""
   }

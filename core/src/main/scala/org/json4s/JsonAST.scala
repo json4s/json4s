@@ -418,6 +418,17 @@ object JsonAST {
     def extractOrElse[A](default: => A)(implicit formats: Formats, mf: scala.reflect.Manifest[A]): A =
       Extraction.extractOpt(this)(formats, mf).getOrElse(default)
 
+    def as[A](implicit reader: Reader[A],  mf: Manifest[A]): A = reader.read(this)
+
+    def asOption[A](implicit reader: Reader[A], mf: scala.reflect.Manifest[A]): Option[A] = try {
+      toOpt map reader.read
+    } catch { case _: Throwable => None }
+
+    def getAsOrElse[A](default: => A)(implicit reader: Reader[A], mf: Manifest[A]): A =
+      asOption(reader, mf) getOrElse default
+
+
+
     def toOpt: Option[JValue] = this match {
       case JNothing => None
       case json     => Some(json)
@@ -504,14 +515,27 @@ object JsonAST {
  * JObject(JField("name", "joe") :: Nil) == JObject(JField("name", JString("joe")) :: Nil)
  * </pre>
  */
-object Implicits extends Implicits
+trait BigDecimalMode { self: Implicits =>
+  implicit def double2jvalue(x: Double): JValue = JDecimal(x)
+  implicit def float2jvalue(x: Float): JValue = JDecimal(x.toDouble)
+  implicit def bigdecimal2jvalue(x: BigDecimal): JValue = JDecimal(x)
+
+}
+object BigDecimalMode extends Implicits with BigDecimalMode
+trait DoubleMode { self: Implicits =>
+  implicit def double2jvalue(x: Double): JValue = JDouble(x)
+  implicit def float2jvalue(x: Float): JValue = JDouble(x.toDouble)
+  implicit def bigdecimal2jvalue(x: BigDecimal): JValue = JDouble(x.doubleValue())
+
+}
+object DoubleMode extends Implicits with DoubleMode
 trait Implicits {
   implicit def int2jvalue(x: Int) = JInt(x)
   implicit def long2jvalue(x: Long) = JInt(x)
   implicit def bigint2jvalue(x: BigInt) = JInt(x)
-  implicit def double2jvalue(x: Double) = JDouble(x)
-  implicit def float2jvalue(x: Float) = JDouble(x)
-  implicit def bigdecimal2jvalue(x: BigDecimal) = JDouble(x.doubleValue)
+  implicit def double2jvalue(x: Double): JValue
+  implicit def float2jvalue(x: Float): JValue
+  implicit def bigdecimal2jvalue(x: BigDecimal): JValue
   implicit def boolean2jvalue(x: Boolean) = JBool(x)
   implicit def string2jvalue(x: String) = JString(x)
 }
@@ -522,7 +546,10 @@ trait Implicits {
  * ("name", "joe") ~ ("age", 15) == JObject(JField("name",JString("joe")) :: JField("age",JInt(15)) :: Nil)
  * </pre>
  */
-object JsonDSL extends JsonDSL
+object JsonDSL extends JsonDSL with DoubleMode {
+  object WithDoubles extends JsonDSL with DoubleMode
+  object WithBigDecimal extends JsonDSL with BigDecimalMode
+}
 trait JsonDSL extends Implicits {
   implicit def seq2jvalue[A <% JValue](s: Traversable[A]) =
     JArray(s.toList.map { a => val v: JValue = a; v })
