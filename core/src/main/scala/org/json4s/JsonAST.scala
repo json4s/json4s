@@ -547,7 +547,7 @@ trait Implicits {
  * </pre>
  */
 object JsonDSL extends JsonDSL with DoubleMode {
-  object WithDoubles extends JsonDSL with DoubleMode
+  object WithDouble extends JsonDSL with DoubleMode
   object WithBigDecimal extends JsonDSL with BigDecimalMode
 }
 trait JsonDSL extends Implicits {

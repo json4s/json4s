@@ -182,6 +182,24 @@ Any valid json can be parsed into internal AST format.
 Producing JSON
 ==============
 
+You can generate json in 2 modes either in `DoubleMode` or in `BigDecimalMode`; the former will map all decimal values
+into a JDouble the latter into a JDecimal.
+
+For the double mode dsl use:
+
+```scala
+import org.json4s.JsonDSL._
+// or
+import org.json4s.JsonDSL.WithDouble._
+```
+
+For the big decimal mode dsl use:
+
+```scala
+import org.json4s.JsonDSL.WithBigDecimal._
+```
+
+
 DSL rules
 ---------
 
