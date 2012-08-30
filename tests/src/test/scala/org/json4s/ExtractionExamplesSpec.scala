@@ -26,7 +26,7 @@ object JacksonExtractionExamples extends ExtractionExamples[JValue]("Jackson") w
 
 abstract class ExtractionExamples[T](mod: String) extends Specification(mod+" Extraction Examples Specification") with JsonMethods[T] {
 
-  implicit val formats = DefaultFormats
+  implicit lazy val formats = DefaultFormats
 
   "Extraction example" in {
     val json = parse(testJson)

@@ -1,13 +1,13 @@
 package org.json4s
 
 import collection.{generic, immutable}
-import annotation.implicitNotFound
+//import annotation.implicitNotFound
 
 
 // based on the type classes from play 2 but with the conversions from lift-json
-@implicitNotFound(
-  "No JSON deserializer found for type ${T}. Try to implement an implicit Reader or JsonFormat for this type."
-)
+//@implicitNotFound(
+//  "No JSON deserializer found for type ${T}. Try to implement an implicit Reader or JsonFormat for this type."
+//)
 trait Reader[T] {
   def read(value: JValue): T
 }
@@ -165,9 +165,9 @@ trait DefaultReaders {
   }
 }
 
-@implicitNotFound(
-  "No JSON serializer found for type ${T}. Try to implement an implicit Writer or JsonFormat for this type."
-)
+//@implicitNotFound(
+//  "No JSON serializer found for type ${T}. Try to implement an implicit Writer or JsonFormat for this type."
+//)
 trait Writer[-T] {
   def write(obj: T): JValue
 }
@@ -216,9 +216,9 @@ object DoubleWriters extends DoubleWriters
 object DefaultWriters extends DoubleWriters // alias for DoubleWriters
 
 class FormatException(message: String) extends Exception(message)
-@implicitNotFound(
-  "No Json formatter found for type ${T}. Try to implement an implicit JsonFormat for this type."
-)
+//@implicitNotFound(
+//  "No Json formatter found for type ${T}. Try to implement an implicit JsonFormat for this type."
+//)
 trait JsonFormat[T] extends Writer[T] with Reader[T]
 
 object DefaultJsonFormats extends DefaultJsonFormats

@@ -18,6 +18,7 @@ package org.json4s
 
 
 import java.util.{Date, TimeZone}
+import scalashim._
 
 /** Formats to use when converting JSON.
  * Formats are usually configured by using an implicit parameter:

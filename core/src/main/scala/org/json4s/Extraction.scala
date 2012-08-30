@@ -24,6 +24,7 @@ import java.util.Date
 import java.sql.Timestamp
 import scala.reflect.Manifest
 import java.nio.CharBuffer
+import scalashim._
 
 /** Function to extract values from JSON AST using case classes.
  *

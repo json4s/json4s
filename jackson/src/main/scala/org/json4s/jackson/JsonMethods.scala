@@ -7,24 +7,28 @@ import org.json4s
 
 trait JsonMethods extends json4s.JsonMethods[JValue] {
 
-  private val _defaultMapper = new ObjectMapper()
+  private lazy val _defaultMapper = {
+    val m = new ObjectMapper()
+    m.registerModule(new Json4sScalaModule)
+    m
+  }
   def mapper = _defaultMapper
-  mapper.registerModule(Json4sScalaModule)
 
 
-  def parse(s: String): _root_.org.json4s.JValue = {
+
+  def parse(s: String): JValue = {
     mapper.readValue[JValue](s, classOf[JValue])
   }
 
-  def parseOpt(s: String): Option[_root_.org.json4s.JValue] = try {
+  def parseOpt(s: String): Option[JValue] = try {
     Option(parse(s))
   } catch { case _: Throwable => None}
 
-  def render(value: _root_.org.json4s.JValue): _root_.org.json4s.JValue = value
+  def render(value: JValue): JValue = value
 
-  def compact(d: _root_.org.json4s.JValue): String = mapper.writeValueAsString(d)
+  def compact(d: JValue): String = mapper.writeValueAsString(d)
 
-  def pretty(d: _root_.org.json4s.JValue): String = {
+  def pretty(d: JValue): String = {
     val writer = mapper.writerWithDefaultPrettyPrinter()
     writer.writeValueAsString(d)
   }

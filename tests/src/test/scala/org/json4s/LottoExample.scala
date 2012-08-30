@@ -28,12 +28,10 @@ object NativeLottoExample extends LottoExample[Document]("Native") with native.J
 }
 object JacksonLottoExample extends LottoExample[JValue]("Jackson") with jackson.JsonMethods {
   import LottoExample._
-  def extractWinner(jv: JValue): Winner = {
-    val str = mapper.writeValueAsString(jv)
-    mapper.readValue(str, classOf[Winner])
-  }
+  implicit val formats = DefaultFormats
+  def extractWinner(jv: JValue): Winner = jv.extract[Winner]
 
-  def extractLotto(jv: _root_.org.json4s.JValue): Lotto = mapper.readValue(compact(jv), classOf[Lotto])
+  def extractLotto(jv: _root_.org.json4s.JValue): Lotto = jv.extract[Lotto]
 }
 
 abstract class LottoExample[T](mod: String) extends Specification(mod + " Lotto Examples") with JsonMethods[T] {

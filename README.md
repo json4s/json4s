@@ -89,11 +89,11 @@ Note, replace XXX with correct Json4s version.
 
 For the native support add the following dependency to your project description:
 
-    val json4sNative = "org.json4s" %% "json4s-native" % "XXX"
+    val json4sNative = "org.json4s" %% "json4s-native" % "XXX" // 3.0.0-SNAPSHOT
 
 For the Jackson support add the following dependency to your project description:
 
-    val json4sJackson = "org.json4s" %% "json4s-jackson" % "XXX"
+    val json4sJackson = "org.json4s" %% "json4s-jackson" % "XXX" // 3.0.0-SNAPSHOT
 
 ### Maven users
 
@@ -101,7 +101,7 @@ For the native support add the following dependency to your pom:
 
     <dependency>
       <groupId>org.json4s</groupId>
-      <artifactId>json4s-native</artifactId>
+      <artifactId>json4s-native_${scala.version}</artifactId>
       <version>XXX</version>
     </dependency>
 
@@ -109,7 +109,7 @@ For the jackson support add the following dependency to your pom:
 
     <dependency>
       <groupId>org.json4s</groupId>
-      <artifactId>json4s-jackson</artifactId>
+      <artifactId>json4s-jackson_${scala.version}</artifactId>
       <version>XXX</version>
     </dependency>
 

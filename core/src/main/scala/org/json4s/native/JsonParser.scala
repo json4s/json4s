@@ -17,6 +17,8 @@
 package org.json4s
 package native
 
+import scalashim._
+
 /** JSON parser.
  */
 object JsonParser {

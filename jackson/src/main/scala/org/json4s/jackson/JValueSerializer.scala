@@ -14,7 +14,11 @@ class JValueSerializer extends JsonSerializer[JValue]{
       case JDecimal(v) => json.writeNumber(v.bigDecimal)
       case JString(v) => json.writeString(v)
       case JBool(v) => json.writeBoolean(v)
-      case JArray(elements) => json.writeObject(elements)
+      case JArray(elements) =>
+        json.writeStartArray()
+        elements filterNot (_ == JNothing) foreach json.writeObject
+        json.writeEndArray()
+
       case JObject(fields) => {
         json.writeStartObject()
         fields filterNot (_._2 == JNothing) foreach {

@@ -3,6 +3,7 @@ package native
 
 import text.Document
 import text.Document._
+import scalashim._
 
 trait JsonMethods extends org.json4s.JsonMethods[Document] {
 

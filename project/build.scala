@@ -1,6 +1,8 @@
 import sbt._
 import Keys._
 import xml.Group
+import sbtscalashim.Plugin._
+import sbtbuildinfo.Plugin._
 
 object Json4sBuild extends Build {
   import Dependencies._
@@ -52,12 +54,11 @@ object Json4sBuild extends Build {
     organization := "org.json4s",
     version := "3.0.0-SNAPSHOT",
     scalaVersion := "2.9.2",
-    crossScalaVersions := Seq("2.9.0", "2.9.0-1", "2.9.1", "2.9.2"),
+    crossScalaVersions := Seq("2.8.0", "2.8.1", "2.8.2", "2.9.0", "2.9.0-1", "2.9.1", "2.9.2"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     publishSetting,
-    crossPaths := false,
     resolvers ++= Seq( sonatypeNexusSnapshots, sonatypeNexusReleases)    
   )
 
@@ -70,7 +71,13 @@ object Json4sBuild extends Build {
   lazy val core = Project(
     id = "json4s-core",
     base = file("core"),
-    settings = json4sSettings ++ Seq(libraryDependencies ++= Seq(paranamer, scalap))
+    settings = json4sSettings ++ scalaShimSettings ++ buildInfoSettings ++ Seq(
+      libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv)) },
+      sourceGenerators in Compile <+= scalaShim,
+      sourceGenerators in Compile <+= buildInfo,
+      buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
+      buildInfoPackage := "org.json4s"
+    )
   )
 
   lazy val native = Project(
@@ -80,7 +87,7 @@ object Json4sBuild extends Build {
   ) dependsOn(core % "compile;test->test")
 
   lazy val json4sExt = Project(
-    id = "json4s-native-ext",
+    id = "json4s-ext",
     base = file("ext"),
     settings = json4sSettings ++ Seq(libraryDependencies ++= jodaTime)
   ) dependsOn(native % "compile;test->test")
@@ -106,12 +113,12 @@ object Json4sBuild extends Build {
   lazy val scalazExt = Project(
     id = "json4s-scalaz",
     base = file("scalaz"),
-    settings = json4sSettings ++ Seq(libraryDependencies ++= Seq(scalaz))
+    settings = json4sSettings ++ Seq(libraryDependencies <+= scalaVersion(scalaz_core))
   ) dependsOn(core % "compile;test->test", native, jacksonSupport)
 
   lazy val json4sTests = Project(
     id = "json4s-tests",
     base = file("tests"),
-    settings = json4sSettings ++ Seq(libraryDependencies ++= Seq(specs2, scalaCheck, mockito))
+    settings = json4sSettings ++ Seq(libraryDependencies <++= scalaVersion { sv => Seq(specs(sv), scalacheck(sv), mockito) })
   ) dependsOn(core, native, json4sExt, nativeLift, scalazExt, jacksonSupport)
 }
