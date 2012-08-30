@@ -25,7 +25,7 @@ object Dependencies {
   lazy val specsVersion      = defaultOrMapped("1.6.8", "2.8.0" -> "1.6.5", "2.9.1" -> "1.6.9", "2.9.1-1" -> "1.6.9", "2.9.2" -> "1.6.9")
   /* stop stealing */
 
-  lazy val scalaz_core: ModuleMap = sv => scalazGroup(sv)        % "scalaz-core"        % scalazVersion(sv) cross crossMapped()
+  lazy val scalaz_core: ModuleMap = sv => scalazGroup(sv)        % "scalaz-core"        % scalazVersion(sv) cross CVMapping282
 
   val jodaTime = Seq("joda-time" % "joda-time" % "2.1", "org.joda" % "joda-convert" % "1.2")
 
