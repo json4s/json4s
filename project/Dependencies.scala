@@ -21,7 +21,8 @@ object Dependencies {
 
   lazy val scalazGroup       = defaultOrMapped("org.scalaz", "2.8.0" -> "com.googlecode.scalaz")
   lazy val scalazVersion     = defaultOrMapped("6.0.4", "2.8.0" -> "5.0", "2.9.0" -> "6.0.RC2")
-  lazy val scalacheckVersion = defaultOrMapped("1.10.0", "2.8.0" -> "1.8", "2.8.1" -> "1.8", "2.8.2" -> "1.8")
+  lazy val scalacheckGroup   = defaultOrMapped("org.scalacheck", "2.8.0" -> "org.scala-tools.testing")
+  lazy val scalacheckVersion = defaultOrMapped("1.10.0", "2.8.0" -> "1.7", "2.8.1" -> "1.8", "2.8.2" -> "1.8")
   lazy val specsVersion      = defaultOrMapped("1.6.8", "2.8.0" -> "1.6.5", "2.9.1" -> "1.6.9", "2.9.1-1" -> "1.6.9", "2.9.2" -> "1.6.9")
   /* stop stealing */
 
@@ -29,7 +30,7 @@ object Dependencies {
 
   val jodaTime = Seq("joda-time" % "joda-time" % "2.1", "org.joda" % "joda-convert" % "1.2")
 
-  lazy val scalacheck: ModuleMap = "org.scalacheck" % "scalacheck" % scalacheckVersion(_) % "test" cross CVMappingAll
+  lazy val scalacheck: ModuleMap =  sv => scalacheckGroup(sv) % "scalacheck" % scalacheckVersion(sv) % "test" cross CVMappingAll
 
   lazy val specs: ModuleMap      = "org.scala-tools.testing" % "specs"      % specsVersion(_)      % "test" cross CVMappingAll
 
