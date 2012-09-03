@@ -1,5 +1,7 @@
 package org.json4s
 
+import scalashim._
+
 object ParserUtil {
 
   class ParseException(message: String, cause: Exception) extends Exception(message, cause)
