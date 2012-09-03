@@ -156,11 +156,11 @@ object Extraction {
         if (value.charAt(0).isDigit) {
           if (value.indexOf('.') == -1) JInt(BigInt(value))
           else {
-            if (!useBigDecimalForDouble) JDouble(native.JsonParser.parseDouble(value))
+            if (!useBigDecimalForDouble) JDouble(ParserUtil.parseDouble(value))
             else JDecimal(BigDecimal(value))
           }
         }
-        else JString(native.JsonParser.unquote(value.substring(1)))
+        else JString(ParserUtil.unquote(value.substring(1)))
     }
 
     def submap(prefix: String): Map[String, String] =

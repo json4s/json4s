@@ -67,13 +67,13 @@ object JsonParserSpec extends Specification("JSON Parser Specification") with JV
   implicit def arbJValue: Arbitrary[JValue] = Arbitrary(genObject)
 
   private def parseVal(json: JValue, bufSize: Int) = {
-    val existingSize = JsonParser.Segments.segmentSize
+    val existingSize = ParserUtil.Segments.segmentSize
     try {
-      JsonParser.Segments.segmentSize = bufSize
-      JsonParser.Segments.clear
+      ParserUtil.Segments.segmentSize = bufSize
+      ParserUtil.Segments.clear
       JsonParser.parse(compact(render(json)))
     } finally {
-      JsonParser.Segments.segmentSize = existingSize
+      ParserUtil.Segments.segmentSize = existingSize
     }
   }
 }
