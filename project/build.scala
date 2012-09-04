@@ -62,7 +62,13 @@ object Json4sBuild extends Build {
     manifestSetting,
     publishSetting,
     resolvers ++= Seq( sonatypeNexusSnapshots, sonatypeNexusReleases),
-    crossVersion := CrossVersion.full
+    crossVersion := CrossVersion.full,
+    artifact in (Compile, packageBin) <<= (artifact in Compile, scalaVersion) { (art: Artifact, sv) =>
+      sv match {
+        case "2.9.2" => art.copy(classifier = Some("scalaz7"))
+        case _ => art
+      }
+    }
   )
 
   lazy val root = Project(
