@@ -1,13 +1,16 @@
 package org.json4s
 
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 
 /**
 * System under specification for JSON Pull Parser.
 */
-object PullParserExamples extends Specification("JSON Pull Parser Examples") {
+object PullParserExamples extends Specification {
+
+  title("JSON Pull Parser Examples")
+
   import native.JsonParser
   import JsonParser._
 

@@ -18,7 +18,7 @@ package org.json4s
 package ext
 
 import org.joda.time._
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 
 object NativeJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Native") {
@@ -32,7 +32,8 @@ object JacksonJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Jackson") {
 /**
 * System under specification for JodaTimeSerializer.
 */
-abstract class JodaTimeSerializerSpec(mod: String) extends Specification(mod + " JodaTimeSerializer Specification") {
+abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
+  title(mod + " JodaTimeSerializer Specification")
 
   def s: Serialization
   implicit lazy val formats = s.formats(NoTypeHints) ++ JodaTimeSerializers.all

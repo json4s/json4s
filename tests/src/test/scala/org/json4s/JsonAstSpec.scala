@@ -16,79 +16,82 @@
 
 package org.json4s
 
-import org.specs.Specification
-import org.specs.ScalaCheck
+import org.specs2.mutable.Specification
+import org.specs2.ScalaCheck
 import org.scalacheck._
 import org.scalacheck.Prop.{forAll, forAllNoShrink}
+import org.specs2.execute.Result
+import org.specs2.matcher.MatchResult
 
-object JsonAstSpec extends Specification("JSON AST Specification") with JValueGen with ScalaCheck {
+object JsonAstSpec extends Specification with JValueGen with ScalaCheck {
+  title("JSON AST Specification")
 
   "Functor identity" in {
-    val identityProp = (json: JValue) => json == (json map identity)
-    forAll(identityProp) must pass
+    val identityProp = (json: JValue) => json must_== (json map identity)
+    prop(identityProp)
   }
 
   "Functor composition" in {
     val compositionProp = (json: JValue, fa: JValue => JValue, fb: JValue => JValue) =>
-      json.map(fb).map(fa) == json.map(fa compose fb)
+      json.map(fb).map(fa) must_== json.map(fa compose fb)
 
-    forAll(compositionProp) must pass
+    prop(compositionProp)
   }
 
   "Monoid identity" in {
-    val identityProp = (json: JValue) => (json ++ JNothing == json) && (JNothing ++ json == json)
-    forAll(identityProp) must pass
+    val identityProp = (json: JValue) => (json ++ JNothing must_== json) and (JNothing ++ json must_== json)
+    prop(identityProp)
   }
 
   "Monoid associativity" in {
-    val assocProp = (x: JValue, y: JValue, z: JValue) => x ++ (y ++ z) == (x ++ y) ++ z
-    forAll(assocProp) must pass
+    val assocProp = (x: JValue, y: JValue, z: JValue) => x ++ (y ++ z) must_== (x ++ y) ++ z
+    prop(assocProp)
   }
 
   "Merge identity" in {
-    val identityProp = (json: JValue) => (json merge JNothing) == json && (JNothing merge json) == json
-    forAll(identityProp) must pass
+    val identityProp = (json: JValue) => ((json merge JNothing) must_== json) and ((JNothing merge json) must_== json)
+    prop(identityProp)
   }
 
   "Merge idempotency" in {
-    val idempotencyProp = (x: JValue) => (x merge x) == x
-    forAll(idempotencyProp) must pass
+    val idempotencyProp = (x: JValue) => (x merge x) must_== x
+    prop(idempotencyProp)
   }
 
   "Diff identity" in {
     val identityProp = (json: JValue) =>
-      (json diff JNothing) == Diff(JNothing, JNothing, json) &&
-      (JNothing diff json) == Diff(JNothing, json, JNothing)
+      ((json diff JNothing) must_== Diff(JNothing, JNothing, json)) and
+      ((JNothing diff json) must_== Diff(JNothing, json, JNothing))
 
-    forAll(identityProp) must pass
+    prop(identityProp)
   }
 
   "Diff with self is empty" in {
-    val emptyProp = (x: JValue) => (x diff x) == Diff(JNothing, JNothing, JNothing)
-    forAll(emptyProp) must pass
+    val emptyProp = (x: JValue) => (x diff x) must_== Diff(JNothing, JNothing, JNothing)
+    prop(emptyProp)
   }
 
   "Diff is subset of originals" in {
     val subsetProp = (x: JObject, y: JObject) => {
       val Diff(c, a, d) = x diff y
-      y == (y merge (c merge a))
+      y must_== (y merge (c merge a))
     }
-    forAll(subsetProp) must pass
+    prop(subsetProp)
   }
 
   "Diff result is same when fields are reordered" in {
-    val reorderProp = (x: JObject) => (x diff reorderFields(x)) == Diff(JNothing, JNothing, JNothing)
-    forAll(reorderProp) must pass
+    val reorderProp = (x: JObject) => (x diff reorderFields(x)) must_== Diff(JNothing, JNothing, JNothing)
+    prop(reorderProp)
   }
 
   "Remove all" in {
-    val removeAllProp = (x: JValue) => (x remove { _ => true }) == JNothing
-    forAll(removeAllProp) must pass
+    val removeAllProp = (x: JValue) => (x remove { _ => true }) must_== JNothing
+    prop(removeAllProp)
   }
 
   "Remove nothing" in {
-    val removeNothingProp = (x: JValue) => (x remove { _ => false }) == x
-    forAll(removeNothingProp) must pass
+    val removeNothingProp = (x: JValue) => (x remove { _ => false }) must_== x
+    prop(removeNothingProp)
   }
 
   "Remove removes only matching elements" in {
@@ -98,8 +101,8 @@ object JsonAstSpec extends Specification("JSON AST Specification") with JValueGe
       val elemsLeft = removed filter {
         case _ => true
       }
-      c == JNothing && a == JNothing && elemsLeft.forall(_.getClass != x)
-    }} must pass
+      (c must_== JNothing) and (a must_== JNothing) and (elemsLeft.forall(_.getClass != x) must beTrue)
+    }}
   }
 
   "Replace one" in {
@@ -115,19 +118,15 @@ object JsonAstSpec extends Specification("JSON AST Specification") with JValueGe
       val path = findOnePath(x, Nil).reverse
       val result = x.replace(path, replacement)
 
-      def replaced(path: List[String], in: JValue): Boolean = {
+      def replaced(path: List[String], in: JValue): MatchResult[_] = {
         path match {
-          case Nil => x == in
+          case Nil => x must_== in
 
-          case name :: Nil => (in \ name) match {
-            case `replacement` => true
-            case _ => false
-          }
+          case name :: Nil => (in \ name) must_== `replacement`
 
-          case name :: xs => (in \ name) match {
-            case JNothing => false
-            case value => replaced(xs, value)
-          }
+          case name :: xs =>
+            val value = (in \ name)
+            (value must_!= JNothing) and replaced(xs, value)
         }
       }
 
@@ -137,8 +136,8 @@ object JsonAstSpec extends Specification("JSON AST Specification") with JValueGe
     // ensure that we test some JObject instances
     val fieldReplacement = (x: JObject, replacement: JObject) => anyReplacement(x, replacement)
 
-    forAll(fieldReplacement) must pass
-    forAll(anyReplacement) must pass
+    forAll(fieldReplacement)
+    forAll(anyReplacement)
   }
 
   private def reorderFields(json: JValue) = json map {

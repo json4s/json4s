@@ -17,14 +17,15 @@
 package org.json4s
 
 import java.util.Date
-import org.specs.Specification
+import org.specs2.mutable.Specification
 import java.text.SimpleDateFormat
 import text.Document
 
 object NativeExtractionExamples extends ExtractionExamples[Document]("Native") with native.JsonMethods
 object JacksonExtractionExamples extends ExtractionExamples[JValue]("Jackson") with jackson.JsonMethods
 
-abstract class ExtractionExamples[T](mod: String) extends Specification(mod+" Extraction Examples Specification") with JsonMethods[T] {
+abstract class ExtractionExamples[T](mod: String) extends Specification with JsonMethods[T] {
+  title(mod+" Extraction Examples Specification")
 
   implicit lazy val formats = DefaultFormats
 

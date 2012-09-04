@@ -1,28 +1,27 @@
 package org.json4s
 
-
-import org.specs.{ScalaCheck, Specification}
+import org.specs2.mutable.Specification
+import org.specs2.{ScalaCheck}
 import org.scalacheck.{Arbitrary, Gen}
-import org.scalacheck.Prop._
-
+import org.scalacheck.Prop.forAll
 
 /**
 * System under specification for JSON Parser.
 */
-object JsonParserSpec extends Specification("JSON Parser Specification") with JValueGen with ScalaCheck {
+object JsonParserSpec extends Specification with JValueGen with ScalaCheck {
   import scala.text.Document
   import native.{JsonParser,Printer}
   import native.JsonMethods._
 
   "Any valid json can be parsed" in {
-    val parsing = (json: JValue) => { parse(Printer.pretty(render(json))); true }
-    forAll(parsing) must pass
+    val parsing = (json: JValue) => { parse(Printer.pretty(render(json))); true must beTrue }
+    prop(parsing)
   }
 
   "Buffer size does not change parsing result" in {
     val bufSize = Gen.choose(2, 64)
-    val parsing = (x: JValue, s1: Int, s2: Int) => { parseVal(x, s1) == parseVal(x, s2) }
-    forAll(genObject, bufSize, bufSize)(parsing) must pass
+    val parsing = (x: JValue, s1: Int, s2: Int) => { parseVal(x, s1) must_== parseVal(x, s2) }
+    forAll(genObject, bufSize, bufSize)(parsing)
   }
 
   "Parsing is thread safe" in {

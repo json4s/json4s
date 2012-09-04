@@ -6,6 +6,7 @@ object ParserUtil {
 
   class ParseException(message: String, cause: Exception) extends Exception(message, cause)
   private val EOF = (-1).asInstanceOf[Char]
+
   def unquote(string: String): String =
     unquote(new Buffer(new java.io.StringReader(string), false))
 

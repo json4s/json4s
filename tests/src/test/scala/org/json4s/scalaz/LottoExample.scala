@@ -6,7 +6,7 @@ import JsonScalaz._
 import org.json4s.native
 import native.JsonMethods._
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 object LottoExample extends Specification {
   case class Winner(winnerId: Long, numbers: List[Int])
