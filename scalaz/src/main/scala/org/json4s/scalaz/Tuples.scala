@@ -25,7 +25,7 @@ trait Tuples { this: Types =>
     def read(json: JValue) = json match {
       case JArray(a :: b :: _) => 
         (fromJSON[A](a) |@| fromJSON[B](b)) { (a, b) => (a, b)  }
-      case x => UnexpectedJSONError(x, classOf[JArray]).fail.liftFailNel
+      case x => UnexpectedJSONError(x, classOf[JArray]).failureNel
     }
 
     def write(value: (A, B)) = JArray(toJSON(value._1) :: toJSON(value._2) :: Nil)
@@ -35,7 +35,7 @@ trait Tuples { this: Types =>
     def read(json: JValue) = json match {
       case JArray(a :: b :: c :: _) => 
         (fromJSON[A](a) |@| fromJSON[B](b) |@| fromJSON[C](c)) { (a, b, c) => (a, b, c)  }
-      case x => UnexpectedJSONError(x, classOf[JArray]).fail.liftFailNel
+      case x => UnexpectedJSONError(x, classOf[JArray]).failureNel
     }
 
     def write(value: (A, B, C)) = JArray(toJSON(value._1) :: toJSON(value._2) :: toJSON(value._3) :: Nil)
@@ -45,7 +45,7 @@ trait Tuples { this: Types =>
     def read(json: JValue) = json match {
       case JArray(a :: b :: c :: d :: _) => 
         (fromJSON[A](a) |@| fromJSON[B](b) |@| fromJSON[C](c) |@| fromJSON[D](d)) { (a, b, c, d) => (a, b, c, d)  }
-      case x => UnexpectedJSONError(x, classOf[JArray]).fail.liftFailNel
+      case x => UnexpectedJSONError(x, classOf[JArray]).failureNel
     }
 
     def write(value: (A, B, C, D)) = JArray(toJSON(value._1) :: toJSON(value._2) :: toJSON(value._3) :: toJSON(value._4) :: Nil)
@@ -55,7 +55,7 @@ trait Tuples { this: Types =>
     def read(json: JValue) = json match {
       case JArray(a :: b :: c :: d :: e :: _) => 
         (fromJSON[A](a) |@| fromJSON[B](b) |@| fromJSON[C](c) |@| fromJSON[D](d) |@| fromJSON[E](e)) { (a, b, c, d, e) => (a, b, c, d, e)  }
-      case x => UnexpectedJSONError(x, classOf[JArray]).fail.liftFailNel
+      case x => UnexpectedJSONError(x, classOf[JArray]).failureNel
     }
 
     def write(value: (A, B, C, D, E)) = JArray(toJSON(value._1) :: toJSON(value._2) :: toJSON(value._3) :: toJSON(value._4) :: toJSON(value._5) :: Nil)
@@ -65,7 +65,7 @@ trait Tuples { this: Types =>
     def read(json: JValue) = json match {
       case JArray(a :: b :: c :: d :: e :: f :: _) => 
         (fromJSON[A](a) |@| fromJSON[B](b) |@| fromJSON[C](c) |@| fromJSON[D](d) |@| fromJSON[E](e) |@| fromJSON[F](f)) { (a, b, c, d, e, f) => (a, b, c, d, e, f)  }
-      case x => UnexpectedJSONError(x, classOf[JArray]).fail.liftFailNel
+      case x => UnexpectedJSONError(x, classOf[JArray]).failureNel
     }
 
     def write(value: (A, B, C, D, E, F)) = JArray(toJSON(value._1) :: toJSON(value._2) :: toJSON(value._3) :: toJSON(value._4) :: toJSON(value._5) :: toJSON(value._6) :: Nil)

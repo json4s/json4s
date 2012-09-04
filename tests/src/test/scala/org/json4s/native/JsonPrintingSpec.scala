@@ -16,10 +16,10 @@ object JsonPrintingSpec extends Specification with JValueGen with ScalaCheck {
 
   "rendering does not change semantics" in {
     val rendering = (json: Document) => parse(Printer.pretty(json)) must_== parse(Printer.compact(json))
-    prop(rendering)
+    org.scalacheck.Prop.forAll(rendering)
   }
 
-  private def parse(json: String) = scala.util.parsing.json.JSON.parse(json)
+  private def parse(json: String) = scala.util.parsing.json.JSON.parseFull(json)
 
   implicit def arbDoc: Arbitrary[Document] = Arbitrary(genJValue.map(render(_).asInstanceOf[Document]))
 }

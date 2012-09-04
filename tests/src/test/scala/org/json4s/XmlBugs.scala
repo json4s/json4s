@@ -54,7 +54,10 @@ abstract class XmlBugs[T](mod: String) extends Specification with JsonMethods[T]
           <n id="10" x="abc" />
           <n id="11" x="bcd" />
         </root>
-      val expected = """{"root":{"n":[{"x":"abc","id":"10"},{"x":"bcd","id":"11"}]}}"""
+      val expected = if (BuildInfo.scalaVersion.startsWith("2.10"))
+        """{"root":{"n":[{"id":"10","x":"abc"},{"id":"11","x":"bcd"}]}}"""
+      else
+        """{"root":{"n":[{"x":"abc","id":"10"},{"x":"bcd","id":"11"}]}}"""
       compact(render(toJson(xml))) mustEqual expected
     }
 
