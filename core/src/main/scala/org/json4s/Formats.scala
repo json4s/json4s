@@ -159,16 +159,18 @@ trait Formats { self: Formats =>
       /**
        * Chooses most specific class.
        */
-      def hintFor(clazz: Class[_]): String = components.filter(_.containsHint_?(clazz))
-          .map(th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error("hintFor/classFor not invertible for " + th))))
-          .sort((x, y) => (delta(x._2, clazz) - delta(y._2, clazz)) < 0).head._1
+      def hintFor(clazz: Class[_]): String =
+        (components
+          filter (_.containsHint_?(clazz))
+          map (th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error("hintFor/classFor not invertible for " + th))))
+          sortWith((x, y) => (delta(x._2, clazz) - delta(y._2, clazz)) == 0)).head._1
 
       def classFor(hint: String): Option[Class[_]] = {
         def hasClass(h: TypeHints) =
           scala.util.control.Exception.allCatch opt (h.classFor(hint)) map (_.isDefined) getOrElse(false)
 
         components find (hasClass) flatMap (_.classFor(hint))
-    }
+      }
 
       override def deserialize: PartialFunction[(String, JObject), Any] = components.foldLeft[PartialFunction[(String, JObject),Any]](Map()) {
         (result, cur) => result.orElse(cur.deserialize)

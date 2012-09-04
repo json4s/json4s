@@ -1,14 +1,14 @@
 package org.json4s
 package jackson
 
-import collection.JavaConversions._
+import collection.JavaConverters._
 import java.util.concurrent.ConcurrentHashMap
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.`type`.{ArrayType, TypeFactory}
-import collection.mutable
+
 
 private[jackson] object Types {
-  private val cachedTypes: mutable.ConcurrentMap[Manifest[_], JavaType] = new ConcurrentHashMap[Manifest[_], JavaType]()
+  private val cachedTypes = new ConcurrentHashMap[Manifest[_], JavaType]().asScala
 
   def build(factory: TypeFactory, manifest: Manifest[_]): JavaType =
     cachedTypes.getOrElseUpdate(manifest, constructType(factory, manifest))
