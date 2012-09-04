@@ -16,7 +16,7 @@
 
 package org.json4s
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 import text.Document
 
 object NativeExamples extends Examples[Document]("Native") with native.JsonMethods
@@ -93,7 +93,9 @@ object Examples {
   val symbols = ("f1" -> 'foo) ~ ("f2" -> 'bar)
 }
 
-abstract class Examples[T](mod: String) extends Specification(mod + " Examples") with JsonMethods[T] {
+abstract class Examples[T](mod: String) extends Specification with JsonMethods[T] {
+
+  title(mod + " Examples")
 
   import JsonAST.concat
   import JsonDSL._

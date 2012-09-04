@@ -17,7 +17,7 @@
 package org.json4s
 package ext
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 import net.liftweb.common._
 import native.JsonMethods._
@@ -27,7 +27,9 @@ import native.Serialization.{read, write => swrite}
 /**
 * System under specification for JsonBoxSerializer.
 */
-object JsonBoxSerializerSpec extends Specification("JsonBoxSerializer Specification") {
+object JsonBoxSerializerSpec extends Specification {
+
+  title("JsonBoxSerializer Specification")
 
   implicit val formats = DefaultFormats + new native.ext.JsonBoxSerializer
 

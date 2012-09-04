@@ -1,6 +1,6 @@
 package org.json4s
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 import java.util.UUID
 import org.json4s.native.Serialization
 
@@ -84,7 +84,7 @@ object SerializationBugs extends Specification {
         case (TypeInfo(SeqClass, parameterizedType), JArray(xs)) =>
           val typeInfo = TypeInfo(parameterizedType
             .map(_.getActualTypeArguments()(0))
-            .getOrElse(fail("No type parameter info for type Seq")).asInstanceOf[Class[_]], None)
+            .getOrElse(failure("No type parameter info for type Seq")).asInstanceOf[Class[_]], None)
           xs.map(x => Extraction.extract(x, typeInfo))
       }
     }

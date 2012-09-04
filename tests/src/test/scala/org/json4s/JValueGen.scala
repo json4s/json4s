@@ -1,18 +1,18 @@
 /*
- * Copyright 2009-2010 WorldWide Conferencing, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright 2009-2010 WorldWide Conferencing, LLC
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package org.json4s
 
@@ -23,7 +23,7 @@ import Arbitrary.arbitrary
 trait JValueGen {
   def genJValue: Gen[JValue] = frequency((5, genSimple), (1, wrap(genArray)), (1, wrap(genObject)))
   def genSimple: Gen[JValue] = oneOf(
-    value(JNull), 
+    value(JNull),
     arbitrary[Int].map(JInt(_)),
     arbitrary[Double].map(JDouble(_)),
     arbitrary[Boolean].map(JBool(_)),
@@ -37,7 +37,7 @@ trait JValueGen {
   def genField = for (name <- identifier; value <- genJValue; id <- choose(0, 1000000)) yield JField(name+id, value)
 
   def genJValueClass: Gen[Class[_ <: JValue]] = oneOf(
-    JNull.getClass.asInstanceOf[Class[JValue]], JNothing.getClass.asInstanceOf[Class[JValue]], classOf[JInt], 
+    JNull.getClass.asInstanceOf[Class[JValue]], JNothing.getClass.asInstanceOf[Class[JValue]], classOf[JInt],
     classOf[JDouble], classOf[JBool], classOf[JString], classOf[JArray], classOf[JObject])
 
   def listSize = choose(0, 5).sample.get
@@ -48,7 +48,7 @@ trait NodeGen {
   import scala.xml.{Node, NodeSeq, Text}
 
   def genXml: Gen[Node] = frequency((2, wrap(genNode)), (3, genElem))
-  
+
   def genNode = for {
     name <- genName
     node <- Gen.containerOfN[List, Node](children, genXml) map { seq => new XmlNode(name, seq) }

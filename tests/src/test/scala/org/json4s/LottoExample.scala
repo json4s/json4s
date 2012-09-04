@@ -16,7 +16,7 @@
 
 package org.json4s
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 import text.Document
 
 object NativeLottoExample extends LottoExample[Document]("Native") with native.JsonMethods {
@@ -34,7 +34,9 @@ object JacksonLottoExample extends LottoExample[JValue]("Jackson") with jackson.
   def extractLotto(jv: _root_.org.json4s.JValue): Lotto = jv.extract[Lotto]
 }
 
-abstract class LottoExample[T](mod: String) extends Specification(mod + " Lotto Examples") with JsonMethods[T] {
+abstract class LottoExample[T](mod: String) extends Specification with JsonMethods[T] {
+
+  title(mod + " Lotto Examples")
   import LottoExample._
 
   "The Lotto Examples" should {

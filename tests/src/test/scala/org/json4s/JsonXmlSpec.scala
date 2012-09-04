@@ -16,9 +16,9 @@
 
 package org.json4s
 
-import org.specs.{ScalaCheck, Specification}
+import org.specs2.mutable.Specification
+import org.specs2.ScalaCheck
 import org.scalacheck.Arbitrary
-import org.scalacheck.Prop.forAll
 import text.Document
 
 //import NativeImports._
@@ -30,18 +30,20 @@ object JacksonXmlSpec extends JsonXmlSpec[JValue]("Jackson") with jackson.JsonMe
 /**
 * System under specification for JSON XML.
 */
-abstract class JsonXmlSpec[T](mod: String) extends Specification(mod+" JSON XML Specification") with NodeGen with JValueGen with ScalaCheck with JsonMethods[T] {
+abstract class JsonXmlSpec[T](mod: String) extends Specification with NodeGen with JValueGen with ScalaCheck with JsonMethods[T] {
   import Xml._
   import scala.xml.Node
 
-  "Valid XML can be converted to JSON and back (symmetric op)" in {
-    val conversion = (xml: Node) => { toXml(toJson(xml)).head == xml }
-    forAll(conversion) must pass
-  }
+  (mod+" JSON XML Specification") in {
+    "Valid XML can be converted to JSON and back (symmetric op)" in {
+      val conversion = (xml: Node) => { toXml(toJson(xml)).head must_== xml }
+      prop(conversion)
+    }
 
-  "JSON can be converted to XML, and back to valid JSON (non symmetric op)" in {
-    val conversion = (json: JValue) => { parse(compact(render(toJson(toXml(json))))); true }
-    forAll(conversion) must pass
+    "JSON can be converted to XML, and back to valid JSON (non symmetric op)" in {
+      val conversion = (json: JValue) => { parse(compact(render(toJson(toXml(json))))); true must beTrue}
+      prop(conversion)
+    }
   }
 
   implicit def arbXml: Arbitrary[Node] = Arbitrary(genXml)

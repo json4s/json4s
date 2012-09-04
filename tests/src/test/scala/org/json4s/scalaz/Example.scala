@@ -7,7 +7,7 @@ import org.json4s._
 import native.JsonMethods._
 import org.json4s.native.scalaz._
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 object Example extends Specification {
 

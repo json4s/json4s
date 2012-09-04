@@ -1,6 +1,6 @@
 package org.json4s
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 import text.Document
 
 object NativeExtractionBugs extends ExtractionBugs[Document]("Native") with native.JsonMethods
@@ -28,7 +28,8 @@ object ExtractionBugs {
   }
   case class HasCompanion(nums: List[Int])
 }
-abstract class ExtractionBugs[T](mod: String) extends Specification(mod+" Extraction bugs Specification") with JsonMethods[T] {
+abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMethods[T] {
+  title(mod+" Extraction bugs Specification")
 
   import ExtractionBugs._
   implicit val formats = DefaultFormats
