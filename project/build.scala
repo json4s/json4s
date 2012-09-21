@@ -54,7 +54,7 @@ object Json4sBuild extends Build {
     organization := "org.json4s",
     version := "3.0.0-SNAPSHOT",
     scalaVersion := "2.9.2",
-    crossScalaVersions := Seq("2.8.0", "2.8.1", "2.8.2", "2.9.0", "2.9.0-1", "2.9.1", "2.9.2"),
+    crossScalaVersions := Seq("2.8.0", "2.8.1", "2.8.2", "2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,

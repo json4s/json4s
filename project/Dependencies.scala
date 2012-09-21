@@ -26,7 +26,7 @@ object Dependencies {
   lazy val specsVersion      = defaultOrMapped("1.6.8", "2.8.0" -> "1.6.5", "2.9.1" -> "1.6.9", "2.9.1-1" -> "1.6.9", "2.9.2" -> "1.6.9")
   /* stop stealing */
 
-  lazy val scalaz_core: ModuleMap = sv => scalazGroup(sv)        % "scalaz-core"        % scalazVersion(sv) cross CVMapping282
+  lazy val scalaz_core: ModuleMap = sv => scalazGroup(sv)        % "scalaz-core"        % scalazVersion(sv) cross crossMapped("2.8.2" -> "2.8.1", "2.9.1-1" -> "2.9.1")
 
   val jodaTime = Seq("joda-time" % "joda-time" % "2.1", "org.joda" % "joda-convert" % "1.2")
 
@@ -45,5 +45,5 @@ object Dependencies {
 
   val mockito = "org.mockito"                 % "mockito-all"              % "1.8.5"      % "test"
 
-  val liftCommon = "net.liftweb" %% "lift-common" % "2.4" cross CVMapping292
+  val liftCommon = "net.liftweb" %% "lift-common" % "2.4" cross CVMapping2911
 }
