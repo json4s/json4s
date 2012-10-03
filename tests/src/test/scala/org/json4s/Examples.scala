@@ -102,34 +102,34 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
   import Examples._
 
   "Lotto example" in {
-    val json = parse(lotto)
+    val json = parseJson(lotto)
     val renderedLotto = compact(render(json))
-    json mustEqual parse(renderedLotto)
+    json mustEqual parseJson(renderedLotto)
   }
 
   "Person example" in {
-    val json = parse(person)
+    val json = parseJson(person)
     val renderedPerson = pretty(render(json))
-    json mustEqual parse(renderedPerson)
+    json mustEqual parseJson(renderedPerson)
     render(json) mustEqual render(personDSL)
     compact(render(json \\ "name")) mustEqual """{"name":"Joe","name":"Marilyn"}"""
     compact(render(json \ "person" \ "name")) mustEqual "\"Joe\""
   }
 
   "Transformation example" in {
-    val uppercased = parse(person).transformField { case JField(n, v) => JField(n.toUpperCase, v) }
+    val uppercased = parseJson(person).transformField { case JField(n, v) => JField(n.toUpperCase, v) }
     val rendered = compact(render(uppercased))
     rendered mustEqual
       """{"PERSON":{"NAME":"Joe","AGE":35,"SPOUSE":{"PERSON":{"NAME":"Marilyn","AGE":33}}}}"""
   }
 
   "Remove example" in {
-    val json = parse(person) removeField { _ == JField("name", "Marilyn") }
+    val json = parseJson(person) removeField { _ == JField("name", "Marilyn") }
     compact(render(json \\ "name")) mustEqual """{"name":"Joe"}"""
   }
 
   "Queries on person example" in {
-    val json = parse(person)
+    val json = parseJson(person)
     val filtered = json filterField {
       case JField("name", _) => true
       case _ => false
@@ -144,7 +144,7 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
   }
 
   "Object array example" in {
-    val json = parse(objArray)
+    val json = parseJson(objArray)
     compact(render(json \ "children" \ "name")) mustEqual """["Mary","Mazy"]"""
     compact(render((json \ "children")(0) \ "name")) mustEqual "\"Mary\""
     compact(render((json \ "children")(1) \ "name")) mustEqual "\"Mazy\""
@@ -152,18 +152,18 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
   }
 
   "Unbox values using XPath-like type expression" in {
-    parse(objArray) \ "children" \\ classOf[JInt] mustEqual List(5, 3)
-    parse(lotto) \ "lotto" \ "winning-numbers" \ classOf[JInt] mustEqual List(2, 45, 34, 23, 7, 5, 3)
-    parse(lotto) \\ "winning-numbers" \ classOf[JInt] mustEqual List(2, 45, 34, 23, 7, 5, 3)
+    parseJson(objArray) \ "children" \\ classOf[JInt] mustEqual List(5, 3)
+    parseJson(lotto) \ "lotto" \ "winning-numbers" \ classOf[JInt] mustEqual List(2, 45, 34, 23, 7, 5, 3)
+    parseJson(lotto) \\ "winning-numbers" \ classOf[JInt] mustEqual List(2, 45, 34, 23, 7, 5, 3)
   }
 
   "Quoted example" in {
-    val json = parse(quoted)
+    val json = parseJson(quoted)
     List("foo \" \n \t \r bar") mustEqual json.values
   }
 
   "Null example" in {
-    compact(render(parse(""" {"name": null} """))) mustEqual """{"name":null}"""
+    compact(render(parseJson(""" {"name": null} """))) mustEqual """{"name":null}"""
   }
 
   "Null rendering example" in {
@@ -175,14 +175,14 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
   }
 
   "Unicode example" in {
-    parse("[\" \\u00e4\\u00e4li\\u00f6t\"]") mustEqual JArray(List(JString(" \u00e4\u00e4li\u00f6t")))
+    parseJson("[\" \\u00e4\\u00e4li\\u00f6t\"]") mustEqual JArray(List(JString(" \u00e4\u00e4li\u00f6t")))
   }
 
   "Exponent example" in {
-    parse("""{"num": 2e5 }""") mustEqual JObject(List(JField("num", JDouble(200000.0))))
-    parse("""{"num": -2E5 }""") mustEqual JObject(List(JField("num", JDouble(-200000.0))))
-    parse("""{"num": 2.5e5 }""") mustEqual JObject(List(JField("num", JDouble(250000.0))))
-    parse("""{"num": 2.5e-5 }""") mustEqual JObject(List(JField("num", JDouble(2.5e-5))))
+    parseJson("""{"num": 2e5 }""") mustEqual JObject(List(JField("num", JDouble(200000.0))))
+    parseJson("""{"num": -2E5 }""") mustEqual JObject(List(JField("num", JDouble(-200000.0))))
+    parseJson("""{"num": 2.5e5 }""") mustEqual JObject(List(JField("num", JDouble(250000.0))))
+    parseJson("""{"num": 2.5e-5 }""") mustEqual JObject(List(JField("num", JDouble(2.5e-5))))
   }
 
   "JSON building example" in {
@@ -197,7 +197,7 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
   }
 
   "Example which collects all integers and forms a new JSON" in {
-    val json = parse(person)
+    val json = parseJson(person)
     val ints = json.fold(JNothing: JValue) { (a, v) => v match {
       case x: JInt => a ++ x
       case _ => a

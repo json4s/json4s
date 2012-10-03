@@ -80,7 +80,7 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
 
     "Band example with namespaces" in {
       val json = toJson(band)
-      json mustEqual parse("""{
+      json mustEqual parseJson("""{
     "b:band":{
       "name":"The Fall",
       "genre":"rock",
@@ -107,7 +107,7 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
       val a1 = attrToObject("stats", "count", s => JInt(s.s.toInt)) _
       val a2 = attrToObject("messages", "href", identity) _
       val json = a1(a2(toJson(messageXml1)))
-      (json diff parse(expected1)) mustEqual Diff(JNothing, JNothing, JNothing)
+      (json diff parseJson(expected1)) mustEqual Diff(JNothing, JNothing, JNothing)
     }
 
     "Example with one attribute, one nested element " in {

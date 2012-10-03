@@ -13,8 +13,8 @@ object ParserBugs extends Specification {
   }
 
   "Does not hang when parsing 2.2250738585072012e-308" in {
-    allCatch.opt(parse(""" [ 2.2250738585072012e-308 ] """)) mustEqual None
-    allCatch.opt(parse(""" [ 22.250738585072012e-309 ] """)) mustEqual None
+    allCatch.opt(parseJson(""" [ 2.2250738585072012e-308 ] """)) mustEqual None
+    allCatch.opt(parseJson(""" [ 22.250738585072012e-309 ] """)) mustEqual None
   }
 
   "Does not allow colon at start of array (1039)" in {
@@ -35,7 +35,7 @@ object ParserBugs extends Specification {
     val json = JObject(List(JField("foo\nbar", JInt(1))))
     val s = compact(render(json))
     s mustEqual """{"foo\nbar":1}"""
-    parse(s) mustEqual json
+    parseJson(s) mustEqual json
   }
 
   private val discardParser = (p : JsonParser.Parser) => {
