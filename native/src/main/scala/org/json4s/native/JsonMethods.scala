@@ -8,11 +8,11 @@ import io.Source
 
 trait JsonMethods extends org.json4s.JsonMethods[Document] {
 
-//  def parse(s: String): JValue = JsonParser.parse(s)
+//  def parseJson(s: String): JValue = JsonParser.parseJson(s)
 //  def parseOpt(s: String): Option[JValue] = JsonParser.parseOpt(s)
 
 
-  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue = in match {
+  def parseJson(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue = in match {
     case StringInput(s) => JsonParser.parse(s, useBigDecimalForDouble)
     case ReaderInput(rdr) => JsonParser.parse(rdr, useBigDecimalForDouble)
     case StreamInput(stream) => JsonParser.parse(Source.fromInputStream(stream).bufferedReader(), useBigDecimalForDouble)

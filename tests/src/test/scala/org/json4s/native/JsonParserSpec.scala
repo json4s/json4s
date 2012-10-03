@@ -14,7 +14,7 @@ object JsonParserSpec extends Specification with JValueGen with ScalaCheck {
   import native.JsonMethods._
 
   "Any valid json can be parsed" in {
-    val parsing = (json: JValue) => { parse(Printer.pretty(render(json))); true must beTrue }
+    val parsing = (json: JValue) => { parseJson(Printer.pretty(render(json))); true must beTrue }
     prop(parsing)
   }
 
@@ -30,12 +30,12 @@ object JsonParserSpec extends Specification with JValueGen with ScalaCheck {
     val json = Examples.person
     val executor = Executors.newFixedThreadPool(100)
     val results = (0 to 100).map(_ =>
-      executor.submit(new Callable[JValue] { def call = parse(json) })).toList.map(_.get)
+      executor.submit(new Callable[JValue] { def call = parseJson(json) })).toList.map(_.get)
     results.zip(results.tail).forall(pair => pair._1 == pair._2) mustEqual true
   }
 
   "All valid string escape characters can be parsed" in {
-    parse("[\"abc\\\"\\\\\\/\\b\\f\\n\\r\\t\\u00a0\"]") must_== JArray(JString("abc\"\\/\b\f\n\r\t\u00a0")::Nil)
+    parseJson("[\"abc\\\"\\\\\\/\\b\\f\\n\\r\\t\\u00a0\"]") must_== JArray(JString("abc\"\\/\b\f\n\r\t\u00a0")::Nil)
   }
 
   "Unclosed string literal fails parsing" in {

@@ -34,7 +34,7 @@ abstract class JsonFormatsSpec[T](mod: String) extends Specification with TypeHi
         def lookupParameterNames(constructor: java.lang.reflect.Constructor[_]) = List("name", "age")
       }
       implicit val formats = new DefaultFormats { override val parameterNameReader = TestReader }
-      val json = parse("""{"name":"joe","age":35}""")
+      val json = parseJson("""{"name":"joe","age":35}""")
       json.extract[NamesNotSameAsInJson] mustEqual NamesNotSameAsInJson("joe", 35)
     }
   }
