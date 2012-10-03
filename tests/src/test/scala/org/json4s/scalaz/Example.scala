@@ -15,7 +15,7 @@ object Example extends Specification {
   case class Person(name: String, age: Int, address: Address)
 
   "Parse address in an Applicative style" in {
-    val json = parse(""" {"street": "Manhattan 2", "zip": "00223" } """)
+    val json = parseJson(""" {"street": "Manhattan 2", "zip": "00223" } """)
     val a1 = field[String]("zip")(json) ap (field[String]("street")(json) map Address.curried)
     val a2 = (field[String]("street")(json) |@| field[String]("zip")(json)) { Address }
     val a3 = Address.applyJSON(field[String]("street"), field[String]("zip"))(json)
@@ -25,7 +25,7 @@ object Example extends Specification {
   }
 
   "Failed address parsing" in {
-    val json = parse(""" {"street": "Manhattan 2", "zip": "00223" } """)
+    val json = parseJson(""" {"street": "Manhattan 2", "zip": "00223" } """)
     val a = (field[String]("streets")(json) |@| field[String]("zip")(json)) { Address }
     a.swap.toOption.get.list mustEqual List(NoSuchFieldError("streets", json))
   }
@@ -35,7 +35,7 @@ object Example extends Specification {
       def read(json: JValue) = Address.applyJSON(field[String]("street"), field[String]("zip"))(json)
     }
 
-    val p = parse(""" {"name":"joe","age":34,"address":{"street": "Manhattan 2", "zip": "00223" }} """)
+    val p = parseJson(""" {"name":"joe","age":34,"address":{"street": "Manhattan 2", "zip": "00223" }} """)
     val person = Person.applyJSON(field[String]("name"), field[Int]("age"), field[Address]("address"))(p)
     person mustEqual Success(Person("joe", 34, Address("Manhattan 2", "00223")))
   }
@@ -55,7 +55,7 @@ object Example extends Specification {
   }
 
   "Parse Map" in {
-    val json = parse(""" {"street": "Manhattan 2", "zip": "00223" } """)
+    val json = parseJson(""" {"street": "Manhattan 2", "zip": "00223" } """)
     fromJSON[Map[String, String]](json) mustEqual Success(Map("street" -> "Manhattan 2", "zip" -> "00223"))
   }
 

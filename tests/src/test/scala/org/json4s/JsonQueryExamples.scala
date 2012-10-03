@@ -74,7 +74,7 @@ abstract class JsonQueryExamples[T](mod: String) extends Specification with Json
     clusters mustEqual List("cluster2")
   }
 
-  lazy val json = parse("""
+  lazy val json = parseJson("""
     { "data_center": [
       {
         "name": "cluster1",
