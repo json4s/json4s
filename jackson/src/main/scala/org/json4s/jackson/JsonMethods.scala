@@ -4,6 +4,7 @@ package jackson
 import com.fasterxml.jackson.databind.ObjectMapper
 import util.control.Exception.allCatch
 import org.json4s
+import io.Source
 
 trait JsonMethods extends json4s.JsonMethods[JValue] {
 
@@ -14,15 +15,16 @@ trait JsonMethods extends json4s.JsonMethods[JValue] {
   }
   def mapper = _defaultMapper
 
-
-
-  def parse(s: String): JValue = {
-    mapper.readValue[JValue](s, classOf[JValue])
+  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue = in match {
+    case StringInput(s) => mapper.readValue(s, classOf[JValue])
+    case ReaderInput(rdr) => mapper.readValue(rdr, classOf[JValue])
+    case StreamInput(stream) => mapper.readValue(stream, classOf[JValue])
+    case FileInput(file) => mapper.readValue(file, classOf[JValue])
   }
 
-  def parseOpt(s: String): Option[JValue] = try {
-    Option(parse(s))
-  } catch { case _: Throwable => None}
+  def parseOpt(in: JsonInput, useBigDecimalForDouble: Boolean = false): Option[JValue] =  allCatch opt {
+    parse(in, useBigDecimalForDouble)
+  }
 
   def render(value: JValue): JValue = value
 
@@ -36,11 +38,4 @@ trait JsonMethods extends json4s.JsonMethods[JValue] {
 
 
 }
-
-
-//class JValueExt(jv: JValue) {
-//  def extract[T:Manifest:Reader]: T = implicitly[Reader[T]].read(jv)
-//  def extractOpt[T:Manifest:Reader]: Option[T] = allCatch.withApply(_ => None) { Option(extract) }
-//  def extractOrElse[T:Manifest:Reader](default: => T) = extractOpt getOrElse default
-//}
 object JsonMethods extends JsonMethods

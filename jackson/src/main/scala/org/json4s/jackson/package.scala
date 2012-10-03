@@ -1,3 +1,3 @@
 package org.json4s
 
-package object jackson extends JsonMethods
+//package object jackson extends JsonMethods

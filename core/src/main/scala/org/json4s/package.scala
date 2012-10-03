@@ -39,5 +39,8 @@ package object json4s {
   type JArray   = JsonAST.JArray
   val  JArray   = JsonAST.JArray
 
-  
+  implicit def string2JsonInput(s: String): JsonInput = StringInput(s)
+  implicit def reader2JsonInput(rdr: java.io.Reader): JsonInput = ReaderInput(rdr)
+  implicit def stream2JsonInput(stream: java.io.InputStream): JsonInput = StreamInput(stream)
+  implicit def file2JsonInput(file: java.io.File): JsonInput = FileInput(file)
 }

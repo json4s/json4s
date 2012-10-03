@@ -4,11 +4,27 @@ package native
 import text.Document
 import text.Document._
 import scalashim._
+import io.Source
 
 trait JsonMethods extends org.json4s.JsonMethods[Document] {
 
-  def parse(s: String): JValue = JsonParser.parse(s)
-  def parseOpt(s: String): Option[JValue] = JsonParser.parseOpt(s)
+//  def parse(s: String): JValue = JsonParser.parse(s)
+//  def parseOpt(s: String): Option[JValue] = JsonParser.parseOpt(s)
+
+
+  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue = in match {
+    case StringInput(s) => JsonParser.parse(s, useBigDecimalForDouble)
+    case ReaderInput(rdr) => JsonParser.parse(rdr, useBigDecimalForDouble)
+    case StreamInput(stream) => JsonParser.parse(Source.fromInputStream(stream).bufferedReader(), useBigDecimalForDouble)
+    case FileInput(file) => JsonParser.parse(Source.fromFile(file).bufferedReader(), useBigDecimalForDouble)
+  }
+
+  def parseOpt(in: JsonInput, useBigDecimalForDouble: Boolean = false): Option[JValue] = in match {
+    case StringInput(s) => JsonParser.parseOpt(s, useBigDecimalForDouble)
+    case ReaderInput(rdr) => JsonParser.parseOpt(rdr, useBigDecimalForDouble)
+    case StreamInput(stream) => JsonParser.parseOpt(Source.fromInputStream(stream).bufferedReader(), useBigDecimalForDouble)
+    case FileInput(file) => JsonParser.parseOpt(Source.fromFile(file).bufferedReader(), useBigDecimalForDouble)
+  }
 
   /** Renders JSON.
    * @see Printer#compact
