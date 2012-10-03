@@ -42,7 +42,7 @@ object Serialization extends Serialization {
   /** Deserialize from a String.
    */
   def read[A](json: String)(implicit formats: Formats, mf: Manifest[A]): A =
-    JsonMethods.parse(json).extract(formats, mf)
+    JsonMethods.parseJson(json).extract(formats, mf)
 
   /** Deserialize from a Reader.
    */

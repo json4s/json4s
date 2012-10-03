@@ -27,7 +27,7 @@ trait JsonMethods extends json4s.JsonMethods[JValue] {
   }
 
   def parseOpt(in: JsonInput, useBigDecimalForDouble: Boolean = false): Option[JValue] =  allCatch opt {
-    parse(in, useBigDecimalForDouble)
+    parseJson(in, useBigDecimalForDouble)
   }
 
   def render(value: JValue): JValue = value

@@ -44,8 +44,8 @@ abstract class XmlBugs[T](mod: String) extends Specification with JsonMethods[T]
       val example2 = <word term="example" self="http://localhost:8080/word/example" available="true"></word>
       val expected2 = """{"self":"http://localhost:8080/word/example","term":"example","available":"true"}"""
 
-      (toJson(example1) diff parse(expected1)) mustEqual Diff(JNothing, JNothing, JNothing)
-      (toJson(example2) diff parse(expected2)) mustEqual Diff(JNothing, JNothing, JNothing)
+      (toJson(example1) diff parseJson(expected1)) mustEqual Diff(JNothing, JNothing, JNothing)
+      (toJson(example2) diff parseJson(expected2)) mustEqual Diff(JNothing, JNothing, JNothing)
     }
 
     "Nodes with attributes converted to correct JSON" in {
