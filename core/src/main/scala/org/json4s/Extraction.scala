@@ -25,6 +25,7 @@ import java.sql.Timestamp
 import scala.reflect.Manifest
 import java.nio.CharBuffer
 import scalashim._
+import org.omg.CORBA.ValueMember
 
 /** Function to extract values from JSON AST using case classes.
  *
@@ -82,7 +83,10 @@ object Extraction {
         case null => JNull
         case x: JValue => x
         case x if primitive_?(x.getClass) => primitive2jvalue(x)(formats)
-        case x: Map[_, _] => JObject((x map { case (k: String, v) => JField(k, decompose(v)) }).toList)
+        case x: Map[_, _] => JObject((x map {
+          case (k: String, v) => JField(k, decompose(v))
+          case (k: Enumeration#Value, v) => JField(k.toString, decompose(v))
+        }).toList)
         case x: Collection[_] => JArray(x.toList map decompose)
         case x if (x.getClass.isArray) => JArray(x.asInstanceOf[Array[_]].toList map decompose)
         case x: Option[_] => x.flatMap[JValue] { y => Some(decompose(y)) }.getOrElse(JNothing)
