@@ -52,14 +52,14 @@ object Json4sBuild extends Build {
 
   val json4sSettings = Defaults.defaultSettings ++ mavenCentralFrouFrou ++ Seq(
     organization := "org.json4s",
-    version := "3.0.0-SNAPSHOT",
+    version := "3.0.0",
     scalaVersion := "2.9.2",
     crossScalaVersions := Seq("2.8.0", "2.8.1", "2.8.2", "2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     publishSetting,
-    resolvers ++= Seq( sonatypeNexusSnapshots, sonatypeNexusReleases)    
+    resolvers ++= Seq( sonatypeNexusSnapshots, sonatypeNexusReleases)
   )
 
   lazy val root = Project(
@@ -72,7 +72,7 @@ object Json4sBuild extends Build {
     id = "json4s-core",
     base = file("core"),
     settings = json4sSettings ++ scalaShimSettings ++ buildInfoSettings ++ Seq(
-      libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv)) },
+      libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv), inflector) },
       sourceGenerators in Compile <+= scalaShim,
       sourceGenerators in Compile <+= buildInfo,
       buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),

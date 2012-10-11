@@ -46,4 +46,6 @@ object Dependencies {
   val mockito = "org.mockito"                 % "mockito-all"              % "1.8.5"      % "test"
 
   val liftCommon = "net.liftweb" %% "lift-common" % "2.4" cross CVMapping2911
+
+  val inflector = "io.backchat.inflector" %% "scala-inflector" % "1.3.5"
 }

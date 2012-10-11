@@ -18,6 +18,7 @@ package org.json4s
 object JsonAST {
   import scala.text.{Document, DocText}
   import scala.text.Document._
+  import mojolly.inflector.InflectorImports._
 
   /** Concatenates a sequence of <code>JValue</code>s.
    * <p>
@@ -427,7 +428,31 @@ object JsonAST {
     def getAsOrElse[A](default: => A)(implicit reader: Reader[A], mf: Manifest[A]): A =
       asOption(reader, mf) getOrElse default
 
+    def camelizeKeys = rewriteJsonAST(camelize = true)
+    def snakizeKeys = rewriteJsonAST(camelize = false)
 
+    private def rewriteJsonAST(camelize: Boolean): JValue = {
+      transformField {
+        case JField(nm, x) if !nm.startsWith("_") ⇒ JField(if (camelize) nm.camelize else nm.underscore, x)
+        case x                                    ⇒ x
+      }
+    }
+
+    def noNulls = removeNulls(this)
+
+    private[this] def removeNulls(initial: JValue): JValue = {
+      initial match {
+        case JArray(values) ⇒ JArray(values map removeNulls)
+        case j: JObject     ⇒ removeNullsFromJObject(j)
+        case _              ⇒ initial
+      }
+    }
+
+    private[this] def removeNullsFromJObject(initial: JObject): JValue = {
+      initial transformField {
+        case JField(a, JNull) ⇒ JField(a, JNothing)
+      }
+    }
 
     def toOpt: Option[JValue] = this match {
       case JNothing => None
