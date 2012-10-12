@@ -120,7 +120,10 @@ object Json4sBuild extends Build {
      id = "json4s-mongo",
      base = file("mongo"),
      settings = json4sSettings ++ Seq(
-       libraryDependencies += "org.mongodb" % "mongo-java-driver" % "2.9.1"
+       libraryDependencies ++= Seq(
+         "org.mongodb" % "mongo-java-driver" % "2.9.1",
+         scalaj_collection
+      )
      )
   ) dependsOn(core % "compile;test->test")
 

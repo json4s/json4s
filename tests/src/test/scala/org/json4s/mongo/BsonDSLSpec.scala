@@ -28,7 +28,7 @@ import org.bson.types.ObjectId
 import org.specs.Specification
 
 import com.mongodb.{BasicDBList, DBObject}
-import collection.JavaConverters._
+import scalaj.collection.Imports._
 
 object BsonDSLSpec extends Specification("BsonDSL Specification")  {
 

@@ -20,7 +20,7 @@ import JsonDSL._
 
 import org.bson.types.ObjectId
 import org.specs.Specification
-
+import scalaj.collection.Imports._
 import com.mongodb.DBObject
 import scala.util.control.Exception._
 

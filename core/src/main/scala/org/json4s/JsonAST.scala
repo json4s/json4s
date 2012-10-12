@@ -448,11 +448,8 @@ object JsonAST {
       }
     }
 
-    private[this] def removeNullsFromJObject(initial: JObject): JValue = {
-      initial transformField {
-        case JField(a, JNull) ⇒ JField(a, JNothing)
-      }
-    }
+    private[this] def removeNullsFromJObject(initial: JObject): JValue = JObject(initial filterField valueIsNotNull)
+    private[this] def valueIsNotNull(field: JField): Boolean = field._2 != JNothing && field._2 != JNull
 
     def toOpt: Option[JValue] = this match {
       case JNothing => None

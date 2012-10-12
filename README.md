@@ -18,7 +18,7 @@ your import statements will change if you use this library.
 
 ```scala
 import org.json4s._
-import org.json4s.native._
+import org.json4s.native.JsonMethods._
 ```
 
 After that everything works exactly the same as it would with lift-json
@@ -33,7 +33,7 @@ To use jackson instead of the native parser:
 
 ```scala
 import org.json4s._
-import org.json4s.jackson._
+import org.json4s.jackson.JsonMethods._
 ```
 
 
@@ -124,13 +124,17 @@ Download following jars:
 Extras
 ------
 
-* [native-ext](https://github.com/json4s/json4s/tree/master/native-ext)
+* [ext](https://github.com/json4s/json4s/tree/master/ext)
 
-Support for Box, Enum, Joda-Time, ...
+Support for Enum, Joda-Time, ...
 
-* [native-scalaz](https://github.com/json4s/json4s/tree/master/scalaz)
+* [scalaz](https://github.com/json4s/json4s/tree/master/scalaz)
 
 Applicative style parsing with Scalaz
+
+* [native-lift](https://github.com/json4s/json4s/tree/master/native-lift)
+
+Support for Box
 
 Migration from older versions
 =============================

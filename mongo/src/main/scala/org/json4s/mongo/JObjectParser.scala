@@ -17,8 +17,7 @@
 package org.json4s
 package mongo
 
-import scala.collection.JavaConverters._
-
+import scalaj.collection.Imports._
 import java.util.{Date, UUID}
 import java.util.regex.Pattern
 import com.mongodb.{BasicDBObject, BasicDBList, DBObject}
