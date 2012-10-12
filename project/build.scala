@@ -52,7 +52,7 @@ object Json4sBuild extends Build {
 
   val json4sSettings = Defaults.defaultSettings ++ mavenCentralFrouFrou ++ Seq(
     organization := "org.json4s",
-    version := "3.0.0",
+    version := "3.1.0-SNAPSHOT",
     scalaVersion := "2.9.2",
     crossScalaVersions := Seq("2.8.0", "2.8.1", "2.8.2", "2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize"),
@@ -116,9 +116,19 @@ object Json4sBuild extends Build {
     settings = json4sSettings ++ Seq(libraryDependencies <+= scalaVersion(scalaz_core))
   ) dependsOn(core % "compile;test->test", native, jacksonSupport)
 
+  lazy val mongo = Project(
+     id = "json4s-mongo",
+     base = file("mongo"),
+     settings = json4sSettings ++ Seq(
+       libraryDependencies += "org.mongodb" % "mongo-java-driver" % "2.9.1"
+     )
+  ) dependsOn(core % "compile;test->test")
+
   lazy val json4sTests = Project(
     id = "json4s-tests",
     base = file("tests"),
     settings = json4sSettings ++ Seq(libraryDependencies <++= scalaVersion { sv => Seq(specs(sv), scalacheck(sv), mockito) })
-  ) dependsOn(core, native, json4sExt, nativeLift, scalazExt, jacksonSupport)
+  ) dependsOn(core, native, json4sExt, nativeLift, scalazExt, jacksonSupport, mongo)
+
+
 }
