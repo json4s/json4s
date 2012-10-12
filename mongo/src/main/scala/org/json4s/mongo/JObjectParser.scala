@@ -23,6 +23,7 @@ import java.util.regex.Pattern
 import com.mongodb.{BasicDBObject, BasicDBList, DBObject}
 import org.bson.types.ObjectId
 import java.util.concurrent.atomic.AtomicReference
+import scalashim._
 
 object JObjectParser  {
   /**
