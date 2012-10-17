@@ -89,11 +89,11 @@ Note, replace XXX with correct Json4s version.
 
 For the native support add the following dependency to your project description:
 
-    val json4sNative = "org.json4s" %% "json4s-native" % "XXX" // 3.0.0-SNAPSHOT
+    val json4sNative = "org.json4s" %% "json4s-native" % "3.0.0"
 
 For the Jackson support add the following dependency to your project description:
 
-    val json4sJackson = "org.json4s" %% "json4s-jackson" % "XXX" // 3.0.0-SNAPSHOT
+    val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.0.0"
 
 ### Maven users
 
