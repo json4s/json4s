@@ -599,7 +599,16 @@ Case classes can be serialized and deserialized.
 Please see other examples in src/test/scala/net/liftweb/json/SerializationExamples.scala
 
     scala> import org.json4s._
-    scala> import org.json4s.Serialization.{read, write}
+    scala> import org.json4s.native.Serialization.{read, write}
+    scala> implicit val formats = Serialization.formats(NoTypeHints)
+    scala> val ser = write(Child("Mary", 5, None))
+    scala> read[Child](ser)
+    res1: Child = Child(Mary,5,None)
+
+If you're using jackson instead of the native one: 
+
+    scala> import org.json4s._
+    scala> import org.json4s.jackson.Serialization.{read, write}
     scala> implicit val formats = Serialization.formats(NoTypeHints)
     scala> val ser = write(Child("Mary", 5, None))
     scala> read[Child](ser)
