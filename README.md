@@ -177,11 +177,23 @@ Parsing JSON
 ============
 
 Any valid json can be parsed into internal AST format.
+For native support:
 
     scala> import org.json4s._
+    scala> import org.json4s.native.JsonMethods._
     scala> parse(""" { "numbers" : [1, 2, 3, 4] } """)
     res0: org.json4s.JsonAST.JValue =
           JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
+
+For jackson support:
+
+    scala> import org.json4s._
+    scala> import org.json4s.jackson.JsonMethods._
+    scala> parse(""" { "numbers" : [1, 2, 3, 4] } """)
+    res0: org.json4s.JsonAST.JValue =
+          JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
+
+
 
 Producing JSON
 ==============
@@ -303,6 +315,8 @@ Two JSONs can be merged and diffed with each other.
 Please see more examples in src/test/scala/net/liftweb/json/MergeExamples.scala and src/test/scala/net/liftweb/json/DiffExamples.scala
 
     scala> import org.json4s._
+
+    scala> import org.json4s.jackson.JsonMethods._
 
     scala> val lotto1 = parse("""{
              "lotto":{

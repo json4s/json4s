@@ -92,7 +92,7 @@ object Diff {
     diffRec(vs1, vs2)
   }
 
-  private[json4s] trait Diffable { this: JValue =>
+  private[json4s] trait Diffable { this: org.json4s.JsonAST.JValue =>
     /** Return a diff.
      * @see org.json4s.Diff#diff
      */
