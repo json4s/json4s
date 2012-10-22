@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import util.control.Exception.allCatch
 import org.json4s
 import io.Source
+import com.fasterxml.jackson.databind.DeserializationFeature
 
 trait JsonMethods extends json4s.JsonMethods[JValue] {
 
@@ -15,11 +16,14 @@ trait JsonMethods extends json4s.JsonMethods[JValue] {
   }
   def mapper = _defaultMapper
 
-  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue = in match {
-    case StringInput(s) => mapper.readValue(s, classOf[JValue])
-    case ReaderInput(rdr) => mapper.readValue(rdr, classOf[JValue])
-    case StreamInput(stream) => mapper.readValue(stream, classOf[JValue])
-    case FileInput(file) => mapper.readValue(file, classOf[JValue])
+  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue = {
+    mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, useBigDecimalForDouble)
+    in match {
+	    case StringInput(s) => mapper.readValue(s, classOf[JValue])
+	    case ReaderInput(rdr) => mapper.readValue(rdr, classOf[JValue])
+	    case StreamInput(stream) => mapper.readValue(stream, classOf[JValue])
+	    case FileInput(file) => mapper.readValue(file, classOf[JValue])
+	  }
   }
 
   def parseOpt(in: JsonInput, useBigDecimalForDouble: Boolean = false): Option[JValue] =  allCatch opt {

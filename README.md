@@ -184,6 +184,9 @@ For native support:
     scala> parse(""" { "numbers" : [1, 2, 3, 4] } """)
     res0: org.json4s.JsonAST.JValue =
           JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
+    scala> parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
+    res1: org.json4s.package.JValue = 
+          JObject(List((name,JString(Toy)), (price,JDecimal(35.35))))
 
 For jackson support:
 
@@ -192,6 +195,9 @@ For jackson support:
     scala> parse(""" { "numbers" : [1, 2, 3, 4] } """)
     res0: org.json4s.JsonAST.JValue =
           JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
+    scala> parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
+    res1: org.json4s.package.JValue = 
+          JObject(List((name,JString(Toy)), (price,JDecimal(35.35))))
 
 
 
@@ -423,6 +429,13 @@ Json AST can be queried using XPath like functions. Following REPL session shows
     Translated to DSL syntax:
 
     scala> import org.json4s._
+
+    scala> import org.json4s.native._
+
+    or 
+
+    scala> import org.json4s.jackson._
+
     scala> import org.json4s.JsonDSL._
 
     scala> val json =
@@ -516,6 +529,7 @@ java.util.Dates.
 Please see more examples in src/test/scala/net/liftweb/json/ExtractionExamplesSpec.scala
 
     scala> import org.json4s._
+    scala> import org.json4s.jackson.JsonMethods._
     scala> implicit val formats = DefaultFormats // Brings in default date formats etc.
     scala> case class Child(name: String, age: Int, birthdate: Option[java.util.Date])
     scala> case class Address(street: String, city: String)
