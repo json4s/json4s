@@ -586,6 +586,12 @@ object JsonAST {
     def values = arr.map(_.values)
     override def apply(i: Int): JValue = arr(i)
   }
+//
+//  case class LazyJArray(arr: Stream[JValue]) extends JValue {
+//    type Values = Stream[Any]
+//    def values = arr.map(_.values)
+//    override def apply(i: Int): JValue = arr(i)
+//  }
 
   type JField = (String, JValue)
   object JField {

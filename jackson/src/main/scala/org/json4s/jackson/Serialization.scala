@@ -35,7 +35,7 @@ object Serialization extends Serialization {
   /** Serialize to Writer (pretty format).
    */
   def writePretty[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
-    JsonMethods.mapper.writeValue(out, Extraction.decompose(a)(formats))
+    JsonMethods.mapper.writerWithDefaultPrettyPrinter.writeValue(out, Extraction.decompose(a)(formats))
     out
   }
 

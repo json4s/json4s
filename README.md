@@ -264,6 +264,12 @@ DSL rules
 
       res4: String = {"name":"joe"}
 
+* Extending the dsl
+  To extend the dsl with your own classes you must have an implicit conversion in scope of signature:
+```scala
+type DslConversion = T => JValue
+```
+
 Example
 -------
 
@@ -379,6 +385,7 @@ JSON values can be extracted using for-comprehensions.
 Please see more examples in src/test/scala/net/liftweb/json/JsonQueryExamples.scala
 
     scala> import org.json4s._
+    scala> import org.json4s.native.JsonMethods._
     scala> val json = parse("""
              { "name": "joe",
                "children": [
@@ -430,11 +437,11 @@ Json AST can be queried using XPath like functions. Following REPL session shows
 
     scala> import org.json4s._
 
-    scala> import org.json4s.native._
+    scala> import org.json4s.native.JsonMethods._
 
     or 
 
-    scala> import org.json4s.jackson._
+    scala> import org.json4s.jackson.JsonMethods._
 
     scala> import org.json4s.JsonDSL._
 

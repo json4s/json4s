@@ -4,6 +4,7 @@ import xml.Group
 import sbtscalashim.Plugin._
 import sbtbuildinfo.Plugin._
 
+
 object Json4sBuild extends Build {
   import Dependencies._
   import Resolvers._
@@ -90,19 +91,32 @@ object Json4sBuild extends Build {
     id = "json4s-ext",
     base = file("ext"),
     settings = json4sSettings ++ Seq(libraryDependencies ++= jodaTime)
-  ) dependsOn(native % "compile;test->test")
+  ) dependsOn(native % "provided->compile;test->test")
 
   lazy val nativeLift = Project(
     id = "json4s-native-lift",
     base = file("native-lift"),
     settings = json4sSettings ++ Seq(libraryDependencies ++= Seq(liftCommon, commonsCodec))
-  )  dependsOn(native % "compile;test->test")
+  )  dependsOn(native % "provided->compile;test->test")
 
   lazy val jacksonSupport = Project(
     id = "json4s-jackson",
     base = file("jackson"),
     settings = json4sSettings ++ Seq(libraryDependencies ++= jackson)
   ) dependsOn(core % "compile;test->test")
+
+  lazy val examples = Project(
+     id = "json4s-examples",
+     base = file("examples"),
+     settings = json4sSettings ++ Seq(
+       libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.9.2"
+     )
+  ) dependsOn(
+    core % "compile;test->test",
+    native % "compile;test->test",
+    jacksonSupport % "compile;test->test",
+    json4sExt,
+    mongo)
 //
 //  lazy val jacksonExt = Project(
 //    id = "json4s-jackson-ext",
@@ -114,7 +128,7 @@ object Json4sBuild extends Build {
     id = "json4s-scalaz",
     base = file("scalaz"),
     settings = json4sSettings ++ Seq(libraryDependencies <+= scalaVersion(scalaz_core))
-  ) dependsOn(core % "compile;test->test", native, jacksonSupport)
+  ) dependsOn(core % "compile;test->test", native % "provided->compile", jacksonSupport % "provided->compile")
 
   lazy val mongo = Project(
      id = "json4s-mongo",

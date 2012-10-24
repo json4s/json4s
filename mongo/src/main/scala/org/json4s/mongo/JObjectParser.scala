@@ -24,6 +24,7 @@ import com.mongodb.{BasicDBObject, BasicDBList, DBObject}
 import org.bson.types.ObjectId
 import java.util.concurrent.atomic.AtomicReference
 import scalashim._
+import org.json4s.ParserUtil.ParseException
 
 object JObjectParser  {
   /**
@@ -42,7 +43,7 @@ object JObjectParser  {
   /*
   * Parse a JObject into a DBObject
   */
-  def parse(jo: JObject)(implicit formats: Formats): DBObject =
+  def parse(jo: JValue)(implicit formats: Formats): DBObject =
     Parser.parse(jo, formats)
 
   /*
@@ -71,8 +72,12 @@ object JObjectParser  {
 
   object Parser {
 
-    def parse(jo: JObject, formats: Formats): DBObject = {
-      parseObject(jo.obj, formats)
+    def parse(jv: JValue, formats: Formats): DBObject = jv match {
+      case jo: JObject =>
+        parseObject(jo.obj, formats)
+      case ja: JArray =>
+        parseArray(ja.arr, formats)
+      case x => throw new ParseException("Couldn't parse %s to a DBObject" format x, null)
     }
 
     private def parseArray(arr: List[JValue], formats: Formats): BasicDBList = {
