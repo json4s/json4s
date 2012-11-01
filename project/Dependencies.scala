@@ -15,7 +15,8 @@ object Dependencies {
   lazy val CVMapping282  = crossMapped("2.8.2" -> "2.8.1")
   lazy val CVMapping292  = crossMapped("2.9.2" -> "2.9.1")
   lazy val CVMapping2911 = crossMapped("2.9.2" -> "2.9.1", "2.9.1-1" -> "2.9.1")
-  lazy val CVMapping292All = crossMapped("2.9.0" -> "2.9.2", "2.9.0-1" -> "2.9.2", "2.9.1" -> "2.9.2", "2.9.1-1" -> "2.9.2")
+  lazy val CVMapping292All = crossMapped("2.9.0" -> "2.9.2", "2.9.0-1" -> "2.9.2", "2.9.1" -> "2.9.2", "2.9.1-1" -> "2.9.2", "2.10.0-RC1" -> "2.10.0-M7")
+  // lazy val CVMapping292All = crossMapped("2.9.0" -> "2.9.2", "2.9.0-1" -> "2.9.2", "2.9.1" -> "2.9.2", "2.9.1-1" -> "2.9.2")
   lazy val CVMappingAll  = crossMapped("2.9.2" -> "2.9.1", "2.9.1-1" -> "2.9.1", "2.8.2" -> "2.8.1")
 
   lazy val slf4jVersion = "1.6.4"
@@ -24,7 +25,7 @@ object Dependencies {
   lazy val scalazVersion     = defaultOrMapped("7.0.0-M3", "2.8.0" -> "5.0")
   lazy val scalacheckGroup   = defaultOrMapped("org.scalacheck", "2.8.0" -> "org.scala-tools.testing")
   lazy val scalacheckVersion = defaultOrMapped("1.10.0", "2.8.0" -> "1.7", "2.8.1" -> "1.8", "2.8.2" -> "1.8")
-  lazy val specsVersion      = defaultOrMapped("1.12.1", "2.8.0" -> "1.5", "2.8.1" -> "1.5", "2.8.2" -> "1.5", "2.9.0" -> "1.7.1", "2.9.0-1" -> "1.8.2", "2.10.0-M7" -> "1.12.1.1")
+  lazy val specsVersion      = defaultOrMapped("1.12.2", "2.8.0" -> "1.5", "2.8.1" -> "1.5", "2.8.2" -> "1.5", "2.9.0" -> "1.7.1", "2.9.0-1" -> "1.8.2")
   /* stop stealing */
 
   lazy val scalaz_core: ModuleMap = sv => scalazGroup(sv) % "scalaz-core" % scalazVersion(sv) cross CVMapping292All
