@@ -19,13 +19,14 @@ package mongo
 import JsonDSL._
 
 import org.bson.types.ObjectId
-import org.specs.Specification
-import scalaj.collection.Imports._
+import org.specs2.mutable.Specification
+import collection.JavaConverters._
 import com.mongodb.DBObject
 import scala.util.control.Exception._
 
-object JObjectParserSpec extends Specification("JObjectParser Specification")  {
+object JObjectParserSpec extends Specification  {
 
+  title("JObjectParser Specification")
 
   def buildTestData: (ObjectId, DBObject) = {
     val oid = ObjectId.get
