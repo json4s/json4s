@@ -28,6 +28,8 @@ object JObjectParserSpec extends Specification  {
 
   title("JObjectParser Specification")
 
+  sequential
+
   def buildTestData: (ObjectId, DBObject) = {
     val oid = ObjectId.get
     val dbo = JObjectParser.parse(("x" -> oid.toString))(DefaultFormats)
