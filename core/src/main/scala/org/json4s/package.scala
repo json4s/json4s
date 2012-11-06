@@ -43,4 +43,5 @@ package object json4s {
   implicit def reader2JsonInput(rdr: java.io.Reader): JsonInput = ReaderInput(rdr)
   implicit def stream2JsonInput(stream: java.io.InputStream): JsonInput = StreamInput(stream)
   implicit def file2JsonInput(file: java.io.File): JsonInput = FileInput(file)
+  implicit def jvalue2extractable(jv: JValue) = new ExtractableJsonAstNode(jv)
 }

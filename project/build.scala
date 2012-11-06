@@ -69,17 +69,23 @@ object Json4sBuild extends Build {
     settings = json4sSettings
   ) aggregate(core, native, json4sExt, nativeLift, jacksonSupport, scalazExt, json4sTests)
 
-  lazy val core = Project(
-    id = "json4s-core",
-    base = file("core"),
+  lazy val ast = Project(
+    id = "json4s-ast",
+    base = file("ast"),
     settings = json4sSettings ++ scalaShimSettings ++ buildInfoSettings ++ Seq(
-      libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv), inflector) },
+      libraryDependencies <++= scalaVersion { sv => Seq(inflector) },
       sourceGenerators in Compile <+= scalaShim,
       sourceGenerators in Compile <+= buildInfo,
       buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
       buildInfoPackage := "org.json4s"
     )
   )
+
+  lazy val core = Project(
+    id = "json4s-core",
+    base = file("core"),
+    settings = json4sSettings ++ Seq(libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv)) } )
+  ) dependsOn(ast % "compile;test->test")
 
   lazy val native = Project(
     id = "json4s-native",
