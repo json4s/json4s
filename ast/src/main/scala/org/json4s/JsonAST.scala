@@ -97,6 +97,13 @@ object JsonAST {
      * When this [[org.json4s.JValue]] is a [[org.json4s.JNothing]], this method returns [[scala.None]]
      * When it has a value it will return [[scala.Some]]
      */
+    @deprecated("Use toOption instead")
+    def toOpt: Option[JValue] = toOption
+    
+    /**
+     * When this [[org.json4s.JValue]] is a [[org.json4s.JNothing]], this method returns [[scala.None]]
+     * When it has a value it will return [[scala.Some]]
+     */
     def toOption: Option[JValue] = this match {
       case JNothing ⇒ None
       case json ⇒ Some(json)
