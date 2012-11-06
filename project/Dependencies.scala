@@ -47,7 +47,5 @@ object Dependencies {
 
   val liftCommon = "net.liftweb" %% "lift-common" % "2.4" cross CVMapping2911
 
-  val inflector = "io.backchat.inflector" %% "scala-inflector" % "1.3.5"
-
   val scalaj_collection = "org.scalaj" %% "scalaj-collection" % "1.2" cross CVMappingAll
 }

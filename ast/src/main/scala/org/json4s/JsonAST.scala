@@ -16,8 +16,9 @@
 
 package org.json4s
 
+import java.util.Locale.ENGLISH
+
 object JsonAST {
-  import mojolly.inflector.InflectorImports._
 
   /**
    * Concatenates a sequence of <code>JValue</code>s.
@@ -385,6 +386,26 @@ object JsonAST {
       case x ⇒ x
     }
 
+    private[this] def camelize(word: String): String = {
+      val w = pascalize(word)
+      w.substring(0, 1).toLowerCase(ENGLISH) + w.substring(1)
+    }
+    private[this] def pascalize(word: String): String = {
+      val lst = word.split("_").toList
+      (lst.headOption.map(s ⇒ s.substring(0, 1).toUpperCase(ENGLISH) + s.substring(1)).get ::
+        lst.tail.map(s ⇒ s.substring(0, 1).toUpperCase + s.substring(1))).mkString("")
+    }
+    private[this] def underscore(word: String): String = {
+      val spacesPattern = "[-\\s]".r
+      val firstPattern = "([A-Z]+)([A-Z][a-z])".r
+      val secondPattern = "([a-z\\d])([A-Z])".r
+      val replacementPattern = "$1_$2"
+      spacesPattern.replaceAllIn(
+        secondPattern.replaceAllIn(
+          firstPattern.replaceAllIn(
+            word, replacementPattern), replacementPattern), "_").toLowerCase
+    }
+
     /**
      * Camelize all the keys in this [[org.json4s.JsonAST.JValue]]
      */
@@ -403,7 +424,7 @@ object JsonAST {
 
     private[this] def rewriteJsonAST(camelize: Boolean): JValue = {
       transformField {
-        case JField(nm, x) if !nm.startsWith("_") ⇒ JField(if (camelize) nm.camelize else nm.underscore, x)
+        case JField(nm, x) if !nm.startsWith("_") ⇒ JField(if (camelize) this.camelize(nm) else underscore(nm), x)
         case x ⇒ x
       }
     }

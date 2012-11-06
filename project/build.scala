@@ -73,7 +73,6 @@ object Json4sBuild extends Build {
     id = "json4s-ast",
     base = file("ast"),
     settings = json4sSettings ++ scalaShimSettings ++ buildInfoSettings ++ Seq(
-      libraryDependencies <++= scalaVersion { sv => Seq(inflector) },
       sourceGenerators in Compile <+= scalaShim,
       sourceGenerators in Compile <+= buildInfo,
       buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
