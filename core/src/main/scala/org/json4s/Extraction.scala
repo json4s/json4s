@@ -207,7 +207,7 @@ object Extraction {
       else mappingOf(clazz, typeArgs)
     }
     if (clazz == classOf[Option[_]])
-      json.toOpt.map(extract0(_, mkMapping(typeArgs.head, typeArgs.tail)))
+      json.toOption.map(extract0(_, mkMapping(typeArgs.head, typeArgs.tail)))
     else
       extract0(json, mkMapping(clazz, typeArgs))
   }

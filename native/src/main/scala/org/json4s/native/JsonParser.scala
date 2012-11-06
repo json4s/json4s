@@ -67,13 +67,13 @@ object JsonParser {
   /** Return parsed JSON.
    */
   def parseOpt(s: String, useBigDecimalForDouble: Boolean): Option[JValue] =
-    try { parse(s, useBigDecimalForDouble).toOpt } catch { case e: Exception => None }
+    try { parse(s, useBigDecimalForDouble).toOption } catch { case e: Exception => None }
 
   /** Return parsed JSON.
    * @param closeAutomatically true (default) if the Reader is automatically closed on EOF
    */
   def parseOpt(s: Reader, closeAutomatically: Boolean = true, useBigDecimalForDouble: Boolean = false): Option[JValue] =
-    try { parse(s, closeAutomatically, useBigDecimalForDouble).toOpt } catch { case e: Exception => None }
+    try { parse(s, closeAutomatically, useBigDecimalForDouble).toOption } catch { case e: Exception => None }
 
   /** Parse in pull parsing style.
    * Use <code>p.nextToken</code> to parse tokens one by one from a string.

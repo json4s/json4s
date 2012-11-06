@@ -87,7 +87,7 @@ class ExtractableJsonAstNode(jv: JValue) {
    * }}}
    */
   def getAs[A](implicit reader: Reader[A], mf: scala.reflect.Manifest[A]): Option[A] = try {
-    jv.toOpt map reader.read
+    jv.toOption map reader.read
   } catch { case _: Throwable ⇒ None }
 
   /**
