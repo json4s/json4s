@@ -54,8 +54,8 @@ object Json4sBuild extends Build {
   val json4sSettings = Defaults.defaultSettings ++ mavenCentralFrouFrou ++ Seq(
     organization := "org.json4s",
     version := "3.1.0-SNAPSHOT",
-    scalaVersion := "2.10.0-RC1",
-    crossScalaVersions := Seq("2.9.2", "2.10.0-RC1"),
+    scalaVersion := "2.10.0-RC2",
+    crossScalaVersions := Seq("2.9.2", "2.10.0-RC2"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
@@ -122,7 +122,7 @@ object Json4sBuild extends Build {
      id = "json4s-examples",
      base = file("examples"),
      settings = json4sSettings ++ Seq(
-       libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.9.2"
+       libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.9.4"
      )
   ) dependsOn(
     core % "compile;test->test",

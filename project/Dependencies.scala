@@ -15,7 +15,7 @@ object Dependencies {
   lazy val CVMapping282  = crossMapped("2.8.2" -> "2.8.1")
   lazy val CVMapping292  = crossMapped("2.9.2" -> "2.9.1")
   lazy val CVMapping2911 = crossMapped("2.9.2" -> "2.9.1", "2.9.1-1" -> "2.9.1")
-  lazy val CVMapping292All = crossMapped("2.9.0" -> "2.9.2", "2.9.0-1" -> "2.9.2", "2.9.1" -> "2.9.2", "2.9.1-1" -> "2.9.2", "2.10.0-RC1" -> "2.10.0-M7")
+  lazy val CVMapping292All = crossMapped("2.9.0" -> "2.9.2", "2.9.0-1" -> "2.9.2", "2.9.1" -> "2.9.2", "2.9.1-1" -> "2.9.2", "2.10.0-RC2" -> "2.10.0-M7")
   // lazy val CVMapping292All = crossMapped("2.9.0" -> "2.9.2", "2.9.0-1" -> "2.9.2", "2.9.1" -> "2.9.2", "2.9.1-1" -> "2.9.2")
   lazy val CVMappingAll  = crossMapped("2.9.2" -> "2.9.1", "2.9.1-1" -> "2.9.1", "2.8.2" -> "2.8.1")
 
