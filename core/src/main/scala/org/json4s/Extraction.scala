@@ -41,10 +41,8 @@ object Extraction {
    */
   def extract[A](json: JValue)(implicit formats: Formats, mf: Manifest[A]): A = {
     def allTypes(mf: Manifest[_]): List[Class[_]] = mf.erasure :: (mf.typeArguments flatMap allTypes)
-
     try {
       val types = allTypes(mf)
-      println("all types: " + types)
       extract0(json, types.head, types.tail).asInstanceOf[A]
     } catch {
       case e: MappingException => throw e
