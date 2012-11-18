@@ -44,6 +44,7 @@ object Extraction {
 
     try {
       val types = allTypes(mf)
+      println("all types: " + types)
       extract0(json, types.head, types.tail).asInstanceOf[A]
     } catch {
       case e: MappingException => throw e

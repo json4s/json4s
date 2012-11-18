@@ -63,3 +63,4 @@ target
 .ensime*
 *.sublime-*
 .cache
+.projectile

@@ -23,10 +23,15 @@ class EnumSerializer[E <: Enumeration: ClassManifest](enum: E)
 
   val EnumerationClass = classOf[E#Value]
 
+  private[this] def isValid(json: JValue) = json match {
+    case JInt(value) => value <= enum.maxId
+    case _ => false
+  }
+
   def deserialize(implicit format: Formats):
     PartialFunction[(TypeInfo, JValue), E#Value] = {
-      case (TypeInfo(EnumerationClass, _), json) => json match {
-        case JInt(value) if (value <= enum.maxId) => enum(value.toInt)
+      case (TypeInfo(EnumerationClass, _), json) if isValid(json) => json match {
+        case JInt(value) => enum(value.toInt)
         case value => throw new MappingException("Can't convert " +
           value + " to "+ EnumerationClass)
       }
@@ -45,13 +50,19 @@ class EnumNameSerializer[E <: Enumeration: ClassManifest](enum: E)
 
   def deserialize(implicit format: Formats):
     PartialFunction[(TypeInfo, JValue), E#Value] = {
-      case (TypeInfo(EnumerationClass, _), json) => json match {
-        case JString(value) if (enum.values.exists(_.toString == value)) =>
-          enum.withName(value)
-        case value => throw new MappingException("Can't convert " +
-          value + " to "+ EnumerationClass)
+      case (t @ TypeInfo(EnumerationClass, _), json) if (isValid(json)) => {
+        json match {
+         case JString(value) => enum.withName(value)
+          case value => throw new MappingException("Can't convert " +
+            value + " to "+ EnumerationClass)
+        }
       }
     }
+
+  private[this] def isValid(json: JValue) = json match {
+    case JString(value) if (enum.values.exists(_.toString == value)) => true
+    case _ => false
+  }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
     case i: E#Value => i.toString

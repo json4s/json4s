@@ -67,7 +67,7 @@ object Json4sBuild extends Build {
     id = "json4s",
     base = file("."),
     settings = json4sSettings
-  ) aggregate(core, native, json4sExt, nativeLift, jacksonSupport, scalazExt, json4sTests)
+  ) aggregate(core, native, json4sExt, nativeLift, jacksonSupport, scalazExt, json4sTests, mongo, ast)
 
   lazy val ast = Project(
     id = "json4s-ast",
