@@ -356,7 +356,7 @@ Querying JSON
 ------------
 
 JSON values can be extracted using for-comprehensions.
-Please see more examples in src/test/scala/net/liftweb/json/JsonQueryExamples.scala
+Please see more examples in [JsonQueryExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/JsonQueryExamples.scala).
 
     scala> import org.json4s._
     scala> val json = parse("""
