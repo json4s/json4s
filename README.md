@@ -635,6 +635,7 @@ Case classes can be serialized and deserialized.
 Please see other examples in [SerializationExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/SerializationExamples.scala).
 
     scala> import org.json4s._
+    scala> import org.json4s.native.Serialization
     scala> import org.json4s.native.Serialization.{read, write}
     scala> implicit val formats = Serialization.formats(NoTypeHints)
     scala> val ser = write(Child("Mary", 5, None))
@@ -644,6 +645,7 @@ Please see other examples in [SerializationExamples.scala](https://github.com/js
 If you're using jackson instead of the native one: 
 
     scala> import org.json4s._
+    scala> import org.json4s.jackson.Serialization
     scala> import org.json4s.jackson.Serialization.{read, write}
     scala> implicit val formats = Serialization.formats(NoTypeHints)
     scala> val ser = write(Child("Mary", 5, None))
