@@ -531,7 +531,7 @@ Please see more examples in [ExtractionExamples.scala](https://github.com/json4s
 
 By default the constructor parameter names must match json field names. However, sometimes json
 field names contain characters which are not allowed characters in Scala identifiers. There's two
-solutions for this (see [LottoExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/LottoExample.scala) for bigger example).
+solutions for this (see [LottoExample.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/LottoExample.scala) for bigger example).
 
 Use back ticks.
 
