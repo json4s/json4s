@@ -499,7 +499,7 @@ Extracting values
 Case classes can be used to extract values from parsed JSON. Non-existing values
 can be extracted into scala.Option and strings can be automatically converted into
 java.util.Dates.
-Please see more examples in src/test/scala/net/liftweb/json/ExtractionExamplesSpec.scala
+Please see more examples in [ExtractionExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/ExtractionExamples.scala).
 
     scala> import org.json4s._
     scala> implicit val formats = DefaultFormats // Brings in default date formats etc.
@@ -531,7 +531,7 @@ Please see more examples in src/test/scala/net/liftweb/json/ExtractionExamplesSp
 
 By default the constructor parameter names must match json field names. However, sometimes json
 field names contain characters which are not allowed characters in Scala identifiers. There's two
-solutions for this (see src/test/scala/net/liftweb/json/LottoExample.scala for bigger example).
+solutions for this (see [LottoExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/LottoExample.scala) for bigger example).
 
 Use back ticks.
 
@@ -596,7 +596,7 @@ Serialization
 =============
 
 Case classes can be serialized and deserialized.
-Please see other examples in src/test/scala/net/liftweb/json/SerializationExamples.scala
+Please see other examples in [SerializationExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/SerializationExamples.scala).
 
     scala> import org.json4s._
     scala> import org.json4s.native.Serialization.{read, write}
@@ -719,7 +719,7 @@ XML support
 ===========
 
 JSON structure can be converted to XML node and vice versa.
-Please see more examples in src/test/scala/net/liftweb/json/XmlExamples.scala
+Please see more examples in [XmlExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/XmlExamples.scala).
 
     scala> import org.json4s.Xml.{toJson, toXml}
     scala> val xml =
