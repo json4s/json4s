@@ -250,7 +250,7 @@ Example
 -------
 
 ```scala
-object JsonExample extends Application {
+object JsonExample extends App {
   import org.json4s._
   import org.json4s.JsonDSL._
 
