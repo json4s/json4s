@@ -53,12 +53,12 @@ object Serialization extends Serialization  {
 
   /** Deserialize from a String.
    */
-  def read[A](json: String)(implicit formats: Formats, mf: Manifest[A]): A =
-    JsonParser.parse(json).extract(formats, mf)
+  def read[A](json: String, useBigDecimalForDouble: Boolean = false)(implicit formats: Formats, mf: Manifest[A]): A =
+    JsonParser.parse(json, useBigDecimalForDouble).extract(formats, mf)
 
   /** Deserialize from a Reader.
    */
-  def read[A](in: Reader)(implicit formats: Formats, mf: Manifest[A]): A =
-    JsonParser.parse(in).extract(formats, mf)
+  def read[A](in: Reader, useBigDecimalForDouble: Boolean = false)(implicit formats: Formats, mf: Manifest[A]): A =
+    JsonParser.parse(in, useBigDecimalForDouble).extract(formats, mf)
 
 }

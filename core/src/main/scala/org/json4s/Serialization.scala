@@ -22,11 +22,11 @@ trait Serialization {
 
   /** Deserialize from a String.
    */
-  def read[A](json: String)(implicit formats: Formats, mf: Manifest[A]): A
+  def read[A](json: String, useBigDecimalForDouble: Boolean)(implicit formats: Formats, mf: Manifest[A]): A
 
   /** Deserialize from a Reader.
    */
-  def read[A](in: Reader)(implicit formats: Formats, mf: Manifest[A]): A
+  def read[A](in: Reader, useBigDecimalForDouble: Boolean)(implicit formats: Formats, mf: Manifest[A]): A
 
   /** Create Serialization formats with given type hints.
    * <p>
