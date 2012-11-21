@@ -4,8 +4,8 @@ package org.json4s
 import org.specs2.mutable.Specification
 import text.Document
 
-object NativeJsonFormatsSpec extends JsonFormatsSpec[Document]("Native") with native.JsonMethods
-object JacksonJsonFormatsSpec extends JsonFormatsSpec[JValue]("Jackson") with jackson.JsonMethods
+class NativeJsonFormatsSpec extends JsonFormatsSpec[Document]("Native") with native.JsonMethods
+class JacksonJsonFormatsSpec extends JsonFormatsSpec[JValue]("Jackson") with jackson.JsonMethods
 /**
 * System under specification for JSON Formats.
 */
