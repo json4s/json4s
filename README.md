@@ -300,7 +300,7 @@ Merging & Diffing
 -----------------
 
 Two JSONs can be merged and diffed with each other.
-Please see more examples in src/test/scala/net/liftweb/json/MergeExamples.scala and src/test/scala/net/liftweb/json/DiffExamples.scala
+Please see more examples in [MergeExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/MergeExamples.scala) and [DiffExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/DiffExamples.scala).
 
     scala> import org.json4s._
 
