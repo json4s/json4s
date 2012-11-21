@@ -499,7 +499,7 @@ Extracting values
 Case classes can be used to extract values from parsed JSON. Non-existing values
 can be extracted into scala.Option and strings can be automatically converted into
 java.util.Dates.
-Please see more examples in [ExtractionExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/ExtractionExamples.scala).
+Please see more examples in [ExtractionExampleSpec.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/ExtractionExamplesSpec.scala).
 
     scala> import org.json4s._
     scala> implicit val formats = DefaultFormats // Brings in default date formats etc.
