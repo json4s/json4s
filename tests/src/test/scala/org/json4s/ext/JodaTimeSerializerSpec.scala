@@ -43,7 +43,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
                       new DateTime, new DateMidnight, new Interval(1000, 50000),
                       new LocalDate(2011, 1, 16), new LocalTime(16, 52, 10), Period.weeks(3))
     val ser = s.write(x)
-    s.read[JodaTypes](ser) mustEqual x
+    s.read[JodaTypes](ser, false) mustEqual x
   }
 
   "DateTime and DateMidnight use configured date format" in {
@@ -59,7 +59,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
   "null is serialized as JSON null" in {
     val x = JodaTypes(null, null, null, null, null, null, null, null)
     val ser = s.write(x)
-    s.read[JodaTypes](ser) mustEqual x
+    s.read[JodaTypes](ser, false) mustEqual x
   }
 }
 
