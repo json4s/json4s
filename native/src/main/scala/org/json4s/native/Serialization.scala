@@ -61,4 +61,8 @@ object Serialization extends Serialization  {
   def read[A](in: Reader, useBigDecimalForDouble: Boolean)(implicit formats: Formats, mf: Manifest[A]): A =
     JsonParser.parse(in, useBigDecimalForDouble).extract(formats, mf)
 
+  /** Deserialize from a Reader.
+   */
+  def read[A](in: Reader)(implicit formats: Formats, mf: Manifest[A]): A = read[A](in, false)
+
 }

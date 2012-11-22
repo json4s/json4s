@@ -230,14 +230,18 @@ object JsonParser {
           if (c == '.' || c == 'e' || c == 'E') {
             doubleVal = true
             s.append(c)
-          } else if (!(Character.isDigit(c) || c == '.' || c == 'e' || c == 'E' || c == '-')) {
+          } else if (!(Character.isDigit(c) || c == '.' || c == 'e' || c == 'E' || c == '-' || c == '+')) {
             wasInt = false
             buf.back
           } else s.append(c)
         }
         val value = s.toString
         if (doubleVal) {
-          if (useBigDecimalForDouble) BigDecimalVal(BigDecimal(value)) else DoubleVal(parseDouble(value))
+          if (useBigDecimalForDouble) {
+            BigDecimalVal(new java.math.BigDecimal(value))
+          } else {
+            DoubleVal(parseDouble(value))
+          }
         }
         else IntVal(BigInt(value))
       }
@@ -288,7 +292,7 @@ object JsonParser {
             fieldNameMode = true
             blocks.poll
             return CloseArr
-          case c if Character.isDigit(c) || c == '-' =>
+          case c if Character.isDigit(c) || c == '-' || c == '+' =>
             fieldNameMode = true
             return parseValue(c)
           case c if isDelimiter(c) =>

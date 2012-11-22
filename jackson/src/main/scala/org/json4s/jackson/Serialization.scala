@@ -51,4 +51,7 @@ object Serialization extends Serialization {
     JsonMethods.mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, useBigDecimalForDouble)
     JsonMethods.mapper.readValue[JValue](in, classOf[JValue]).extract(formats, mf)
   }
+  /** Deserialize from a Reader.
+   */
+  def read[A](in: Reader)(implicit formats: Formats, mf: Manifest[A]): A = read[A](in, false)
 }
