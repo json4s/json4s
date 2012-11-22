@@ -26,11 +26,14 @@ trait JsonUtil[T] { self: JsonMethods[T] =>
 
   /** Deserialize from a String.
    */
-  def read[A](json: String)(implicit mf: Manifest[A]): A = serializer.read(json)
+  def read[A](json: String, useBigDecimal: Boolean = false)(implicit mf: Manifest[A]): A = serializer.read(json, useBigDecimal)
 
   /** Deserialize from a Reader.
    */
-  def read[A](in: Reader)(implicit mf: Manifest[A]): A = serializer.read(in)
+  def read[A](in: Reader, useBigDecimal: Boolean)(implicit mf: Manifest[A]): A = serializer.read(in, useBigDecimal)
 
+  /** Deserialize from a Reader.
+   */
+  def read[A](in: Reader)(implicit mf: Manifest[A]): A = serializer.read(in, false)
 
 }
