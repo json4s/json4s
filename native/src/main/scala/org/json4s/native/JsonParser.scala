@@ -237,11 +237,7 @@ object JsonParser {
         }
         val value = s.toString
         if (doubleVal) {
-          if (useBigDecimalForDouble) {
-            BigDecimalVal(new java.math.BigDecimal(value))
-          } else {
-            DoubleVal(parseDouble(value))
-          }
+          if (useBigDecimalForDouble) { BigDecimalVal(BigDecimal(value)) } else { DoubleVal(parseDouble(value)) }
         }
         else IntVal(BigInt(value))
       }
