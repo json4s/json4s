@@ -48,6 +48,22 @@ object JsonParserSpec extends Specification("JSON Parser Specification") with JV
     JsonParser.parse("[1.234]", useBigDecimalForDouble = true) must_== JArray(JDecimal(BigDecimal("1.234"))::Nil)
   }
 
+  "parse -1.40737488355328E+15 as bigdecimal" in {
+    val bd = BigDecimal("-1.40737488355328E+15")
+    JsonParser.parse("[-1.40737488355328E+15]", useBigDecimalForDouble = true) must_== JArray(JDecimal(bd) :: Nil)
+  }
+
+  "parse -1.40737488355328E15 as bigdecimal" in {
+    val bd = BigDecimal("-1.40737488355328E15")
+    JsonParser.parse("[-1.40737488355328E15]", useBigDecimalForDouble = true) must_== JArray(JDecimal(bd) :: Nil)
+  }
+
+
+  "parse -1.40737488355328E-15 as bigdecimal" in {
+    val bd = BigDecimal("-1.40737488355328E-15")
+    JsonParser.parse("[-1.40737488355328E-15]", useBigDecimalForDouble = true) must_== JArray(JDecimal(bd) :: Nil)
+  }
+
   "The EOF has reached when the Reader returns EOF" in {
     class StingyReader(s: String) extends java.io.StringReader(s) {
       override def read(cbuf: Array[Char], off: Int, len: Int): Int = {
