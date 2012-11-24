@@ -36,7 +36,7 @@ abstract class DiffExamples[T](mod: String) extends Specification with JsonMetho
     }
 
 
-  lazy val expectedChanges = parseJson("""
+  lazy val expectedChanges = parse("""
     {
       "tags": ["static-typing","fp"],
       "features": {
@@ -44,7 +44,7 @@ abstract class DiffExamples[T](mod: String) extends Specification with JsonMetho
       }
     }""")
 
-  lazy val expectedAdditions = parseJson("""
+  lazy val expectedAdditions = parse("""
     {
       "features": {
         "key3":"val3"
@@ -52,7 +52,7 @@ abstract class DiffExamples[T](mod: String) extends Specification with JsonMetho
       "compiled": true
     }""")
 
-  lazy val expectedDeletions = parseJson("""
+  lazy val expectedDeletions = parse("""
     {
       "year":2006,
       "features":{ "key1":"val1" }
@@ -76,5 +76,5 @@ abstract class DiffExamples[T](mod: String) extends Specification with JsonMetho
   }
 
   private def read(resource: String) =
-    parseJson(getClass.getResourceAsStream(resource))
+    parse(getClass.getResourceAsStream(resource))
 }

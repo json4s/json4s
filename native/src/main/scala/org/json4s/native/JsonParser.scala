@@ -76,25 +76,25 @@ object JsonParser {
     try { parse(s, closeAutomatically, useBigDecimalForDouble).toOption } catch { case e: Exception => None }
 
   /** Parse in pull parsing style.
-   * Use <code>p.nextToken</code> to parseJson tokens one by one from a string.
+   * Use <code>p.nextToken</code> to parse tokens one by one from a string.
    * @see org.json4s.JsonParser.Token
    */
   def parse[A](s: String, p: Parser => A): A = parse(s, p, useBigDecimalForDouble = false)
   /** Parse in pull parsing style.
-   * Use <code>p.nextToken</code> to parseJson tokens one by one from a string.
+   * Use <code>p.nextToken</code> to parse tokens one by one from a string.
    * @see org.json4s.JsonParser.Token
    */
   def parse[A](s: String, p: Parser => A, useBigDecimalForDouble: Boolean): A =
     parse(new StringReader(s), p, useBigDecimalForDouble)
 
   /** Parse in pull parsing style.
-   * Use <code>p.nextToken</code> to parseJson tokens one by one from a stream.
+   * Use <code>p.nextToken</code> to parse tokens one by one from a stream.
    * The Reader must be closed when parsing is stopped.
    * @see org.json4s.JsonParser.Token
    */
   def parse[A](s: Reader, p: Parser => A): A = parse(s, p, useBigDecimalForDouble = false)
   /** Parse in pull parsing style.
-   * Use <code>p.nextToken</code> to parseJson tokens one by one from a stream.
+   * Use <code>p.nextToken</code> to parse tokens one by one from a stream.
    * The Reader must be closed when parsing is stopped.
    * @see org.json4s.JsonParser.Token
    */

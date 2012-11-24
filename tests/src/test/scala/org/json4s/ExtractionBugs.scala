@@ -57,15 +57,15 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
   }
 
   "Extraction should work with unicode encoded field names (issue 1075)" in {
-    parseJson("""{"foo.bar,baz":"x"}""").extract[UnicodeFieldNames] mustEqual UnicodeFieldNames("x")
+    parse("""{"foo.bar,baz":"x"}""").extract[UnicodeFieldNames] mustEqual UnicodeFieldNames("x")
   }
 
   "Extraction should not fail if case class has a companion object" in {
-    parseJson("""{"nums":[10]}""").extract[HasCompanion] mustEqual HasCompanion(List(10))
+    parse("""{"nums":[10]}""").extract[HasCompanion] mustEqual HasCompanion(List(10))
   }
 
   "Issue 1169" in {
-    val json = parseJson("""{"data":[{"one":1, "two":2}]}""")
+    val json = parse("""{"data":[{"one":1, "two":2}]}""")
     json.extract[Response] mustEqual Response(List(Map("one" -> 1, "two" -> 2)))
   }
 

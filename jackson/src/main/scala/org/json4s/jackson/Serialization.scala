@@ -42,13 +42,11 @@ object Serialization extends Serialization {
 
   /** Deserialize from a String.
    */
-<<<<<<< HEAD
   def read[A](json: String, useBigDecimalForDouble: Boolean = false)(implicit formats: Formats, mf: Manifest[A]): A =
     JsonMethods.parse(json, useBigDecimalForDouble).extract(formats, mf)
-=======
+
   def read[A](json: String)(implicit formats: Formats, mf: Manifest[A]): A =
-    JsonMethods.parseJson(json).extract(formats, mf)
->>>>>>> Fix build, break api with parse rename wait for specs2 to publish the fix
+    JsonMethods.parse(json).extract(formats, mf)
 
   /** Deserialize from a Reader.
    */
