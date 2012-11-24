@@ -26,7 +26,7 @@ abstract class MergeExamples[T](mod: String) extends Specification with JsonMeth
     (scala1 merge scala2) mustEqual expectedMergeResult
   }
 
-  lazy val scala1 = parseJson("""
+  lazy val scala1 = parse("""
     {
       "lang": "scala",
       "year": 2006,
@@ -37,7 +37,7 @@ abstract class MergeExamples[T](mod: String) extends Specification with JsonMeth
       }
     }""")
 
-  lazy val scala2 = parseJson("""
+  lazy val scala2 = parse("""
     {
       "tags": ["static-typing","fp"],
       "compiled": true,
@@ -48,7 +48,7 @@ abstract class MergeExamples[T](mod: String) extends Specification with JsonMeth
       }
     }""")
 
-  lazy val expectedMergeResult = parseJson("""
+  lazy val expectedMergeResult = parse("""
     {
       "lang": "scala",
       "year": 2006,
@@ -65,7 +65,7 @@ abstract class MergeExamples[T](mod: String) extends Specification with JsonMeth
     (lotto1 merge lotto2) mustEqual mergedLottoResult
   }
 
-  lazy val lotto1 = parseJson("""
+  lazy val lotto1 = parse("""
     {
       "lotto":{
         "lotto-id":5,
@@ -77,7 +77,7 @@ abstract class MergeExamples[T](mod: String) extends Specification with JsonMeth
       }
     }""")
 
-  lazy val lotto2 = parseJson("""
+  lazy val lotto2 = parse("""
     {
       "lotto":{
         "winners":[{
@@ -87,7 +87,7 @@ abstract class MergeExamples[T](mod: String) extends Specification with JsonMeth
       }
     }""")
 
-  lazy val mergedLottoResult = parseJson("""
+  lazy val mergedLottoResult = parse("""
     {
       "lotto":{
         "lotto-id":5,

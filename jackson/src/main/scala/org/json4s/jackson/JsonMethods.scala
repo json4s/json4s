@@ -16,7 +16,7 @@ trait JsonMethods extends json4s.JsonMethods[JValue] {
   }
   def mapper = _defaultMapper
 
-  def parseJson(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue = {
+  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue = {
     mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, useBigDecimalForDouble)
     in match {
 	    case StringInput(s) => mapper.readValue(s, classOf[JValue])
@@ -27,7 +27,7 @@ trait JsonMethods extends json4s.JsonMethods[JValue] {
   }
 
   def parseOpt(in: JsonInput, useBigDecimalForDouble: Boolean = false): Option[JValue] =  allCatch opt {
-    parseJson(in, useBigDecimalForDouble)
+    parse(in, useBigDecimalForDouble)
   }
 
   def render(value: JValue): JValue = value
