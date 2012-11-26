@@ -36,10 +36,12 @@ deserialized into an equivalent json document.
   // }
 
   def serDeserAreInverses(json: JValue, decimalMode: Boolean): Boolean = {
-    type SerType = Pair[JValue, JValue]
-    val in: SerType = Pair(json, json)
-    val s: String = write[SerType](in)
-    val out: SerType = read[SerType](s, decimalMode)
-    in == out
+    type SerType = List[JValue]
+    val lst1: SerType = List(json)
+    val lst2: SerType = read[SerType](
+      write[SerType](List(json)),
+      decimalMode
+    )
+    lst1 == lst2
   }
 }

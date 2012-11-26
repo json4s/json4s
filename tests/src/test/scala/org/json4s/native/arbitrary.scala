@@ -60,28 +60,28 @@ object ArbitraryJson4s {
   } yield JInt(l)
   def arbJInt: Arbitrary[JInt] = Arbitrary(genJInt)
 
-  def genJNull: Gen[JNull.type] = Gen oneOf List(JNull)
+  def genJNull: Gen[JNull.type] = Gen value JNull
   def arbJNull: Arbitrary[JNull.type] = Arbitrary(genJNull)
 
-  def genJNothing: Gen[JNothing.type] = Gen oneOf List(JNothing)
+  def genJNothing: Gen[JNothing.type] = Gen value JNothing
   def arbJNothing: Arbitrary[JNothing.type] = Arbitrary(genJNothing)
 
   class Nodes(decimalMode: Boolean) {
 
     implicit val arb = Arbitrary(genJValue)
 
-    def genJValue: Gen[JValue] = Gen oneOf (
-      genJValueSansFloat,
-      if (decimalMode) genJDecimal else genJDouble
+    def genJValue: Gen[JValue] = Gen frequency (
+      (75, genJValueSansFloat),
+      (25, if (decimalMode) genJDecimal else genJDouble)
     )
 
-    def genJValueSansFloat: Gen[JValue] = Gen oneOf (
-      genJNull,
-      genJString,
-      genJInt,
-      genJBool,
-      genJObject
-        // genJArray
+    def genJValueSansFloat: Gen[JValue] = Gen frequency (
+      (15, genJNull),
+      (15, genJString),
+      (15, genJInt),
+      (15, genJBool),
+      (30, genJObject)
+      // (30, genJArray)
     )
 
     def genJField: Gen[JField] = for {
