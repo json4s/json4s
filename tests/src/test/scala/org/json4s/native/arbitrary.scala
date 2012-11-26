@@ -13,8 +13,8 @@ object ArbitraryJson4s {
   val genJValueDouble: Gen[JValue] = new Nodes(false).genJValue
   val arbJValueDouble: Arbitrary[JValue] = Arbitrary(genJValueDouble)
 
-  // val genJValueDecimal: Gen[JValue] = new Nodes(true).genJValue
-  // val arbJValueDecimal: Arbitrary[JValue] = Arbitrary(genJValueDecimal)
+  val genJValueDecimal: Gen[JValue] = new Nodes(true).genJValue
+  val arbJValueDecimal: Arbitrary[JValue] = Arbitrary(genJValueDecimal)
 
   def genJDecimal: Gen[JDecimal] = {
     val gen: Gen[JDecimal] = for {

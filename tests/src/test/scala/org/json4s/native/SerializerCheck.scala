@@ -20,15 +20,9 @@ object SerializerCheck extends Properties("serializer") {
 In *double mode* any json document can be serialized into a string and
 deserialized into an equivalent json document.
 """.trim
-  property(p1) = {
+  property(p2) = {
     implicit val arbJson = ArbitraryJson4s.arbJValueDouble
-    type SerType = Pair[JValue, JValue]
-    forAll { json: JValue =>
-      val in: SerType = Pair(json, json)
-      val s: String = write[SerType](in)
-      val out: SerType = read[SerType](s, false)
-      in == out
-    }
+    forAll { json: JValue => serDeserAreInverses(json, false) }
   }
 
 val p2 =
@@ -36,9 +30,16 @@ val p2 =
 In *decimal mode* any json document can be serialized into a string and
 deserialized into an equivalent json document.
 """.trim
-  property(p2) = forAll { i: Int =>
-    i + 0 == i
+  // property(p2) = {
+  //   implicit val arbJson = ArbitraryJson4s.arbJValueDecimal
+  //   forAll { json: JValue => serDeserAreInverses(json, true) }
+  // }
+
+  def serDeserAreInverses(json: JValue, decimalMode: Boolean): Boolean = {
+    type SerType = Pair[JValue, JValue]
+    val in: SerType = Pair(json, json)
+    val s: String = write[SerType](in)
+    val out: SerType = read[SerType](s, decimalMode)
+    in == out
   }
 }
-
-case class Foo(x: JValue)
