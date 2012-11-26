@@ -7,7 +7,8 @@ import Arbitrary.arbitrary
 import org.json4s._
 
 object ArbitraryJson4s {
-
+  //TODO allow for larger trees
+  //TODO use ScalaCheck's size param
   val MaxSize = 2
 
   val genJValueDouble: Gen[JValue] = new Nodes(false).genJValue
@@ -16,28 +17,9 @@ object ArbitraryJson4s {
   val genJValueDecimal: Gen[JValue] = new Nodes(true).genJValue
   val arbJValueDecimal: Arbitrary[JValue] = Arbitrary(genJValueDecimal)
 
-  def genJDecimal: Gen[JDecimal] = {
-    val gen: Gen[JDecimal] = for {
-      d <- arbitrary[BigDecimal]
-    } yield JDecimal(d)
-    gen suchThat {
-      case JDecimal(bd) => try {
-        bd.underlying.toBigIntegerExact
-        false
-      }
-      catch {
-        case _ => true
-      }
-    } suchThat {
-      case JDecimal(bd) => try {
-        BigDecimal(bd.toString)
-        true
-      }
-      catch {
-        case _ => false
-      }
-    }
-  }
+  def genJDecimal: Gen[JDecimal] = for {
+    d <- arbitrary[Double] //TODO use better BigDecimal generation
+  } yield JDecimal(BigDecimal(d))
   def arbJDecimal: Arbitrary[JDecimal] = Arbitrary(genJDecimal)
 
   def genJDouble: Gen[JDouble] = for {
@@ -69,6 +51,7 @@ object ArbitraryJson4s {
   class Nodes(decimalMode: Boolean) {
 
     implicit val arb = Arbitrary(genJValue)
+    private[this] implicit val arbObj = arbGenJObject
 
     def genJValue: Gen[JValue] = Gen frequency (
       (75, genJValueSansFloat),
@@ -80,8 +63,8 @@ object ArbitraryJson4s {
       (15, genJString),
       (15, genJInt),
       (15, genJBool),
-      (30, genJObject)
-      // (30, genJArray)
+      (30, genJObject),
+      (30, genJArray)
     )
 
     def genJField: Gen[JField] = for {
@@ -96,8 +79,13 @@ object ArbitraryJson4s {
     def arbGenJObject: Arbitrary[JObject] = Arbitrary(genJObject)
 
     def genJArray: Gen[JArray] = for {
-      lst: List[JValue] <- containerOfN[List, JValue](MaxSize, genJValue)
-    } yield JArray(lst)
+      obj: JObject <- arbitrary[JObject]
+    } yield JArray {
+      val jvals: List[JValue] = obj.fold(List.empty[JValue]) {
+        (acc, el) => el :: acc
+      }
+      jvals
+    }
     def arbGenJArray: Arbitrary[JArray] = Arbitrary(genJArray)
   }
 }
