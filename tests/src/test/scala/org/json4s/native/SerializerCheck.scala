@@ -8,7 +8,6 @@ import Prop._
 
 object SerializerCheck extends Properties("serializer") {
 
-  // implicit val arbString = alphaNumStr
   implicit val formats = NSerialization formats NoTypeHints
 
   def alphaNumStr: Gen[String] = for {

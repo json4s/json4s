@@ -9,7 +9,7 @@ import org.json4s._
 object ArbitraryJson4s {
   //TODO allow for larger trees
   //TODO use ScalaCheck's size param
-  val MaxSize = 2
+  val MaxSize = 1
 
   val genJValueDouble: Gen[JValue] = new Nodes(false).genJValue
   val arbJValueDouble: Arbitrary[JValue] = Arbitrary(genJValueDouble)
@@ -17,8 +17,30 @@ object ArbitraryJson4s {
   val genJValueDecimal: Gen[JValue] = new Nodes(true).genJValue
   val arbJValueDecimal: Arbitrary[JValue] = Arbitrary(genJValueDecimal)
 
+  // def genJDecimal: Gen[JDecimal] = { //TODO use better BigDecimal generation
+  //   val gen: Gen[JDecimal] = for {
+  //     d <- arbitrary[BigDecimal]
+  //   } yield JDecimal(d)
+  //   gen suchThat {
+  //     case JDecimal(bd) => try {
+  //       bd.underlying.toBigIntegerExact
+  //       false
+  //     }
+  //     catch {
+  //       case _ => true
+  //     }
+  //   } suchThat {
+  //     case JDecimal(bd) => try {
+  //       BigDecimal(bd.toString)
+  //       true
+  //     }
+  //     catch {
+  //       case _ => false
+  //     }
+  //   }
+  // }
   def genJDecimal: Gen[JDecimal] = for {
-    d <- arbitrary[Double] //TODO use better BigDecimal generation
+    d <- arbitrary[Double]
   } yield JDecimal(BigDecimal(d))
   def arbJDecimal: Arbitrary[JDecimal] = Arbitrary(genJDecimal)
 
