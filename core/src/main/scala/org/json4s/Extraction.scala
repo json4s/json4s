@@ -21,11 +21,11 @@ import java.lang.reflect.{Constructor => JConstructor, Type}
 import java.lang.{Integer => JavaInteger, Long => JavaLong, Short => JavaShort, Byte => JavaByte, Boolean => JavaBoolean, Double => JavaDouble, Float => JavaFloat}
 import java.math.{BigDecimal => JavaBigDecimal}
 import java.util.Date
+import java.util.{ Map => JMap }
 import java.sql.Timestamp
 import scala.reflect.Manifest
 import java.nio.CharBuffer
 import scalashim._
-import org.omg.CORBA.ValueMember
 
 /** Function to extract values from JSON AST using case classes.
  *
