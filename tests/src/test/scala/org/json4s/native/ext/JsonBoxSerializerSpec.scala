@@ -34,16 +34,16 @@
 //  implicit val formats = DefaultFormats + new native.ext.JsonBoxSerializer
 //
 //  "Extract empty age" in {
-//    parseJson("""{"name":"joe"}""").extract[Person] mustEqual Person("joe", Empty, Empty)
+//    parse("""{"name":"joe"}""").extract[Person] mustEqual Person("joe", Empty, Empty)
 //  }
 //
 //  "Extract boxed thing" in {
-//    parseJson("""{"name":"joe", "thing": "rog", "age":12}""").extract[Person] mustEqual Person("joe", Full(12), Empty, Full("rog"))
+//    parse("""{"name":"joe", "thing": "rog", "age":12}""").extract[Person] mustEqual Person("joe", Full(12), Empty, Full("rog"))
 //  }
 //
 //  "Extract boxed mother" in {
 //    val json = """{"name":"joe", "age":12, "mother": {"name":"ann", "age":53}}"""
-//    val p = parseJson(json).extract[Person]
+//    val p = parse(json).extract[Person]
 //    p mustEqual Person("joe", Full(12), Full(Person("ann", Full(53), Empty)))
 //    (for { a1 <- p.age; m <-p.mother; a2 <- m.age } yield a1+a2) mustEqual Full(65)
 //  }

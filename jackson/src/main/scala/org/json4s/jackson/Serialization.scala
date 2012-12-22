@@ -43,7 +43,7 @@ object Serialization extends Serialization {
   /** Deserialize from a String.
    */
   def read[A](json: String, useBigDecimalForDouble: Boolean = false)(implicit formats: Formats, mf: Manifest[A]): A =
-    JsonMethods.parseJson(json, useBigDecimalForDouble).extract(formats, mf)
+    JsonMethods.parse(json, useBigDecimalForDouble).extract(formats, mf)
 
   /** Deserialize from a Reader.
    */

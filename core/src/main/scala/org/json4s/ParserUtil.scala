@@ -52,7 +52,7 @@ object ParserUtil {
     buf.substring
   }
 
-  /* Buffer used to parseJson JSON.
+  /* Buffer used to parse JSON.
    * Buffer is divided to one or more segments (preallocated in Segments pool).
    */
   private[json4s] class Buffer(in: java.io.Reader, closeAutomatically: Boolean) {

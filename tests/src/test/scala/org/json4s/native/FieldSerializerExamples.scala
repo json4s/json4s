@@ -37,7 +37,7 @@ object FieldSerializerExamples extends Specification {
     dog2.color mustEqual dog.color
     dog2.owner must beNull
     dog2.size mustEqual dog.size
-    (parseJson(ser) \ "animalname") mustEqual JString("pluto")
+    (parse(ser) \ "animalname") mustEqual JString("pluto")
   }
 
   "Selects best matching serializer" in {
