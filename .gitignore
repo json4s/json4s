@@ -64,3 +64,4 @@ target
 *.sublime-*
 .cache
 .projectile
+.lib
