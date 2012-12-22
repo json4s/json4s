@@ -54,14 +54,14 @@ object Json4sBuild extends Build {
   val json4sSettings = Defaults.defaultSettings ++ mavenCentralFrouFrou ++ Seq(
     organization := "org.json4s",
     version := "3.1.0-SNAPSHOT",
-    scalaVersion := "2.10.0-RC5",
-    crossScalaVersions := Seq("2.9.2", "2.10.0-RC5"),
+    scalaVersion := "2.10.0",
+    crossScalaVersions := Seq("2.9.2", "2.10.0"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     publishSetting,
     resolvers ++= Seq( sonatypeNexusSnapshots, sonatypeNexusReleases),
-    crossVersion := CrossVersion.full,
+    crossVersion := CrossVersion.binary,
     artifact in (Compile, packageBin) <<= (artifact in Compile, scalaVersion) { (art: Artifact, sv) =>
       sv match {
         case "2.9.2" => art.copy(classifier = Some("scalaz7"))
@@ -148,7 +148,7 @@ object Json4sBuild extends Build {
      base = file("mongo"),
      settings = json4sSettings ++ Seq(
        libraryDependencies ++= Seq(
-         "org.mongodb" % "mongo-java-driver" % "2.9.1"
+         "org.mongodb" % "mongo-java-driver" % "2.10.1"
       )
      )
   ) dependsOn(core % "compile;test->test")
