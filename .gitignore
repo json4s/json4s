@@ -65,5 +65,4 @@ target
 .cache
 .projectile
 .lib
-.atlassian-ide-plugin.xml
 atlassian-ide-plugin.xml
