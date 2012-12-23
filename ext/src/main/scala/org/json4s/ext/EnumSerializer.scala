@@ -32,8 +32,7 @@ class EnumSerializer[E <: Enumeration: ClassManifest](enum: E)
     PartialFunction[(TypeInfo, JValue), E#Value] = {
       case (TypeInfo(EnumerationClass, _), json) if isValid(json) => json match {
         case JInt(value) => enum(value.toInt)
-        case value => throw new MappingException("Can't convert " +
-          value + " to "+ EnumerationClass)
+        case value => throw new MappingException(s"Can't convert $value to $EnumerationClass")
       }
     }
 
@@ -53,8 +52,7 @@ class EnumNameSerializer[E <: Enumeration: ClassManifest](enum: E)
       case (t @ TypeInfo(EnumerationClass, _), json) if (isValid(json)) => {
         json match {
          case JString(value) => enum.withName(value)
-          case value => throw new MappingException("Can't convert " +
-            value + " to "+ EnumerationClass)
+          case value => throw new MappingException(s"Can't convert $value to $EnumerationClass")
         }
       }
     }

@@ -21,7 +21,7 @@ trait DefaultReaders {
       case JDecimal(x) => x.intValue
 //      case JString(s) if (s != null && s.trim.nonEmpty && s.forall(Character.isDigit)) => s.toInt
 //      case JNull => 0
-      case x => throw new FormatException("Can't convert %s to Int." format x)
+      case x => throw new FormatException(s"Can't convert $x to Int.")
     }
   }
 
@@ -32,7 +32,7 @@ trait DefaultReaders {
       case JDecimal(x) => x.toBigInt()
 //      case JString(s) if (s != null && s.trim.nonEmpty && s.forall(Character.isDigit)) => BigInt(s)
 //      case JNull => 0
-      case x => throw new FormatException("Can't convert %s to Int." format x)
+      case x => throw new FormatException(s"Can't convert $x to BigInt.")
     }
   }
 
@@ -43,7 +43,7 @@ trait DefaultReaders {
       case JDecimal(x) => x.longValue
 //      case JString(s) if (s != null && s.trim.nonEmpty && s.forall(Character.isDigit)) => s.toLong
 //      case JNull => 0
-      case x => throw new FormatException("Can't convert %s to Long." format x)
+      case x => throw new FormatException(s"Can't convert $x to Long.")
     }
   }
 
@@ -54,7 +54,7 @@ trait DefaultReaders {
       case JDecimal(x) => x.shortValue
 //      case JString(s) if (s != null && s.trim.nonEmpty && s.forall(Character.isDigit)) => s.toShort
       case JNull => 0
-      case x => throw new FormatException("Can't convert %s to Short." format x)
+      case x => throw new FormatException(s"Can't convert $x to Short.")
     }
   }
 
@@ -65,7 +65,7 @@ trait DefaultReaders {
       case JDecimal(x) => x.byteValue
 //      case JString(s) if (s != null && s.trim.nonEmpty && s.forall(Character.isDigit)) => s.toByte
       case JNull => 0
-      case x => throw new FormatException("Can't convert %s to Byte." format x)
+      case x => throw new FormatException(s"Can't convert $x to Byte.")
     }
   }
 
@@ -76,7 +76,7 @@ trait DefaultReaders {
       case JDecimal(x) => x.floatValue
 //      case JString(s) if (s != null && s.trim.nonEmpty && s.forall(i => Character.isDigit(i) || i == ',' || i == '.')) => s.toFloat
       case JNull => 0
-      case x => throw new FormatException("Can't convert %s to Float." format x)
+      case x => throw new FormatException(s"Can't convert $x to Float.")
     }
   }
 
@@ -87,7 +87,7 @@ trait DefaultReaders {
       case JDecimal(x) => x.doubleValue
 //      case JString(s) if (s != null && s.trim.nonEmpty && s.forall(i => Character.isDigit(i) || i == ',' || i == '.')) => s.toDouble
       case JNull => 0
-      case x => throw new FormatException("Can't convert %s to Double." format x)
+      case x => throw new FormatException(s"Can't convert $x to Double.")
     }
   }
 
@@ -98,7 +98,7 @@ trait DefaultReaders {
       case JDecimal(x) => x
 //      case JString(s) if (s != null && s.trim.nonEmpty && s.forall(i => Character.isDigit(i) || i == ',' || i == '.')) => BigDecimal(s)
       case JNull => 0
-      case x => throw new FormatException("Can't convert %s to BigDecimal." format x)
+      case x => throw new FormatException(s"Can't convert $x to BigDecimal.")
     }
   }
 
@@ -107,7 +107,7 @@ trait DefaultReaders {
       case JBool(v) => v
       case JNull => false
 //      case JString(s) if s.equalsIgnoreCase("true") || s.equalsIgnoreCase("false") => s.toBoolean
-      case x => throw new FormatException("Can't convert %s to Boolean." format x)
+      case x => throw new FormatException(s"Can't convert $x to Boolean.")
     }
   }
 
@@ -119,14 +119,14 @@ trait DefaultReaders {
       case JBool(x) => x.toString
       case JString(s) => s
       case JNull => null
-      case x => throw new FormatException("Can't convert %s to String." format x)
+      case x => throw new FormatException(s"Can't convert $x to String.")
     }
   }
 
   implicit def mapReader[V](implicit valueReader: Reader[V]): Reader[immutable.Map[String, V]] = new Reader[immutable.Map[String, V]] {
     def read(value: _root_.org.json4s.JValue): Map[String, V] = value match {
       case JObject(v) => Map(v.map({ case JField(k, vl) => k -> valueReader.read(vl)}):_*)
-      case x => throw new FormatException("Can't convert %s to String." format x)
+      case x => throw new FormatException(s"Can't convert $x to String.")
     }
   }
 
@@ -136,7 +136,7 @@ trait DefaultReaders {
         case JArray(items) =>
           val builder = cbf()
           (items.foldLeft(builder) { (acc, i) => acc += valueReader.read(i); acc}).result()
-        case x => throw new FormatException("Can't convert %s to Traversable." format x)
+        case x => throw new FormatException(s"Can't convert $x to Traversable.")
       }
     }
 
@@ -153,7 +153,7 @@ trait DefaultReaders {
   implicit object JObjectReader extends Reader[JObject] {
     def read(value: _root_.org.json4s.JValue): _root_.org.json4s.JObject = value match {
       case x: JObject => x
-      case x => throw new FormatException("JObject expected." format x)
+      case x => throw new FormatException(s"JObject expected for $x.")
     }
   }
 

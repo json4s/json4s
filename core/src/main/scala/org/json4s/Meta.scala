@@ -216,7 +216,7 @@ object Meta {
   private[json4s] def rawClassOf(t: Type): Class[_] = t match {
     case c: Class[_] => c
     case p: ParameterizedType => rawClassOf(p.getRawType)
-    case x => fail("Raw type of " + x + " not known")
+    case x => fail(s"Raw type of $x not known")
   }
 
   private[json4s] def mkParameterizedType(owner: Type, typeArgs: Seq[Type]) = 
@@ -224,7 +224,7 @@ object Meta {
       def getActualTypeArguments = typeArgs.toArray
       def getOwnerType = owner
       def getRawType = owner
-      override def toString = getOwnerType + "[" + getActualTypeArguments.mkString(",") + "]"
+      override def toString = s"$getOwnerType[${getActualTypeArguments.mkString(",")}]"
     }
 
   private[json4s] def unmangleName(name: String) =
@@ -270,7 +270,7 @@ object Meta {
     def constructorArgs(t: Type, constructor: JConstructor[_], 
                         nameReader: ParameterNameReader, context: Option[Context]): List[(String, Type)] = {
       def argsInfo(c: JConstructor[_], typeArgs: Map[TypeVariable[_], Type]) = {
-        val Name = """^((?:[^$]|[$][^0-9]+)+)([$][0-9]+)?$"""r
+        val Name = """^((?:[^$]|[$][^0-9]+)+)([$][0-9]+)?$""".r
         def clean(name: String) = name match {
           case Name(text, junk) => text
         }
@@ -296,7 +296,7 @@ object Meta {
           val vars = 
             Map() ++ rawClassOf(p).getTypeParameters.toList.map(_.asInstanceOf[TypeVariable[_]]).zip(p.getActualTypeArguments.toList) // FIXME this cast should not be needed
           argsInfo(constructor, vars)
-        case x => fail("Do not know how query constructor info for " + x)
+        case x => fail(s"Do not know how query constructor info for $x")
       }
     }
 
@@ -318,7 +318,7 @@ object Meta {
               ScalaSigReader.readConstructor(context.argName, context.containingClass, i, context.allArgs.map(_._1))
             else c
           case p: ParameterizedType => p.getRawType.asInstanceOf[Class[_]]
-          case x => fail("do not know how to get type parameter from " + x)
+          case x => fail(s"do not know how to get type parameter from $x")
         }
         case clazz: Class[_] if (clazz.isArray) => i match {
           case 0 => clazz.getComponentType.asInstanceOf[Class[_]]
@@ -328,7 +328,7 @@ object Meta {
           case 0 => clazz.getGenericComponentType.asInstanceOf[Class[_]]
           case _ => fail("Arrays only have one type parameter")
         }
-        case _ => fail("Unsupported Type: " + t + " (" + t.getClass + ")")
+        case _ => fail(s"Unsupported Type: $t (${t.getClass})")
       }
 
       k match {
@@ -447,7 +447,7 @@ object Meta {
       case x: java.lang.Short => JInt(BigInt(x.asInstanceOf[Short]))
       case x: Date => JString(formats.dateFormat.format(x))
       case x: Symbol => JString(x.name)
-      case _ => sys.error("not a primitive " + a.asInstanceOf[AnyRef].getClass)
+      case _ => sys.error(s"not a primitive ${a.asInstanceOf[AnyRef].getClass}")
     }
   }
 }

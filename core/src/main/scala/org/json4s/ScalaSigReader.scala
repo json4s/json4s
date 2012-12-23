@@ -22,14 +22,14 @@ import scalashim._
 object ScalaSigReader {
   def readConstructor(argName: String, clazz: Class[_], typeArgIndex: Int, argNames: List[String]): Class[_] = {
     val cl = findClass(clazz)
-    val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail("Can't find constructor for " + clazz))
+    val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail(s"Can't find constructor for $clazz"))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndex)
   }
 
   def readField(name: String, clazz: Class[_], typeArgIndex: Int): Class[_] = {
     def read(current: Class[_]): MethodSymbol = {
       if (current == null) 
-        Meta.fail("Can't find field " + name + " from " + clazz)
+        Meta.fail(s"Can't find field $name from $clazz")
       else
         findField(findClass(current), name).getOrElse(read(current.getSuperclass))
     }
@@ -37,8 +37,8 @@ object ScalaSigReader {
   }
 
   private def findClass(clazz: Class[_]): ClassSymbol = {
-    val sig = findScalaSig(clazz).getOrElse(Meta.fail("Can't find ScalaSig for " + clazz))
-    findClass(sig, clazz).getOrElse(Meta.fail("Can't find " + clazz + " from parsed ScalaSig"))
+    val sig = findScalaSig(clazz).getOrElse(Meta.fail(s"Can't find ScalaSig for $clazz"))
+    findClass(sig, clazz).getOrElse(Meta.fail(s"Can't find $clazz from parsed ScalaSig"))
   }
 
   private def findClass(sig: ScalaSig, clazz: Class[_]): Option[ClassSymbol] = {
@@ -71,9 +71,9 @@ object ScalaSigReader {
       case TypeRefType(_, _, args) =>
         args(typeArgIndex) match {
           case ref @ TypeRefType(_, _, _) => findPrimitive(ref)
-          case x => Meta.fail("Unexpected type info " + x)
+          case x => Meta.fail(s"Unexpected type info $x")
         }
-      case x => Meta.fail("Unexpected type info " + x)
+      case x => Meta.fail(s"Unexpected type info $x")
     }
     toClass(findPrimitive(s.children(argIdx).asInstanceOf[SymbolInfoSymbol].infoType))
   }
@@ -99,7 +99,7 @@ object ScalaSigReader {
     def findPrimitive(t: Type): Symbol = t match { 
       case TypeRefType(ThisType(_), symbol, _) => symbol
       case ref @ TypeRefType(_, _, _) => findPrimitive(ref)
-      case x => Meta.fail("Unexpected type info " + x)
+      case x => Meta.fail(s"Unexpected type info $x")
     }
     toClass(findPrimitive(t))
   }

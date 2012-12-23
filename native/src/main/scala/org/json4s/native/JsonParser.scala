@@ -130,7 +130,7 @@ object JsonParser {
     def closeBlock(v: Any) {
       @inline def toJValue(x: Any) = x match {
         case json: JValue => json
-        case _ => p.fail("unexpected field " + x)
+        case _ => p.fail(s"unexpected field $x")
       }
 
       vals.peekOption match {
@@ -141,7 +141,7 @@ object JsonParser {
         case Some(o: JObject) =>
           vals.replace(JObject(vals.peek(classOf[JField]) :: o.obj))
         case Some(a: JArray) => vals.replace(JArray(toJValue(v) :: a.arr))
-        case Some(x) => p.fail("expected field, array or object but got " + x)
+        case Some(x) => p.fail(s"expected field, array or object but got $x")
         case None => root = Some(reverse(toJValue(v)))
       }
     }
@@ -193,7 +193,7 @@ object JsonParser {
 
     private def convert[A](x: Any, expectedType: Class[A]): A = {
       if (x == null) parser.fail("expected object or array")
-      try { x.asInstanceOf[A] } catch { case _: ClassCastException => parser.fail("unexpected " + x) }
+      try { x.asInstanceOf[A] } catch { case _: ClassCastException => parser.fail(s"unexpected $x") }
     }
 
     def peekOption = if (stack isEmpty) None else Some(stack.peek)
@@ -205,7 +205,7 @@ object JsonParser {
     private[this] val blocks = new LinkedList[BlockMode]()
     private[this] var fieldNameMode = true
 
-    def fail(msg: String) = throw new ParseException(msg + "\nNear: " + buf.near, null)
+    def fail(msg: String) = throw new ParseException(s"$msg\nNear: ${buf.near}", null)
 
     /** Parse next Token from stream.
      */
@@ -292,7 +292,7 @@ object JsonParser {
             fieldNameMode = true
             return parseValue(c)
           case c if isDelimiter(c) =>
-          case c => fail("unknown token " + c)
+          case c => fail(s"unknown token $c")
         }
       }
       buf.automaticClose

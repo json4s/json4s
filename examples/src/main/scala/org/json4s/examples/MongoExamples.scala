@@ -29,7 +29,7 @@ object MongoExamples extends App with jackson.JsonMethods {
   coll save {
     JObjectParser parse {
       api transformField {
-        case JField(nm, v) if nm.startsWith("$") => JField("#"+nm.substring(1), v)
+        case JField(nm, v) if nm.startsWith("$") => JField(s"#${nm.substring(1)}", v)
       }
     }
   }

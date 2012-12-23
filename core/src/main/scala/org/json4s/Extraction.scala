@@ -123,19 +123,19 @@ object Extraction {
     def flatten0(path: String, json: JValue): Map[String, String] = {
       json match {
         case JNothing | JNull    => Map()
-        case JString(s)          => Map(path -> ("\"" + JsonAST.quote(s) + "\""))
+        case JString(s)          => Map(path -> ("\""+JsonAST.quote(s)+"\""))
         case JDouble(num)        => Map(path -> num.toString)
         case JDecimal(num)       => Map(path -> num.toString)
         case JInt(num)           => Map(path -> num.toString)
         case JBool(value)        => Map(path -> value.toString)
         case JField(name, value) => flatten0(path + escapePath(name), value)
         case JObject(obj)        => obj.foldLeft(Map[String, String]()) { case (map, (name, value)) =>
-          map ++ flatten0(path + "." + escapePath(name), value)
+          map ++ flatten0(s"$path.${escapePath(name)}", value)
         }
         case JArray(arr)         => arr.length match {
           case 0 => Map(path -> "[]")
           case _ => arr.foldLeft((Map[String, String](), 0)) {
-                      (tuple, value) => (tuple._1 ++ flatten0(path + "[" + tuple._2 + "]", value), tuple._2 + 1)
+                      (tuple, value) => (tuple._1 ++ flatten0(s"$path[${tuple._2}]", value), tuple._2 + 1)
                     }._1
         }
       }
@@ -226,7 +226,7 @@ object Extraction {
             case x => Nil
           }
           constructor.bestMatching(argNames)
-            .getOrElse(fail("No constructor for type " + constructor.targetType.clazz + ", " + json))
+            .getOrElse(fail(s"No constructor for type ${constructor.targetType.clazz}, $json"))
         }
       }
 
@@ -273,10 +273,9 @@ object Extraction {
           setFields(instance.asInstanceOf[AnyRef], json, jconstructor)
         } catch {
           case e @ (_:IllegalArgumentException | _:InstantiationException) =>
-            fail("Parsed JSON values do not match with class constructor\nargs=" +
-                 args.mkString(",") + "\narg types=" + args.map(a => if (a != null)
-                   a.asInstanceOf[AnyRef].getClass.getName else "null").mkString(",") +
-                 "\nconstructor=" + jconstructor)
+            def arg2str(a: Any) = if (a != null) a.asInstanceOf[AnyRef].getClass.getName else "null"
+            fail(s"Parsed JSON values do not match with class constructor\nargs=${args.mkString(",")}" +
+                 s"\narg types=${args.map(arg2str).mkString(",")}\nconstructor=$jconstructor")
         }
       }
 
@@ -284,7 +283,7 @@ object Extraction {
         val obj = JObject(fields filterNot (_._1 == formats.typeHintFieldName))
         val deserializer = formats.typeHints.deserialize
         if (!deserializer.isDefinedAt(typeHint, obj)) {
-          val concreteClass = formats.typeHints.classFor(typeHint) getOrElse fail("Do not know how to deserialize '" + typeHint + "'")
+          val concreteClass = formats.typeHints.classFor(typeHint) getOrElse fail(s"Do not know how to deserialize '$typeHint'")
           val typeArgs = typeInfo.parameterizedType
             .map(_.getActualTypeArguments.toList.map(Meta.rawClassOf)).getOrElse(Nil)
           build(obj, mappingOf(concreteClass, typeArgs))
@@ -317,7 +316,7 @@ object Extraction {
       val array: Array[_] = root match {
         case JArray(arr)      => arr.map(build(_, m)).toArray
         case JNothing | JNull => Array[AnyRef]()
-        case x                => fail("Expected collection but got " + x + " for root " + root + " and mapping " + m)
+        case x                => fail(s"Expected collection but got $x for root $root and mapping $m")
       }
 
       constructor(array)
@@ -336,10 +335,10 @@ object Extraction {
         else if (c == classOf[Set[_]]) newCollection(root, m, a => Set(a: _*))
         else if (c.isArray) newCollection(root, m, mkTypedArray(c))
         else if (classOf[Seq[_]].isAssignableFrom(c)) newCollection(root, m, a => List(a: _*))
-        else fail("Expected collection but got " + m + " for class " + c)
+        else fail(s"Expected collection but got $m for class $c")
       case Dict(m) => root match {
         case JObject(xs) => Map(xs.map(x => (x._1, build(x._2, m))): _*)
-        case x => fail("Expected object but got " + x)
+        case x => fail(s"Expected object but got $x")
       }
     }
 
@@ -354,7 +353,7 @@ object Extraction {
     def mkList(root: JValue, m: Mapping) = root match {
       case JArray(arr) => arr.map(build(_, m))
       case JNothing | JNull => Nil
-      case x => fail("Expected array but got " + x)
+      case x => fail(s"Expected array but got $x")
     }
 
     def mkValue(root: JValue, mapping: Mapping, path: String, optional: Boolean, default: Option[() => Any]) = {
@@ -368,7 +367,7 @@ object Extraction {
           else x
         } catch {
           case e @ MappingException(msg, _) =>
-            if (optional) defv(None) else fail("No usable value for " + path + "\n" + msg, e)
+            if (optional) defv(None) else fail(s"No usable value for $path\n$msg", e)
         }
       }
     }
@@ -412,8 +411,8 @@ object Extraction {
     case JDecimal(x) if (targetType == classOf[Number]) => x
     case JString(s) if (targetType == classOf[String]) => s
     case JString(s) if (targetType == classOf[Symbol]) => Symbol(s)
-    case JString(s) if (targetType == classOf[Date]) => formats.dateFormat.parse(s).getOrElse(fail("Invalid date '" + s + "'"))
-    case JString(s) if (targetType == classOf[Timestamp]) => new Timestamp(formats.dateFormat.parse(s).getOrElse(fail("Invalid date '" + s + "'")).getTime)
+    case JString(s) if (targetType == classOf[Date]) => formats.dateFormat.parse(s).getOrElse(fail(s"Invalid date '$s'"))
+    case JString(s) if (targetType == classOf[Timestamp]) => new Timestamp(formats.dateFormat.parse(s).getOrElse(fail(s"Invalid date '$s'")).getTime)
     case JBool(x) if (targetType == classOf[Boolean]) => x
     case JBool(x) if (targetType == classOf[JavaBoolean]) => new JavaBoolean(x)
     case j: JValue if (targetType == classOf[JValue]) => j
@@ -421,12 +420,12 @@ object Extraction {
     case j: JArray if (targetType == classOf[JArray]) => j
     case JNull => null
     case JNothing =>
-      default map (_.apply()) getOrElse fail("Did not find value which can be converted into " + targetType.getName)
+      default map (_.apply()) getOrElse fail(s"Did not find value which can be converted into ${targetType.getName}")
     case _ =>
       val custom = formats.customDeserializer(formats)
       val typeInfo = TypeInfo(targetType, None)
       if (custom.isDefinedAt(typeInfo, json)) custom(typeInfo, json)
-      else fail("Do not know how to convert " + json + " into " + targetType)
+      else fail(s"Do not know how to convert $json into $targetType")
   }
 
 

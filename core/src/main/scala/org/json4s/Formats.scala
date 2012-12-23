@@ -162,7 +162,7 @@ trait Formats { self: Formats =>
       def hintFor(clazz: Class[_]): String = {
         (components.reverse
           filter (_.containsHint_?(clazz))
-          map (th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error("hintFor/classFor not invertible for " + th))))
+          map (th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error(s"hintFor/classFor not invertible for $th"))))
           sortWith((x, y) => (delta(x._2, clazz) - delta(y._2, clazz)) == 0)).head._1
       }
 
@@ -276,7 +276,7 @@ trait Formats { self: Formats =>
     def deserialize(implicit format: Formats) = {
       case (TypeInfo(Class, _), json) =>
         if (ser(format)._1.isDefinedAt(json)) ser(format)._1(json)
-        else throw new MappingException("Can't convert " + json + " to " + Class)
+        else throw new MappingException(s"Can't convert $json to $Class")
     }
 
     def serialize(implicit format: Formats) = ser(format)._2
