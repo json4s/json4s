@@ -32,7 +32,7 @@ class ObjectIdSerializer extends Serializer[ObjectId] {
     case (TypeInfo(ObjectIdClass, _), json) => json match {
       case JObject(JField("$oid", JString(s)) :: Nil) if (ObjectId.isValid(s)) =>
         new ObjectId(s)
-      case x => throw new MappingException("Can't convert " + x + " to ObjectId")
+      case x => throw new MappingException(s"Can't convert $x to ObjectId")
     }
   }
 
@@ -55,7 +55,7 @@ class PatternSerializer extends Serializer[Pattern] {
     case (TypeInfo(PatternClass, _), json) => json match {
       case JObject(JField("$regex", JString(s)) :: JField("$flags", JInt(f)) :: Nil) =>
         Pattern.compile(s, f.intValue)
-      case x => throw new MappingException("Can't convert " + x + " to Pattern")
+      case x => throw new MappingException(s"Can't convert $x to Pattern")
     }
   }
 
@@ -76,8 +76,8 @@ class DateSerializer extends Serializer[Date] {
   def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), Date] = {
     case (TypeInfo(DateClass, _), json) => json match {
       case JObject(JField("$dt", JString(s)) :: Nil) =>
-        format.dateFormat.parse(s).getOrElse(throw new MappingException("Can't parse "+ s + " to Date"))
-      case x => throw new MappingException("Can't convert " + x + " to Date")
+        format.dateFormat.parse(s).getOrElse(throw new MappingException(s"Can't parse $s to Date"))
+      case x => throw new MappingException(s"Can't convert $x to Date")
     }
   }
 
@@ -98,7 +98,7 @@ class UUIDSerializer extends Serializer[UUID] {
   def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), UUID] = {
     case (TypeInfo(UUIDClass, _), json) => json match {
       case JObject(JField("$uuid", JString(s)) :: Nil) => UUID.fromString(s)
-      case x => throw new MappingException("Can't convert " + x + " to Date")
+      case x => throw new MappingException(s"Can't convert $x to UUID")
     }
   }
 

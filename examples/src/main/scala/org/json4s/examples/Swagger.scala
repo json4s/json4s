@@ -147,16 +147,16 @@ object SwaggerSerializers {
       case JString("Array") =>
         val arrayType = (
           (jv \ "items" \ "type").extractOpt[String] orElse
-          (jv \ "items" \ "$ref").extractOpt[String]).getOrElse(throw new MappingException("Can't get the array type for " + jv))
+          (jv \ "items" \ "$ref").extractOpt[String]).getOrElse(throw new MappingException(s"Can't get the array type for $jv"))
         jv \ "required" match {
           case JBool(true) =>
-            DataType("SET["+arrayType+"]")
+            DataType(s"SET[$arrayType]")
           case JBool(false) =>
-            DataType("LIST["+arrayType+"]")
-          case x => throw new MappingException("Can't deserialize the data type required property for " + x)
+            DataType(s"LIST[$arrayType]")
+          case x => throw new MappingException(s"Can't deserialize the data type required property for $x")
         }
       case JString(x) => DataType(x)
-      case x => throw new MappingException("Can't deserialize data type for " + x)
+      case x => throw new MappingException(s"Can't deserialize data type for $x")
     }
   }
 
@@ -251,12 +251,12 @@ object DataType {
 
   object GenList {
     def apply(): DataType = List
-    def apply(v: DataType): DataType = new DataType("List[%s]" format (v.name))
+    def apply(v: DataType): DataType = new DataType(s"List[${v.name}]")
   }
 
   object GenMap {
     def apply(): DataType = Map
-    def apply(k: DataType, v: DataType): DataType = new DataType("Map[%s, %s]" format(k.name, v.name))
+    def apply(k: DataType, v: DataType): DataType = new DataType(s"Map[${k.name}, ${v.name}]")
   }
 
   def apply(name: String) = new DataType(name)

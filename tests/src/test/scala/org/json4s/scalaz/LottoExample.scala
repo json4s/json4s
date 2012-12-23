@@ -16,7 +16,7 @@ object LottoExample extends Specification {
 
   // Lotto line must have exactly 6 numbers
   def len(x: Int) = (xs: List[Int]) =>
-    if (xs.length != x) Fail("len", xs.length + " != " + x) else xs.success
+    if (xs.length != x) Fail("len", s"${xs.length} != $x") else xs.success
 
   // FIXME enable when 2.8 no longer supported, 2.9 needs: import Validation.Monad._
 /*

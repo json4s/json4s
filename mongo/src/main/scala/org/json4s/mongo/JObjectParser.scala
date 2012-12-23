@@ -77,7 +77,7 @@ object JObjectParser  {
         parseObject(jo.obj, formats)
       case ja: JArray =>
         parseArray(ja.arr, formats)
-      case x => throw new ParseException("Couldn't parse %s to a DBObject" format x, null)
+      case x => throw new ParseException(s"Couldn't parse $x to a DBObject", null)
     }
 
     private def parseArray(arr: List[JValue], formats: Formats): BasicDBList = {

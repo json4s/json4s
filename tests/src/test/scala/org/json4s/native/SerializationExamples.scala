@@ -239,7 +239,7 @@ object CustomSerializerExamples extends Specification {
   class DateSerializer extends CustomSerializer[Date](format => (
     {
       case JObject(List(JField("$dt", JString(s)))) =>
-        format.dateFormat.parse(s).getOrElse(throw new MappingException("Can't parse "+ s + " to Date"))
+        format.dateFormat.parse(s).getOrElse(throw new MappingException(s"Can't parse $s to Date"))
     },
     {
       case x: Date => JObject(JField("$dt", JString(format.dateFormat.format(x))) :: Nil)
@@ -252,7 +252,7 @@ object CustomSerializerExamples extends Specification {
         case JArray(xs) =>
           val t = ptype.getOrElse(throw new MappingException("parameterized type not known"))
           xs.map(x => Extraction.extract(x, TypeInfo(t.getActualTypeArguments()(0).asInstanceOf[Class[_]], None))).toIndexedSeq
-        case x => throw new MappingException("Can't convert " + x + " to IndexedSeq")
+        case x => throw new MappingException(s"Can't convert $x to IndexedSeq")
       }
     }
 

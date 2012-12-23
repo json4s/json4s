@@ -60,7 +60,7 @@ case object InstantSerializer extends CustomSerializer[Instant](format => (
 
 object DateParser {
   def parse(s: String, format: Formats) =
-    format.dateFormat.parse(s).map(_.getTime).getOrElse(throw new MappingException("Invalid date format " + s))
+    format.dateFormat.parse(s).map(_.getTime).getOrElse(throw new MappingException(s"Invalid date format $s"))
 }
 
 case object DateTimeSerializer extends CustomSerializer[DateTime](format => (
@@ -122,7 +122,7 @@ case class ClassSerializer[A : Manifest, B : Manifest](t: ClassType[A, B]) exten
     case (TypeInfo(Class, _), json) => json match {
       case JNull => null.asInstanceOf[A]
       case xs: JObject if (xs.extractOpt[B].isDefined) => t.unwrap(xs.extract[B])
-      case value => throw new MappingException("Can't convert " + value + " to " + Class)
+      case value => throw new MappingException(s"Can't convert $value to $Class")
     }
   }
 
