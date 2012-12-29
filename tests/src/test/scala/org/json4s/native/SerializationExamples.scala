@@ -98,6 +98,13 @@ object SerializationExamples extends Specification {
     read[OptionOfTupleOfDouble](ser) mustEqual s
   }
 
+  "Default paramter example" in {
+    val pw = PlayerWithDefault("zortan")
+    val ser = swrite(pw)
+    ser mustEqual """{"name":"zortan","credits":5}"""
+    read[PlayerWithDefault]("""{"name":"zortan"}""") mustEqual pw
+  }
+
   "Case class with internal state example" in {
     val m = Members("s", 1)
     val ser = swrite(m)
@@ -110,6 +117,7 @@ object SerializationExamples extends Specification {
     val ser = swrite(p)
     read[ProperType](ser) mustEqual p
   }
+
 
   case class Ints(x: List[List[Int]])
 
@@ -360,3 +368,5 @@ case class OptionOfTupleOfDouble(position: Option[Tuple2[Double, Double]])
 case class Player(name: String)
 case class TypeConstructor[A](x: A)
 case class ProperType(x: TypeConstructor[Chicken], t: (Int, Player))
+
+case class PlayerWithDefault(name: String, credits: Int = 5)

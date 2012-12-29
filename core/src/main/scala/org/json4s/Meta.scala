@@ -28,7 +28,7 @@ trait ParameterNameReader {
   def lookupParameterNames(constructor: JConstructor[_]): Traversable[String]
 }
 
-private[json4s] object Meta {
+object Meta {
   import com.thoughtworks.paranamer._
 
   /** Intermediate metadata format for case classes.
@@ -49,16 +49,23 @@ private[json4s] object Meta {
    *    Arg("children", Col(classOf[List[_]], Constructor("xx.Child", List(Value("name"), Value("age")))))))
    */
   sealed abstract class Mapping
-  case class Arg(path: String, mapping: Mapping, optional: Boolean) extends Mapping
-  case class Value(targetType: Class[_]) extends Mapping
+  case class Arg(path: String, mapping: Mapping, optional: Boolean, default: Option[() => Any]) extends Mapping
+  case class Value(targetType: Class[_], default: Option[() => Any]) extends Mapping
   case class Cycle(targetType: Type) extends Mapping
   case class Dict(mapping: Mapping) extends Mapping
   case class Col(targetType: TypeInfo, mapping: Mapping) extends Mapping
-  case class Constructor(targetType: TypeInfo, choices: List[DeclaredConstructor]) extends Mapping {
+  case class Constructor(targetType: TypeInfo, choices: List[DeclaredConstructor], companion: Option[(Class[_], AnyRef)]) extends Mapping {
+
+
     def bestMatching(argNames: List[String]): Option[DeclaredConstructor] = {
       val names = Set(argNames: _*)
       def countOptionals(args: List[Arg]) =
-        args.foldLeft(0)((n, x) => if (x.optional) n+1 else n)
+        args.foldLeft(0)((n, x) => {
+          val defv = companion flatMap {
+            case (cc, co) => Reflection.defaultValue(cc, co, x.path, argNames.indexOf(x.path))
+          }
+          if (x.optional || defv.isDefined) n+1 else n
+        })
       def score(args: List[Arg]) =
         args.foldLeft(0)((s, arg) => if (names.contains(arg.path)) s+1 else -100)
 
@@ -96,8 +103,8 @@ private[json4s] object Meta {
 
     def constructors(t: Type, visited: Set[Type], context: Option[Context]) = {
       Reflection.constructors(t, formats.parameterNameReader, context).map { case (c, args) =>
-        DeclaredConstructor(c, args.map { case (name, t) =>
-          toArg(unmangleName(name), t, visited, Context(name, c.getDeclaringClass, args)) })
+        DeclaredConstructor(c, args.map { case (name, tt) =>
+          toArg(unmangleName(name), tt, visited, Context(name, c.getDeclaringClass, args)) })
       }
     }
 
@@ -105,8 +112,8 @@ private[json4s] object Meta {
       def mkContainer(t: Type, k: Kind, valueTypeIndex: Int, factory: Mapping => Mapping) =
         if (typeConstructor_?(t)) {
           val typeArgs = typeConstructors(t, k)(valueTypeIndex)
-          factory(fieldMapping(typeArgs)._1)
-        } else factory(fieldMapping(typeParameters(t, k, context)(valueTypeIndex))._1)
+          factory(fieldMapping(typeArgs, None)._1) // TODO: default values
+        } else factory(fieldMapping(typeParameters(t, k, context)(valueTypeIndex), None)._1) // TODO: default values
 
       def parameterizedTypeOpt(t: Type) = t match {
         case x: ParameterizedType => 
@@ -122,9 +129,19 @@ private[json4s] object Meta {
 
       def mkConstructor(t: Type) = 
         if (visited.contains(t)) (Cycle(t), false)
-        else (Constructor(TypeInfo(rawClassOf(t), parameterizedTypeOpt(t)), constructors(t, visited + t, Some(context))), false)
+        else {
+          val companion: Option[(Class[_], AnyRef)] = {
+            val clazz = rawClassOf(t)
+            val path = if (clazz.getName.endsWith("$")) clazz.getName else "%s$".format(clazz.getName)
+            ScalaSigReader.resolveClass[AnyRef](path, Vector(clazz.getClassLoader)) map { sig =>
+              (sig, sig.getField(ScalaSigReader.ModuleFieldName).get(null))
+            }
+          }
 
-      def fieldMapping(t: Type): (Mapping, Boolean) = t match {
+          (Constructor(TypeInfo(rawClassOf(t), parameterizedTypeOpt(t)), constructors(t, visited + t, Some(context)), companion), false)
+        }
+
+      def fieldMapping(t: Type, default: Option[() => Any]): (Mapping, Boolean) = t match {
         case pType: ParameterizedType => 
           val raw = rawClassOf(pType)
           val info = TypeInfo(raw, Some(pType))
@@ -143,22 +160,38 @@ private[json4s] object Meta {
         case aType: GenericArrayType =>
           // Couldn't find better way to reconstruct proper array type:
           val raw = java.lang.reflect.Array.newInstance(rawClassOf(aType.getGenericComponentType), 0: Int).getClass
-          (Col(TypeInfo(raw, None), fieldMapping(aType.getGenericComponentType)._1), false)
+          (Col(TypeInfo(raw, None), fieldMapping(aType.getGenericComponentType, None)._1), false)
         case raw: Class[_] =>
-          if (primitive_?(raw)) (Value(raw), false)
+          if (primitive_?(raw)) (Value(raw, default), false)
           else if (raw.isArray)
             (mkContainer(t, `* -> *`, 0, Col.apply(TypeInfo(raw, None), _)), false)
           else 
             mkConstructor(t)
-        case x => (Constructor(TypeInfo(classOf[AnyRef], None), Nil), false)
+        case x => (Constructor(TypeInfo(classOf[AnyRef], None), Nil, None), false)
       }
 
-      val (mapping, optional) = fieldMapping(genericType)
-      Arg(name, mapping, optional)
+      val default = {
+        val idx = context.allArgs.map(_._1).indexOf(context.argName)
+        if (idx > -1) {
+          val companion: Option[(Class[_], AnyRef)] = {
+            val c = context.containingClass
+            val path = if (c.getName.endsWith("$")) c.getName else "%s$".format(c.getName)
+            ScalaSigReader.resolveClass[AnyRef](path, Vector(c.getClassLoader)) map { sig =>
+              (sig, sig.getField(ScalaSigReader.ModuleFieldName).get(null))
+            }
+          }
+          companion flatMap { case (cc, co) => defaultValue(cc, co, context.argName, idx) }
+        } else None
+
+      }
+      val (mapping, optional) = fieldMapping(genericType, default)
+
+      Arg(name, mapping, optional, default)
     }
 
-    if (primitive_?(clazz)) Value(rawClassOf(clazz))
-    else {
+    if (primitive_?(clazz)) {
+      Value(rawClassOf(clazz), None)
+    } else {
       mappings.memoize(clazz, t => {
         val c = rawClassOf(t)
         val (pt, typeInfo) = 
@@ -167,7 +200,15 @@ private[json4s] object Meta {
             val t = mkParameterizedType(c, typeArgs)
             (t, TypeInfo(c, Some(t)))
           }
-        Constructor(typeInfo, constructors(pt, Set(), None))         
+
+        val companion: Option[(Class[_], AnyRef)] = {
+
+          val path = if (c.getName.endsWith("$")) c.getName else "%s$".format(c.getName)
+          ScalaSigReader.resolveClass[AnyRef](path, Vector(c.getClassLoader)) map { sig =>
+            (sig, sig.getField(ScalaSigReader.ModuleFieldName).get(null))
+          }
+        }
+        Constructor(typeInfo, constructors(pt, Set(), None), companion)
       })
     }
   }
@@ -375,6 +416,16 @@ private[json4s] object Meta {
         i += 1
       }
       a
+    }
+
+    def defaultValue(compClass: Class[_], compObj: AnyRef,argName: String, argIndex: Int) = {
+      try {
+        // Some(null) is actually "desirable" here because it allows using null as a default value for an ignored field
+        Option(compClass.getMethod("apply$default$%d".format(argIndex + 1))) map { meth => () => meth.invoke(compObj) }
+      }
+      catch {
+        case _ => None // indicates no default value was supplied
+      }
     }
 
     def primitive2jvalue(a: Any)(implicit formats: Formats) = a match {
