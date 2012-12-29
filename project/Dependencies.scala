@@ -35,15 +35,15 @@ object Dependencies {
   lazy val specs: ModuleMap      = "org.scala-tools.testing" % "specs"      % specsVersion(_)      % "test" cross CVMappingAll
 
   val jackson = Seq(
-      "com.fasterxml.jackson.core" % "jackson-databind" % "2.0.5")
+      "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.2")
 
-  val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.4.1"
+  val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.5.2"
 
   lazy val scalap: ModuleMap      = "org.scala-lang"             % "scalap"             % _
 
-  val commonsCodec = "commons-codec"              % "commons-codec"      % "1.6"
+  val commonsCodec = "commons-codec"              % "commons-codec"      % "1.7"
 
-  val mockito = "org.mockito"                 % "mockito-all"              % "1.8.5"      % "test"
+  val mockito = "org.mockito"                 % "mockito-all"              % "1.9.5"      % "test"
 
   val liftCommon = "net.liftweb" %% "lift-common" % "2.4" cross CVMapping2911
 
