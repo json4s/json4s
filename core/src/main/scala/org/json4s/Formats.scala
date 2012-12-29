@@ -160,7 +160,7 @@ trait Formats { self: Formats =>
        * Chooses most specific class.
        */
       def hintFor(clazz: Class[_]): String = {
-        (components //.reverse
+        (components.reverse
           filter (_.containsHint_?(clazz))
           map (th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error(s"hintFor/classFor not invertible for $th"))))
           sortWith((x, y) => (delta(x._2, clazz) - delta(y._2, clazz)) == 0)).head._1
