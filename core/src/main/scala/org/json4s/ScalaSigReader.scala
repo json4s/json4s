@@ -17,8 +17,9 @@
 package org.json4s
 
 import scala.tools.scalap.scalax.rules.scalasig._
+import scalashim._
 
-private[json4s] object ScalaSigReader {
+object ScalaSigReader {
   def readConstructor(argName: String, clazz: Class[_], typeArgIndex: Int, argNames: List[String]): Class[_] = {
     val cl = findClass(clazz)
     val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail(s"Can't find constructor for $clazz"))
@@ -52,7 +53,9 @@ private[json4s] object ScalaSigReader {
   }
 
   private def findConstructor(c: ClassSymbol, argNames: List[String]): Option[MethodSymbol] = {
-    val ms = c.children collect { case m: MethodSymbol if m.name == "<init>" => m }
+    val ms = c.children collect {
+      case m: MethodSymbol if m.name == "<init>" => m
+    }
     ms.find(m => m.children.map(_.name) == argNames)
   }
 
@@ -115,4 +118,52 @@ private[json4s] object ScalaSigReader {
 
   private def findScalaSig(clazz: Class[_]): Option[ScalaSig] = 
     ScalaSigParser.parse(clazz).orElse(findScalaSig(clazz.getDeclaringClass))
+
+//  def typeRefType(ms: MethodSymbol): TypeRefType = ms.infoType match {
+//    case PolyType(tr @ TypeRefType(_, _, _), _)                           => tr
+//    case NullaryMethodType(tr @ TypeRefType(_, _, _))                     => tr
+//    case NullaryMethodType(ExistentialType(tr @ TypeRefType(_, _, _), _)) => tr
+//  }
+
+  val ModuleFieldName = "MODULE$"
+  val ClassLoaders = Vector(this.getClass.getClassLoader)
+
+  def companionClass(clazz: Class[_], classLoaders: Iterable[ClassLoader]) = {
+    val path = if (clazz.getName.endsWith("$")) clazz.getName else "%s$".format(clazz.getName)
+    val c = resolveClass(path, classLoaders)
+    if (c.isDefined) c.get else sys.error("Could not resolve clazz='%s'".format(path))
+  }
+
+  def companionObject(clazz: Class[_], classLoaders: Iterable[ClassLoader]) =
+    companionClass(clazz, classLoaders).getField(ModuleFieldName).get(null)
+
+  def companions(t: java.lang.reflect.Type) = {
+    val k = Meta.rawClassOf(t)
+    val cc = companionClass(k, ClassLoaders)
+    (cc, cc.getField(ModuleFieldName).get(null))
+  }
+
+  def resolveClass[X <: AnyRef](c: String, classLoaders: Iterable[ClassLoader]): Option[Class[X]] = classLoaders match {
+    case Nil      => sys.error("resolveClass: expected 1+ classloaders but received empty list")
+    case List(cl) => Some(Class.forName(c, true, cl).asInstanceOf[Class[X]])
+    case many => {
+      try {
+        var clazz: Class[_] = null
+        val iter = many.iterator
+        while (clazz == null && iter.hasNext) {
+          try {
+            clazz = Class.forName(c, true, iter.next())
+          }
+          catch {
+            case e: ClassNotFoundException => // keep going, maybe it's in the next one
+          }
+        }
+
+        if (clazz != null) Some(clazz.asInstanceOf[Class[X]]) else None
+      }
+      catch {
+        case _ => None
+      }
+    }
+  }
 }

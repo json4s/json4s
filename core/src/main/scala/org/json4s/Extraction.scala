@@ -21,15 +21,13 @@ import java.lang.reflect.{Constructor => JConstructor, Type}
 import java.lang.{Integer => JavaInteger, Long => JavaLong, Short => JavaShort, Byte => JavaByte, Boolean => JavaBoolean, Double => JavaDouble, Float => JavaFloat}
 import java.math.{BigDecimal => JavaBigDecimal}
 import java.util.Date
+import java.util.{ Map => JMap, Collection => JCollection }
 import java.sql.Timestamp
 import scala.reflect.Manifest
 import java.nio.CharBuffer
 import scalashim._
 import java.util
 import collection.JavaConverters._
-
-//import org.omg.CORBA.ValueMember
-//import java.util.Collection
 
 /** Function to extract values from JSON AST using case classes.
  *
@@ -264,6 +262,7 @@ object Extraction {
       def instantiate = {
         val c = findBestConstructor
         val jconstructor = c.constructor
+
         val args = c.args.map(a => build(json \ a.path, a))
         try {
           if (jconstructor.getDeclaringClass == classOf[java.lang.Object])
@@ -310,7 +309,7 @@ object Extraction {
         }
     }
 
-    def newPrimitive(elementType: Class[_], elem: JValue) = convert(elem, elementType, formats)
+//    def newPrimitive(elementType: Class[_], elem: JValue) = convert(elem, elementType, formats)
 
     def newCollection(root: JValue, m: Mapping, constructor: Array[_] => Any) = {
       val array: Array[_] = root match {
@@ -323,10 +322,10 @@ object Extraction {
     }
 
     def build(root: JValue, mapping: Mapping): Any = mapping match {
-      case Value(targetType) => convert(root, targetType, formats)
+      case Value(targetType, default) => convert(root, targetType, formats, default)
       case c: Constructor => newInstance(c, root)
       case Cycle(targetType) => build(root, mappingOf(targetType))
-      case Arg(path, m, optional) => mkValue(root, m, path, optional)
+      case Arg(path, m, optional, default) => mkValue(root, m, path, optional, default)
       case Col(targetType, m) =>
         val custom = formats.customDeserializer(formats)
         val c = targetType.clazz
@@ -356,24 +355,26 @@ object Extraction {
       case x => fail(s"Expected array but got $x")
     }
 
-    def mkValue(root: JValue, mapping: Mapping, path: String, optional: Boolean) =
-      if (optional && root == JNothing) None
+    def mkValue(root: JValue, mapping: Mapping, path: String, optional: Boolean, default: Option[() => Any]) = {
+      def defv(v: Any) = if (default.isDefined) default.get() else v
+      if (optional && root == JNothing) defv(None)
       else {
         try {
           val x = build(root, mapping)
-          if (optional) {
-            if (x == null) None else Some(x)
-          } else x
+          if (optional) { if (x == null) defv(None) else Some(x) }
+          else if (x == null) defv(x)
+          else x
         } catch {
           case e @ MappingException(msg, _) =>
-            if (optional) None else fail(s"No usable value for $path\n$msg", e)
+            if (optional) defv(None) else fail(s"No usable value for $path\n$msg", e)
         }
       }
+    }
 
     build(json, mapping)
   }
 
-  private def convert(json: JValue, targetType: Class[_], formats: Formats): Any = json match {
+  private def convert(json: JValue, targetType: Class[_], formats: Formats, default: Option[() => Any]): Any = json match {
     case JInt(x) if (targetType == classOf[Int]) => x.intValue
     case JInt(x) if (targetType == classOf[JavaInteger]) => new JavaInteger(x.intValue)
     case JInt(x) if (targetType == classOf[BigInt]) => x
@@ -417,7 +418,8 @@ object Extraction {
     case j: JObject if (targetType == classOf[JObject]) => j
     case j: JArray if (targetType == classOf[JArray]) => j
     case JNull => null
-    case JNothing => fail(s"Did not find value which can be converted into ${targetType.getName}")
+    case JNothing =>
+      default map (_.apply()) getOrElse fail(s"Did not find value which can be converted into ${targetType.getName}")
     case _ =>
       val custom = formats.customDeserializer(formats)
       val typeInfo = TypeInfo(targetType, None)
