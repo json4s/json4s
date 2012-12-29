@@ -360,7 +360,7 @@ object Extraction {
       if (optional && root == JNothing) defv(None)
       else {
         try {
-          val x = build(root, mapping)
+          val x = if (root == JNothing && default.isDefined) default.get() else build(root, mapping)
           if (optional) { if (x == null) defv(None) else Some(x) }
           else if (x == null) defv(x)
           else x

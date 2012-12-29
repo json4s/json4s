@@ -97,11 +97,32 @@ object SerializationExamples extends Specification {
     read[OptionOfTupleOfDouble](ser) mustEqual s
   }
 
-  "Default paramter example" in {
+  "Default parameter example" in {
     val pw = PlayerWithDefault("zortan")
     val ser = swrite(pw)
     ser mustEqual """{"name":"zortan","credits":5}"""
     read[PlayerWithDefault]("""{"name":"zortan"}""") mustEqual pw
+  }
+
+  "Default optional parameter example" in {
+    val pw = PlayerWithOptionDefault("zoktan")
+    val ser = swrite(pw)
+    ser mustEqual """{"name":"zoktan","score":6}"""
+    read[PlayerWithOptionDefault]("""{"name":"zoktan"}""") mustEqual pw
+  }
+
+  "Default recursive parameter example" in {
+    val pw = PlayerWithGimmick("zaotan")
+    val ser = swrite(pw)
+    ser mustEqual """{"name":"zaotan","gimmick":{"name":"default"}}"""
+    read[PlayerWithGimmick]("""{"name":"zaotan"}""") mustEqual pw
+  }
+
+  "Default for list argument example" in {
+    val pw = PlayerWithList("oozton")
+    val ser = swrite(pw)
+    ser mustEqual """{"name":"oozton","badges":["intro","tutorial"]}"""
+    read[PlayerWithList]("""{"name":"oozton"}""") mustEqual pw
   }
 
   "Case class with internal state example" in {
@@ -168,6 +189,13 @@ object FullTypeHintExamples extends TypeHintExamples {
 
     val ser = swrite(o)
     read[OptionOfAmbiguousP](ser) mustEqual o
+  }
+
+  "Default recursive with type hints example" in {
+    val pw = PlayerWithBird("zoltan")
+    val ser = swrite(pw)
+    ser mustEqual """{"name":"zoltan","bird":{"jsonClass":"org.json4s.Chicken","eggs":3}}"""
+    read[PlayerWithBird]("""{"name":"zoltan"}""") mustEqual pw
   }
 }
 
@@ -335,6 +363,24 @@ object CustomClassWithTypeHintsExamples extends Specification {
     ts2.times(1).time mustEqual 234L
     ts2.times.size mustEqual 2
   }
+
+  "Custom serializer with default example" in {
+    val m = MeetingWithDefault("The place")
+    val ser = swrite(m)
+    ser mustEqual """{"place":"The place","time":{"jsonClass":"DateTime","t":7777}}"""
+    val m2 = read[MeetingWithDefault]("""{"place":"The place"}""")
+    m.place mustEqual m2.place
+    m.time.time mustEqual m2.time.time
+  }
+
+  "List of custom classes with default example" in {
+    val ts = TimesWithDefault()
+    val ser = swrite(ts)
+    ser mustEqual """{"times":[{"jsonClass":"DateTime","t":8888}]}"""
+    val ts2 = read[TimesWithDefault]("{}")
+    ts2.times(0).time mustEqual 8888L
+    ts2.times.size mustEqual 1
+  }
 }
 
 case class Meeting(place: String, time: DateTime)
@@ -370,3 +416,10 @@ case class TypeConstructor[A](x: A)
 case class ProperType(x: TypeConstructor[Chicken], t: (Int, Player))
 
 case class PlayerWithDefault(name: String, credits: Int = 5)
+case class PlayerWithOptionDefault(name: String, score: Option[Int] = Some(6))
+case class Gimmick(name: String)
+case class PlayerWithGimmick(name: String, gimmick: Gimmick = Gimmick("default"))
+case class PlayerWithBird(name: String, bird: Bird = Chicken(3))
+case class PlayerWithList(name: String, badges: List[String] = List("intro", "tutorial"))
+case class MeetingWithDefault(place: String, time: DateTime = new DateTime(7777L))
+case class TimesWithDefault(times: List[DateTime] = List(new DateTime(8888L)))
