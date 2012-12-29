@@ -367,6 +367,24 @@ object CustomClassWithTypeHintsExamples extends Specification {
     ts2.times(1).time mustEqual 234L
     ts2.times.size mustEqual 2
   }
+
+  "Custom serializer with default example" in {
+    val m = MeetingWithDefault("The place")
+    val ser = swrite(m)
+    ser mustEqual """{"place":"The place","time":{"jsonClass":"DateTime","t":7777}}"""
+    val m2 = read[MeetingWithDefault]("""{"place":"The place"}""")
+    m.place mustEqual m2.place
+    m.time.time mustEqual m2.time.time
+  }
+
+  "List of custom classes with default example" in {
+    val ts = TimesWithDefault()
+    val ser = swrite(ts)
+    ser mustEqual """{"times":[{"jsonClass":"DateTime","t":8888}]}"""
+    val ts2 = read[TimesWithDefault]("{}")
+    ts2.times(0).time mustEqual 8888L
+    ts2.times.size mustEqual 1
+  }
 }
 
 case class Meeting(place: String, time: DateTime)
@@ -407,3 +425,5 @@ case class Gimmick(name: String)
 case class PlayerWithGimmick(name: String, gimmick: Gimmick = Gimmick("default"))
 case class PlayerWithBird(name: String, bird: Bird = Chicken(3))
 case class PlayerWithList(name: String, badges: List[String] = List("intro", "tutorial"))
+case class MeetingWithDefault(place: String, time: DateTime = new DateTime(7777L))
+case class TimesWithDefault(times: List[DateTime] = List(new DateTime(8888L)))
