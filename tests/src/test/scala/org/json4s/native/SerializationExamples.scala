@@ -98,11 +98,25 @@ object SerializationExamples extends Specification {
     read[OptionOfTupleOfDouble](ser) mustEqual s
   }
 
-  "Default paramter example" in {
+  "Default parameter example" in {
     val pw = PlayerWithDefault("zortan")
     val ser = swrite(pw)
     ser mustEqual """{"name":"zortan","credits":5}"""
     read[PlayerWithDefault]("""{"name":"zortan"}""") mustEqual pw
+  }
+
+  "Default optional parameter example" in {
+    val pw = PlayerWithOptionDefault("zoktan")
+    val ser = swrite(pw)
+    ser mustEqual """{"name":"zoktan","score":6}"""
+    read[PlayerWithOptionDefault]("""{"name":"zoktan"}""") mustEqual pw
+  }
+
+  "Default recursive parameter example" in {
+    val pw = PlayerWithGimmick("zoltan")
+    val ser = swrite(pw)
+    ser mustEqual """{"name":"zoltan","gimmick":{"name":"default"}}"""
+    read[PlayerWithGimmick]("""{"name":"zoltan"}""") mustEqual pw
   }
 
   "Case class with internal state example" in {
@@ -370,3 +384,7 @@ case class TypeConstructor[A](x: A)
 case class ProperType(x: TypeConstructor[Chicken], t: (Int, Player))
 
 case class PlayerWithDefault(name: String, credits: Int = 5)
+case class PlayerWithOptionDefault(name: String, score: Option[Int] = Some(6))
+case class Gimmick(name: String)
+case class PlayerWithGimmick(name: String, gimmick: Gimmick = Gimmick("default"))
+case class PlayerWithBird(name: String, bird: Bird = Chicken(3))

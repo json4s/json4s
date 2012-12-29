@@ -418,13 +418,18 @@ object Meta {
       a
     }
 
-    def defaultValue(compClass: Class[_], compObj: AnyRef,argName: String, argIndex: Int) = {
+    def defaultValue(compClass: Class[_], compObj: AnyRef, argName: String, argIndex: Int) = {
+//      println("Getting default for %s on %s" format (argName, compClass))
       try {
         // Some(null) is actually "desirable" here because it allows using null as a default value for an ignored field
-        Option(compClass.getMethod("apply$default$%d".format(argIndex + 1))) map { meth => () => meth.invoke(compObj) }
+        val a = Option(compClass.getMethod("apply$default$%d".format(argIndex + 1))) map { meth => () => meth.invoke(compObj) }
+//        println("default for %s on %s is %s" format(argName, compClass, a))
+        a
       }
       catch {
-        case _ => None // indicates no default value was supplied
+        case _ =>
+//          println("no default found for %s on %s" format (argName, compClass))
+          None // indicates no default value was supplied
       }
     }
 

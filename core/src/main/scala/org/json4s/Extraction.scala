@@ -43,6 +43,7 @@ object Extraction {
     def allTypes(mf: Manifest[_]): List[Class[_]] = mf.erasure :: (mf.typeArguments flatMap allTypes)
     try {
       val types = allTypes(mf)
+//      println("the types: %s" format types)
       extract0(json, types.head, types.tail).asInstanceOf[A]
     } catch {
       case e: MappingException => throw e
@@ -205,10 +206,15 @@ object Extraction {
         Dict(mkMapping(typeArgs.tail.head, typeArgs.tail.tail))
       else mappingOf(clazz, typeArgs)
     }
-    if (clazz == classOf[Option[_]])
-      json.toOption.map(extract0(_, mkMapping(typeArgs.head, typeArgs.tail)))
-    else
-      extract0(json, mkMapping(clazz, typeArgs))
+    if (clazz == classOf[Option[_]]) {
+      val mapping = mkMapping(typeArgs.head, typeArgs.tail)
+//      println("The initial mapping for the option, initial extract: %s" format mapping)
+      json.toOption.map(extract0(_, mapping))
+    } else {
+      val mapping = mkMapping(clazz, typeArgs)
+//      println("The initial mapping for initial extract: %s" format mapping)
+      extract0(json, mapping)
+    }
   }
 
   def extract(json: JValue, target: TypeInfo)(implicit formats: Formats): Any =
@@ -321,23 +327,27 @@ object Extraction {
       constructor(array)
     }
 
-    def build(root: JValue, mapping: Mapping): Any = mapping match {
-      case Value(targetType, default) => convert(root, targetType, formats, default)
-      case c: Constructor => newInstance(c, root)
-      case Cycle(targetType) => build(root, mappingOf(targetType))
-      case Arg(path, m, optional, default) => mkValue(root, m, path, optional, default)
-      case Col(targetType, m) =>
-        val custom = formats.customDeserializer(formats)
-        val c = targetType.clazz
-        if (custom.isDefinedAt(targetType, root)) custom(targetType, root)
-        else if (c == classOf[List[_]]) newCollection(root, m, a => List(a: _*))
-        else if (c == classOf[Set[_]]) newCollection(root, m, a => Set(a: _*))
-        else if (c.isArray) newCollection(root, m, mkTypedArray(c))
-        else if (classOf[Seq[_]].isAssignableFrom(c)) newCollection(root, m, a => List(a: _*))
-        else fail("Expected collection but got " + m + " for class " + c)
-      case Dict(m) => root match {
-        case JObject(xs) => Map(xs.map(x => (x._1, build(x._2, m))): _*)
-        case x => fail("Expected object but got " + x)
+    def build(root: JValue, mapping: Mapping): Any = {
+//      println("building root: " + root)
+//      println("building mapping: " + mapping)
+      mapping match {
+        case Value(targetType, default) => convert(root, targetType, formats, default)
+        case c: Constructor => newInstance(c, root)
+        case Cycle(targetType) => build(root, mappingOf(targetType))
+        case Arg(path, m, optional, default) => mkValue(root, m, path, optional, default)
+        case Col(targetType, m) =>
+          val custom = formats.customDeserializer(formats)
+          val c = targetType.clazz
+          if (custom.isDefinedAt(targetType, root)) custom(targetType, root)
+          else if (c == classOf[List[_]]) newCollection(root, m, a => List(a: _*))
+          else if (c == classOf[Set[_]]) newCollection(root, m, a => Set(a: _*))
+          else if (c.isArray) newCollection(root, m, mkTypedArray(c))
+          else if (classOf[Seq[_]].isAssignableFrom(c)) newCollection(root, m, a => List(a: _*))
+          else fail("Expected collection but got " + m + " for class " + c)
+        case Dict(m) => root match {
+          case JObject(xs) => Map(xs.map(x => (x._1, build(x._2, m))): _*)
+          case x => fail("Expected object but got " + x)
+        }
       }
     }
 
@@ -360,7 +370,7 @@ object Extraction {
       if (optional && root == JNothing) defv(None)
       else {
         try {
-          val x = build(root, mapping)
+          val x = if (root == JNothing && default.isDefined) default.get() else build(root, mapping)
           if (optional) { if (x == null) defv(None) else Some(x) }
           else if (x == null) defv(x)
           else x
