@@ -113,10 +113,17 @@ object SerializationExamples extends Specification {
   }
 
   "Default recursive parameter example" in {
-    val pw = PlayerWithGimmick("zoltan")
+    val pw = PlayerWithGimmick("zaotan")
     val ser = swrite(pw)
-    ser mustEqual """{"name":"zoltan","gimmick":{"name":"default"}}"""
-    read[PlayerWithGimmick]("""{"name":"zoltan"}""") mustEqual pw
+    ser mustEqual """{"name":"zaotan","gimmick":{"name":"default"}}"""
+    read[PlayerWithGimmick]("""{"name":"zaotan"}""") mustEqual pw
+  }
+
+  "Default for list argument example" in {
+    val pw = PlayerWithList("oozton")
+    val ser = swrite(pw)
+    ser mustEqual """{"name":"oozton","badges":["intro","tutorial"]}"""
+    read[PlayerWithList]("""{"name":"oozton"}""") mustEqual pw
   }
 
   "Case class with internal state example" in {
@@ -150,6 +157,8 @@ object ShortTypeHintExamples extends TypeHintExamples {
     val ser = """{"animals":[],"pet":{"name":"pluto","jsonClass":"Dog"}}"""
     Serialization.read[Animals](ser) mustEqual Animals(Nil, Dog("pluto"))
   }
+
+
 }
 
 object FullTypeHintExamples extends TypeHintExamples {
@@ -184,6 +193,15 @@ object FullTypeHintExamples extends TypeHintExamples {
     val ser = swrite(o)
     read[OptionOfAmbiguousP](ser) mustEqual o
   }
+
+
+  "Default recursive with type hints example" in {
+    val pw = PlayerWithBird("zoltan")
+    val ser = swrite(pw)
+    ser mustEqual """{"name":"zoltan","bird":{"jsonClass":"org.json4s.Chicken","eggs":3}}"""
+    read[PlayerWithBird]("""{"name":"zoltan"}""") mustEqual pw
+  }
+
 }
 
 object CustomTypeHintFieldNameExample extends TypeHintExamples {
@@ -388,3 +406,4 @@ case class PlayerWithOptionDefault(name: String, score: Option[Int] = Some(6))
 case class Gimmick(name: String)
 case class PlayerWithGimmick(name: String, gimmick: Gimmick = Gimmick("default"))
 case class PlayerWithBird(name: String, bird: Bird = Chicken(3))
+case class PlayerWithList(name: String, badges: List[String] = List("intro", "tutorial"))
