@@ -17,7 +17,7 @@
 package org.json4s
 
 import scala.tools.scalap.scalax.rules.scalasig._
-
+import scalashim._
 
 object ScalaSigReader {
   def readConstructor(argName: String, clazz: Class[_], typeArgIndex: Int, argNames: List[String]): Class[_] = {
@@ -119,11 +119,11 @@ object ScalaSigReader {
   private def findScalaSig(clazz: Class[_]): Option[ScalaSig] = 
     ScalaSigParser.parse(clazz).orElse(findScalaSig(clazz.getDeclaringClass))
 
-  def typeRefType(ms: MethodSymbol): TypeRefType = ms.infoType match {
-    case PolyType(tr @ TypeRefType(_, _, _), _)                           => tr
-    case NullaryMethodType(tr @ TypeRefType(_, _, _))                     => tr
-    case NullaryMethodType(ExistentialType(tr @ TypeRefType(_, _, _), _)) => tr
-  }
+//  def typeRefType(ms: MethodSymbol): TypeRefType = ms.infoType match {
+//    case PolyType(tr @ TypeRefType(_, _, _), _)                           => tr
+//    case NullaryMethodType(tr @ TypeRefType(_, _, _))                     => tr
+//    case NullaryMethodType(ExistentialType(tr @ TypeRefType(_, _, _), _)) => tr
+//  }
 
   val ModuleFieldName = "MODULE$"
   val ClassLoaders = Vector(this.getClass.getClassLoader)
