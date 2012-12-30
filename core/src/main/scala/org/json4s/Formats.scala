@@ -142,7 +142,9 @@ trait Formats { self: Formats =>
      */
     def classFor(hint: String): Option[Class[_]]
 
-    def containsHint_?(clazz: Class[_]) = hints exists (_ isAssignableFrom clazz)
+    @deprecated("Use `containsHint` without `_?` instead")
+    def containsHint_?(clazz: Class[_]) = containsHint(clazz)
+    def containsHint(clazz: Class[_]) = hints exists (_ isAssignableFrom clazz)
     def deserialize: PartialFunction[(String, JObject), Any] = Map()
     def serialize: PartialFunction[Any, JObject] = Map()
 
@@ -159,7 +161,8 @@ trait Formats { self: Formats =>
       /**
        * Chooses most specific class.
        */
-      def hintFor(clazz: Class[_]): String = components.filter(_.containsHint_?(clazz))
+      def hintFor(clazz: Class[_]): String =
+        components.filter(_.containsHint(clazz))
           .map(th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error("hintFor/classFor not invertible for " + th))))
           .sort((x, y) => (delta(x._2, clazz) - delta(y._2, clazz)) < 0).head._1
 

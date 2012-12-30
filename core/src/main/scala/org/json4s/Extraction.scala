@@ -69,7 +69,7 @@ object Extraction {
     def prependTypeHint(clazz: Class[_], o: JObject) =
       JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
 
-    def mkObject(clazz: Class[_], fields: List[JField]) = formats.typeHints.containsHint_?(clazz) match {
+    def mkObject(clazz: Class[_], fields: List[JField]) = formats.typeHints.containsHint(clazz) match {
       case true  => prependTypeHint(clazz, JObject(fields))
       case false => JObject(fields)
     }
@@ -82,7 +82,7 @@ object Extraction {
       any match {
         case null => JNull
         case x: JValue => x
-        case x if primitive_?(x.getClass) => primitive2jvalue(x)(formats)
+        case x if isPrimitive(x.getClass) => primitive2jvalue(x)(formats)
         case x: Map[_, _] => JObject((x map {
           case (k: String, v) => JField(k, decompose(v))
         }).toList)

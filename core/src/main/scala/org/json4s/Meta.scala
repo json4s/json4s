@@ -110,7 +110,7 @@ object Meta {
 
     def toArg(name: String, genericType: Type, visited: Set[Type], context: Context): Arg = {
       def mkContainer(t: Type, k: Kind, valueTypeIndex: Int, factory: Mapping => Mapping) =
-        if (typeConstructor_?(t)) {
+        if (isTypeConstructor(t)) {
           val typeArgs = typeConstructors(t, k)(valueTypeIndex)
           factory(fieldMapping(typeArgs, None)._1) // TODO: default values
         } else factory(fieldMapping(typeParameters(t, k, context)(valueTypeIndex), None)._1) // TODO: default values
@@ -162,7 +162,7 @@ object Meta {
           val raw = java.lang.reflect.Array.newInstance(rawClassOf(aType.getGenericComponentType), 0: Int).getClass
           (Col(TypeInfo(raw, None), fieldMapping(aType.getGenericComponentType, None)._1), false)
         case raw: Class[_] =>
-          if (primitive_?(raw)) (Value(raw, default), false)
+          if (isPrimitive(raw)) (Value(raw, default), false)
           else if (raw.isArray)
             (mkContainer(t, `* -> *`, 0, Col.apply(TypeInfo(raw, None), _)), false)
           else 
@@ -189,7 +189,7 @@ object Meta {
       Arg(name, mapping, optional, default)
     }
 
-    if (primitive_?(clazz)) {
+    if (isPrimitive(clazz)) {
       Value(rawClassOf(clazz), None)
     } else {
       mappings.memoize(clazz, t => {
@@ -352,19 +352,28 @@ object Meta {
       }
     }
 
-    def primitive_?(t: Type) = t match {
+    @deprecated("Use `isPrimitive` instead")
+    def primitive_?(t: Type) = isPrimitive(t)
+    def isPrimitive(t: Type) = t match {
       case clazz: Class[_] => primitives contains clazz
       case _ => false
     }
 
-    def static_?(f: Field) = Modifier.isStatic(f.getModifiers)
-    def typeConstructor_?(t: Type) = t match {
+    @deprecated("Use `isStatic` instead")
+    def static_?(f: Field) = isStatic(f)
+    def isStatic(f: Field) = Modifier.isStatic(f.getModifiers)
+
+    @deprecated("Use `isTypeConstructor` instead")
+    def typeConstructor_?(t: Type) = isTypeConstructor(t)
+    def isTypeConstructor(t: Type) = t match {
       case p: ParameterizedType =>
         p.getActualTypeArguments.exists(_.isInstanceOf[ParameterizedType])
       case _ => false
     }
 
-    def array_?(x: Any) = x != null && classOf[scala.Array[_]].isAssignableFrom(x.asInstanceOf[AnyRef].getClass)
+    @deprecated("Use `isArray` instead")
+    def array_?(x: Any) = isArray(x)
+    def isArray(x: Any) = x != null && classOf[scala.Array[_]].isAssignableFrom(x.asInstanceOf[AnyRef].getClass)
 
     def fields(clazz: Class[_]): List[(String, TypeInfo)] = {
       val fs = clazz.getDeclaredFields.toList

@@ -114,7 +114,8 @@ object Json4sBuild extends Build {
      id = "json4s-examples",
      base = file("examples"),
      settings = json4sSettings ++ Seq(
-       libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.9.4"
+       libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.9.4",
+       libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.9.2" % "2.1.3"
      )
   ) dependsOn(
     core % "compile;test->test",
@@ -122,6 +123,7 @@ object Json4sBuild extends Build {
     jacksonSupport % "compile;test->test",
     json4sExt,
     mongo)
+
 //
 //  lazy val jacksonExt = Project(
 //    id = "json4s-jackson-ext",

@@ -1,3 +1,6 @@
+package org.json4s
+package examples
+
 trait Benchmark {
   def run(name: String, warmup: Int, count: Int)(f: => Any) = {
     print("warmup... ")
@@ -23,3 +26,6 @@ trait Benchmark {
     System.currentTimeMillis - start
   }
 }
+
+
+
