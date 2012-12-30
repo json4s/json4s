@@ -59,7 +59,7 @@ a new version of scala is released.</p>
 your import statements will change if you use this library.</p>
 
 <div class="highlight"><pre><span class="k">import</span> <span class="nn">org.json4s._</span>
-<span class="k">import</span> <span class="nn">org.json4s.native._</span>
+<span class="k">import</span> <span class="nn">org.json4s.native.JsonMethods._</span>
 </pre></div>
 
 <p>After that everything works exactly the same as it would with lift-json</p>
@@ -73,7 +73,7 @@ lift-json AST.</p>
 <p>To use jackson instead of the native parser:</p>
 
 <div class="highlight"><pre><span class="k">import</span> <span class="nn">org.json4s._</span>
-<span class="k">import</span> <span class="nn">org.json4s.jackson._</span>
+<span class="k">import</span> <span class="nn">org.json4s.jackson.JsonMethods._</span>
 </pre></div>
 
 <h2>Guide</h2>
@@ -125,12 +125,12 @@ Note, replace XXX with correct Json4s version.</p>
 
 <p>For the native support add the following dependency to your project description:</p>
 
-<pre><code>val json4sNative = "org.json4s" %% "json4s-native" % "XXX" // 3.0.0-SNAPSHOT
+<pre><code>val json4sNative = "org.json4s" %% "json4s-native" % "3.1.0"
 </code></pre>
 
 <p>For the Jackson support add the following dependency to your project description:</p>
 
-<pre><code>val json4sJackson = "org.json4s" %% "json4s-jackson" % "XXX" // 3.0.0-SNAPSHOT
+<pre><code>val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.1.0"
 </code></pre>
 
 <h3>Maven users</h3>
@@ -158,18 +158,23 @@ Note, replace XXX with correct Json4s version.</p>
 <p>Download following jars:</p>
 
 <ul>
-<li><a href="http://scala-tools.org/repo-releases/net/liftweb/lift-json/XXX/lift-json-XXX.jar">http://scala-tools.org/repo-releases/net/liftweb/lift-json/XXX/lift-json-XXX.jar</a></li>
+<li><a href="http://repo1.maven.org/maven2/org/json4s/XXX/json4s-core-XXX.jar">http://repo1.maven.org/maven2/org/json4s/XXX/json4s-core-XXX.jar</a></li>
+<li><a href="http://repo1.maven.org/maven2/org/json4s/XXX/json4s-native-XXX.jar">http://repo1.maven.org/maven2/org/json4s/XXX/json4s-native-XXX.jar</a></li>
 <li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.1/paranamer-2.1.jar">http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.1/paranamer-2.1.jar</a></li>
 <li>scalap (Only for Scala-2.9 compatible versions)</li>
 </ul><h2>Extras</h2>
 
 <ul>
-<li><a href="https://github.com/json4s/json4s/tree/master/native-ext">native-ext</a></li>
-</ul><p>Support for Box, Enum, Joda-Time, ...</p>
+<li><a href="https://github.com/json4s/json4s/tree/master/ext">ext</a></li>
+</ul><p>Support for Enum, Joda-Time, ...</p>
 
 <ul>
-<li><a href="https://github.com/json4s/json4s/tree/master/scalaz">native-scalaz</a></li>
+<li><a href="https://github.com/json4s/json4s/tree/master/scalaz">scalaz</a></li>
 </ul><p>Applicative style parsing with Scalaz</p>
+
+<ul>
+<li><a href="https://github.com/json4s/json4s/tree/master/native-lift">native-lift</a></li>
+</ul><p>Support for Box</p>
 
 <h1>Migration from older versions</h1>
 
@@ -208,12 +213,29 @@ with pattern matching like:</p>
 
 <h1>Parsing JSON</h1>
 
-<p>Any valid json can be parsed into internal AST format.</p>
+<p>Any valid json can be parsed into internal AST format.
+For native support:</p>
 
 <pre><code>scala&gt; import org.json4s._
+scala&gt; import org.json4s.native.JsonMethods._
 scala&gt; parse(""" { "numbers" : [1, 2, 3, 4] } """)
 res0: org.json4s.JsonAST.JValue =
       JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
+scala&gt; parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
+res1: org.json4s.package.JValue = 
+      JObject(List((name,JString(Toy)), (price,JDecimal(35.35))))
+</code></pre>
+
+<p>For jackson support:</p>
+
+<pre><code>scala&gt; import org.json4s._
+scala&gt; import org.json4s.jackson.JsonMethods._
+scala&gt; parse(""" { "numbers" : [1, 2, 3, 4] } """)
+res0: org.json4s.JsonAST.JValue =
+      JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
+scala&gt; parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
+res1: org.json4s.package.JValue = 
+      JObject(List((name,JString(Toy)), (price,JDecimal(35.35))))
 </code></pre>
 
 <h1>Producing JSON</h1>
@@ -279,9 +301,16 @@ into a JDouble the latter into a JDecimal.</p>
 
 <p>res4: String = {"name":"joe"}</p>
 </li>
+<li>
+<p>Extending the dsl
+To extend the dsl with your own classes you must have an implicit conversion in scope of signature:</p>
+
+<div class="highlight"><pre><span class="k">type</span> <span class="kt">DslConversion</span> <span class="o">=</span> <span class="n">T</span> <span class="k">=&gt;</span> <span class="nc">JValue</span>
+</pre></div>
+</li>
 </ul><h2>Example</h2>
 
-<div class="highlight"><pre><span class="k">object</span> <span class="nc">JsonExample</span> <span class="k">extends</span> <span class="nc">Application</span> <span class="o">{</span>
+<div class="highlight"><pre><span class="k">object</span> <span class="nc">JsonExample</span> <span class="k">extends</span> <span class="nc">App</span> <span class="o">{</span>
   <span class="k">import</span> <span class="nn">org.json4s._</span>
   <span class="k">import</span> <span class="nn">org.json4s.JsonDSL._</span>
 
@@ -332,9 +361,11 @@ into a JDouble the latter into a JDecimal.</p>
 <h2>Merging &amp; Diffing</h2>
 
 <p>Two JSONs can be merged and diffed with each other.
-Please see more examples in src/test/scala/net/liftweb/json/MergeExamples.scala and src/test/scala/net/liftweb/json/DiffExamples.scala</p>
+Please see more examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/MergeExamples.scala">MergeExamples.scala</a> and <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/DiffExamples.scala">DiffExamples.scala</a>.</p>
 
 <pre><code>scala&gt; import org.json4s._
+
+scala&gt; import org.json4s.jackson.JsonMethods._
 
 scala&gt; val lotto1 = parse("""{
          "lotto":{
@@ -386,9 +417,10 @@ List(JInt(52), JInt(3), JInt(12), JInt(11), JInt(18), JInt(22))))))))))))))
 <h2>"LINQ" style</h2>
 
 <p>JSON values can be extracted using for-comprehensions.
-Please see more examples in src/test/scala/net/liftweb/json/JsonQueryExamples.scala</p>
+Please see more examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/JsonQueryExamples.scala">JsonQueryExamples.scala</a>.</p>
 
 <pre><code>scala&gt; import org.json4s._
+scala&gt; import org.json4s.native.JsonMethods._
 scala&gt; val json = parse("""
          { "name": "joe",
            "children": [
@@ -439,6 +471,13 @@ res1: List[(String, BigInt)] = List((Mary,5))
 Translated to DSL syntax:
 
 scala&gt; import org.json4s._
+
+scala&gt; import org.json4s.native.JsonMethods._
+
+or 
+
+scala&gt; import org.json4s.jackson.JsonMethods._
+
 scala&gt; import org.json4s.JsonDSL._
 
 scala&gt; val json =
@@ -530,9 +569,10 @@ res3: List[org.json4s.JsonAST.JString#Values] = List(Mary, Mazy)
 <p>Case classes can be used to extract values from parsed JSON. Non-existing values
 can be extracted into scala.Option and strings can be automatically converted into
 java.util.Dates.
-Please see more examples in src/test/scala/net/liftweb/json/ExtractionExamplesSpec.scala</p>
+Please see more examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/ExtractionExamplesSpec.scala">ExtractionExampleSpec.scala</a>.</p>
 
 <pre><code>scala&gt; import org.json4s._
+scala&gt; import org.json4s.jackson.JsonMethods._
 scala&gt; implicit val formats = DefaultFormats // Brings in default date formats etc.
 scala&gt; case class Child(name: String, age: Int, birthdate: Option[java.util.Date])
 scala&gt; case class Address(street: String, city: String)
@@ -563,7 +603,7 @@ res0: Person = Person(joe,Address(Bulevard,Helsinki),List(Child(Mary,5,Some(Sat 
 
 <p>By default the constructor parameter names must match json field names. However, sometimes json
 field names contain characters which are not allowed characters in Scala identifiers. There's two
-solutions for this (see src/test/scala/net/liftweb/json/LottoExample.scala for bigger example).</p>
+solutions for this (see <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/LottoExample.scala">LottoExample.scala</a> for bigger example).</p>
 
 <p>Use back ticks.</p>
 
@@ -632,10 +672,22 @@ res0: PersonWithAddresses("joe", Map("address1" -&gt; Address("Bulevard", "Helsi
 <h1>Serialization</h1>
 
 <p>Case classes can be serialized and deserialized.
-Please see other examples in src/test/scala/net/liftweb/json/SerializationExamples.scala</p>
+Please see other examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/SerializationExamples.scala">SerializationExamples.scala</a>.</p>
 
 <pre><code>scala&gt; import org.json4s._
-scala&gt; import org.json4s.Serialization.{read, write}
+scala&gt; import org.json4s.native.Serialization
+scala&gt; import org.json4s.native.Serialization.{read, write}
+scala&gt; implicit val formats = Serialization.formats(NoTypeHints)
+scala&gt; val ser = write(Child("Mary", 5, None))
+scala&gt; read[Child](ser)
+res1: Child = Child(Mary,5,None)
+</code></pre>
+
+<p>If you're using jackson instead of the native one: </p>
+
+<pre><code>scala&gt; import org.json4s._
+scala&gt; import org.json4s.jackson.Serialization
+scala&gt; import org.json4s.jackson.Serialization.{read, write}
 scala&gt; implicit val formats = Serialization.formats(NoTypeHints)
 scala&gt; val ser = write(Child("Mary", 5, None))
 scala&gt; read[Child](ser)
@@ -748,7 +800,7 @@ implicit val formats = org.json4s.DefaultFormats ++ org.json4s.ext.JodaTimeSeria
 <h1>XML support</h1>
 
 <p>JSON structure can be converted to XML node and vice versa.
-Please see more examples in src/test/scala/net/liftweb/json/XmlExamples.scala</p>
+Please see more examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/XmlExamples.scala">XmlExamples.scala</a>.</p>
 
 <pre><code>scala&gt; import org.json4s.Xml.{toJson, toXml}
 scala&gt; val xml =
