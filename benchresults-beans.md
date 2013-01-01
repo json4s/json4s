@@ -3,9 +3,9 @@
 
 [info] Running org.json4s.examples.SerBench
 Jackson serialization (full)	178ms
-Java serialization (ser)	180ms
-Jackson serialization (ser)	50ms
-Jackson (deser)	103ms
+Java serialization (ser)        180ms
+Jackson serialization (ser)      50ms
+Jackson (deser)                 103ms
 
 ### No type hints
 json4s-native (full)	1439ms
@@ -30,3 +30,4 @@ json4s-native (ser)	    1521ms
 json4s-jackson (ser)	 995ms
 json4s-native (deser)	1810ms
 json4s-jackson (deser)	1750ms
+  
