@@ -26,6 +26,10 @@ import java.sql.Timestamp
 import scala.reflect.Manifest
 import java.nio.CharBuffer
 import scalashim._
+import java.util.concurrent.ConcurrentHashMap
+import org.scalastuff.scalabeans.types.ScalaType
+import org.scalastuff.scalabeans.BeanDescriptor
+import collection.JavaConverters._
 
 /** Function to extract values from JSON AST using case classes.
  *
@@ -66,52 +70,53 @@ object Extraction {
    * </pre>
    */
   def decompose(a: Any)(implicit formats: Formats): JValue = {
-    def prependTypeHint(clazz: Class[_], o: JObject) =
-      JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
-
-    def mkObject(clazz: Class[_], fields: List[JField]) = formats.typeHints.containsHint(clazz) match {
-      case true  => prependTypeHint(clazz, JObject(fields))
-      case false => JObject(fields)
-    }
-
-    val serializer = formats.typeHints.serialize
-    val any = a.asInstanceOf[AnyRef]
-    if (formats.customSerializer(formats).isDefinedAt(a)) {
-      formats.customSerializer(formats)(a)
-    } else if (!serializer.isDefinedAt(a)) {
-      any match {
-        case null => JNull
-        case x: JValue => x
-        case x if isPrimitive(x.getClass) => primitive2jvalue(x)(formats)
-        case x: Map[_, _] => JObject((x map {
-          case (k: String, v) => JField(k, decompose(v))
-        }).toList)
-        case x: Collection[_] => JArray(x.toList map decompose)
-        case x if (x.getClass.isArray) => JArray(x.asInstanceOf[Array[_]].toList map decompose)
-        case x: Option[_] => x.flatMap[JValue] { y => Some(decompose(y)) }.getOrElse(JNothing)
-        case x =>
-          val constructorArgs = primaryConstructorArgs(x.getClass)
-          constructorArgs.collect { case (name, _) if Reflection.hasDeclaredField(x.getClass, name) =>
-            val f = x.getClass.getDeclaredField(name)
-            f.setAccessible(true)
-            JField(unmangleName(name), decompose(f get x))
-          } match {
-            case args =>
-              val fields = formats.fieldSerializer(x.getClass).map { serializer =>
-                Reflection.fields(x.getClass).map {
-                  case (mangledName, _) =>
-                    val n = Meta.unmangleName(mangledName)
-                    val fieldVal = Reflection.getField(x, mangledName)
-                    val s = serializer.serializer orElse Map((n, fieldVal) -> Some(n, fieldVal))
-                    s((n, fieldVal)).map { case (name, value) => JField(name, decompose(value)) }
-                      .getOrElse(JField(n, JNothing))
-                }
-              } getOrElse Nil
-              val uniqueFields = fields filterNot (f => args.find(_._1 == f._1).isDefined)
-              mkObject(x.getClass, uniqueFields ++ args)
-          }
-      }
-    } else prependTypeHint(any.getClass, serializer(any))
+//    def prependTypeHint(clazz: Class[_], o: JObject) =
+//      JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
+//
+//    def mkObject(clazz: Class[_], fields: List[JField]) = formats.typeHints.containsHint(clazz) match {
+//      case true  => prependTypeHint(clazz, JObject(fields))
+//      case false => JObject(fields)
+//    }
+//
+//    val serializer = formats.typeHints.serialize
+//    val any = a.asInstanceOf[AnyRef]
+//    if (formats.customSerializer(formats).isDefinedAt(a)) {
+//      formats.customSerializer(formats)(a)
+//    } else if (!serializer.isDefinedAt(a)) {
+//      any match {
+//        case null => JNull
+//        case x: JValue => x
+//        case x if isPrimitive(x.getClass) => primitive2jvalue(x)(formats)
+//        case x: Map[_, _] => JObject((x map {
+//          case (k: String, v) => JField(k, decompose(v))
+//        }).toList)
+//        case x: Collection[_] => JArray(x.toList map decompose)
+//        case x if (x.getClass.isArray) => JArray(x.asInstanceOf[Array[_]].toList map decompose)
+//        case x: Option[_] => x.flatMap[JValue] { y => Some(decompose(y)) }.getOrElse(JNothing)
+//        case x =>
+//          val constructorArgs = primaryConstructorArgs(x.getClass)
+//          constructorArgs.collect { case (name, _) if Reflection.hasDeclaredField(x.getClass, name) =>
+//            val f = x.getClass.getDeclaredField(name)
+//            f.setAccessible(true)
+//            JField(unmangleName(name), decompose(f get x))
+//          } match {
+//            case args =>
+//              val fields = formats.fieldSerializer(x.getClass).map { serializer =>
+//                Reflection.fields(x.getClass).map {
+//                  case (mangledName, _) =>
+//                    val n = Meta.unmangleName(mangledName)
+//                    val fieldVal = Reflection.getField(x, mangledName)
+//                    val s = serializer.serializer orElse Map((n, fieldVal) -> Some(n, fieldVal))
+//                    s((n, fieldVal)).map { case (name, value) => JField(name, decompose(value)) }
+//                      .getOrElse(JField(n, JNothing))
+//                }
+//              } getOrElse Nil
+//              val uniqueFields = fields filterNot (f => args.find(_._1 == f._1).isDefined)
+//              mkObject(x.getClass, uniqueFields ++ args)
+//          }
+//      }
+//    } else prependTypeHint(any.getClass, serializer(any))
+    Extraction2.decompose(a)
   }
 
   /** Flattens the JSON to a key/value map.

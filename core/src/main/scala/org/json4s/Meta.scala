@@ -28,7 +28,7 @@ trait ParameterNameReader {
   def lookupParameterNames(constructor: JConstructor[_]): Traversable[String]
 }
 
-object Meta {
+private[json4s] object Meta {
   import com.thoughtworks.paranamer._
 
   /** Intermediate metadata format for case classes.

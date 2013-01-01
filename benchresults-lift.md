@@ -2,52 +2,40 @@
 The results of the benchmarks before touching extraction and the scalasig parsing etc.
 
 ## Parsing
-Scala std	162570ms
-Jackson	433ms
+
+Scala std	 162570ms
+Jackson	        433ms
 json4s-native	780ms
 json4s-jackson	444ms
 
 ## Serialization
 
+[info] Running org.json4s.examples.SerBench
+Jackson serialization (full)	186ms
+Java serialization (ser)	178ms
+Jackson serialization (ser)	48ms
+Jackson (deser)	109ms
+
 ### No type hints
-Jackson serialization (full)	191ms
-json4s-native (full)	4393ms
-json4s-jackson (full)	3994ms
-
-Java serialization (ser)	131ms
-Jackson serialization (ser)	33ms
-json4s-native (ser)	3780ms
-json4s-jackson (ser)	3525ms
-
-Jackson (deser)	114ms
-json4s-native (deser)	456ms
-json4s-jackson (deser)	383ms
+json4s-native (full)	4334ms
+json4s-jackson (full)	4016ms
+json4s-native (ser)	    3767ms
+json4s-jackson (ser)	3450ms
+json4s-native (deser)	 465ms
+json4s-jackson (deser)	 423ms
 
 ### Short type hints
-Jackson serialization (full)	158ms
-json4s-native (full)	5093ms
-json4s-jackson (full)	4585ms
-
-Java serialization (ser)	129ms
-Jackson serialization (ser)	34ms
-json4s-native (ser)	3982ms
-json4s-jackson (ser)	3539ms
-
-Jackson (deser)	107ms
-json4s-native (deser)	882ms
-json4s-jackson (deser)	811ms
+json4s-native (full)	4974ms
+json4s-jackson (full)	4562ms
+json4s-native (ser)	    3992ms
+json4s-jackson (ser)	3501ms
+json4s-native (deser)	 851ms
+json4s-jackson (deser)	 857ms
 
 ### Full type hints
-
-Jackson serialization (full)	159ms
-json4s-native (full)	5573ms
-json4s-jackson (full)	4951ms
-Java serialization (ser)	136ms
-
-Jackson serialization (ser)	33ms
-json4s-native (ser)	4116ms
-json4s-jackson (ser)	3560ms
-
-Jackson (deser)	107ms
-json4s-native (deser)	1294ms
-json4s-jackson (deser)	1216ms
+json4s-native (full)	6414ms
+json4s-jackson (full)	5817ms
+json4s-native (ser)	    5582ms
+json4s-jackson (ser)	4036ms
+json4s-native (deser)	1834ms
+json4s-jackson (deser)	1692ms

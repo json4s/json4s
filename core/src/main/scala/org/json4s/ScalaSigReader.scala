@@ -19,7 +19,7 @@ package org.json4s
 import scala.tools.scalap.scalax.rules.scalasig._
 import scalashim._
 
-object ScalaSigReader {
+private[json4s] object ScalaSigReader {
   def readConstructor(argName: String, clazz: Class[_], typeArgIndex: Int, argNames: List[String]): Class[_] = {
     val cl = findClass(clazz)
     val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail("Can't find constructor for " + clazz))

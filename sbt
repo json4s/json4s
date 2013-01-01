@@ -378,8 +378,7 @@ process_args ()
   sbtargs=()
   while IFS= read -r arg; do
     sbtargs=( "${sbtargs[@]}" "$arg" )
-  done <"$sbt_opts_file"
-
+  done <"$sbt_opts_file"  
   set -- "${sbtargs[@]}" "$@"
 }
 

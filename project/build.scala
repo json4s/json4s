@@ -83,7 +83,17 @@ object Json4sBuild extends Build {
   lazy val core = Project(
     id = "json4s-core",
     base = file("core"),
-    settings = json4sSettings ++ Seq(libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv)) } )
+    settings = json4sSettings ++ Seq(
+      libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv)) },
+      unmanagedSourceDirectories in Compile <+= (scalaVersion, baseDirectory) {
+        case (v, dir) if v startsWith "2.9" => dir / "src/main/scala_2.9"
+        case (v, dir) if v startsWith "2.10" => dir / "src/main/scala_2.10"
+      },
+      libraryDependencies <++= scalaVersion {
+        case v if v.startsWith("2.8") => Nil
+        case v => Seq("org.json4s" %% "scalabeans" % "0.4-SNAPSHOT")
+      }
+    )
   ) dependsOn(ast % "compile;test->test")
 
   lazy val native = Project(
