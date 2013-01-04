@@ -21,6 +21,7 @@ import java.util.{Date, TimeZone}
 import scalashim._
 import java.util
 import collection.JavaConverters._
+import scala.util.DynamicVariable
 
 /** Formats to use when converting JSON.
  * Formats are usually configured by using an implicit parameter:
@@ -234,6 +235,8 @@ trait Formats { self: Formats =>
   trait DefaultFormats extends Formats {
     import java.text.{ParseException, SimpleDateFormat}
 
+    private[this] val df = new ThreadLocal[SimpleDateFormat](dateFormatter)
+
     val dateFormat = new DateFormat {
       def parse(s: String) = try {
         Some(formatter.parse(s))
@@ -244,7 +247,7 @@ trait Formats { self: Formats =>
       def format(d: Date) = formatter.format(d)
 
       private def formatter = {
-        val f = dateFormatter
+        val f = df.get()
         f.setTimeZone(DefaultFormats.UTC)
         f
       }
