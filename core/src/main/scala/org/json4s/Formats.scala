@@ -19,6 +19,8 @@ package org.json4s
 
 import java.util.{Date, TimeZone}
 import scalashim._
+import java.util
+import collection.JavaConverters._
 
 /** Formats to use when converting JSON.
  * Formats are usually configured by using an implicit parameter:
@@ -216,8 +218,10 @@ trait Formats { self: Formats =>
   /** Use full class name as a type hint.
    */
   case class FullTypeHints(hints: List[Class[_]]) extends TypeHints {
+    private[this] val hintIndex = new util.HashMap[String, Class[_]]().asScala
+    hintIndex ++= hints.map(h => h.getName -> h)
     def hintFor(clazz: Class[_]) = clazz.getName
-    def classFor(hint: String) = Some(Thread.currentThread.getContextClassLoader.loadClass(hint))
+    def classFor(hint: String) = hintIndex get hint
   }
 
   /** Default date format is UTC time.
