@@ -632,7 +632,7 @@ Serialization
 =============
 
 Case classes can be serialized and deserialized.
-Please see other examples in [SerializationExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/SerializationExamples.scala).
+Please see other examples in [SerializationExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/native/SerializationExamples.scala).
 
     scala> import org.json4s._
     scala> import org.json4s.native.Serialization
