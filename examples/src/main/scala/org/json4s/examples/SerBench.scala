@@ -9,14 +9,25 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import java.util.concurrent.atomic.AtomicLong
 
 object SerBench extends Benchmark {
+
+
+
   val classes = List(classOf[Project], classOf[Team], classOf[Employee], classOf[Language])
   val counter = new AtomicLong(0)
   def project = {
     val c = counter.incrementAndGet()
-    Project("test"+c, new Date, Some(Language("Scala", 2.75)), List(
-      Team("QA", List(Employee("John Doe", 5), Employee("Mike", 3))),
-      Team("Impl", List(Employee("Mark", 4), Employee("Mary", 5), Employee("Nick Noob", 1)))))
+    Project("test"+c, new Date, Some(Language("Scala"+c, 2.75+c)), List(
+      Team("QA"+c, List(Employee("John Doe"+c, 5+c.toInt), Employee("Mike"+c, 3+c.toInt))),
+      Team("Impl"+c, List(Employee("Mark"+c, 4+c.toInt), Employee("Mary"+c, 5+c.toInt), Employee("Nick Noob"+c, 1+c.toInt)))))
   }
+
+  val projJson = Extraction.decompose(project)(DefaultFormats)
+
+  def projectJValue = {
+    projJson merge (JObject(JField("name", JString("test"+counter.incrementAndGet()))))
+  }
+
+
 
   val mapper = new ObjectMapper()
   mapper.registerModule(DefaultScalaModule)
@@ -27,6 +38,13 @@ object SerBench extends Benchmark {
     benchmark("Jackson serialization (ser)") { mapper.writeValueAsString(project) }
     val ser3 = mapper.writeValueAsString(project)
     benchmark("Jackson (deser)") { mapper.readValue(ser3, classOf[Project]) }
+    val str = project.toString
+    def strr = str
+    benchmark("Java noop") { strr }
+    benchmark("Java toString (ser)") { project.toString }
+    benchmark("json4s-native JValue toString (ser)") { native.JsonMethods.compact(native.JsonMethods.render(projectJValue)) }
+    benchmark("json4s-jackson JValue toString (ser)") { jackson.JsonMethods.compact(projectJValue) }
+
     println("** No type hints")
     new Bench()(DefaultFormats)
     println("** Short type hints")

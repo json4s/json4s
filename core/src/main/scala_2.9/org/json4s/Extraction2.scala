@@ -1,23 +1,17 @@
 package org.json4s
 
-import org.scalastuff.scalabeans.{BeanDescriptor, Preamble}
-import org.json4s.Meta.Reflection
 import scala.collection.JavaConverters._
 import java.util.concurrent.ConcurrentHashMap
-import org.scalastuff.scalabeans.types.ScalaType
 import collection.mutable.{ArrayBuffer, ListBuffer}
 import java.util
+import util.Date
 
 object Extraction2 {
-
   private class Memo[A, R] {
     private val cache = new ConcurrentHashMap[A, R]().asScala
     def memoize(x: A, f: A => R): R = cache.getOrElseUpdate(x, f(x))
   }
 
-
-  private val instrospectors = new Memo[ScalaType, BeanDescriptor]
-  private val scalaTypes = new Memo[Class[_], ScalaType]
 
   /** Extract a case class from JSON.
    * @see org.json4s.JsonAST.JValue#extract
@@ -25,7 +19,8 @@ object Extraction2 {
    */
   def extract[A](json: JValue)(implicit formats: Formats, mf: Manifest[A]): A = {
     try {
-      extract0(json, Preamble.descriptorOf(mf.erasure)).asInstanceOf[A]
+//      extract0(json, Preamble.descriptorOf(mf.erasure)).asInstanceOf[A]
+      null
     } catch {
       case e: MappingException => throw e
       case e: Exception => throw new MappingException("unknown error", e)
@@ -51,20 +46,19 @@ object Extraction2 {
     def prependTypeHint(clazz: Class[_], o: JObject) =
       JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
 
-    def mkObject(clazz: Class[_], fields: List[JField]) =
-      if (formats.typeHints.containsHint(clazz)) prependTypeHint(clazz, JObject(fields)) else JObject(fields)
-
     val serializer = formats.typeHints.serialize
     val any = a.asInstanceOf[AnyRef]
 
     if (formats.customSerializer(formats).isDefinedAt(a)) {
       formats.customSerializer(formats)(a)
     } else if (!serializer.isDefinedAt(a)) {
-      val k = any.getClass
+      val k = if (any != null) any.getClass else null
+
+      // A series of if branches because of performance reasons
       if (any == null) {
         JNull
-      } else if (Reflection.isPrimitive(any.getClass)) {
-        Reflection.primitive2jvalue(any)(formats)
+      } else if (Reflect.isPrimitive(any.getClass)) {
+        primitive2jvalue(any)(formats)
       } else if (classOf[Map[_, _]].isAssignableFrom(k)) {
         JObject((any.asInstanceOf[Map[_, _]] map {
           case (k: String, v) => JField(k, decompose(v))
@@ -77,17 +71,17 @@ object Extraction2 {
       } else if (classOf[Option[_]].isAssignableFrom(k)) {
         any.asInstanceOf[Option[_]].flatMap[JValue] { y => Some(decompose(y)) }.getOrElse(JNothing)
       } else {
-        val klass = scalaTypes.memoize(k, Preamble.scalaTypeOf(_))
-        val descriptor = instrospectors.memoize(klass, Preamble.descriptorOf(_))
+        val klass = Reflect.scalaTypeOf(k)
+        val descriptor = Reflect.describe(klass).asInstanceOf[Reflect.ClassDescriptor]
         val iter = descriptor.properties.iterator
         val fields = new util.LinkedList[JField]().asScala
         if (formats.typeHints.containsHint(k))
           fields += JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(k)))
         while(iter.hasNext) {
           val prop = iter.next()
-          val fieldVal = prop.get[AnyRef](any)
-          val n = Meta.unmangleName(prop.name)
-          val fs = formats.fieldSerializer(klass.erasure)
+          val fieldVal = prop.get(any)
+          val n = prop.name
+          val fs = formats.fieldSerializer(prop.returnType.erasure)
           (if (fs.isDefined) {
             val ff = (fs.get.serializer orElse Map((n, fieldVal) -> Some((n, fieldVal))))((n, fieldVal))
             ff map {
@@ -97,32 +91,6 @@ object Extraction2 {
         }
         JObject(fields.toList)
       }
-
-//      any match {
-//        case x: Collection[_] => JArray(x.toList map decompose)
-//        case x if (x.getClass.isArray) => JArray(x.asInstanceOf[Array[_]].toList map decompose)
-//        case x: Option[_] => x.flatMap[JValue] { y => Some(decompose(y)) }.getOrElse(JNothing)
-//        case x =>
-//          val klass = scalaTypes.memoize(x.getClass, Preamble.scalaTypeOf(_))
-//          val descriptor = instrospectors.memoize(klass, Preamble.descriptorOf(_))
-//          val iter = descriptor.properties.iterator
-//          val fields = new util.LinkedList[JField]().asScala
-//          if (formats.typeHints.containsHint(x.getClass))
-//            fields += JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(x.getClass)))
-//          while(iter.hasNext) {
-//            val prop = iter.next()
-//            val fieldVal = prop.get[AnyRef](x)
-//            val n = Meta.unmangleName(prop.name)
-//            val fs = formats.fieldSerializer(klass.erasure)
-//            (if (fs.isDefined) {
-//              val ff = (fs.get.serializer orElse Map((n, fieldVal) -> Some((n, fieldVal))))((n, fieldVal))
-//              ff map {
-//                case (nn, vv) => JField(nn, decompose(vv))
-//              } getOrElse JField(n, JNothing)
-//            } else fields += JField(n, decompose(fieldVal)))
-//          }
-//          JObject(fields.toList)
-//      }
     } else prependTypeHint(any.getClass, serializer(any))
   }
 
@@ -212,7 +180,7 @@ object Extraction2 {
 
   def extract(json: JValue, target: TypeInfo)(implicit formats: Formats): Any = {
     try {
-      val descriptor = Preamble.descriptorOf(target.clazz)
+      val descriptor = Reflect.describe(target.clazz)
       null
     } catch {
       case e: MappingException => throw e
@@ -222,8 +190,27 @@ object Extraction2 {
   }
     //extract0(json, mappingOf(target.clazz))
 
-  private[this] def extract0(json: JValue, descriptor: BeanDescriptor)(implicit formats: Formats): Any = {
 
+  def primitive2jvalue(a: Any)(implicit formats: Formats) = a match {
+    case x: String => JString(x)
+    case x: Int => JInt(x)
+    case x: Long => JInt(x)
+    case x: Double => JDouble(x)
+    case x: Float => JDouble(x)
+    case x: Byte => JInt(BigInt(x))
+    case x: BigInt => JInt(x)
+    case x: Boolean => JBool(x)
+    case x: Short => JInt(BigInt(x))
+    case x: java.lang.Integer => JInt(BigInt(x.asInstanceOf[Int]))
+    case x: java.lang.Long => JInt(BigInt(x.asInstanceOf[Long]))
+    case x: java.lang.Double => JDouble(x.asInstanceOf[Double])
+    case x: java.lang.Float => JDouble(x.asInstanceOf[Float])
+    case x: java.lang.Byte => JInt(BigInt(x.asInstanceOf[Byte]))
+    case x: java.lang.Boolean => JBool(x.asInstanceOf[Boolean])
+    case x: java.lang.Short => JInt(BigInt(x.asInstanceOf[Short]))
+    case x: Date => JString(formats.dateFormat.format(x))
+    case x: Symbol => JString(x.name)
+    case _ => sys.error("not a primitive " + a.asInstanceOf[AnyRef].getClass)
   }
 
 

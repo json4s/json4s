@@ -262,7 +262,7 @@ private[json4s] object Meta {
       classOf[JObject], classOf[JArray]).map((_, ())))
 
     private val primaryConstructors = new Memo[Class[_], List[(String, Type)]]
-    private val declaredFields = new Memo[(Class[_], String), Boolean]
+    private val declaredFields = new Memo[(Class[_], String), Field]
 
     def constructors(t: Type, names: ParameterNameReader, context: Option[Context]): List[(JConstructor[_], List[(String, Type)])] =
       rawClassOf(t).getDeclaredConstructors.map(c => (c, constructorArgs(t, c, names, context))).toList
@@ -397,23 +397,24 @@ private[json4s] object Meta {
       f.get(a)
     }
 
-    def findField(clazz: Class[_], name: String): Field = try {
-      clazz.getDeclaredField(name)
-    } catch {
-      case e: NoSuchFieldException => 
-        if (clazz.getSuperclass == null) throw e 
-        else findField(clazz.getSuperclass, name)
-    }
+    def findField(clazz: Class[_], name: String): Field =
+      declaredFields.memoize((clazz, name), pair => {
+        try {
+          pair._1.getDeclaredField(name)
+        } catch {
+          case e: NoSuchFieldException =>
+            if (clazz.getSuperclass == null) throw e
+            else findField(clazz.getSuperclass, name)
+        }
+     })
 
     def hasDeclaredField(clazz: Class[_], name: String): Boolean = {
-      def declaredField = try {
-        clazz.getDeclaredField(name)
+      try {
+        findField(clazz, name)
         true
       } catch {
         case e: NoSuchFieldException => false
       }
-
-      declaredFields.memoize((clazz, name), _ => declaredField)
     }
 
     def mkJavaArray(x: Any, componentType: Class[_]) = {
@@ -431,7 +432,7 @@ private[json4s] object Meta {
 //      println("Getting default for %s on %s" format (argName, compClass))
       try {
         // Some(null) is actually "desirable" here because it allows using null as a default value for an ignored field
-        val a = Option(compClass.getMethod("apply$default$%d".format(argIndex + 1))) map { meth => () => meth.invoke(compObj) }
+        val a = Option(compClass.getMethod("init$default$%d".format(argIndex + 1))) map { meth => () => meth.invoke(compObj) }
 //        println("default for %s on %s is %s" format(argName, compClass, a))
         a
       }

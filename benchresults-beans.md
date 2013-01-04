@@ -29,4 +29,3 @@ json4s-native (ser)	    1521ms
 json4s-jackson (ser)	 995ms  
 json4s-native (deser)	1810ms  
 json4s-jackson (deser)	1750ms  
-  

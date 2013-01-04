@@ -27,8 +27,6 @@ import scala.reflect.Manifest
 import java.nio.CharBuffer
 import scalashim._
 import java.util.concurrent.ConcurrentHashMap
-import org.scalastuff.scalabeans.types.ScalaType
-import org.scalastuff.scalabeans.BeanDescriptor
 import collection.JavaConverters._
 
 /** Function to extract values from JSON AST using case classes.

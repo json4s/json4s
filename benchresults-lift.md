@@ -24,6 +24,7 @@ json4s-jackson (ser)	3450ms
 json4s-native (deser)	 465ms  
 json4s-jackson (deser)	 423ms  
 
+<<<<<<< HEAD
 ### Short type hints  
 json4s-native (full)	4974ms  
 json4s-jackson (full)	4562ms  

@@ -114,10 +114,18 @@ private[json4s] object ScalaSigReader {
     case _               => classOf[AnyRef]
   }
 
-  private def isPrimitive(s: Symbol) = toClass(s) != classOf[AnyRef]
+  private[this] def isPrimitive(s: Symbol) = toClass(s) != classOf[AnyRef]
 
-  private def findScalaSig(clazz: Class[_]): Option[ScalaSig] = 
-    ScalaSigParser.parse(clazz).orElse(findScalaSig(clazz.getDeclaringClass))
+  private[this] def findScalaSig(clazz: Class[_]): Option[ScalaSig] =
+    parseClassFileFromByteCode(clazz).orElse(findScalaSig(clazz.getDeclaringClass))
+
+  private[this] def parseClassFileFromByteCode(clazz: Class[_]): Option[ScalaSig] = try {
+    // taken from ScalaSigParser parse method with the explicit purpose of walking away from NPE
+    val byteCode = ByteCode.forClass(clazz)
+    Option(ClassFileParser.parse(byteCode)) flatMap ScalaSigParser.parse
+  } catch {
+    case e: NullPointerException => None // yes, this is the exception, but it is totally unhelpful to the end user
+  }
 
 //  def typeRefType(ms: MethodSymbol): TypeRefType = ms.infoType match {
 //    case PolyType(tr @ TypeRefType(_, _, _), _)                           => tr
