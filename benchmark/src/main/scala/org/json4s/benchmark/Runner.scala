@@ -4,6 +4,6 @@ import com.google.caliper.{ Runner => CaliperRunner}
 
 object Runner {
   def main(args: Array[String]) {
-    CaliperRunner.main(classOf[SerializationNoTypeHintsBenchmark], args)
+    CaliperRunner.main(classOf[Json4sBenchmark], args)
   }
 }
