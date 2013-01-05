@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap
 import collection.mutable.{ArrayBuffer, ListBuffer}
 import java.util
 import util.Date
+import collection.mutable
 
 object Extraction2 {
   private class Memo[A, R] {
@@ -42,9 +43,15 @@ object Extraction2 {
    * Extraction.decompose(Person("joe", 25)) == JObject(JField("age",JInt(25)) :: JField("name",JString("joe")) :: Nil)
    * </pre>
    */
-  def decompose(a: Any)(implicit formats: Formats): JValue = {
+  def decomposeWithBuilder[T](a: Any, builder: Builder[T])(implicit formats: Formats): T = {
+    val current = builder
     def prependTypeHint(clazz: Class[_], o: JObject) =
       JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
+
+    def addField(name: String, v: Any, obj: Builder[T]) = {
+      val f = obj.startField(name)
+      decomposeWithBuilder(v, f)
+    }
 
     val serializer = formats.typeHints.serialize
     val any = a.asInstanceOf[AnyRef]
@@ -58,41 +65,60 @@ object Extraction2 {
       if (any == null) {
         JNull
       } else if (Reflect.isPrimitive(any.getClass)) {
-        primitive2jvalue(any)(formats)
+        primitive2jvalue(any, current)(formats)
       } else if (classOf[Map[_, _]].isAssignableFrom(k)) {
-        JObject((any.asInstanceOf[Map[_, _]] map {
-          case (k: String, v) => JField(k, decompose(v))
-          case (k: Symbol, v) => JField(k.name, decompose(v))
-        }).toList)
+        val obj = current.startObject()
+        val iter = any.asInstanceOf[Map[_, _]].iterator
+        while(iter.hasNext) {
+          iter.next() match {
+            case (k: String, v) => addField(k, v, obj)
+            case (k: Symbol, v) => addField(k.name, v, obj)
+          }
+        }
+        obj.endObject()
       } else if (classOf[Collection[_]].isAssignableFrom(k)) {
-        JArray(any.asInstanceOf[Collection[_]].toList map decompose)
+        val arr = current.startArray()
+        val iter = any.asInstanceOf[Collection[_]].iterator
+        while(iter.hasNext) { decomposeWithBuilder(iter.next(), arr) }
       } else if (k.isArray) {
-        JArray(any.asInstanceOf[Array[_]].toList map decompose)
+        val arr = current.startArray()
+        val iter = any.asInstanceOf[Array[_]].iterator
+        while(iter.hasNext) { decomposeWithBuilder(iter.next(), arr) }
+        arr.endArray()
       } else if (classOf[Option[_]].isAssignableFrom(k)) {
-        any.asInstanceOf[Option[_]].flatMap[JValue] { y => Some(decompose(y)) }.getOrElse(JNothing)
+        val v = any.asInstanceOf[Option[_]]
+        if (v.isDefined) {
+          decomposeWithBuilder(v.get, current)
+        }
       } else {
         val klass = Reflect.scalaTypeOf(k)
         val descriptor = Reflect.describe(klass).asInstanceOf[Reflect.ClassDescriptor]
         val iter = descriptor.properties.iterator
-        val fields = new util.LinkedList[JField]().asScala
-        if (formats.typeHints.containsHint(k))
-          fields += JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(k)))
+        val obj = current.startObject()
+        if (formats.typeHints.containsHint(k)) {
+          val f = obj.startField(formats.typeHintFieldName)
+          f.string(formats.typeHints.hintFor(k))
+        }
         while(iter.hasNext) {
           val prop = iter.next()
           val fieldVal = prop.get(any)
           val n = prop.name
           val fs = formats.fieldSerializer(prop.returnType.erasure)
-          (if (fs.isDefined) {
+          if (fs.isDefined) {
             val ff = (fs.get.serializer orElse Map((n, fieldVal) -> Some((n, fieldVal))))((n, fieldVal))
-            ff map {
-              case (nn, vv) => JField(nn, decompose(vv))
-            } getOrElse JField(n, JNothing)
-          } else fields += JField(n, decompose(fieldVal)))
+            if (ff.isDefined) {
+              val Some((nn, vv)) = ff
+              addField(nn, vv, obj)
+            }
+          } else addField(n, fieldVal, obj)
         }
-        JObject(fields.toList)
+        obj.endObject()
       }
     } else prependTypeHint(any.getClass, serializer(any))
+    current.result
   }
+
+  def decompose(a: Any)(implicit formats: Formats): JValue = decomposeWithBuilder(a, new JDoubleAstRootBuilder)
 
   /** Flattens the JSON to a key/value map.
    */
@@ -191,25 +217,26 @@ object Extraction2 {
     //extract0(json, mappingOf(target.clazz))
 
 
-  def primitive2jvalue(a: Any)(implicit formats: Formats) = a match {
-    case x: String => JString(x)
-    case x: Int => JInt(x)
-    case x: Long => JInt(x)
-    case x: Double => JDouble(x)
-    case x: Float => JDouble(x)
-    case x: Byte => JInt(BigInt(x))
-    case x: BigInt => JInt(x)
-    case x: Boolean => JBool(x)
-    case x: Short => JInt(BigInt(x))
-    case x: java.lang.Integer => JInt(BigInt(x.asInstanceOf[Int]))
-    case x: java.lang.Long => JInt(BigInt(x.asInstanceOf[Long]))
-    case x: java.lang.Double => JDouble(x.asInstanceOf[Double])
-    case x: java.lang.Float => JDouble(x.asInstanceOf[Float])
-    case x: java.lang.Byte => JInt(BigInt(x.asInstanceOf[Byte]))
-    case x: java.lang.Boolean => JBool(x.asInstanceOf[Boolean])
-    case x: java.lang.Short => JInt(BigInt(x.asInstanceOf[Short]))
-    case x: Date => JString(formats.dateFormat.format(x))
-    case x: Symbol => JString(x.name)
+  def primitive2jvalue(a: Any, builder: Builder[_])(implicit formats: Formats) = a match {
+    case x: String => builder.string(x)
+    case x: Int => builder.int(x)
+    case x: Long => builder.long(x)
+    case x: Double => builder.double(x)
+    case x: Float => builder.float(x)
+    case x: Byte => builder.byte(x)
+    case x: BigInt => builder.bigInt(x)
+    case x: BigDecimal => builder.bigDecimal(x)
+    case x: Boolean => builder.boolean(x)
+    case x: Short => builder.short(x)
+    case x: java.lang.Integer => builder.int(x)
+    case x: java.lang.Long => builder.long(x)
+    case x: java.lang.Double => builder.double(x)
+    case x: java.lang.Float => builder.float(x)
+    case x: java.lang.Byte => builder.byte(x)
+    case x: java.lang.Boolean => builder.boolean(x)
+    case x: java.lang.Short => builder.short(x)
+    case x: Date => builder.string(formats.dateFormat.format(x))
+    case x: Symbol => builder.string(x.name)
     case _ => sys.error("not a primitive " + a.asInstanceOf[AnyRef].getClass)
   }
 
