@@ -3,12 +3,11 @@ package org.json4s
 
 import java.util.Date
 import org.specs.Specification
-import org.json4s.native.Serialization
 
 object SerializationExamples extends Specification {
-  import Serialization.{read, write => swrite}
+  import native.Serialization.{read, write => swrite}
 
-  implicit val formats = Serialization.formats(NoTypeHints)
+  implicit val formats = native.Serialization.formats(NoTypeHints)
 
   val project = Project("test", new Date, Some(Language("Scala", 2.75)), List(
     Team("QA", List(Employee("John Doe", 5), Employee("Mike", 3))),
@@ -151,11 +150,11 @@ object SerializationExamples extends Specification {
 }
 
 object ShortTypeHintExamples extends TypeHintExamples {
-  implicit val formats = Serialization.formats(ShortTypeHints(classOf[Fish] :: classOf[Dog] :: Nil))
+  implicit val formats = native.Serialization.formats(ShortTypeHints(classOf[Fish] :: classOf[Dog] :: Nil))
 
   "Deserialization succeeds even if jsonClass is not the first field" in {
     val ser = """{"animals":[],"pet":{"name":"pluto","jsonClass":"Dog"}}"""
-    Serialization.read[Animals](ser) mustEqual Animals(Nil, Dog("pluto"))
+    native.Serialization.read[Animals](ser) mustEqual Animals(Nil, Dog("pluto"))
   }
 
 
@@ -205,7 +204,7 @@ object FullTypeHintExamples extends TypeHintExamples {
 }
 
 object CustomTypeHintFieldNameExample extends TypeHintExamples {
-  import Serialization.{read, write => swrite}
+  import native.Serialization.{read, write => swrite}
 
   implicit val formats = new Formats {
     val dateFormat = DefaultFormats.lossless.dateFormat
@@ -253,7 +252,7 @@ case class Objs(objects: List[Obj[_]])
 case class Obj[A](a: A)
 
 object CustomSerializerExamples extends Specification {
-  import Serialization.{read, write => swrite}
+  import native.Serialization.{read, write => swrite}
   import JsonAST._
   import java.util.regex.Pattern
 
@@ -303,7 +302,7 @@ object CustomSerializerExamples extends Specification {
     }
   }
 
-  implicit val formats =  Serialization.formats(NoTypeHints) +
+  implicit val formats =  native.Serialization.formats(NoTypeHints) +
     new IntervalSerializer + new PatternSerializer + new DateSerializer + new IndexedSeqSerializer
 
   val i = new Interval(1, 4)
@@ -337,7 +336,7 @@ class Interval(start: Long, end: Long) {
 }
 
 object CustomClassWithTypeHintsExamples extends Specification {
-  import Serialization.{read, write => swrite}
+  import native.Serialization.{read, write => swrite}
   import JsonAST._
 
   val hints = new ShortTypeHints(classOf[DateTime] :: Nil) {
@@ -349,7 +348,7 @@ object CustomClassWithTypeHintsExamples extends Specification {
       case ("DateTime", JObject(JField("t", JInt(t)) :: Nil)) => new DateTime(t.longValue)
     }
   }
-  implicit val formats = Serialization.formats(hints)
+  implicit val formats = native.Serialization.formats(hints)
 
   "Custom class serialization using provided serialization and deserialization functions" in {
     val m = Meeting("The place", new DateTime(1256681210802L))

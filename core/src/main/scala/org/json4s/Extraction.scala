@@ -104,9 +104,9 @@ object Extraction {
           }
         }
         obj.endObject()
-      } else if (classOf[Collection[_]].isAssignableFrom(k)) {
+      } else if (classOf[Iterable[_]].isAssignableFrom(k)) {
         val arr = current.startArray()
-        val iter = any.asInstanceOf[Collection[_]].iterator
+        val iter = any.asInstanceOf[Iterable[_]].iterator
         while(iter.hasNext) { decomposeWithBuilder(iter.next(), arr) }
         arr.endArray()
       } else if (k.isArray) {
@@ -254,7 +254,7 @@ object Extraction {
         case JDecimal(num)       => Map(path -> num.toString)
         case JInt(num)           => Map(path -> num.toString)
         case JBool(value)        => Map(path -> value.toString)
-        case JField(name, value) => flatten0(path + escapePath(name), value)
+//        case JField(name, value) => flatten0(path + escapePath(name), value)
         case JObject(obj)        => obj.foldLeft(Map[String, String]()) { case (map, (name, value)) =>
           map ++ flatten0(path + "." + escapePath(name), value)
         }

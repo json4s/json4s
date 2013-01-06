@@ -223,7 +223,9 @@ trait Formats { self: Formats =>
    */
   case class FullTypeHints(hints: List[Class[_]]) extends TypeHints {
     def hintFor(clazz: Class[_]) = clazz.getName
-    def classFor(hint: String) = Reflector.scalaTypeOf(hint).flatMap(h => hints.find(l => l.isAssignableFrom(h.erasure)))
+    def classFor(hint: String) = {
+      Reflector.scalaTypeOf(hint).map(_.erasure)//.find(h => hints.exists(l => l.isAssignableFrom(h.erasure)))
+    }
   }
 
   /** Default date format is UTC time.
