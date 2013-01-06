@@ -212,9 +212,9 @@ object SwaggerSerializers {
     case json =>
       implicit val fmts = formats
       json \ "valueType" match {
-        case JString(x) if x.equalsIgnoreCase("list") =>
+        case JString(x) if x.equalsIgnoreCase("LIST") =>
           AllowableValues.AllowableValuesList((json \ "values").extract[List[String]])
-        case JString(x) if x.equalsIgnoreCase("range") =>
+        case JString(x) if x.equalsIgnoreCase("RANGE") =>
           AllowableValues.AllowableRangeValues(Range((json \ "min").extract[Int], (json \ "max").extract[Int]))
         case _ => AllowableValues.AnyValue
       }

@@ -25,6 +25,12 @@ private[json4s] object ScalaSigReader {
     val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndex)
   }
+//
+//  def readConstructor(argName: String, clazz: ScalaType, typeArgIndex: Int, argNames: List[String]): Class[_] = {
+//    val cl = findClass(clazz.erasure)
+//    val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail("Can't find constructor for " + clazz))
+//    findArgType(cstr, argNames.indexOf(argName), typeArgIndex)
+//  }
 
   def readField(name: String, clazz: Class[_], typeArgIndex: Int): Class[_] = {
     def read(current: Class[_]): MethodSymbol = {
@@ -36,12 +42,12 @@ private[json4s] object ScalaSigReader {
     findArgTypeForField(read(clazz), typeArgIndex)
   }
 
-  private def findClass(clazz: Class[_]): ClassSymbol = {
+  def findClass(clazz: Class[_]): ClassSymbol = {
     val sig = findScalaSig(clazz).getOrElse(Meta.fail("Can't find ScalaSig for " + clazz))
     findClass(sig, clazz).getOrElse(Meta.fail("Can't find " + clazz + " from parsed ScalaSig"))
   }
 
-  private def findClass(sig: ScalaSig, clazz: Class[_]): Option[ClassSymbol] = {
+  def findClass(sig: ScalaSig, clazz: Class[_]): Option[ClassSymbol] = {
     sig.symbols.collect { case c: ClassSymbol if !c.isModule => c }.find(_.name == clazz.getSimpleName).orElse {
       sig.topLevelClasses.find(_.symbolInfo.name == clazz.getSimpleName).orElse {
         sig.topLevelObjects.map { obj => 
@@ -52,7 +58,7 @@ private[json4s] object ScalaSigReader {
     }
   }
 
-  private def findConstructor(c: ClassSymbol, argNames: List[String]): Option[MethodSymbol] = {
+  def findConstructor(c: ClassSymbol, argNames: List[String]): Option[MethodSymbol] = {
     val ms = c.children collect {
       case m: MethodSymbol if m.name == "<init>" => m
     }
@@ -62,7 +68,7 @@ private[json4s] object ScalaSigReader {
   private def findField(c: ClassSymbol, name: String): Option[MethodSymbol] = 
     (c.children collect { case m: MethodSymbol if m.name == name => m }).headOption
 
-  private def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndex: Int): Class[_] = {
+  def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndex: Int): Class[_] = {
     def findPrimitive(t: Type): Symbol = t match { 
       case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol) => symbol
       case TypeRefType(_, _, TypeRefType(ThisType(_), symbol, _) :: xs) => symbol
@@ -116,7 +122,7 @@ private[json4s] object ScalaSigReader {
 
   private[this] def isPrimitive(s: Symbol) = toClass(s) != classOf[AnyRef]
 
-  private[this] def findScalaSig(clazz: Class[_]): Option[ScalaSig] =
+  def findScalaSig(clazz: Class[_]): Option[ScalaSig] =
     parseClassFileFromByteCode(clazz).orElse(findScalaSig(clazz.getDeclaringClass))
 
   private[this] def parseClassFileFromByteCode(clazz: Class[_]): Option[ScalaSig] = try {

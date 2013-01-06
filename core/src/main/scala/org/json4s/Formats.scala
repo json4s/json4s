@@ -18,6 +18,7 @@ package org.json4s
 
 
 import java.util.{Date, TimeZone}
+import reflect.Reflector
 import scalashim._
 import java.util
 import collection.JavaConverters._
@@ -43,7 +44,7 @@ trait Formats { self: Formats =>
   /**
    * Parameter name reading strategy. By default 'paranamer' is used.
    */
-  val parameterNameReader: ParameterNameReader = Reflect.ParanamerReader
+  val parameterNameReader: ParameterNameReader = reflect.ParanamerReader
 
   /**
    * Adds the specified type hints to this formats.
@@ -164,10 +165,12 @@ trait Formats { self: Formats =>
       /**
        * Chooses most specific class.
        */
-      def hintFor(clazz: Class[_]): String =
-        components.filter(_.containsHint(clazz))
-          .map(th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error("hintFor/classFor not invertible for " + th))))
-          .sort((x, y) => (delta(x._2, clazz) - delta(y._2, clazz)) < 0).head._1
+      def hintFor(clazz: Class[_]): String = {
+        (components
+          filter (_.containsHint(clazz))
+          map (th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error("hintFor/classFor not invertible for " + th))))
+          sort ((x, y) => (delta(x._2, clazz) - delta(y._2, clazz)) < 0)).head._1
+      }
 
       def classFor(hint: String): Option[Class[_]] = {
         def hasClass(h: TypeHints) =
@@ -219,10 +222,8 @@ trait Formats { self: Formats =>
   /** Use full class name as a type hint.
    */
   case class FullTypeHints(hints: List[Class[_]]) extends TypeHints {
-    private[this] val hintIndex = new util.HashMap[String, Class[_]]().asScala
-    hintIndex ++= hints.map(h => h.getName -> h)
     def hintFor(clazz: Class[_]) = clazz.getName
-    def classFor(hint: String) = hintIndex get hint
+    def classFor(hint: String) = Reflector.scalaTypeOf(hint).flatMap(h => hints.find(l => l.isAssignableFrom(h.erasure)))
   }
 
   /** Default date format is UTC time.

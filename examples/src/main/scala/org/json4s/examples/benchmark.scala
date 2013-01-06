@@ -3,14 +3,18 @@ package examples
 
 trait Benchmark {
   def run(name: String, warmup: Int, count: Int)(f: => Any) = {
-    print("warmup... ")
     repeat(warmup)(f)
     System.gc
-    println("done")
     val t = time {
       repeat(count)(f)
     }
-    println(name + "\t" + t + "ms")
+    val extra = if (t > 10000) 0
+    else if (t > 1000) 1
+    else if (t > 100) 2
+    else if (t > 10) 3
+    else 4
+    val padding = 32 - name.size + extra
+    println(name + (" " * padding) + t + "ms  ")
   }
 
   def repeat(count: Int)(f: => Any) = {
