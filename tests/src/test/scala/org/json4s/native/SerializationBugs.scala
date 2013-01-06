@@ -112,7 +112,6 @@ object SerializationBugs extends Specification {
     implicit val formats = DefaultFormats + FullTypeHints(classOf[Either[_, _]] :: Nil)
     val x = Eith(Left("hello"))
     val s = native.Serialization.write(x)
-    println(native.Serialization.writePretty(x))
     read[Eith](s) mustEqual x
   }
 
