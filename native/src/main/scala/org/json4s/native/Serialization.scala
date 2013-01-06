@@ -33,13 +33,18 @@ object Serialization extends Serialization  {
   import java.io.{Reader, StringWriter, Writer}
   /** Serialize to String.
    */
-  def write[A <: AnyRef](a: A)(implicit formats: Formats): String =
+  def write[A <: AnyRef](a: A)(implicit formats: Formats): String = {
     (write(a, new StringWriter)(formats)).toString
+  }
 
   /** Serialize to Writer.
    */
-  def write[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W =
-    Printer.compact(JsonMethods.render(Extraction.decompose(a)(formats)), out)
+  def write[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
+    val b = new RootStringOutputBuilder(out)
+    Extraction2.decomposeWithBuilder(a, b)(formats)
+    b.result
+//    Printer.compact(JsonMethods.render(Extraction.decompose(a)(formats)), out)
+  }
 
   /** Serialize to String (pretty format).
    */

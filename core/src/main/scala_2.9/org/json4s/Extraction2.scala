@@ -80,6 +80,7 @@ object Extraction2 {
         val arr = current.startArray()
         val iter = any.asInstanceOf[Collection[_]].iterator
         while(iter.hasNext) { decomposeWithBuilder(iter.next(), arr) }
+        arr.endArray()
       } else if (k.isArray) {
         val arr = current.startArray()
         val iter = any.asInstanceOf[Array[_]].iterator

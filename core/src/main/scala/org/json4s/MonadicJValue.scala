@@ -353,11 +353,14 @@ class MonadicJValue(jv: JValue) {
   private[this] def removeNulls(initial: JValue): JValue = {
     initial match {
       case JArray(values) ⇒ JArray(values map removeNulls)
-      case j: JObject ⇒ removeNullsFromJObject(j)
+      case j: JObject ⇒ JObject(j.obj map {
+        case JField(nm, JNull) ⇒ JField(nm, JNothing)
+        case JField(nm, jo)    ⇒ JField(nm, removeNulls(jo))
+      })
       case _ ⇒ initial
     }
   }
 
-  private[this] def removeNullsFromJObject(initial: JObject): JValue = JObject(initial filterField valueIsNotNull)
-  private[this] def valueIsNotNull(field: JField): Boolean = field._2 != JNothing && field._2 != JNull
+//  private[this] def removeNullsFromJObject(initial: JObject): JValue = JObject(initial filterField valueIsNotNull)
+//  private[this] def valueIsNotNull(field: JField): Boolean = field._2 != JNothing && field._2 != JNull
 }
