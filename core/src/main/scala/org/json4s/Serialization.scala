@@ -1,6 +1,6 @@
 package org.json4s
 
-import reflect.Manifest
+import scala.reflect.Manifest
 
 trait Serialization {
   import java.io.{Reader, StringWriter, Writer}

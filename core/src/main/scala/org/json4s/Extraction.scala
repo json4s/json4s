@@ -23,10 +23,11 @@ import java.math.{BigDecimal => JavaBigDecimal}
 import java.util.Date
 import java.util.{ Map => JMap, Collection => JCollection }
 import java.sql.Timestamp
+import reflect.Reflector
 import scala.reflect.Manifest
 import java.nio.CharBuffer
 import scalashim._
-import java.util
+import java.util.concurrent.ConcurrentHashMap
 import collection.JavaConverters._
 
 /** Function to extract values from JSON AST using case classes.
@@ -45,6 +46,7 @@ object Extraction {
     def allTypes(mf: Manifest[_]): List[Class[_]] = mf.erasure :: (mf.typeArguments flatMap allTypes)
     try {
       val types = allTypes(mf)
+//      println("the types: %s" format types)
       extract0(json, types.head, types.tail).asInstanceOf[A]
     } catch {
       case e: MappingException => throw e
@@ -66,53 +68,179 @@ object Extraction {
    * Extraction.decompose(Person("joe", 25)) == JObject(JField("age",JInt(25)) :: JField("name",JString("joe")) :: Nil)
    * </pre>
    */
-  def decompose(a: Any)(implicit formats: Formats): JValue = {
+  def decomposeWithBuilder[T](a: Any, builder: JsonWriter[T])(implicit formats: Formats): T = {
+//    println("decomposing: " + (if (a == null) "null" else a))
+    val current = builder
     def prependTypeHint(clazz: Class[_], o: JObject) =
       JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
 
-    def mkObject(clazz: Class[_], fields: List[JField]) = formats.typeHints.containsHint_?(clazz) match {
-      case true  => prependTypeHint(clazz, JObject(fields))
-      case false => JObject(fields)
+    def addField(name: String, v: Any, obj: JsonWriter[T]) = {
+      val f = obj.startField(name)
+      decomposeWithBuilder(v, f)
     }
 
     val serializer = formats.typeHints.serialize
     val any = a.asInstanceOf[AnyRef]
+
     if (formats.customSerializer(formats).isDefinedAt(a)) {
-      formats.customSerializer(formats)(a)
+      current addJValue formats.customSerializer(formats)(a)
     } else if (!serializer.isDefinedAt(a)) {
-      any match {
-        case null => JNull
-        case x: JValue => x
-        case x if primitive_?(x.getClass) => primitive2jvalue(x)(formats)
-        case x: util.Collection[_] => JArray(x.asScala.toList map decompose)
-        case x: Map[_, _] => JObject((x map { case (k: String, v) => JField(k, decompose(v)) }).toList)
-        case x: Traversable[_] => JArray(x.toList map decompose)
-        case x if (x.getClass.isArray) => JArray(x.asInstanceOf[Array[_]].toList map decompose)
-        case x: Option[_] => x.flatMap[JValue] { y => Some(decompose(y)) }.getOrElse(JNothing)
-        case x =>
-          val constructorArgs = primaryConstructorArgs(x.getClass)
-          constructorArgs.collect { case (name, _) if Reflection.hasDeclaredField(x.getClass, name) =>
-            val f = x.getClass.getDeclaredField(name)
-            f.setAccessible(true)
-            JField(unmangleName(name), decompose(f get x))
-          } match {
-            case args =>
-              val fields = formats.fieldSerializer(x.getClass).map { serializer =>
-                Reflection.fields(x.getClass).map {
-                  case (mangledName, _) =>
-                    val n = Meta.unmangleName(mangledName)
-                    val fieldVal = Reflection.getField(x, mangledName)
-                    val s = serializer.serializer orElse Map((n, fieldVal) -> Some(n, fieldVal))
-                    s((n, fieldVal)).map { case (name, value) => JField(name, decompose(value)) }
-                      .getOrElse(JField(n, JNothing))
-                }
-              } getOrElse Nil
-              val uniqueFields = fields filterNot (f => args.find(_._1 == f._1).isDefined)
-              mkObject(x.getClass, uniqueFields ++ args)
+
+      val k = if (any != null) any.getClass else null
+
+      // A series of if branches because of performance reasons
+      if (any == null) {
+        current.addJValue(JNull)
+      } else if (classOf[JValue].isAssignableFrom(k)) {
+        current.addJValue(any.asInstanceOf[JValue])
+      } else if (Reflector.isPrimitive(any.getClass)) {
+        writePrimitive(any, current)(formats)
+      } else if (classOf[Map[_, _]].isAssignableFrom(k)) {
+        val obj = current.startObject()
+        val iter = any.asInstanceOf[Map[_, _]].iterator
+        while(iter.hasNext) {
+          iter.next() match {
+            case (k: String, v) => addField(k, v, obj)
+            case (k: Symbol, v) => addField(k.name, v, obj)
           }
+        }
+        obj.endObject()
+      } else if (classOf[Iterable[_]].isAssignableFrom(k)) {
+        val arr = current.startArray()
+        val iter = any.asInstanceOf[Iterable[_]].iterator
+        while(iter.hasNext) { decomposeWithBuilder(iter.next(), arr) }
+        arr.endArray()
+      } else if (k.isArray) {
+        val arr = current.startArray()
+        val iter = any.asInstanceOf[Array[_]].iterator
+        while(iter.hasNext) { decomposeWithBuilder(iter.next(), arr) }
+        arr.endArray()
+      } else if (classOf[Option[_]].isAssignableFrom(k)) {
+        val v = any.asInstanceOf[Option[_]]
+        if (v.isDefined) {
+          decomposeWithBuilder(v.get, current)
+        }
+      } else {
+        val klass = Reflector.scalaTypeOf(k)
+        val descriptor = Reflector.describe(klass).asInstanceOf[reflect.ClassDescriptor]
+        val ctorParams = descriptor.mostComprehensive.map(_.name)
+        val iter = descriptor.properties.iterator
+        val obj = current.startObject()
+        if (formats.typeHints.containsHint(k)) {
+          val f = obj.startField(formats.typeHintFieldName)
+          f.string(formats.typeHints.hintFor(k))
+        }
+        val fs = formats.fieldSerializer(k)
+        while(iter.hasNext) {
+          val prop = iter.next()
+
+          val fieldVal = prop.get(any)
+          val n = prop.name
+          if (fs.isDefined) {
+            val ff = (fs.get.serializer orElse Map((n, fieldVal) -> Some((n, fieldVal))))((n, fieldVal))
+            if (ff.isDefined) {
+              val Some((nn, vv)) = ff
+              addField(nn, vv, obj)
+            }
+          } else if (ctorParams contains prop.name) addField(n, fieldVal, obj)
+        }
+        obj.endObject()
       }
-    } else prependTypeHint(any.getClass, serializer(any))
+    } else current addJValue prependTypeHint(any.getClass, serializer(any))
+    current.result
   }
+
+  /** Decompose a case class into JSON.
+   * <p>
+   * Example:<pre>
+   * case class Person(name: String, age: Int)
+   * implicit val formats = org.json4s.DefaultFormats
+   * Extraction.decompose(Person("joe", 25)) == JObject(JField("age",JInt(25)) :: JField("name",JString("joe")) :: Nil)
+   * </pre>
+   */
+  def decompose(a: Any)(implicit formats: Formats): JValue = decomposeWithBuilder(a, new JDoubleAstRootJsonWriter)
+
+  private[this] def writePrimitive(a: Any, builder: JsonWriter[_])(implicit formats: Formats) = a match {
+    case x: String => builder.string(x)
+    case x: Int => builder.int(x)
+    case x: Long => builder.long(x)
+    case x: Double => builder.double(x)
+    case x: Float => builder.float(x)
+    case x: Byte => builder.byte(x)
+    case x: BigInt => builder.bigInt(x)
+    case x: BigDecimal => builder.bigDecimal(x)
+    case x: Boolean => builder.boolean(x)
+    case x: Short => builder.short(x)
+    case x: java.lang.Integer => builder.int(x)
+    case x: java.lang.Long => builder.long(x)
+    case x: java.lang.Double => builder.double(x)
+    case x: java.lang.Float => builder.float(x)
+    case x: java.lang.Byte => builder.byte(x)
+    case x: java.lang.Boolean => builder.boolean(x)
+    case x: java.lang.Short => builder.short(x)
+    case x: Date => builder.string(formats.dateFormat.format(x))
+    case x: Symbol => builder.string(x.name)
+    case _ => sys.error("not a primitive " + a.asInstanceOf[AnyRef].getClass)
+  }
+
+
+//  /** Decompose a case class into JSON.
+//   * <p>
+//   * Example:<pre>
+//   * case class Person(name: String, age: Int)
+//   * implicit val formats = org.json4s.DefaultFormats
+//   * Extraction.decompose(Person("joe", 25)) == JObject(JField("age",JInt(25)) :: JField("name",JString("joe")) :: Nil)
+//   * </pre>
+//   */
+//  def decompose(a: Any)(implicit formats: Formats): JValue = {
+//    def prependTypeHint(clazz: Class[_], o: JObject) =
+//      JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
+//
+//    def mkObject(clazz: Class[_], fields: List[JField]) = formats.typeHints.containsHint(clazz) match {
+//      case true  => prependTypeHint(clazz, JObject(fields))
+//      case false => JObject(fields)
+//    }
+//
+//    val serializer = formats.typeHints.serialize
+//    val any = a.asInstanceOf[AnyRef]
+//    if (formats.customSerializer(formats).isDefinedAt(a)) {
+//      formats.customSerializer(formats)(a)
+//    } else if (!serializer.isDefinedAt(a)) {
+//      any match {
+//        case null => JNull
+//        case x: JValue => x
+//        case x if isPrimitive(x.getClass) => primitive2jvalue(x)(formats)
+//        case x: Map[_, _] => JObject((x map {
+//          case (k: String, v) => JField(k, decompose(v))
+//        }).toList)
+//        case x: Collection[_] => JArray(x.toList map decompose)
+//        case x if (x.getClass.isArray) => JArray(x.asInstanceOf[Array[_]].toList map decompose)
+//        case x: Option[_] => x.flatMap[JValue] { y => Some(decompose(y)) }.getOrElse(JNothing)
+//        case x =>
+//          val constructorArgs = primaryConstructorArgs(x.getClass)
+//          constructorArgs.collect { case (name, _) if Reflection.hasDeclaredField(x.getClass, name) =>
+//            val f = x.getClass.getDeclaredField(name)
+//            f.setAccessible(true)
+//            JField(unmangleName(name), decompose(f get x))
+//          } match {
+//            case args =>
+//              val fields = formats.fieldSerializer(x.getClass).map { serializer =>
+//                Reflection.fields(x.getClass).map {
+//                  case (mangledName, _) =>
+//                    val n = Meta.unmangleName(mangledName)
+//                    val fieldVal = Reflection.getField(x, mangledName)
+//                    val s = serializer.serializer orElse Map((n, fieldVal) -> Some(n, fieldVal))
+//                    s((n, fieldVal)).map { case (name, value) => JField(name, decompose(value)) }
+//                      .getOrElse(JField(n, JNothing))
+//                }
+//              } getOrElse Nil
+//              val uniqueFields = fields filterNot (f => args.find(_._1 == f._1).isDefined)
+//              mkObject(x.getClass, uniqueFields ++ args)
+//          }
+//      }
+//    } else prependTypeHint(any.getClass, serializer(any))
+//    Extraction2.decompose(a)
+//  }
 
   /** Flattens the JSON to a key/value map.
    */
@@ -127,7 +255,7 @@ object Extraction {
         case JDecimal(num)       => Map(path -> num.toString)
         case JInt(num)           => Map(path -> num.toString)
         case JBool(value)        => Map(path -> value.toString)
-        case JField(name, value) => flatten0(path + escapePath(name), value)
+//        case JField(name, value) => flatten0(path + escapePath(name), value)
         case JObject(obj)        => obj.foldLeft(Map[String, String]()) { case (map, (name, value)) =>
           map ++ flatten0(s"$path.${escapePath(name)}", value)
         }
@@ -206,10 +334,15 @@ object Extraction {
         Dict(mkMapping(typeArgs.tail.head, typeArgs.tail.tail))
       else mappingOf(clazz, typeArgs)
     }
-    if (clazz == classOf[Option[_]])
-      json.toOption.map(extract0(_, mkMapping(typeArgs.head, typeArgs.tail)))
-    else
-      extract0(json, mkMapping(clazz, typeArgs))
+    if (clazz == classOf[Option[_]]) {
+      val mapping = mkMapping(typeArgs.head, typeArgs.tail)
+//      println("The initial mapping for the option, initial extract: %s" format mapping)
+      json.toOption.map(extract0(_, mapping))
+    } else {
+      val mapping = mkMapping(clazz, typeArgs)
+//      println("The initial mapping for initial extract: %s" format mapping)
+      extract0(json, mapping)
+    }
   }
 
   def extract(json: JValue, target: TypeInfo)(implicit formats: Formats): Any =
@@ -321,23 +454,27 @@ object Extraction {
       constructor(array)
     }
 
-    def build(root: JValue, mapping: Mapping): Any = mapping match {
-      case Value(targetType, default) => convert(root, targetType, formats, default)
-      case c: Constructor => newInstance(c, root)
-      case Cycle(targetType) => build(root, mappingOf(targetType))
-      case Arg(path, m, optional, default) => mkValue(root, m, path, optional, default)
-      case Col(targetType, m) =>
-        val custom = formats.customDeserializer(formats)
-        val c = targetType.clazz
-        if (custom.isDefinedAt(targetType, root)) custom(targetType, root)
-        else if (c == classOf[List[_]]) newCollection(root, m, a => List(a: _*))
-        else if (c == classOf[Set[_]]) newCollection(root, m, a => Set(a: _*))
-        else if (c.isArray) newCollection(root, m, mkTypedArray(c))
-        else if (classOf[Seq[_]].isAssignableFrom(c)) newCollection(root, m, a => List(a: _*))
-        else fail(s"Expected collection but got $m for class $c")
-      case Dict(m) => root match {
-        case JObject(xs) => Map(xs.map(x => (x._1, build(x._2, m))): _*)
-        case x => fail(s"Expected object but got $x")
+    def build(root: JValue, mapping: Mapping): Any = {
+//      println("building root: " + root)
+//      println("building mapping: " + mapping)
+      mapping match {
+        case Value(targetType, default) => convert(root, targetType, formats, default)
+        case c: Constructor => newInstance(c, root)
+        case Cycle(targetType) => build(root, mappingOf(targetType))
+        case Arg(path, m, optional, default) => mkValue(root, m, path, optional, default)
+        case Col(targetType, m) =>
+          val custom = formats.customDeserializer(formats)
+          val c = targetType.clazz
+          if (custom.isDefinedAt(targetType, root)) custom(targetType, root)
+          else if (c == classOf[List[_]]) newCollection(root, m, a => List(a: _*))
+          else if (c == classOf[Set[_]]) newCollection(root, m, a => Set(a: _*))
+          else if (c.isArray) newCollection(root, m, mkTypedArray(c))
+          else if (classOf[Seq[_]].isAssignableFrom(c)) newCollection(root, m, a => List(a: _*))
+          else fail("Expected collection but got " + m + " for class " + c)
+        case Dict(m) => root match {
+          case JObject(xs) => Map(xs.map(x => (x._1, build(x._2, m))): _*)
+          case x => fail("Expected object but got " + x)
+        }
       }
     }
 

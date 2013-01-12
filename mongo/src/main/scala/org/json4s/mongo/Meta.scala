@@ -41,7 +41,7 @@ object Meta {
                                   classOf[java.lang.Byte], classOf[java.lang.Boolean],
                                   classOf[java.lang.Short])
 
-    def primitive_?(clazz: Class[_]) = primitives contains clazz
+    def isPrimitive(clazz: Class[_]) = primitives contains clazz
 
     /*
     * This is used to convert DBObjects into JObjects
@@ -71,7 +71,9 @@ object Meta {
     */
     val datetypes = Set[Class[_]](classOf[Calendar], classOf[Date], classOf[GregorianCalendar])
 
-    def datetype_?(clazz: Class[_]) = datetypes contains clazz
+    @deprecated("Use `isDateType` instead")
+    def datetype_?(clazz: Class[_]) = isDateType(clazz)
+    def isDateType(clazz: Class[_]) = datetypes contains clazz
 
     def datetype2jvalue(a: Any)(implicit formats: Formats) = a match {
       case x: Calendar => dateAsJValue(x.getTime, formats)
@@ -89,7 +91,9 @@ object Meta {
     val mongotypes = Set[Class[_]](
       classOf[DBRef], classOf[ObjectId], classOf[Pattern], classOf[UUID])
 
-    def mongotype_?(clazz: Class[_]) = mongotypes contains clazz
+    @deprecated("Use `isMongoType` instead")
+    def mongotype_?(clazz: Class[_]) = isMongoType(clazz)
+    def isMongoType(clazz: Class[_]) = mongotypes contains clazz
 
     /*
     * Definitive place for JValue conversion of mongo types

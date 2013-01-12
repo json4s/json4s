@@ -3,6 +3,7 @@ import Keys._
 import xml.Group
 import sbtscalashim.Plugin._
 import sbtbuildinfo.Plugin._
+import com.typesafe.sbt.SbtStartScript
 
 
 object Json4sBuild extends Build {
@@ -84,7 +85,14 @@ object Json4sBuild extends Build {
   lazy val core = Project(
     id = "json4s-core",
     base = file("core"),
-    settings = json4sSettings ++ Seq(libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv)) } )
+    settings = json4sSettings ++ Seq(
+      libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv)) },
+      unmanagedSourceDirectories in Compile <+= (scalaVersion, baseDirectory) {
+        case (v, dir) if v startsWith "2.8" => dir / "src/main/scala_2.8"
+        case (v, dir) if v startsWith "2.9" => dir / "src/main/scala_2.9"
+        case (v, dir) if v startsWith "2.10" => dir / "src/main/scala_2.10"
+      }
+    )
   ) dependsOn(ast % "compile;test->test")
 
   lazy val native = Project(
@@ -116,7 +124,8 @@ object Json4sBuild extends Build {
      id = "json4s-examples",
      base = file("examples"),
      settings = json4sSettings ++ Seq(
-       libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.9.4"
+       libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.9.4",
+       libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.9.2" % "2.1.3"
      )
   ) dependsOn(
     core % "compile;test->test",
@@ -124,6 +133,7 @@ object Json4sBuild extends Build {
     jacksonSupport % "compile;test->test",
     json4sExt,
     mongo)
+
 //
 //  lazy val jacksonExt = Project(
 //    id = "json4s-jackson-ext",
@@ -143,7 +153,7 @@ object Json4sBuild extends Build {
      settings = json4sSettings ++ Seq(
        libraryDependencies ++= Seq(
          "org.mongodb" % "mongo-java-driver" % "2.10.1"
-      )
+       )
      )
   ) dependsOn(core % "compile;test->test")
 
@@ -153,5 +163,53 @@ object Json4sBuild extends Build {
     settings = json4sSettings ++ Seq(libraryDependencies ++= Seq(specs, scalacheck, mockito))
   ) dependsOn(core, native, json4sExt, scalazExt, jacksonSupport, mongo)
 
+  lazy val benchmark = Project(
+    id = "json4s-benchmark",
+    base = file("benchmark"),
+    settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
+      cancelable := true,
+      libraryDependencies ++= Seq(
+        "com.google.code.java-allocation-instrumenter" % "java-allocation-instrumenter" % "2.0",
+        "com.google.caliper" % "caliper" % "0.5-rc1",
+        "com.google.code.gson" % "gson" % "1.7.1"
+      ),
+      libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.9.2" % "2.1.3",
+      runner in Compile in run <<= (thisProject, taskTemporaryDirectory, scalaInstance, baseDirectory, javaOptions, outputStrategy, javaHome, connectInput) map {
+        (tp, tmp, si, base, options, strategy, javaHomeDir, connectIn) =>
+          new MyRunner(tp.id, ForkOptions(scalaJars = si.jars, javaHome = javaHomeDir, connectInput = connectIn, outputStrategy = strategy,
+            runJVMOptions = options, workingDirectory = Some(base)) )
+      }
+    )
+  ) dependsOn(core, native, jacksonSupport, json4sExt, mongo)
+
 
 }
+
+// taken from https://github.com/dcsobral/scala-foreach-benchmark
+class MyRunner(subproject: String, config: ForkScalaRun) extends sbt.ScalaRun {
+  def run(mainClass: String, classpath: Seq[File], options: Seq[String], log: Logger): Option[String] = {
+    log.info("Running " + subproject + " " + mainClass + " " + options.mkString(" "))
+
+    val javaOptions = classpathOption(classpath) ::: mainClass :: options.toList
+    val strategy = config.outputStrategy getOrElse LoggedOutput(log)
+    val process =  Fork.java.fork(config.javaHome,
+                                  config.runJVMOptions ++ javaOptions,
+                                  config.workingDirectory,
+                                  Map.empty,
+                                  config.connectInput,
+                                  strategy)
+    def cancel() = {
+      log.warn("Run canceled.")
+      process.destroy()
+      1
+    }
+    val exitCode = try process.exitValue() catch { case e: InterruptedException => cancel() }
+    processExitCode(exitCode, "runner")
+  }
+  private def classpathOption(classpath: Seq[File]) = "-classpath" :: Path.makeString(classpath) :: Nil
+  private def processExitCode(exitCode: Int, label: String) = {
+    if(exitCode == 0) None
+    else Some("Nonzero exit code returned from " + label + ": " + exitCode)
+  }
+}
+

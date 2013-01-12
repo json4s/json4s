@@ -19,7 +19,7 @@ class MonadicJValue(jv: JValue) {
       case x ⇒ JArray(x)
     }
 
-  private def findDirectByName(xs: List[JValue], name: String): List[JValue] = xs.flatMap {
+  private[this] def findDirectByName(xs: List[JValue], name: String): List[JValue] = xs.flatMap {
     case JObject(l) ⇒ l.filter {
       case (n, _) if n == name ⇒ true
       case _ ⇒ false
@@ -28,7 +28,7 @@ class MonadicJValue(jv: JValue) {
     case _ ⇒ Nil
   }
 
-  private def findDirect(xs: List[JValue], p: JValue ⇒ Boolean): List[JValue] = xs.flatMap {
+  private[this] def findDirect(xs: List[JValue], p: JValue ⇒ Boolean): List[JValue] = xs.flatMap {
     case JObject(l) ⇒ l.filter {
       case (n, x) if p(x) ⇒ true
       case _ ⇒ false
@@ -152,7 +152,7 @@ class MonadicJValue(jv: JValue) {
    */
   def mapField(f: JField ⇒ JField): JValue = {
     def rec(v: JValue): JValue = v match {
-      case JObject(l) ⇒ JObject(l.map { case (n, va) ⇒ f(n, rec(va)) })
+      case JObject(l) ⇒ JObject(l.map { case (n, va) ⇒ f(n -> rec(va)) })
       case JArray(l) ⇒ JArray(l.map(rec))
       case x ⇒ x
     }
@@ -223,7 +223,7 @@ class MonadicJValue(jv: JValue) {
    */
   def findField(p: JField ⇒ Boolean): Option[JField] = {
     def find(json: JValue): Option[JField] = json match {
-      case JObject(fs) if (fs find p).isDefined ⇒ return fs find p
+      case JObject(fs) if (fs find p).isDefined ⇒ fs find p
       case JObject(fs) ⇒ fs.flatMap { case (n, v) ⇒ find(v) }.headOption
       case JArray(l) ⇒ l.flatMap(find _).headOption
       case _ ⇒ None
@@ -284,9 +284,8 @@ class MonadicJValue(jv: JValue) {
    * }
    * </pre>
    */
-  def removeField(p: JField ⇒ Boolean): JValue = jv mapField {
+  def removeField(p: JField ⇒ Boolean): JValue = jv transformField  {
     case x if p(x) ⇒ (x._1, JNothing)
-    case x ⇒ x
   }
 
   /**
@@ -337,27 +336,15 @@ class MonadicJValue(jv: JValue) {
    */
   def underscoreKeys = snakizeKeys
 
-  private[this] def rewriteJsonAST(camelize: Boolean): JValue = {
+  private[this] def rewriteJsonAST(camelize: Boolean): JValue =
     transformField {
       case JField(nm, x) if !nm.startsWith("_") ⇒ JField(if (camelize) this.camelize(nm) else underscore(nm), x)
-      case x ⇒ x
     }
-  }
 
   /**
    * Remove the [[org.json4s.JsonAST.JNothing]] and [[org.json4s.JsonAST.JNull]] from
    * a [[org.json4s.JsonAST.JArray]] or [[org.json4s.JsonAST.JObject]]
    */
-  def noNulls = removeNulls(jv)
+  def noNulls = removeField(_._2 == JNull)
 
-  private[this] def removeNulls(initial: JValue): JValue = {
-    initial match {
-      case JArray(values) ⇒ JArray(values map removeNulls)
-      case j: JObject ⇒ removeNullsFromJObject(j)
-      case _ ⇒ initial
-    }
-  }
-
-  private[this] def removeNullsFromJObject(initial: JObject): JValue = JObject(initial filterField valueIsNotNull)
-  private[this] def valueIsNotNull(field: JField): Boolean = field._2 != JNothing && field._2 != JNull
 }

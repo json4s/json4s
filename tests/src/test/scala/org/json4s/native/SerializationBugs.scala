@@ -2,12 +2,11 @@ package org.json4s
 
 import org.specs2.mutable.Specification
 import java.util.UUID
-import org.json4s.native.Serialization
 
 object SerializationBugs extends Specification {
-  import Serialization.{read, write => swrite}
+  import native.Serialization.{read, write => swrite}
 
-  implicit val formats = Serialization.formats(NoTypeHints)
+  implicit val formats = native.Serialization.formats(NoTypeHints)
 
   "plan1.Plan can be serialized (issue 341)" in {
     import plan1._
@@ -65,7 +64,7 @@ object SerializationBugs extends Specification {
       }
     }
 
-    implicit val formats = Serialization.formats(NoTypeHints) + new UUIDFormat
+    implicit val formats = native.Serialization.formats(NoTypeHints) + new UUIDFormat
     val o1 = OptionalUUID(None)
     val o2 = OptionalUUID(Some(UUID.randomUUID))
     read[OptionalUUID](swrite(o1)) mustEqual o1
@@ -98,21 +97,21 @@ object SerializationBugs extends Specification {
 
   "Serialization of an opaque value should not fail" in {
     val o = Opaque(JObject(JField("some", JString("data")) :: Nil))
-    val ser = Serialization.write(o)
+    val ser = native.Serialization.write(o)
     ser mustEqual """{"x":{"some":"data"}}"""
   }
 
   "Map with Map value" in {
     val a = Map("a" -> Map("a" -> 5))
     val b = Map("b" -> 1)
-    val str = Serialization.write(MapWithMap(a, b))
+    val str = native.Serialization.write(MapWithMap(a, b))
     read[MapWithMap](str) mustEqual MapWithMap(a, b)
   }
 
   "Either can't be deserialized with type hints" in {
     implicit val formats = DefaultFormats + FullTypeHints(classOf[Either[_, _]] :: Nil)
     val x = Eith(Left("hello"))
-    val s = Serialization.write(x)
+    val s = native.Serialization.write(x)
     read[Eith](s) mustEqual x
   }
 

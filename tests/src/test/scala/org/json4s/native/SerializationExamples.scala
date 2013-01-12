@@ -156,6 +156,8 @@ object ShortTypeHintExamples extends TypeHintExamples {
     val ser = """{"animals":[],"pet":{"name":"pluto","jsonClass":"Dog"}}"""
     native.Serialization.read[Animals](ser) mustEqual Animals(Nil, Dog("pluto"))
   }
+
+
 }
 
 object FullTypeHintExamples extends TypeHintExamples {
@@ -323,6 +325,7 @@ object CustomSerializerExamples extends Specification {
     iser mustEqual """{"xs":["a","b","c"]}"""
     read[Indexed](iser).xs.toList mustEqual List("a","b","c")
   }
+
 }
 
 case class Indexed(xs: IndexedSeq[String])

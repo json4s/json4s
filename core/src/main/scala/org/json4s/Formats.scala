@@ -18,7 +18,11 @@ package org.json4s
 
 
 import java.util.{Date, TimeZone}
+import reflect.Reflector
 import scalashim._
+import java.util
+import collection.JavaConverters._
+import scala.util.DynamicVariable
 
 /** Formats to use when converting JSON.
  * Formats are usually configured by using an implicit parameter:
@@ -38,9 +42,9 @@ trait Formats { self: Formats =>
   val typeHintFieldName = "jsonClass"
 
   /**
-   * Parameter name reading strategy. By deafult 'paranamer' is used.
+   * Parameter name reading strategy. By default 'paranamer' is used.
    */
-  val parameterNameReader: ParameterNameReader = Meta.ParanamerReader
+  val parameterNameReader: ParameterNameReader = reflect.ParanamerReader
 
   /**
    * Adds the specified type hints to this formats.
@@ -142,7 +146,9 @@ trait Formats { self: Formats =>
      */
     def classFor(hint: String): Option[Class[_]]
 
-    def containsHint_?(clazz: Class[_]) = hints exists (_ isAssignableFrom clazz)
+    @deprecated("Use `containsHint` without `_?` instead")
+    def containsHint_?(clazz: Class[_]) = containsHint(clazz)
+    def containsHint(clazz: Class[_]) = hints exists (_ isAssignableFrom clazz)
     def deserialize: PartialFunction[(String, JObject), Any] = Map()
     def serialize: PartialFunction[Any, JObject] = Map()
 
@@ -219,7 +225,9 @@ trait Formats { self: Formats =>
    */
   case class FullTypeHints(hints: List[Class[_]]) extends TypeHints {
     def hintFor(clazz: Class[_]) = clazz.getName
-    def classFor(hint: String) = Some(Thread.currentThread.getContextClassLoader.loadClass(hint))
+    def classFor(hint: String) = {
+      Reflector.scalaTypeOf(hint).map(_.erasure)//.find(h => hints.exists(l => l.isAssignableFrom(h.erasure)))
+    }
   }
 
   /** Default date format is UTC time.
@@ -227,10 +235,17 @@ trait Formats { self: Formats =>
   object DefaultFormats extends DefaultFormats {
     val losslessDate = new ThreadLocal(new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"))
     val UTC = TimeZone.getTimeZone("UTC")
+    private[json4s] class ThreadLocal[A](init: => A) extends java.lang.ThreadLocal[A] with (() => A) {
+      override def initialValue = init
+      def apply = get
+    }
   }
 
   trait DefaultFormats extends Formats {
     import java.text.{ParseException, SimpleDateFormat}
+    import DefaultFormats.ThreadLocal
+
+    private[this] val df = new ThreadLocal[SimpleDateFormat](dateFormatter)
 
     val dateFormat = new DateFormat {
       def parse(s: String) = try {
@@ -241,8 +256,8 @@ trait Formats { self: Formats =>
 
       def format(d: Date) = formatter.format(d)
 
-      private def formatter = {
-        val f = dateFormatter
+      private[this] def formatter = {
+        val f = df.get()
         f.setTimeZone(DefaultFormats.UTC)
         f
       }
@@ -263,10 +278,7 @@ trait Formats { self: Formats =>
     }
   }
 
-  private[json4s] class ThreadLocal[A](init: => A) extends java.lang.ThreadLocal[A] with (() => A) {
-    override def initialValue = init
-    def apply = get
-  }
+
 
   class CustomSerializer[A: Manifest](
     ser: Formats => (PartialFunction[JValue, A], PartialFunction[Any, JValue])) extends Serializer[A] {

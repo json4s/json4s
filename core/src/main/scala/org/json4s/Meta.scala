@@ -28,7 +28,7 @@ trait ParameterNameReader {
   def lookupParameterNames(constructor: JConstructor[_]): Traversable[String]
 }
 
-object Meta {
+private[json4s] object Meta {
   import com.thoughtworks.paranamer._
 
   /** Intermediate metadata format for case classes.
@@ -110,7 +110,7 @@ object Meta {
 
     def toArg(name: String, genericType: Type, visited: Set[Type], context: Context): Arg = {
       def mkContainer(t: Type, k: Kind, valueTypeIndex: Int, factory: Mapping => Mapping) =
-        if (typeConstructor_?(t)) {
+        if (isTypeConstructor(t)) {
           val typeArgs = typeConstructors(t, k)(valueTypeIndex)
           factory(fieldMapping(typeArgs, None)._1) // TODO: default values
         } else factory(fieldMapping(typeParameters(t, k, context)(valueTypeIndex), None)._1) // TODO: default values
@@ -162,7 +162,7 @@ object Meta {
           val raw = java.lang.reflect.Array.newInstance(rawClassOf(aType.getGenericComponentType), 0: Int).getClass
           (Col(TypeInfo(raw, None), fieldMapping(aType.getGenericComponentType, None)._1), false)
         case raw: Class[_] =>
-          if (primitive_?(raw)) (Value(raw, default), false)
+          if (isPrimitive(raw)) (Value(raw, default), false)
           else if (raw.isArray)
             (mkContainer(t, `* -> *`, 0, Col.apply(TypeInfo(raw, None), _)), false)
           else 
@@ -189,7 +189,7 @@ object Meta {
       Arg(name, mapping, optional, default)
     }
 
-    if (primitive_?(clazz)) {
+    if (isPrimitive(clazz)) {
       Value(rawClassOf(clazz), None)
     } else {
       mappings.memoize(clazz, t => {
@@ -262,7 +262,7 @@ object Meta {
       classOf[JObject], classOf[JArray]).map((_, ())))
 
     private val primaryConstructors = new Memo[Class[_], List[(String, Type)]]
-    private val declaredFields = new Memo[(Class[_], String), Boolean]
+    private val declaredFields = new Memo[(Class[_], String), Field]
 
     def constructors(t: Type, names: ParameterNameReader, context: Option[Context]): List[(JConstructor[_], List[(String, Type)])] =
       rawClassOf(t).getDeclaredConstructors.map(c => (c, constructorArgs(t, c, names, context))).toList
@@ -352,19 +352,28 @@ object Meta {
       }
     }
 
-    def primitive_?(t: Type) = t match {
+    @deprecated("Use `isPrimitive` instead")
+    def primitive_?(t: Type) = isPrimitive(t)
+    def isPrimitive(t: Type) = t match {
       case clazz: Class[_] => primitives contains clazz
       case _ => false
     }
 
-    def static_?(f: Field) = Modifier.isStatic(f.getModifiers)
-    def typeConstructor_?(t: Type) = t match {
+    @deprecated("Use `isStatic` instead")
+    def static_?(f: Field) = isStatic(f)
+    def isStatic(f: Field) = Modifier.isStatic(f.getModifiers)
+
+    @deprecated("Use `isTypeConstructor` instead")
+    def typeConstructor_?(t: Type) = isTypeConstructor(t)
+    def isTypeConstructor(t: Type) = t match {
       case p: ParameterizedType =>
         p.getActualTypeArguments.exists(_.isInstanceOf[ParameterizedType])
       case _ => false
     }
 
-    def array_?(x: Any) = x != null && classOf[scala.Array[_]].isAssignableFrom(x.asInstanceOf[AnyRef].getClass)
+    @deprecated("Use `isArray` instead")
+    def array_?(x: Any) = isArray(x)
+    def isArray(x: Any) = x != null && classOf[scala.Array[_]].isAssignableFrom(x.asInstanceOf[AnyRef].getClass)
 
     def fields(clazz: Class[_]): List[(String, TypeInfo)] = {
       val fs = clazz.getDeclaredFields.toList
@@ -388,23 +397,24 @@ object Meta {
       f.get(a)
     }
 
-    def findField(clazz: Class[_], name: String): Field = try {
-      clazz.getDeclaredField(name)
-    } catch {
-      case e: NoSuchFieldException => 
-        if (clazz.getSuperclass == null) throw e 
-        else findField(clazz.getSuperclass, name)
-    }
+    def findField(clazz: Class[_], name: String): Field =
+      declaredFields.memoize((clazz, name), pair => {
+        try {
+          pair._1.getDeclaredField(name)
+        } catch {
+          case e: NoSuchFieldException =>
+            if (clazz.getSuperclass == null) throw e
+            else findField(clazz.getSuperclass, name)
+        }
+     })
 
     def hasDeclaredField(clazz: Class[_], name: String): Boolean = {
-      def declaredField = try {
-        clazz.getDeclaredField(name)
+      try {
+        findField(clazz, name)
         true
       } catch {
         case e: NoSuchFieldException => false
       }
-
-      declaredFields.memoize((clazz, name), _ => declaredField)
     }
 
     def mkJavaArray(x: Any, componentType: Class[_]) = {
@@ -418,13 +428,18 @@ object Meta {
       a
     }
 
-    def defaultValue(compClass: Class[_], compObj: AnyRef,argName: String, argIndex: Int) = {
+    def defaultValue(compClass: Class[_], compObj: AnyRef, argName: String, argIndex: Int) = {
+//      println("Getting default for %s on %s" format (argName, compClass))
       try {
         // Some(null) is actually "desirable" here because it allows using null as a default value for an ignored field
-        Option(compClass.getMethod("apply$default$%d".format(argIndex + 1))) map { meth => () => meth.invoke(compObj) }
+        val a = Option(compClass.getMethod("$lessinit$greater$default$%d".format(argIndex + 1))) map { meth => () => meth.invoke(compObj) }
+//        println("default for %s on %s is %s" format(argName, compClass, a))
+        a
       }
       catch {
-        case _ => None // indicates no default value was supplied
+        case _ =>
+//          println("no default found for %s on %s" format (argName, compClass))
+          None // indicates no default value was supplied
       }
     }
 

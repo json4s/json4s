@@ -1,0 +1,4 @@
+#!/bin/bash
+
+./sbt 'json4s-benchmark/stage'
+exec ./bench

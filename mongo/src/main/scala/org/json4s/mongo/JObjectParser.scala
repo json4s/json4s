@@ -55,9 +55,9 @@ object JObjectParser  {
     import Meta.Reflection._
     a.asInstanceOf[AnyRef] match {
       case null => JNull
-      case x if primitive_?(x.getClass) => primitive2jvalue(x)
-      case x if datetype_?(x.getClass) => datetype2jvalue(x)(formats)
-      case x if mongotype_?(x.getClass) => mongotype2jvalue(x)(formats)
+      case x if isPrimitive(x.getClass) => primitive2jvalue(x)
+      case x if isDateType(x.getClass) => datetype2jvalue(x)(formats)
+      case x if isMongoType(x.getClass) => mongotype2jvalue(x)(formats)
       case x: BasicDBList => JArray(x.asScala.toList.map( x => serialize(x, formats)))
       case x: BasicDBObject => JObject(
         x.keySet.asScala.toList.map { f =>

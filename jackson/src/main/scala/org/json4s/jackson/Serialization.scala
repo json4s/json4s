@@ -1,7 +1,7 @@
 package org.json4s
 package jackson
 
-import reflect.Manifest
+import scala.reflect.Manifest
 import com.fasterxml.jackson.databind.DeserializationFeature
 
 /** Functions to serialize and deserialize a case class.
