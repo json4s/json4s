@@ -33,5 +33,10 @@ class JsonDynamicAstSpec extends Specification {
     val jsonTree = dyn(tree)
     compact(render(jsonTree)) must_== compact(render(tree))
   }
+  
+  "Perform MonadicJValue operations" in {
+    val jsonTree = dyn(tree)
+    jsonTree \\ "foo" must_== tree \\ "foo"
+  }
 
 }
