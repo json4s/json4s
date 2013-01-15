@@ -17,7 +17,6 @@
 package org.json4s
 
 import java.util.Locale.ENGLISH
-import scala.language.dynamics
 
 object JsonAST {
 
@@ -35,7 +34,7 @@ object JsonAST {
   /**
    * Data type for JSON AST.
    */
-  sealed abstract class JValue extends Diff.Diffable with Dynamic {
+  sealed abstract class JValue extends Diff.Diffable {
     type Values
 
 
@@ -48,15 +47,6 @@ object JsonAST {
      */
     def values: Values
     
-    /**
-     * Adds dynamic style to JValues. Only meaningful for JObjects
-     * <p>
-     * Example:<pre>
-     * JObject(JField("name",JString("joe"))::Nil).name == JString("joe")
-     * </pre>
-     */
-    def selectDynamic(name:String):JValue = JNothing
-
     /**
      * Return direct child elements.
      * <p>
@@ -157,13 +147,6 @@ object JsonAST {
     override def equals(that: Any): Boolean = that match {
       case o: JObject ⇒ Set(obj.toArray: _*) == Set(o.obj.toArray: _*)
       case _ ⇒ false
-    }
-    
-    override def selectDynamic(name:String):JValue = {
-      obj.find{ case (n, v) => n == name} match {
-        case Some((_, v)) => v
-        case None => JNothing
-      }
     }
   }
   case object JObject {
