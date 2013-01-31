@@ -21,7 +21,7 @@ import java.util.{Date, TimeZone}
 import reflect.Reflector
 import scalashim._
 import java.util
-import collection.JavaConverters._
+import scalaj.collection.Imports._
 import scala.util.DynamicVariable
 
 /** Formats to use when converting JSON.

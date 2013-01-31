@@ -4,9 +4,11 @@ package reflect
 import java.{util => jutil}
 import java.lang.reflect.{Type, TypeVariable, ParameterizedType, Modifier}
 import scala.util.control.Exception._
-import collection.JavaConverters._
+import scalaj.collection.Imports._
 import java.util.Date
 import java.sql.Timestamp
+import scalashim._
+import collection.mutable.ArrayBuffer
 
 object Reflector {
 
@@ -98,7 +100,7 @@ object Reflector {
 
     def properties: Seq[PropertyDescriptor] = {
       def fields(clazz: Class[_]): List[PropertyDescriptor] = {
-        val lb = new jutil.LinkedList[PropertyDescriptor]().asScala
+        val lb = new ArrayBuffer[PropertyDescriptor]()
         val ls = clazz.getDeclaredFields.toIterator
         while (ls.hasNext) {
           val f = ls.next()

@@ -56,7 +56,7 @@ object Json4sBuild extends Build {
     organization := "org.json4s",
     version := "3.2.0-SNAPSHOT",
     scalaVersion := "2.9.2",
-    crossScalaVersions := Seq("2.8.0", "2.8.1", "2.8.2", "2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2"),
+    crossScalaVersions := Seq("2.8.1", "2.8.2", "2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
@@ -86,6 +86,7 @@ object Json4sBuild extends Build {
     base = file("core"),
     settings = json4sSettings ++ Seq(
       libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv)) },
+      libraryDependencies += scalaj_collection,
       unmanagedSourceDirectories in Compile <+= (scalaVersion, baseDirectory) {
         case (v, dir) if v startsWith "2.8" => dir / "src/main/scala_2.8"
         case (v, dir) if v startsWith "2.9" => dir / "src/main/scala_2.9"

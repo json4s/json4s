@@ -4,15 +4,23 @@ import com.thoughtworks.paranamer.{BytecodeReadingParanamer, CachingParanamer}
 import java.lang.reflect.{Constructor, Type}
 import java.util.concurrent.ConcurrentHashMap
 import scalashim._
-import collection.JavaConverters._
+import scalaj.collection.Imports._
 import java.util.Date
 import java.sql.Timestamp
 
 package object reflect {
 
   private[reflect] class Memo[A, R] {
-    private[this] val cache = new ConcurrentHashMap[A, R]().asScala
-    def apply(x: A, f: A => R): R = cache.getOrElseUpdate(x, f(x))
+    private[this] val cache = new ConcurrentHashMap[A, R]()
+    def apply(x: A, f: A => R): R = {
+      if (cache.containsKey(x))
+        cache.get(x)
+      else {
+        val v = f(x)
+        cache.put(x, v)
+        v
+      }
+    }
   }
 
   private[reflect] val ConstructorDefault = "init$default"

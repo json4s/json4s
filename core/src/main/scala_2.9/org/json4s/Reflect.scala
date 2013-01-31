@@ -1,6 +1,6 @@
 //package org.json4s
 //
-//import collection.JavaConverters._
+//import scalaj.collection.Imports._
 //import java.lang.reflect._
 //import java.util.concurrent.ConcurrentHashMap
 //import java.util.Date

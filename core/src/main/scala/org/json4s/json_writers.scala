@@ -1,6 +1,7 @@
 package org.json4s
 
 import java.io.{ StringWriter, Writer => JWriter }
+import scalashim._
 
 object JsonWriter {
   def ast: JsonWriter[JValue] = new JDoubleAstRootJsonWriter
