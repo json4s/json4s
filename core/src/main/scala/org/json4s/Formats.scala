@@ -35,6 +35,7 @@ trait Formats { self: Formats =>
   val typeHints: TypeHints = NoTypeHints
   val customSerializers: List[Serializer[_]] = Nil
   val fieldSerializers: List[(Class[_], FieldSerializer[_])] = Nil
+  val wantsBigDecimal: Boolean = false
 
   /**
    * The name of the field in JSON where type hints are added (jsonClass by default)
@@ -46,6 +47,26 @@ trait Formats { self: Formats =>
    */
   val parameterNameReader: ParameterNameReader = reflect.ParanamerReader
 
+  def withBigDecimal: Formats = new Formats {
+    val dateFormat: DateFormat = Formats.this.dateFormat
+    override val typeHintFieldName = self.typeHintFieldName
+    override val parameterNameReader = self.parameterNameReader
+    override val typeHints = self.typeHints
+    override val customSerializers = self.customSerializers
+    override val fieldSerializers = self.fieldSerializers
+    override val wantsBigDecimal = true
+  }
+
+  def withDouble: Formats = new Formats {
+    val dateFormat: DateFormat = Formats.this.dateFormat
+    override val typeHintFieldName = self.typeHintFieldName
+    override val parameterNameReader = self.parameterNameReader
+    override val typeHints = self.typeHints
+    override val customSerializers = self.customSerializers
+    override val fieldSerializers = self.fieldSerializers
+    override val wantsBigDecimal = false
+  }
+
   /**
    * Adds the specified type hints to this formats.
    */
@@ -56,6 +77,7 @@ trait Formats { self: Formats =>
     override val typeHints = self.typeHints + extraHints
     override val customSerializers = self.customSerializers
     override val fieldSerializers = self.fieldSerializers
+    override val wantsBigDecimal = self.wantsBigDecimal
   }
 
   /**
@@ -68,6 +90,7 @@ trait Formats { self: Formats =>
     override val typeHints = self.typeHints
     override val customSerializers = newSerializer :: self.customSerializers
     override val fieldSerializers = self.fieldSerializers
+    override val wantsBigDecimal = self.wantsBigDecimal
   }
 
   /**
@@ -86,6 +109,7 @@ trait Formats { self: Formats =>
     override val typeHints = self.typeHints
     override val customSerializers = self.customSerializers
     override val fieldSerializers = (mf.erasure, newSerializer) :: self.fieldSerializers
+    override val wantsBigDecimal = self.wantsBigDecimal
   }
 
   private[json4s] def fieldSerializer(clazz: Class[_]): Option[FieldSerializer[_]] = {

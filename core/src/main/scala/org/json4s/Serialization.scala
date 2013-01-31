@@ -22,10 +22,16 @@ trait Serialization {
 
   /** Deserialize from a String.
    */
+  @deprecated("You can use formats now to indicate you want to use decimals instead of doubles")
   def read[A](json: String, useBigDecimalForDouble: Boolean)(implicit formats: Formats, mf: Manifest[A]): A
+
+  /** Deserialize from a String.
+   */
+  def read[A](json: String)(implicit formats: Formats, mf: Manifest[A]): A
 
   /** Deserialize from a Reader.
    */
+  @deprecated("You can use formats now to indicate you want to use decimals instead of doubles")
   def read[A](in: Reader, useBigDecimalForDouble: Boolean)(implicit formats: Formats, mf: Manifest[A]): A
 
   /** Create Serialization formats with given type hints.

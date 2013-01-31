@@ -117,6 +117,7 @@ private[json4s] object ScalaSigReader {
     case "scala.Boolean" => classOf[Boolean]
     case "scala.Float"   => classOf[Float]
     case "scala.Double"  => classOf[Double]
+    case "scala.Byte"    => classOf[Byte]
     case _               => classOf[AnyRef]
   }
 
