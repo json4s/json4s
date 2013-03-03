@@ -21,6 +21,7 @@ import java.util.Date
 import java.sql.Timestamp
 import com.thoughtworks.paranamer.{ParameterNamesNotFoundException, BytecodeReadingParanamer, CachingParanamer}
 import scalashim._
+import util.control.Exception.allCatch
 
 case class TypeInfo(clazz: Class[_], parameterizedType: Option[ParameterizedType])
 
@@ -133,8 +134,8 @@ private[json4s] object Meta {
           val companion: Option[(Class[_], AnyRef)] = {
             val clazz = rawClassOf(t)
             val path = if (clazz.getName.endsWith("$")) clazz.getName else "%s$".format(clazz.getName)
-            ScalaSigReader.resolveClass[AnyRef](path, Vector(clazz.getClassLoader)) map { sig =>
-              (sig, sig.getField(ScalaSigReader.ModuleFieldName).get(null))
+            ScalaSigReader.resolveClass[AnyRef](path, Vector(clazz.getClassLoader)) flatMap { sig =>
+              allCatch opt { (sig, sig.getField(ScalaSigReader.ModuleFieldName).get(null)) }
             }
           }
 
@@ -176,8 +177,8 @@ private[json4s] object Meta {
           val companion: Option[(Class[_], AnyRef)] = {
             val c = context.containingClass
             val path = if (c.getName.endsWith("$")) c.getName else "%s$".format(c.getName)
-            ScalaSigReader.resolveClass[AnyRef](path, Vector(c.getClassLoader)) map { sig =>
-              (sig, sig.getField(ScalaSigReader.ModuleFieldName).get(null))
+            ScalaSigReader.resolveClass[AnyRef](path, Vector(c.getClassLoader)) flatMap { sig =>
+              allCatch opt { (sig, sig.getField(ScalaSigReader.ModuleFieldName).get(null)) }
             }
           }
           companion flatMap { case (cc, co) => defaultValue(cc, co, context.argName, idx) }
@@ -204,8 +205,8 @@ private[json4s] object Meta {
         val companion: Option[(Class[_], AnyRef)] = {
 
           val path = if (c.getName.endsWith("$")) c.getName else "%s$".format(c.getName)
-          ScalaSigReader.resolveClass[AnyRef](path, Vector(c.getClassLoader)) map { sig =>
-            (sig, sig.getField(ScalaSigReader.ModuleFieldName).get(null))
+          ScalaSigReader.resolveClass[AnyRef](path, Vector(c.getClassLoader)) flatMap { sig =>
+            allCatch opt { (sig, sig.getField(ScalaSigReader.ModuleFieldName).get(null)) }
           }
         }
         Constructor(typeInfo, constructors(pt, Set(), None), companion)

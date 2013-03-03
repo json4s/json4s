@@ -50,7 +50,7 @@ class Json4sBenchmark extends SimpleScalaBenchmark {
           Team("QA"+c, List(Employee("John Doe"+c, 5+c), Employee("Mike"+c, 3+c))),
           Team("Impl"+c, List(Employee("Mark"+c, 4+c), Employee("Mary"+c, 5+c), Employee("Nick Noob"+c, 1+c)))))
     projectJson = jackson.Serialization.write(project)
-    projectJValue = Extraction2.decompose(project)
+    projectJValue = Extraction.decompose(project)
   }
 
   def timeJacksonFullCircle(reps: Int) = repeat(reps) {
@@ -63,7 +63,7 @@ class Json4sBenchmark extends SimpleScalaBenchmark {
 
   def timeJacksonParsing(reps: Int) = repeat(reps) { mapper.readValue(glossaryJson, classOf[JsonNode]) }
 
-  def timeJson4sDecomposition(reps: Int) = repeat(reps) { Extraction2.decompose(project) }
+  def timeJson4sDecomposition(reps: Int) = repeat(reps) { Extraction.decompose(project) }
 
   def timeJson4sNativeFullCircle(reps: Int) = repeat(reps) {
     native.Serialization.read[Project](native.Serialization.write(project))

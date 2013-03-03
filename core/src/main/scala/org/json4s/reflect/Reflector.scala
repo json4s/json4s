@@ -9,6 +9,7 @@ import java.util.Date
 import java.sql.Timestamp
 import scalashim._
 import collection.mutable.ArrayBuffer
+import annotation.tailrec
 
 object Reflector {
 
@@ -29,20 +30,24 @@ object Reflector {
   def isPrimitive(t: Type) = primitives contains t
 
   def scalaTypeOf[T](implicit mf: Manifest[T]): ScalaType = {
-    types(mf.erasure, _ => ScalaType(mf))
+//    types(mf.erasure, _ => ScalaType(mf))
+    ScalaType(mf)
   }
 
   def scalaTypeOf(clazz: Class[_]): ScalaType = {
     val mf = ManifestFactory.manifestOf(clazz)
-    types(mf.erasure, _ => ScalaType(mf))
+//    types(mf.erasure, _ => ScalaType(mf))
+    ScalaType(mf)
   }
 
   def scalaTypeOf(t: Type): ScalaType = {
     val mf = ManifestFactory.manifestOf(t)
-    types(mf.erasure, _ => ScalaType(mf))
+//    types(mf.erasure, _ => ScalaType(mf))
+    ScalaType(mf)
   }
 
-  def scalaTypeOf(name: String): Option[ScalaType] = Reflector.resolveClass[AnyRef](name, ClassLoaders) map (c => scalaTypeOf(c))
+  def scalaTypeOf(name: String): Option[ScalaType] =
+    Reflector.resolveClass[AnyRef](name, ClassLoaders) map (c => scalaTypeOf(c))
 
   def describe[T](implicit mf: Manifest[T]): Descriptor = describe(scalaTypeOf[T])
 
@@ -108,7 +113,7 @@ object Reflector {
             val st = ScalaType(f.getType, f.getGenericType match {
               case p: ParameterizedType => p.getActualTypeArguments map (c => scalaTypeOf(c))
               case _ => Nil
-            }, Map.empty)
+            })
             val decoded = unmangleName(f.getName)
             f.setAccessible(true)
             lb += PropertyDescriptor(decoded, f.getName, st, f)
@@ -121,27 +126,65 @@ object Reflector {
       fields(tpe.erasure)
     }
 
+    def ctorParamType(name: String, index: Int, owner: ScalaType, ctorParameterNames: List[String], t: Type, container: Option[(ScalaType, List[Int])] = None): ScalaType = {
+      println("Getting constructor param type for %s with index %s and owner: %s.".format(name, index, owner))
+//      println("Owner type vars: " + owner.typeVars)
+      println("This has a container: %s" format container)
+      val idxes = container.map(_._2.reverse)
+      t  match {
+        case v: TypeVariable[_] =>
+          println("This is a type variable:  " + v.getName)
+          println("This is a type variable of class:  " + v.getClass)
+          val a = owner.typeVars.getOrElse(v, scalaTypeOf(v))
+          if (a.erasure == classOf[java.lang.Object]) {
+            val r = ScalaSigReader.readConstructor(name, owner.erasure, index, ctorParameterNames)
+            println("The result of the scalasig operation: " + r)
+            scalaTypeOf(r)
+          } else a
+        case v: ParameterizedType =>
+          println("This is a parameterized type")
+          println("The type arguments: " + v.getActualTypeArguments.mkString(", "))
+          val st = scalaTypeOf(v)
+//          println("For owner: " + st)
+          val rc = rawClassOf(v)
+          val typeParams = rc.getTypeParameters.toList.map(_.asInstanceOf[TypeVariable[_]])
+          val typeArgs = v.getActualTypeArguments.map(scalaTypeOf(_)) //map (ctorParamType(name, index, tpe, ctorParameterNames, _))
+          val typeVars = typeParams.zip(typeArgs)
+//          println("The type vars: " + typeVars.mkString(", "))
+          val actualArgs = v.getActualTypeArguments.toList.zipWithIndex map {
+            case (ct, idx) =>
+              val prev = container.map(_._2).getOrElse(Nil)
+              ctorParamType(name, index, owner, ctorParameterNames, ct, Some((st, idx :: prev)))
+          }
+//          println("The actual type arguments: " + typeVars.mkString(", "))
+          st.copy(typeArgs = actualArgs)
+        case x =>
+          println("This is a regular arg of type: " + x.getClass)
+          val st = scalaTypeOf(x)
+//          println("The regular argument type: " + st)
+          val r = if (st.erasure == classOf[java.lang.Object])
+            scalaTypeOf(ScalaSigReader.readConstructor(name, owner.erasure, idxes getOrElse List(index), ctorParameterNames))
+          else st
+//          println("The actual regular argument type: " + st)
+          r
+      }
+    }
+
     def constructors: Seq[ConstructorDescriptor] = {
       tpe.erasure.getConstructors.toSeq map {
         ctor =>
           val ctorParameterNames = ParanamerReader.lookupParameterNames(ctor)
           val genParams = Vector(ctor.getGenericParameterTypes: _*)
+          println("Gen params: " + genParams)
           val ctorParams = ctorParameterNames.zipWithIndex map {
-            cp =>
-              val decoded = unmangleName(cp._1)
+            case (paramName, index) =>
+              val decoded = unmangleName(paramName)
               val default = companion flatMap {
                 comp =>
-                  defaultValue(comp.erasure.erasure, comp.instance, cp._2)
+                  defaultValue(comp.erasure.erasure, comp.instance, index)
               }
-              val theType = genParams(cp._2) match {
-                case v: TypeVariable[_] =>
-                  val a = tpe.typeVars.getOrElse(v, scalaTypeOf(v))
-                  if (a.erasure == classOf[java.lang.Object])
-                    scalaTypeOf(ScalaSigReader.readConstructor(cp._1, tpe.erasure, cp._2, ctorParameterNames.toList))
-                  else a
-                case x => scalaTypeOf(x)
-              }
-              ConstructorParamDescriptor(decoded, cp._1, cp._2, theType, default)
+              val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.toList, genParams(index))
+              ConstructorParamDescriptor(decoded, paramName, index, theType, default)
           }
           ConstructorDescriptor(ctorParams.toSeq, ctor, isPrimary = false)
       }
@@ -168,5 +211,12 @@ object Reflector {
   def unmangleName(name: String) =
     unmangledNames(name, scala.reflect.NameTransformer.decode)
 
+  def mkParameterizedType(owner: Type, typeArgs: Seq[Type]) =
+    new ParameterizedType {
+      def getActualTypeArguments = typeArgs.toArray
+      def getOwnerType = owner
+      def getRawType = rawClassOf(owner)
+      override def toString = getOwnerType + "[" + getActualTypeArguments.mkString(",") + "]"
+    }
 
 }

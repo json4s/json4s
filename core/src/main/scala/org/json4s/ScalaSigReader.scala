@@ -16,14 +16,22 @@
 
 package org.json4s
 
+import reflect.ScalaType
 import scala.tools.scalap.scalax.rules.scalasig._
 import scalashim._
 
 private[json4s] object ScalaSigReader {
   def readConstructor(argName: String, clazz: Class[_], typeArgIndex: Int, argNames: List[String]): Class[_] = {
+    println("Reading constructor for %s in %s with type arg index: %s and argnames: %s".format(argName, clazz, typeArgIndex, argNames))
     val cl = findClass(clazz)
     val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndex)
+  }
+  def readConstructor(argName: String, clazz: Class[_], typeArgIndexes: List[Int], argNames: List[String]): Class[_] = {
+    println("Reading constructor for %s in %s with type arg index: %s and argnames: %s".format(argName, clazz, typeArgIndexes, argNames))
+    val cl = findClass(clazz)
+    val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail("Can't find constructor for " + clazz))
+    findArgType(cstr, argNames.indexOf(argName), typeArgIndexes)
   }
 //
 //  def readConstructor(argName: String, clazz: ScalaType, typeArgIndex: Int, argNames: List[String]): Class[_] = {
@@ -69,19 +77,69 @@ private[json4s] object ScalaSigReader {
     (c.children collect { case m: MethodSymbol if m.name == name => m }).headOption
 
   def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndex: Int): Class[_] = {
-    def findPrimitive(t: Type): Symbol = t match { 
-      case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol) => symbol
-      case TypeRefType(_, _, TypeRefType(ThisType(_), symbol, _) :: xs) => symbol
-      case TypeRefType(_, symbol, Nil) => symbol
-      case TypeRefType(_, _, args) if typeArgIndex >= args.length => findPrimitive(args(0))
-      case TypeRefType(_, _, args) =>
-        args(typeArgIndex) match {
-          case ref @ TypeRefType(_, _, _) => findPrimitive(ref)
-          case x => Meta.fail("Unexpected type info " + x)
-        }
-      case x => Meta.fail("Unexpected type info " + x)
+    def findPrimitive(t: Type): Symbol = {
+      t match {
+        case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol) => symbol
+        case TypeRefType(_, _, TypeRefType(ThisType(_), symbol, _) :: xs) => symbol
+        case TypeRefType(_, symbol, Nil) => symbol
+        case TypeRefType(_, _, args) if typeArgIndex >= args.length =>
+          findPrimitive(args(0))
+        case TypeRefType(_, _, args) =>
+          val ta = args(typeArgIndex)
+          ta match {
+            case ref @ TypeRefType(_, _, _) => findPrimitive(ref)
+            case x => Meta.fail("Unexpected type info " + x)
+          }
+        case x => Meta.fail("Unexpected type info " + x)
+      }
     }
     toClass(findPrimitive(s.children(argIdx).asInstanceOf[SymbolInfoSymbol].infoType))
+  }
+
+  def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndexes: List[Int]): Class[_] = {
+    def findPrimitive(t: Type, curr: Int): Symbol = {
+      println("Finding primitive at %s in %s" format (curr, typeArgIndexes))
+      println(t)
+
+      t match {
+        case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol) =>
+          println("This is a top level property")
+          symbol
+        case TypeRefType(_, _, ll @ (TypeRefType(ThisType(_), symbol, _) :: xs)) =>
+          println("Picking the first type arg from the list")
+          val r = (ll collect {
+            case t @ TypeRefType(ThisType(_), sym, Nil) => sym
+            case t @ TypeRefType(ThisType(_), sym, args) if typeArgIndexes(curr) >= args.length =>
+              findPrimitive(args(args.length - 1), curr + 1)
+            case t @ TypeRefType(ThisType(_), sym, args) =>
+              val ta = args(typeArgIndexes(typeArgIndexes.length - 1 min curr))
+              println("the type arg for finding primitive: " + ta)
+              ta match {
+                case ref @ TypeRefType(_, _, _) => findPrimitive(ref, curr + 1)
+                case x => Meta.fail("Unexpected type info " + x)
+              }
+          }).toList
+          println(r)
+          val s = r((r.length - 1 min typeArgIndexes(typeArgIndexes.length - 1 min curr)))
+          println(s)
+          s
+        case TypeRefType(_, symbol, Nil) => symbol
+        case TypeRefType(_, _, args) if typeArgIndexes(curr) >= args.length =>
+          println("Falling back to first type argument, because %s is greater than %s" format (typeArgIndexes(curr), args.length))
+          findPrimitive(args(0), 0)
+        case TypeRefType(_, _, args) =>
+          val ta = args(typeArgIndexes(typeArgIndexes.length - 1 min curr))
+          println("the type arg for finding primitive: " + ta)
+          ta match {
+            case ref @ TypeRefType(_, _, _) => findPrimitive(ref, curr + 1)
+            case x => Meta.fail("Unexpected type info " + x)
+          }
+        case x => Meta.fail("Unexpected type info " + x)
+      }
+    }
+    val prim = findPrimitive(s.children(argIdx).asInstanceOf[SymbolInfoSymbol].infoType, 0)
+    println("The primitive: " + prim)
+    toClass(prim)
   }
 
   private def findArgTypeForField(s: MethodSymbol, typeArgIdx: Int): Class[_] = {

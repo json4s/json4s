@@ -116,7 +116,7 @@ object Xml {
     def mkFields(xs: List[(String, XElem)]) =
       xs.flatMap { case (name, value) => (value, toJValue(value)) match {
         // This special case is needed to flatten nested objects which resulted from
-        // XML attributes. Flattening keeps transformation more predicatable.
+        // XML attributes. Flattening keeps transformation more predictable.
         // <a><foo id="1">x</foo></a> -> {"a":{"foo":{"foo":"x","id":"1"}}} vs
         // <a><foo id="1">x</foo></a> -> {"a":{"foo":"x","id":"1"}}
         case (XLeaf(v, x :: xs), o: JObject) => o.obj
