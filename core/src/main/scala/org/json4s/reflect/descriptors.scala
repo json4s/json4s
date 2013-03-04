@@ -20,7 +20,7 @@ class ScalaType(private val manifest: Manifest[_]) extends Descriptor with Equal
   val isArray: Boolean = erasure.isArray
   lazy val rawFullName: String = erasure.getName
   lazy val rawSimpleName: String = erasure.getSimpleName
-  lazy val simpleName: String = rawSimpleName + (if (typeArgs.nonEmpty) typeArgs.map(_.simpleName).mkString("[", ", ", "]") else "")
+  lazy val simpleName: String = rawSimpleName + (if (typeArgs.nonEmpty) typeArgs.map(_.simpleName).mkString("[", ", ", "]") else (if (typeVars.nonEmpty) typeVars.map(_._2.simpleName).mkString("[", ", ", "]") else ""))
   lazy val fullName: String = rawFullName + (if (typeArgs.nonEmpty) typeArgs.map(_.fullName).mkString("[", ", ", "]") else "")
   lazy val typeInfo: TypeInfo = TypeInfo(erasure, if (typeArgs.nonEmpty) Some(Reflector.mkParameterizedType(erasure, typeArgs.map(_.erasure).toSeq)) else None)
   lazy val isPrimitive: Boolean = Reflector.isPrimitive(erasure)

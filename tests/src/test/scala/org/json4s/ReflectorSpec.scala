@@ -8,9 +8,11 @@ case class RRSimple(id: Int, name: String, items: List[String], createdAt: Date)
 case class RRSimpleJoda(id: Int, name: String, items: List[String], createdAt: DateTime)
 case class RROption(id: Int, name: String, status: Option[String], code: Option[Int], createdAt: Date, deletedAt: Option[Date])
 case class RRTypeParam[T](id: Int, name: String, value: T, opt: Option[T], seq: Seq[T], map: Map[String, T])
-//case class RRTypeParam[T](opt: Option[T])
 case class Response(data: List[Map[String, Int]])
 case class NestedType(dat: List[Map[Double, Option[Int]]], lis: List[List[List[List[List[Int]]]]])
+case class NestedType3(dat: List[Map[Double, Option[List[Option[Int]]]]], lis: List[List[List[List[List[Int]]]]])
+case class NestedType4(dat: List[Map[Double, Option[List[Map[Long, Option[Int]]]]]], lis: List[List[List[List[List[Int]]]]])
+case class NestedType5(dat: List[Map[Double, Option[List[Map[Long, Option[Map[Byte, Either[Double, Long]]]]]]]], lis: List[List[List[List[List[Int]]]]])
 case class NestedResType[T, S, V <: Option[S]](t: T, v: V, dat: List[Map[T, V]], lis: List[List[List[List[List[S]]]]])
 
 class ReflectorSpec extends Specification {
@@ -111,6 +113,60 @@ class ReflectorSpec extends Specification {
       params(1).name must_== "lis"
       params(1).defaultValue must beNone
       params(1).argType must_== Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]]
+    }
+
+    "describe a type with nested generic types 2" in {
+      val desc = Reflector.describe[NestedType3].asInstanceOf[ClassDescriptor]
+      desc.constructors.size must_== 1
+      val params = desc.constructors.head.params
+      params(0).name must_== "dat"
+      params(0).defaultValue must beNone
+      params(0).argType must_== Reflector.scalaTypeOf[List[Map[Double, Option[List[Option[Int]]]]]]
+      params(1).name must_== "lis"
+      params(1).defaultValue must beNone
+      params(1).argType must_== Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]]
+    }
+
+    "describe a type with nested generic types 3" in {
+      val desc = Reflector.describe[NestedType4].asInstanceOf[ClassDescriptor]
+      desc.constructors.size must_== 1
+      val params = desc.constructors.head.params
+      params(0).name must_== "dat"
+      params(0).defaultValue must beNone
+      params(0).argType must_== Reflector.scalaTypeOf[List[Map[Double, Option[List[Map[Long, Option[Int]]]]]]]
+      params(1).name must_== "lis"
+      params(1).defaultValue must beNone
+      params(1).argType must_== Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]]
+    }
+
+    "describe a type with nested generic types 4" in {
+      val desc = Reflector.describe[NestedType5].asInstanceOf[ClassDescriptor]
+      desc.constructors.size must_== 1
+      val params = desc.constructors.head.params
+      params(0).name must_== "dat"
+      params(0).defaultValue must beNone
+      params(0).argType must_== Reflector.scalaTypeOf[List[Map[Double, Option[List[Map[Long, Option[Map[Byte, Either[Double, Long]]]]]]]]]
+      params(1).name must_== "lis"
+      params(1).defaultValue must beNone
+      params(1).argType must_== Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]]
+    }
+
+    "describe a type with nested generic types parameters" in {
+      val desc = Reflector.describe[NestedResType[Double, Int, Option[Int]]].asInstanceOf[ClassDescriptor]
+      desc.constructors.size must_== 1
+      val params = desc.constructors.head.params
+      params(0).name must_== "t"
+      params(0).defaultValue must beNone
+      params(0).argType must_== Reflector.scalaTypeOf[Double]
+      params(1).name must_== "v"
+      params(1).defaultValue must beNone
+      params(1).argType must_== Reflector.scalaTypeOf[Option[Int]]
+      params(2).name must_== "dat"
+      params(2).defaultValue must beNone
+      params(2).argType must_== Reflector.scalaTypeOf[List[Map[Double, Option[Int]]]]
+      params(3).name must_== "lis"
+      params(3).defaultValue must beNone
+      params(3).argType must_== Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]]
     }
   }
 }

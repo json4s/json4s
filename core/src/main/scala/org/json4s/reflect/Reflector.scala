@@ -127,30 +127,25 @@ object Reflector {
     }
 
     def ctorParamType(name: String, index: Int, owner: ScalaType, ctorParameterNames: List[String], t: Type, container: Option[(ScalaType, List[Int])] = None): ScalaType = {
-      println("Getting constructor param type for %s with index %s and owner: %s.".format(name, index, owner))
-//      println("Owner type vars: " + owner.typeVars)
-      println("This has a container: %s" format container)
+//      println("Getting constructor param type for %s with index %s and owner: %s.".format(name, index, owner))
+////      println("Owner type vars: " + owner.typeVars)
+//      println("This has a container: %s" format container)
       val idxes = container.map(_._2.reverse)
       t  match {
         case v: TypeVariable[_] =>
-          println("This is a type variable:  " + v.getName)
-          println("This is a type variable of class:  " + v.getClass)
+//          println("This is a type variable:  " + v.getName)
+//          println("This is a type variable of class:  " + v.getClass)
           val a = owner.typeVars.getOrElse(v, scalaTypeOf(v))
           if (a.erasure == classOf[java.lang.Object]) {
-            val r = ScalaSigReader.readConstructor(name, owner.erasure, index, ctorParameterNames)
-            println("The result of the scalasig operation: " + r)
+            val r = ScalaSigReader.readConstructor(name, owner, index, ctorParameterNames)
+//            println("The result of the scalasig operation: " + r)
             scalaTypeOf(r)
           } else a
         case v: ParameterizedType =>
-          println("This is a parameterized type")
-          println("The type arguments: " + v.getActualTypeArguments.mkString(", "))
+//          println("This is a parameterized type")
+//          println("The type arguments: " + v.getActualTypeArguments.mkString(", "))
           val st = scalaTypeOf(v)
 //          println("For owner: " + st)
-          val rc = rawClassOf(v)
-          val typeParams = rc.getTypeParameters.toList.map(_.asInstanceOf[TypeVariable[_]])
-          val typeArgs = v.getActualTypeArguments.map(scalaTypeOf(_)) //map (ctorParamType(name, index, tpe, ctorParameterNames, _))
-          val typeVars = typeParams.zip(typeArgs)
-//          println("The type vars: " + typeVars.mkString(", "))
           val actualArgs = v.getActualTypeArguments.toList.zipWithIndex map {
             case (ct, idx) =>
               val prev = container.map(_._2).getOrElse(Nil)
@@ -159,11 +154,11 @@ object Reflector {
 //          println("The actual type arguments: " + typeVars.mkString(", "))
           st.copy(typeArgs = actualArgs)
         case x =>
-          println("This is a regular arg of type: " + x.getClass)
+//          println("This is a regular arg of type: " + x.getClass)
           val st = scalaTypeOf(x)
 //          println("The regular argument type: " + st)
           val r = if (st.erasure == classOf[java.lang.Object])
-            scalaTypeOf(ScalaSigReader.readConstructor(name, owner.erasure, idxes getOrElse List(index), ctorParameterNames))
+            scalaTypeOf(ScalaSigReader.readConstructor(name, owner, idxes getOrElse List(index), ctorParameterNames))
           else st
 //          println("The actual regular argument type: " + st)
           r
@@ -175,7 +170,7 @@ object Reflector {
         ctor =>
           val ctorParameterNames = ParanamerReader.lookupParameterNames(ctor)
           val genParams = Vector(ctor.getGenericParameterTypes: _*)
-          println("Gen params: " + genParams)
+//          println("Gen params: " + genParams)
           val ctorParams = ctorParameterNames.zipWithIndex map {
             case (paramName, index) =>
               val decoded = unmangleName(paramName)

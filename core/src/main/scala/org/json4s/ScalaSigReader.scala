@@ -19,6 +19,7 @@ package org.json4s
 import reflect.ScalaType
 import scala.tools.scalap.scalax.rules.scalasig._
 import scalashim._
+import annotation.tailrec
 
 private[json4s] object ScalaSigReader {
   def readConstructor(argName: String, clazz: Class[_], typeArgIndex: Int, argNames: List[String]): Class[_] = {
@@ -33,12 +34,18 @@ private[json4s] object ScalaSigReader {
     val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndexes)
   }
-//
-//  def readConstructor(argName: String, clazz: ScalaType, typeArgIndex: Int, argNames: List[String]): Class[_] = {
-//    val cl = findClass(clazz.erasure)
-//    val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail("Can't find constructor for " + clazz))
-//    findArgType(cstr, argNames.indexOf(argName), typeArgIndex)
-//  }
+
+  def readConstructor(argName: String, clazz: ScalaType, typeArgIndex: Int, argNames: List[String]): Class[_] = {
+    val cl = findClass(clazz.erasure)
+    val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail("Can't find constructor for " + clazz))
+    findArgType(cstr, argNames.indexOf(argName), typeArgIndex)
+  }
+
+  def readConstructor(argName: String, clazz: ScalaType, typeArgIndexes: List[Int], argNames: List[String]): Class[_] = {
+    val cl = findClass(clazz.erasure)
+    val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail("Can't find constructor for " + clazz))
+    findArgType(cstr, argNames.indexOf(argName), typeArgIndexes)
+  }
 
   def readField(name: String, clazz: Class[_], typeArgIndex: Int): Class[_] = {
     def read(current: Class[_]): MethodSymbol = {
@@ -97,39 +104,15 @@ private[json4s] object ScalaSigReader {
   }
 
   def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndexes: List[Int]): Class[_] = {
-    def findPrimitive(t: Type, curr: Int): Symbol = {
-      println("Finding primitive at %s in %s" format (curr, typeArgIndexes))
-      println(t)
-
+    @tailrec def findPrimitive(t: Type, curr: Int): Symbol = {
+      val ii = (typeArgIndexes.length - 1) min curr
       t match {
-        case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol) =>
-          println("This is a top level property")
-          symbol
-        case TypeRefType(_, _, ll @ (TypeRefType(ThisType(_), symbol, _) :: xs)) =>
-          println("Picking the first type arg from the list")
-          val r = (ll collect {
-            case t @ TypeRefType(ThisType(_), sym, Nil) => sym
-            case t @ TypeRefType(ThisType(_), sym, args) if typeArgIndexes(curr) >= args.length =>
-              findPrimitive(args(args.length - 1), curr + 1)
-            case t @ TypeRefType(ThisType(_), sym, args) =>
-              val ta = args(typeArgIndexes(typeArgIndexes.length - 1 min curr))
-              println("the type arg for finding primitive: " + ta)
-              ta match {
-                case ref @ TypeRefType(_, _, _) => findPrimitive(ref, curr + 1)
-                case x => Meta.fail("Unexpected type info " + x)
-              }
-          }).toList
-          println(r)
-          val s = r((r.length - 1 min typeArgIndexes(typeArgIndexes.length - 1 min curr)))
-          println(s)
-          s
+        case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol) => symbol
         case TypeRefType(_, symbol, Nil) => symbol
-        case TypeRefType(_, _, args) if typeArgIndexes(curr) >= args.length =>
-          println("Falling back to first type argument, because %s is greater than %s" format (typeArgIndexes(curr), args.length))
-          findPrimitive(args(0), 0)
+        case TypeRefType(_, _, args) if typeArgIndexes(ii) >= args.length =>
+          findPrimitive(args(0 max args.length - 1), curr + 1)
         case TypeRefType(_, _, args) =>
-          val ta = args(typeArgIndexes(typeArgIndexes.length - 1 min curr))
-          println("the type arg for finding primitive: " + ta)
+          val ta = args(typeArgIndexes(ii))
           ta match {
             case ref @ TypeRefType(_, _, _) => findPrimitive(ref, curr + 1)
             case x => Meta.fail("Unexpected type info " + x)
@@ -137,9 +120,7 @@ private[json4s] object ScalaSigReader {
         case x => Meta.fail("Unexpected type info " + x)
       }
     }
-    val prim = findPrimitive(s.children(argIdx).asInstanceOf[SymbolInfoSymbol].infoType, 0)
-    println("The primitive: " + prim)
-    toClass(prim)
+    toClass(findPrimitive(s.children(argIdx).asInstanceOf[SymbolInfoSymbol].infoType, 0))
   }
 
   private def findArgTypeForField(s: MethodSymbol, typeArgIdx: Int): Class[_] = {
