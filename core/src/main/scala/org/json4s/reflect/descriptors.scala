@@ -1,7 +1,8 @@
-package org.json4s.reflect
+package org.json4s
+package reflect
 
 import java.lang.reflect.{Constructor => JConstructor, Type, Field, TypeVariable}
-import org.json4s.{Meta, TypeInfo}
+import scala._
 
 sealed trait Descriptor
 object ScalaType {
@@ -13,16 +14,31 @@ object ScalaType {
   }
 }
 class ScalaType(private val manifest: Manifest[_]) extends Descriptor with Equals {
+
   val erasure: Class[_] = manifest.erasure
-  val typeArgs: Seq[ScalaType] = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta))
+
+  val typeArgs: Seq[ScalaType] = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
+    if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
+  )
+
   val typeVars: Map[TypeVariable[_], ScalaType] = Map.empty ++
-          erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).toList.zip(manifest.typeArguments map (ScalaType(_)))
+    erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).toList.zip(manifest.typeArguments map (ScalaType(_)))
+
   val isArray: Boolean = erasure.isArray
+
   lazy val rawFullName: String = erasure.getName
+
   lazy val rawSimpleName: String = erasure.getSimpleName
-  lazy val simpleName: String = rawSimpleName + (if (typeArgs.nonEmpty) typeArgs.map(_.simpleName).mkString("[", ", ", "]") else (if (typeVars.nonEmpty) typeVars.map(_._2.simpleName).mkString("[", ", ", "]") else ""))
-  lazy val fullName: String = rawFullName + (if (typeArgs.nonEmpty) typeArgs.map(_.fullName).mkString("[", ", ", "]") else "")
-  lazy val typeInfo: TypeInfo = TypeInfo(erasure, if (typeArgs.nonEmpty) Some(Reflector.mkParameterizedType(erasure, typeArgs.map(_.erasure).toSeq)) else None)
+
+  lazy val simpleName: String =
+    rawSimpleName + (if (typeArgs.nonEmpty) typeArgs.map(_.simpleName).mkString("[", ", ", "]") else (if (typeVars.nonEmpty) typeVars.map(_._2.simpleName).mkString("[", ", ", "]") else ""))
+
+  lazy val fullName: String =
+    rawFullName + (if (typeArgs.nonEmpty) typeArgs.map(_.fullName).mkString("[", ", ", "]") else "")
+
+  lazy val typeInfo: TypeInfo =
+    TypeInfo(erasure, if (typeArgs.nonEmpty) Some(Reflector.mkParameterizedType(erasure, typeArgs.map(_.erasure).toSeq)) else None)
+
   lazy val isPrimitive: Boolean = Reflector.isPrimitive(erasure)
 
   def isMap = classOf[Map[_, _]].isAssignableFrom(erasure)
@@ -58,9 +74,35 @@ case class ConstructorParamDescriptor(name: String, mangledName: String, argInde
 }
 case class ConstructorDescriptor(params: Seq[ConstructorParamDescriptor], constructor: java.lang.reflect.Constructor[_], isPrimary: Boolean) extends Descriptor
 case class SingletonDescriptor(simpleName: String, fullName: String, erasure: ScalaType, instance: AnyRef, properties: Seq[PropertyDescriptor]) extends Descriptor
+
 case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaType, companion: Option[SingletonDescriptor], constructors: Seq[ConstructorDescriptor], properties: Seq[PropertyDescriptor]) extends Descriptor {
-//    def bestConstructor(argNames: Seq[String]): Option[ConstructorDescriptor] = {
-//      constructors.sortBy(-_.params.size)
-//    }
+
+  def bestMatching(argNames: List[String]): Option[Seq[ConstructorParamDescriptor]] = {
+    val names = Set(argNames: _*)
+    def countOptionals(args: List[ConstructorParamDescriptor]) =
+      args.foldLeft(0)((n, x) => {
+        val defv = companion flatMap {
+          case so => Reflector.defaultValue(so.erasure.erasure, so.instance, argNames.indexOf(x.name))
+        }
+        if (x.isOptional || defv.isDefined) n+1 else n
+      })
+    def score(args: List[ConstructorParamDescriptor]) =
+      args.foldLeft(0)((s, arg) => if (names.contains(arg.name)) s+1 else -100)
+
+    if (constructors.isEmpty) None
+    else {
+      val best = constructors.tail.foldLeft((constructors.head, score(constructors.head.params.toList))) { (best, c) =>
+        val newScore = score(c.params.toList)
+        val newIsBetter =
+          (newScore == best._2 && countOptionals(c.params.toList) < countOptionals(best._1.params.toList)) || newScore > best._2
+        if (newIsBetter) (c, newScore) else best
+      }
+      Some(best._1.params)
+    }
+  }
+
   lazy val mostComprehensive: Seq[ConstructorParamDescriptor] = constructors.sortBy(-_.params.size).head.params
 }
+
+case class ValueDescriptor(simpleName: String, fullName: String, erasure: ScalaType, default: Option[() => Any] = None) extends Descriptor
+

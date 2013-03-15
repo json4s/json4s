@@ -168,5 +168,12 @@ class ReflectorSpec extends Specification {
       params(3).defaultValue must beNone
       params(3).argType must_== Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]]
     }
+
+    "describe a class with a wildcard parameter" in {
+      val desc = Reflector.describe[Objs].asInstanceOf[ClassDescriptor]
+      desc.constructors.size must_== 1
+      val params = desc.constructors.head.params
+      params(0).name must_== "objects"
+    }
   }
 }

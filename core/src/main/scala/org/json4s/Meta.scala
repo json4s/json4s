@@ -98,8 +98,7 @@ private[json4s] object Meta {
       paranamer.lookupParameterNames(constructor)
   }
 
-  private[json4s] def mappingOf(clazz: Type, typeArgs: Seq[Class[_]] = Seq())
-                             (implicit formats: Formats): Mapping = {
+  private[json4s] def mappingOf(clazz: Type, typeArgs: Seq[Class[_]] = Seq())(implicit formats: Formats): Mapping = {
     import Reflection._
 
     def constructors(t: Type, visited: Set[Type], context: Option[Context]) = {

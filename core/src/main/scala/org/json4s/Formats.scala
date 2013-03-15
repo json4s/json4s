@@ -23,6 +23,7 @@ import scalashim._
 import java.util
 import scalaj.collection.Imports._
 import scala.util.DynamicVariable
+import annotation.implicitNotFound
 
 /** Formats to use when converting JSON.
  * Formats are usually configured by using an implicit parameter:
@@ -30,6 +31,9 @@ import scala.util.DynamicVariable
  * implicit val formats = org.json4s.DefaultFormats
  * </pre>
  */
+@implicitNotFound(
+  "No org.json4s.Formats found. Try to bring an instance of org.json4s.Formats in scope or use the org.json4s.DefaultFormats."
+)
 trait Formats { self: Formats =>
   val dateFormat: DateFormat
   val typeHints: TypeHints = NoTypeHints

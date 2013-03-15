@@ -2,7 +2,7 @@ package org.json4s
 package reflect
 
 import java.{util => jutil}
-import java.lang.reflect.{Type, TypeVariable, ParameterizedType, Modifier}
+import java.lang.reflect._
 import scala.util.control.Exception._
 import scalaj.collection.Imports._
 import java.util.Date
@@ -10,6 +10,12 @@ import java.sql.Timestamp
 import scalashim._
 import collection.mutable.ArrayBuffer
 import annotation.tailrec
+import reflect.SingletonDescriptor
+import reflect.ClassDescriptor
+import scala.Some
+import reflect.ConstructorParamDescriptor
+import reflect.PropertyDescriptor
+import reflect.ConstructorDescriptor
 
 object Reflector {
 
@@ -54,10 +60,7 @@ object Reflector {
   def describe(clazz: Class[_]): Descriptor = describe(scalaTypeOf(clazz))
 
   def describe(fqn: String): Option[Descriptor] = {
-    Reflector.scalaTypeOf(fqn) map {
-      st =>
-        descriptors(st, createClassDescriptor)
-    }
+    Reflector.scalaTypeOf(fqn) map { st => descriptors(st, createClassDescriptor) }
   }
 
   def describe(st: ScalaType): Descriptor = descriptors(st, Reflector.createClassDescriptor)
@@ -89,18 +92,11 @@ object Reflector {
 
   private[reflect] def createClassDescriptor(tpe: ScalaType): Descriptor = {
     val path = if (tpe.rawFullName.endsWith("$")) tpe.rawFullName else "%s$".format(tpe.rawFullName)
-    //    val sig = ScalaSigReader.findScalaSig(tpe.erasure).getOrElse(Meta.fail("Can't find ScalaSig for " + tpe.fullName))
-    //    val sym = ScalaSigReader.findClass(sig, tpe.erasure).getOrElse(Meta.fail("Can't find " + tpe.fullName + " from parsed ScalaSig"))
-    //    val children = sym.children
-    //    val ctorChildren =
-    //      children.filter(c => c.isCaseAccessor && !c.isPrivate).map(_.asInstanceOf[MethodSymbol]).zipWithIndex map {
-    //        case (ms, idx) =>
-    //          ConstructorParamDescriptor(unmangleName(ms.name), ms.name, idx, null, )
-    //      }
     val c = resolveClass(path, Vector(getClass.getClassLoader))
-    val companion = c map {
-      cl =>
-        SingletonDescriptor(cl.getSimpleName, cl.getName, scalaTypeOf(cl), cl.getField(ModuleFieldName).get(null), Seq.empty)
+    val companion = c flatMap { cl =>
+        allCatch opt {
+          SingletonDescriptor(cl.getSimpleName, cl.getName, scalaTypeOf(cl), cl.getField(ModuleFieldName).get(null), Seq.empty)
+        }
     }
 
     def properties: Seq[PropertyDescriptor] = {
@@ -127,41 +123,39 @@ object Reflector {
     }
 
     def ctorParamType(name: String, index: Int, owner: ScalaType, ctorParameterNames: List[String], t: Type, container: Option[(ScalaType, List[Int])] = None): ScalaType = {
-//      println("Getting constructor param type for %s with index %s and owner: %s.".format(name, index, owner))
-////      println("Owner type vars: " + owner.typeVars)
-//      println("This has a container: %s" format container)
+//      println("Getting %s at %d on %s from type %s contained by %s".format(name, index, owner, t, container))
       val idxes = container.map(_._2.reverse)
       t  match {
         case v: TypeVariable[_] =>
-//          println("This is a type variable:  " + v.getName)
-//          println("This is a type variable of class:  " + v.getClass)
+//          println("This is a type variable " + v)
           val a = owner.typeVars.getOrElse(v, scalaTypeOf(v))
           if (a.erasure == classOf[java.lang.Object]) {
+//            println("falling back to scalasig")
             val r = ScalaSigReader.readConstructor(name, owner, index, ctorParameterNames)
-//            println("The result of the scalasig operation: " + r)
             scalaTypeOf(r)
           } else a
         case v: ParameterizedType =>
-//          println("This is a parameterized type")
-//          println("The type arguments: " + v.getActualTypeArguments.mkString(", "))
+//          println("This is a parameterized type " + v)
           val st = scalaTypeOf(v)
-//          println("For owner: " + st)
           val actualArgs = v.getActualTypeArguments.toList.zipWithIndex map {
             case (ct, idx) =>
               val prev = container.map(_._2).getOrElse(Nil)
               ctorParamType(name, index, owner, ctorParameterNames, ct, Some((st, idx :: prev)))
           }
-//          println("The actual type arguments: " + typeVars.mkString(", "))
+//          println("actualArgs: " + actualArgs)
           st.copy(typeArgs = actualArgs)
+        case v: WildcardType =>
+//          println("this is a wildcard type: " + t)
+          val upper = v.getUpperBounds
+          if (upper != null && upper.size > 0) scalaTypeOf(upper(0))
+          else scalaTypeOf[AnyRef]
         case x =>
-//          println("This is a regular arg of type: " + x.getClass)
+//          println("This is a plain type: " + x)
           val st = scalaTypeOf(x)
-//          println("The regular argument type: " + st)
-          val r = if (st.erasure == classOf[java.lang.Object])
+          if (st.erasure == classOf[java.lang.Object]) {
+            println("falling back to scalasig")
             scalaTypeOf(ScalaSigReader.readConstructor(name, owner, idxes getOrElse List(index), ctorParameterNames))
-          else st
-//          println("The actual regular argument type: " + st)
-          r
+          } else st
       }
     }
 
@@ -170,7 +164,6 @@ object Reflector {
         ctor =>
           val ctorParameterNames = ParanamerReader.lookupParameterNames(ctor)
           val genParams = Vector(ctor.getGenericParameterTypes: _*)
-//          println("Gen params: " + genParams)
           val ctorParams = ctorParameterNames.zipWithIndex map {
             case (paramName, index) =>
               val decoded = unmangleName(paramName)
@@ -198,13 +191,11 @@ object Reflector {
 
   def rawClassOf(t: Type): Class[_] = rawClasses(t, _ match {
     case c: Class[_] => c
-    case p: ParameterizedType =>
-      rawClassOf(p.getRawType)
+    case p: ParameterizedType => rawClassOf(p.getRawType)
     case x => sys.error("Raw type of " + x + " not known")
   })
 
-  def unmangleName(name: String) =
-    unmangledNames(name, scala.reflect.NameTransformer.decode)
+  def unmangleName(name: String) = unmangledNames(name, scala.reflect.NameTransformer.decode)
 
   def mkParameterizedType(owner: Type, typeArgs: Seq[Type]) =
     new ParameterizedType {
