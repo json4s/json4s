@@ -174,6 +174,7 @@ class ReflectorSpec extends Specification {
       desc.constructors.size must_== 1
       val params = desc.constructors.head.params
       params(0).name must_== "objects"
+      params(0).argType must_== Reflector.scalaTypeOf[List[Obj[_]]]
     }
   }
 }
