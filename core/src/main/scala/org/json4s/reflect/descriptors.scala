@@ -201,8 +201,8 @@ class ScalaType(private val manifest: Manifest[_]) extends Equals {
     else {
       val mf = ManifestFactory.manifestOf(erasure, typeArgs.map(_.manifest))
       val st = new CopiedScalaType(mf, typeVars, isPrimitive)
-//      types.replace(mf, st)
-      st
+      if (typeArgs.isEmpty) types.replace(mf, st)
+      else st
     }
   }
 
@@ -242,7 +242,11 @@ case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaT
     }
   }
 
-  lazy val mostComprehensive: Seq[ConstructorParamDescriptor] = constructors.sortBy(-_.params.size).head.params
+  private[this] var _mostComprehensive: Seq[ConstructorParamDescriptor] = null
+  def mostComprehensive: Seq[ConstructorParamDescriptor] = {
+    if (_mostComprehensive == null) _mostComprehensive = constructors.sortBy(-_.params.size).head.params
+    _mostComprehensive
+  }
 }
 
 case class PrimitiveDescriptor(erasure: ScalaType, default: Option[() => Any] = None) extends ObjectDescriptor
