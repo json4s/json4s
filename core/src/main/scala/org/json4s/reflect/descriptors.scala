@@ -30,12 +30,14 @@ object ScalaType {
     else if (mf.erasure == classOf[JValue]) ScalaType.JValueType
     /* end optimization */
     else {
+      if (mf.typeArguments.isEmpty) types(mf, new ScalaType(_))
+      else new ScalaType(mf)
 //      if (!mf.erasure.isArray) types(mf, new ScalaType(_))
 //      else {
 //        val nmf = ManifestFactory.manifestOf(mf.erasure, List(ManifestFactory.manifestOf(mf.erasure.getComponentType)))
 //        types(nmf, new ScalaType(_))
 //      }
-      new ScalaType(mf)
+//      new ScalaType(mf)
     }
   }
 
@@ -223,10 +225,7 @@ case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaT
     val names = Set(argNames: _*)
     def countOptionals(args: List[ConstructorParamDescriptor]) =
       args.foldLeft(0)((n, x) => {
-        val defv = companion flatMap {
-          case so => Reflector.defaultValue(so.erasure.erasure, so.instance, argNames.indexOf(x.name))
-        }
-        if (x.isOptional || defv.isDefined) n+1 else n
+        if (x.isOptional) n+1 else n
       })
     def score(args: List[ConstructorParamDescriptor]) =
       args.foldLeft(0)((s, arg) => if (names.contains(arg.name)) s+1 else -100)
