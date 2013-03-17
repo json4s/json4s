@@ -26,7 +26,7 @@ object PullParserExamples extends Specification("JSON Pull Parser Examples") {
     }
 
     val postalCode = JsonParser.parse(json, parser)
-    postalCode mustEqual 10021
+    postalCode must_== 10021
   }
 
   val json = """

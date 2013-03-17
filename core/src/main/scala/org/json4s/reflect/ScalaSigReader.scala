@@ -1,56 +1,38 @@
-/*
- * Copyright 2009-2010 WorldWide Conferencing, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.json4s
+package reflect
 
-import reflect.ScalaType
 import scala.tools.scalap.scalax.rules.scalasig._
 import scalashim._
 import annotation.tailrec
 
 private[json4s] object ScalaSigReader {
   def readConstructor(argName: String, clazz: Class[_], typeArgIndex: Int, argNames: List[String]): Class[_] = {
-    println("Reading constructor for %s in %s with type arg index: %s and argnames: %s".format(argName, clazz, typeArgIndex, argNames))
     val cl = findClass(clazz)
-    val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail("Can't find constructor for " + clazz))
+    val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndex)
   }
   def readConstructor(argName: String, clazz: Class[_], typeArgIndexes: List[Int], argNames: List[String]): Class[_] = {
-    println("Reading constructor for %s in %s with type arg index: %s and argnames: %s".format(argName, clazz, typeArgIndexes, argNames))
     val cl = findClass(clazz)
-    val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail("Can't find constructor for " + clazz))
+    val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndexes)
   }
 
   def readConstructor(argName: String, clazz: ScalaType, typeArgIndex: Int, argNames: List[String]): Class[_] = {
     val cl = findClass(clazz.erasure)
-    val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail("Can't find constructor for " + clazz))
+    val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndex)
   }
 
   def readConstructor(argName: String, clazz: ScalaType, typeArgIndexes: List[Int], argNames: List[String]): Class[_] = {
     val cl = findClass(clazz.erasure)
-    val cstr = findConstructor(cl, argNames).getOrElse(Meta.fail("Can't find constructor for " + clazz))
+    val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndexes)
   }
 
   def readField(name: String, clazz: Class[_], typeArgIndex: Int): Class[_] = {
     def read(current: Class[_]): MethodSymbol = {
       if (current == null) 
-        Meta.fail("Can't find field " + name + " from " + clazz)
+        fail("Can't find field " + name + " from " + clazz)
       else
         findField(findClass(current), name).getOrElse(read(current.getSuperclass))
     }
@@ -58,8 +40,8 @@ private[json4s] object ScalaSigReader {
   }
 
   def findClass(clazz: Class[_]): ClassSymbol = {
-    val sig = findScalaSig(clazz).getOrElse(Meta.fail("Can't find ScalaSig for " + clazz))
-    findClass(sig, clazz).getOrElse(Meta.fail("Can't find " + clazz + " from parsed ScalaSig"))
+    val sig = findScalaSig(clazz).getOrElse(fail("Can't find ScalaSig for " + clazz))
+    findClass(sig, clazz).getOrElse(fail("Can't find " + clazz + " from parsed ScalaSig"))
   }
 
   def findClass(sig: ScalaSig, clazz: Class[_]): Option[ClassSymbol] = {
@@ -95,9 +77,9 @@ private[json4s] object ScalaSigReader {
           val ta = args(typeArgIndex)
           ta match {
             case ref @ TypeRefType(_, _, _) => findPrimitive(ref)
-            case x => Meta.fail("Unexpected type info " + x)
+            case x => fail("Unexpected type info " + x)
           }
-        case x => Meta.fail("Unexpected type info " + x)
+        case x => fail("Unexpected type info " + x)
       }
     }
     toClass(findPrimitive(s.children(argIdx).asInstanceOf[SymbolInfoSymbol].infoType))
@@ -115,36 +97,23 @@ private[json4s] object ScalaSigReader {
           val ta = args(typeArgIndexes(ii))
           ta match {
             case ref @ TypeRefType(_, _, _) => findPrimitive(ref, curr + 1)
-            case x => Meta.fail("Unexpected type info " + x)
+            case x => fail("Unexpected type info " + x)
           }
-        case x => Meta.fail("Unexpected type info " + x)
+        case x => fail("Unexpected type info " + x)
       }
     }
     toClass(findPrimitive(s.children(argIdx).asInstanceOf[SymbolInfoSymbol].infoType, 0))
   }
 
   private def findArgTypeForField(s: MethodSymbol, typeArgIdx: Int): Class[_] = {
-    // FIXME can be removed when 2.8 no longer needs to be supported.
-    // 2.8 does not have NullaryMethodType, work around that.
-    /*
     val t = s.infoType match {
       case NullaryMethodType(TypeRefType(_, _, args)) => args(typeArgIdx)
-    }
-    */
-    def resultType = try {
-      s.infoType.asInstanceOf[{ def resultType: Type }].resultType
-    } catch {
-      case e: java.lang.NoSuchMethodException => s.infoType.asInstanceOf[{ def typeRef: Type }].typeRef
-    }
-
-    val t = resultType match {
-      case TypeRefType(_, _, args) => args(typeArgIdx)
     }
 
     def findPrimitive(t: Type): Symbol = t match { 
       case TypeRefType(ThisType(_), symbol, _) => symbol
       case ref @ TypeRefType(_, _, _) => findPrimitive(ref)
-      case x => Meta.fail("Unexpected type info " + x)
+      case x => fail("Unexpected type info " + x)
     }
     toClass(findPrimitive(t))
   }
@@ -192,7 +161,7 @@ private[json4s] object ScalaSigReader {
     companionClass(clazz, classLoaders).getField(ModuleFieldName).get(null)
 
   def companions(t: java.lang.reflect.Type) = {
-    val k = Meta.rawClassOf(t)
+    val k = Reflector.rawClassOf(t)
     val cc = companionClass(k, ClassLoaders)
     (cc, cc.getField(ModuleFieldName).get(null))
   }
@@ -216,7 +185,7 @@ private[json4s] object ScalaSigReader {
         if (clazz != null) Some(clazz.asInstanceOf[Class[X]]) else None
       }
       catch {
-        case _ => None
+        case _: Throwable => None
       }
     }
   }

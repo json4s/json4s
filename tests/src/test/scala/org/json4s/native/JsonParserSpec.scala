@@ -32,7 +32,7 @@ object JsonParserSpec extends Specification("JSON Parser Specification") with JV
     val executor = Executors.newFixedThreadPool(100)
     val results = (0 to 100).map(_ =>
       executor.submit(new Callable[JValue] { def call = parse(json) })).toList.map(_.get)
-    results.zip(results.tail).forall(pair => pair._1 == pair._2) mustEqual true
+    results.zip(results.tail).forall(pair => pair._1 == pair._2) must_== true
   }
 
   "All valid string escape characters can be parsed" in {
@@ -40,8 +40,8 @@ object JsonParserSpec extends Specification("JSON Parser Specification") with JV
   }
 
   "Unclosed string literal fails parsing" in {
-    parseOpt("{\"foo\":\"sd") mustEqual None
-    parseOpt("{\"foo\":\"sd}") mustEqual None
+    parseOpt("{\"foo\":\"sd") must_== None
+    parseOpt("{\"foo\":\"sd}") must_== None
   }
 
   "parses doubles as bigdecimal" in {
@@ -77,7 +77,7 @@ object JsonParserSpec extends Specification("JSON Parser Specification") with JV
     }
 
     val json = JsonParser.parse(new StingyReader(""" ["hello"] """))
-    json mustEqual JArray(JString("hello") :: Nil)
+    json must_== JArray(JString("hello") :: Nil)
   }
 
   implicit def arbJValue: Arbitrary[JValue] = Arbitrary(genObject)

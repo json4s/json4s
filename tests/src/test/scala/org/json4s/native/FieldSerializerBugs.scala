@@ -15,7 +15,7 @@ object FieldSerializerBugs extends Specification {
 
     val ser = swrite(new AtomicInteger(1))
     val atomic = read[AtomicInteger](ser)
-    atomic.get mustEqual 1
+    atomic.get must_== 1
   }
   */
 
@@ -24,8 +24,8 @@ object FieldSerializerBugs extends Specification {
 
     val s = WithSymbol(5)
     val str = Serialization.write(s)
-    str mustEqual """{"a-b*c":5}"""
-    read[WithSymbol](str) mustEqual s
+    str must_== """{"a-b*c":5}"""
+    read[WithSymbol](str) must_== s
   }
 
   "FieldSerialization should work with Options" in {
@@ -33,7 +33,7 @@ object FieldSerializerBugs extends Specification {
 
     val t = new ClassWithOption
     t.field = Some(5)
-    read[ClassWithOption](Serialization.write(t)).field mustEqual Some(5)
+    read[ClassWithOption](Serialization.write(t)).field must_== Some(5)
   }
 
   case class WithSymbol(`a-b*c`: Int)

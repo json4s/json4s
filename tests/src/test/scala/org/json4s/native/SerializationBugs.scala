@@ -13,7 +13,7 @@ object SerializationBugs extends Specification {
 
     val game = Game(Map("a" -> Plan(Some(Action(1, None)))))
     val ser = swrite(game)
-    read[Game](ser) mustEqual game
+    read[Game](ser) must_== game
   }
 
   "plan2.Plan can be serialized (issue 341)" in {
@@ -25,30 +25,30 @@ object SerializationBugs extends Specification {
     val ser = swrite(g1)
     val g2 = read[Game](ser)
     val plan = g2.buy("a")
-    g2.buy.size mustEqual 1
+    g2.buy.size must_== 1
     val leftOp = plan.leftOperand.get
-    leftOp.functionName mustEqual "f1"
-    leftOp.symbol mustEqual "s"
-    leftOp.inParams.toList mustEqual Nil
-    leftOp.subOperand mustEqual None
-    plan.operator mustEqual Some("A")
+    leftOp.functionName must_== "f1"
+    leftOp.symbol must_== "s"
+    leftOp.inParams.toList must_== Nil
+    leftOp.subOperand must_== None
+    plan.operator must_== Some("A")
     val rightOp = plan.rightOperand.get
-    rightOp.functionName mustEqual "f2"
-    rightOp.symbol mustEqual "s2"
-    rightOp.inParams.toList mustEqual List(0, 1, 2)
-    rightOp.subOperand mustEqual None
+    rightOp.functionName must_== "f2"
+    rightOp.symbol must_== "s2"
+    rightOp.inParams.toList must_== List(0, 1, 2)
+    rightOp.subOperand must_== None
   }
 
   "null serialization bug" in {
     val x = new X(null)
     val ser = swrite(x)
-    read[X](ser) mustEqual x
+    read[X](ser) must_== x
   }
 
   "StackOverflowError with large Lists" in {
     val xs = LongList(List.fill(5000)(0).map(Num))
     val ser = swrite(xs)
-    read[LongList](ser).xs.length mustEqual 5000
+    read[LongList](ser).xs.length must_== 5000
   }
 
   "Custom serializer should work with Option" in {
@@ -67,8 +67,8 @@ object SerializationBugs extends Specification {
     implicit val formats = native.Serialization.formats(NoTypeHints) + new UUIDFormat
     val o1 = OptionalUUID(None)
     val o2 = OptionalUUID(Some(UUID.randomUUID))
-    read[OptionalUUID](swrite(o1)) mustEqual o1
-    read[OptionalUUID](swrite(o2)) mustEqual o2
+    read[OptionalUUID](swrite(o1)) must_== o1
+    read[OptionalUUID](swrite(o2)) must_== o2
   }
 
   "TypeInfo is not correctly constructed for customer serializer -- 970" in {
@@ -92,27 +92,27 @@ object SerializationBugs extends Specification {
 
     val seq = Seq(1, 2, 3)
     val ser = Extraction.decompose(seq)
-    Extraction.extract[Seq[Int]](ser) mustEqual seq
+    Extraction.extract[Seq[Int]](ser) must_== seq
   }
 
   "Serialization of an opaque value should not fail" in {
     val o = Opaque(JObject(JField("some", JString("data")) :: Nil))
     val ser = native.Serialization.write(o)
-    ser mustEqual """{"x":{"some":"data"}}"""
+    ser must_== """{"x":{"some":"data"}}"""
   }
 
   "Map with Map value" in {
     val a = Map("a" -> Map("a" -> 5))
     val b = Map("b" -> 1)
     val str = native.Serialization.write(MapWithMap(a, b))
-    read[MapWithMap](str) mustEqual MapWithMap(a, b)
+    read[MapWithMap](str) must_== MapWithMap(a, b)
   }
 
   "Either can't be deserialized with type hints" in {
     implicit val formats = DefaultFormats + FullTypeHints(classOf[Either[_, _]] :: Nil)
     val x = Eith(Left("hello"))
     val s = native.Serialization.write(x)
-    read[Eith](s) mustEqual x
+    read[Eith](s) must_== x
   }
 
   "Custom serializer should work as Map key (scala 2.9) (issue #1077)" in {
@@ -136,7 +136,7 @@ object SerializationBugs extends Specification {
     implicit val formats = DefaultFormats + new SingleOrVectorSerializer
 
     val ser = swrite(MapHolder(Map("hello" -> SingleValue(2.0))))
-    read[MapHolder](ser) mustEqual MapHolder(Map("hello" -> SingleValue(2.0)))
+    read[MapHolder](ser) must_== MapHolder(Map("hello" -> SingleValue(2.0)))
   }
 }
 

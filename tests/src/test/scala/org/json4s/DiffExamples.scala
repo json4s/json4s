@@ -28,9 +28,9 @@ abstract class DiffExamples[T](mod: String) extends Specification(mod + " Diff E
 
   "Diff example" in {
       val Diff(changed, added, deleted) = scala1 diff scala2
-      changed mustEqual expectedChanges
-      added mustEqual expectedAdditions
-      deleted mustEqual expectedDeletions
+      changed must_== expectedChanges
+      added must_== expectedAdditions
+      deleted must_== expectedDeletions
     }
 
 
@@ -58,9 +58,9 @@ abstract class DiffExamples[T](mod: String) extends Specification(mod + " Diff E
 
   "Lotto example" in {
     val Diff(changed, added, deleted) = mergedLottoResult diff lotto1
-    changed mustEqual JNothing
-    added mustEqual JNothing
-    deleted mustEqual lotto2
+    changed must_== JNothing
+    added must_== JNothing
+    deleted must_== lotto2
   }
 
   "Example from http://tlrobinson.net/projects/js/jsondiff/" in {
@@ -70,7 +70,7 @@ abstract class DiffExamples[T](mod: String) extends Specification(mod + " Diff E
     val expectedAdditions = read("/diff-example-expected-additions.json")
     val expectedDeletions = read("/diff-example-expected-deletions.json")
 
-    json1 diff json2 mustEqual Diff(expectedChanges, expectedAdditions, expectedDeletions)
+    json1 diff json2 must_== Diff(expectedChanges, expectedAdditions, expectedDeletions)
   }
 
   private def read(resource: String) =

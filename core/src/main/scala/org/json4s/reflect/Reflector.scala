@@ -10,61 +10,35 @@ import java.sql.Timestamp
 import scalashim._
 import collection.mutable.ArrayBuffer
 import annotation.tailrec
-import reflect.SingletonDescriptor
-import reflect.ClassDescriptor
-import scala.Some
-import reflect.ConstructorParamDescriptor
-import reflect.PropertyDescriptor
-import reflect.ConstructorDescriptor
 
 object Reflector {
 
   private[this] val rawClasses = new Memo[Type, Class[_]]
   private[this] val unmangledNames = new Memo[String, String]
-  private[this] val types = new Memo[Type, ScalaType]
-  private[this] val descriptors = new Memo[ScalaType, Descriptor]
+  private[this] val descriptors = new Memo[ScalaType, ObjectDescriptor]
 
   private[this] val primitives = {
       Set[Type](classOf[String], classOf[Int], classOf[Long], classOf[Double],
         classOf[Float], classOf[Byte], classOf[BigInt], classOf[Boolean],
         classOf[Short], classOf[java.lang.Integer], classOf[java.lang.Long],
-        classOf[java.lang.Double], classOf[java.lang.Float],
+        classOf[java.lang.Double], classOf[java.lang.Float], classOf[BigDecimal],
         classOf[java.lang.Byte], classOf[java.lang.Boolean], classOf[Number],
-        classOf[java.lang.Short], classOf[Date], classOf[Timestamp], classOf[Symbol])
+        classOf[java.lang.Short], classOf[Date], classOf[Timestamp], classOf[Symbol],
+        classOf[java.math.BigDecimal], classOf[java.math.BigInteger])
   }
 
-  def isPrimitive(t: Type) = primitives contains t
+  def isPrimitive(t: Type, extra: Set[Type] = Set.empty) = (primitives ++ extra) contains t
 
-  def scalaTypeOf[T](implicit mf: Manifest[T]): ScalaType = {
-//    types(mf.erasure, _ => ScalaType(mf))
-    ScalaType(mf)
-  }
+  def scalaTypeOf[T](implicit mf: Manifest[T]): ScalaType = ScalaType(mf)
+  def scalaTypeOf(clazz: Class[_]): ScalaType = ScalaType(ManifestFactory.manifestOf(clazz))
+  def scalaTypeOf(t: Type): ScalaType = ScalaType(ManifestFactory.manifestOf(t))
+  def scalaTypeOf(name: String): Option[ScalaType] = resolveClass[AnyRef](name, ClassLoaders) map (c => scalaTypeOf(c))
 
-  def scalaTypeOf(clazz: Class[_]): ScalaType = {
-    val mf = ManifestFactory.manifestOf(clazz)
-//    types(mf.erasure, _ => ScalaType(mf))
-    ScalaType(mf)
-  }
-
-  def scalaTypeOf(t: Type): ScalaType = {
-    val mf = ManifestFactory.manifestOf(t)
-//    types(mf.erasure, _ => ScalaType(mf))
-    ScalaType(mf)
-  }
-
-  def scalaTypeOf(name: String): Option[ScalaType] =
-    Reflector.resolveClass[AnyRef](name, ClassLoaders) map (c => scalaTypeOf(c))
-
-  def describe[T](implicit mf: Manifest[T]): Descriptor = describe(scalaTypeOf[T])
-
-  def describe(clazz: Class[_]): Descriptor = describe(scalaTypeOf(clazz))
-
-  def describe(fqn: String): Option[Descriptor] = {
-    Reflector.scalaTypeOf(fqn) map { st => descriptors(st, createClassDescriptor) }
-  }
-
-  def describe(st: ScalaType): Descriptor = descriptors(st, Reflector.createClassDescriptor)
-
+  def describe[T](implicit mf: Manifest[T]): ObjectDescriptor = describe(scalaTypeOf[T])
+  def describe(clazz: Class[_]): ObjectDescriptor = describe(scalaTypeOf(clazz))
+  def describe(fqn: String): Option[ObjectDescriptor] = scalaTypeOf(fqn) map (descriptors(_, createDescriptor(_)))
+  def describe(st: ScalaType, paranamer: ParameterNameReader = ParanamerReader): ObjectDescriptor =
+    descriptors(st, createDescriptor(_, paranamer))
 
   def resolveClass[X <: AnyRef](c: String, classLoaders: Iterable[ClassLoader]): Option[Class[X]] = classLoaders match {
     case Nil => sys.error("resolveClass: expected 1+ classloaders but received empty list")
@@ -90,95 +64,97 @@ object Reflector {
     }
   }
 
-  private[reflect] def createClassDescriptor(tpe: ScalaType): Descriptor = {
-    val path = if (tpe.rawFullName.endsWith("$")) tpe.rawFullName else "%s$".format(tpe.rawFullName)
-    val c = resolveClass(path, Vector(getClass.getClassLoader))
-    val companion = c flatMap { cl =>
-        allCatch opt {
-          SingletonDescriptor(cl.getSimpleName, cl.getName, scalaTypeOf(cl), cl.getField(ModuleFieldName).get(null), Seq.empty)
+  private[reflect] def createDescriptor(tpe: ScalaType, paramNameReader: ParameterNameReader = ParanamerReader): ObjectDescriptor = {
+    if (tpe.isPrimitive) {
+      PrimitiveDescriptor(tpe)
+    } else {
+
+      val path = if (tpe.rawFullName.endsWith("$")) tpe.rawFullName else "%s$".format(tpe.rawFullName)
+      val c = resolveClass(path, Vector(getClass.getClassLoader))
+      val companion = c flatMap { cl =>
+          allCatch opt {
+            SingletonDescriptor(cl.getSimpleName, cl.getName, scalaTypeOf(cl), cl.getField(ModuleFieldName).get(null), Seq.empty)
+          }
+      }
+
+      def properties: Seq[PropertyDescriptor] = {
+        def fields(clazz: Class[_]): List[PropertyDescriptor] = {
+          val lb = new ArrayBuffer[PropertyDescriptor]()
+          val ls = clazz.getDeclaredFields.toIterator
+          while (ls.hasNext) {
+            val f = ls.next()
+            if (!Modifier.isStatic(f.getModifiers) || !Modifier.isTransient(f.getModifiers) || !Modifier.isPrivate(f.getModifiers)) {
+              val st = ScalaType(f.getType, f.getGenericType match {
+                case p: ParameterizedType => p.getActualTypeArguments.toSeq.zipWithIndex map { case (cc, i) =>
+                  if (cc == classOf[java.lang.Object]) Reflector.scalaTypeOf(ScalaSigReader.readField(f.getName, clazz, i))
+                  else Reflector.scalaTypeOf(cc)
+                }
+                case _ => Nil
+              })
+              val decoded = unmangleName(f.getName)
+              f.setAccessible(true)
+              lb += PropertyDescriptor(decoded, f.getName, st, f)
+            }
+          }
+          if (clazz.getSuperclass != null) lb ++= fields(clazz.getSuperclass)
+          lb.toList
         }
-    }
+        fields(tpe.erasure)
+      }
 
-    def properties: Seq[PropertyDescriptor] = {
-      def fields(clazz: Class[_]): List[PropertyDescriptor] = {
-        val lb = new ArrayBuffer[PropertyDescriptor]()
-        val ls = clazz.getDeclaredFields.toIterator
-        while (ls.hasNext) {
-          val f = ls.next()
-          if (!Modifier.isStatic(f.getModifiers) || !Modifier.isTransient(f.getModifiers) || !Modifier.isPrivate(f.getModifiers)) {
-            val st = ScalaType(f.getType, f.getGenericType match {
-              case p: ParameterizedType => p.getActualTypeArguments map (c => scalaTypeOf(c))
-              case _ => Nil
-            })
-            val decoded = unmangleName(f.getName)
-            f.setAccessible(true)
-            lb += PropertyDescriptor(decoded, f.getName, st, f)
-          }
+      def ctorParamType(name: String, index: Int, owner: ScalaType, ctorParameterNames: List[String], t: Type, container: Option[(ScalaType, List[Int])] = None): ScalaType = {
+        val idxes = container.map(_._2.reverse)
+        t  match {
+          case v: TypeVariable[_] =>
+            val a = owner.typeVars.getOrElse(v, scalaTypeOf(v))
+            if (a.erasure == classOf[java.lang.Object]) {
+              val r = ScalaSigReader.readConstructor(name, owner, index, ctorParameterNames)
+              scalaTypeOf(r)
+            } else a
+          case v: ParameterizedType =>
+            val st = scalaTypeOf(v)
+            val actualArgs = v.getActualTypeArguments.toList.zipWithIndex map {
+              case (ct, idx) =>
+                val prev = container.map(_._2).getOrElse(Nil)
+                ctorParamType(name, index, owner, ctorParameterNames, ct, Some((st, idx :: prev)))
+            }
+            st.copy(typeArgs = actualArgs)
+          case v: WildcardType =>
+            val upper = v.getUpperBounds
+            if (upper != null && upper.size > 0) scalaTypeOf(upper(0))
+            else scalaTypeOf[AnyRef]
+          case x =>
+            val st = scalaTypeOf(x)
+            if (st.erasure == classOf[java.lang.Object]) {
+              scalaTypeOf(ScalaSigReader.readConstructor(name, owner, idxes getOrElse List(index), ctorParameterNames))
+            } else st
         }
-        if (clazz.getSuperclass != null)
-          lb ++= fields(clazz.getSuperclass)
-        lb.toList
       }
-      fields(tpe.erasure)
-    }
 
-    def ctorParamType(name: String, index: Int, owner: ScalaType, ctorParameterNames: List[String], t: Type, container: Option[(ScalaType, List[Int])] = None): ScalaType = {
-//      println("Getting %s at %d on %s from type %s contained by %s".format(name, index, owner, t, container))
-      val idxes = container.map(_._2.reverse)
-      t  match {
-        case v: TypeVariable[_] =>
-//          println("This is a type variable " + v)
-          val a = owner.typeVars.getOrElse(v, scalaTypeOf(v))
-          if (a.erasure == classOf[java.lang.Object]) {
-//            println("falling back to scalasig")
-            val r = ScalaSigReader.readConstructor(name, owner, index, ctorParameterNames)
-            scalaTypeOf(r)
-          } else a
-        case v: ParameterizedType =>
-//          println("This is a parameterized type " + v)
-          val st = scalaTypeOf(v)
-          val actualArgs = v.getActualTypeArguments.toList.zipWithIndex map {
-            case (ct, idx) =>
-              val prev = container.map(_._2).getOrElse(Nil)
-              ctorParamType(name, index, owner, ctorParameterNames, ct, Some((st, idx :: prev)))
-          }
-//          println("actualArgs: " + actualArgs)
-          st.copy(typeArgs = actualArgs)
-        case v: WildcardType =>
-//          println("this is a wildcard type: " + t)
-          val upper = v.getUpperBounds
-          if (upper != null && upper.size > 0) scalaTypeOf(upper(0))
-          else scalaTypeOf[AnyRef]
-        case x =>
-//          println("This is a plain type: " + x)
-          val st = scalaTypeOf(x)
-          if (st.erasure == classOf[java.lang.Object]) {
-            println("falling back to scalasig")
-            scalaTypeOf(ScalaSigReader.readConstructor(name, owner, idxes getOrElse List(index), ctorParameterNames))
-          } else st
+      def constructors: Seq[ConstructorDescriptor] = {
+        tpe.erasure.getConstructors.toSeq map {
+          ctor =>
+            val ctorParameterNames = if (Modifier.isPublic(ctor.getModifiers) && ctor.getParameterTypes.length > 0)
+              allCatch opt { paramNameReader.lookupParameterNames(ctor) } getOrElse Nil
+            else
+              Nil
+            val genParams = Vector(ctor.getGenericParameterTypes: _*)
+            val ctorParams = ctorParameterNames.zipWithIndex map {
+              case (paramName, index) =>
+                val decoded = unmangleName(paramName)
+                val default = companion flatMap {
+                  comp =>
+                    defaultValue(comp.erasure.erasure, comp.instance, index)
+                }
+                val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.toList, genParams(index))
+                ConstructorParamDescriptor(decoded, paramName, index, theType, default)
+            }
+            ConstructorDescriptor(ctorParams.toSeq, ctor, isPrimary = false)
+        }
       }
-    }
 
-    def constructors: Seq[ConstructorDescriptor] = {
-      tpe.erasure.getConstructors.toSeq map {
-        ctor =>
-          val ctorParameterNames = ParanamerReader.lookupParameterNames(ctor)
-          val genParams = Vector(ctor.getGenericParameterTypes: _*)
-          val ctorParams = ctorParameterNames.zipWithIndex map {
-            case (paramName, index) =>
-              val decoded = unmangleName(paramName)
-              val default = companion flatMap {
-                comp =>
-                  defaultValue(comp.erasure.erasure, comp.instance, index)
-              }
-              val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.toList, genParams(index))
-              ConstructorParamDescriptor(decoded, paramName, index, theType, default)
-          }
-          ConstructorDescriptor(ctorParams.toSeq, ctor, isPrimary = false)
-      }
+      ClassDescriptor(tpe.simpleName, tpe.fullName, tpe, companion, constructors, properties)
     }
-
-    ClassDescriptor(tpe.simpleName, tpe.fullName, tpe, companion, constructors, properties)
   }
 
   def defaultValue(compClass: Class[_], compObj: AnyRef, argIndex: Int) = {

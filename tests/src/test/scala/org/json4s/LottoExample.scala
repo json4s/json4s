@@ -39,7 +39,7 @@ abstract class LottoExample[T](mod: String) extends Specification(mod + " Lotto 
 
   "The Lotto Examples" should {
     "pass" in {
-      compact(render(json)) mustEqual """{"lotto":{"id":5,"winning-numbers":[2,45,34,23,7,5,3],"winners":[{"winner-id":23,"numbers":[2,45,34,23,3,5]},{"winner-id":54,"numbers":[52,3,12,11,18,22]}]}}"""
+      compact(render(json)) must_== """{"lotto":{"id":5,"winning-numbers":[2,45,34,23,7,5,3],"winners":[{"winner-id":23,"numbers":[2,45,34,23,3,5]},{"winner-id":54,"numbers":[52,3,12,11,18,22]}]}}"""
       val exp: Winner = Winner(23, List(2, 45, 34, 23, 3, 5))
       val winn: Winner = extractWinner((json \ "lotto" \ "winners")(0))
       winn.`winner-id` must_== exp.`winner-id`
@@ -47,7 +47,7 @@ abstract class LottoExample[T](mod: String) extends Specification(mod + " Lotto 
 
       extractLotto(json \ "lotto") must_== lotto
 
-      json.values mustEqual Map("lotto" -> Map("id" -> 5, "winning-numbers" -> List(2, 45, 34, 23, 7, 5, 3), "draw-date" -> None, "winners" -> List(Map("winner-id" -> 23, "numbers" -> List(2, 45, 34, 23, 3, 5)), Map("winner-id" -> 54, "numbers" -> List(52, 3, 12, 11, 18, 22)))))
+      json.values must_== Map("lotto" -> Map("id" -> 5, "winning-numbers" -> List(2, 45, 34, 23, 7, 5, 3), "draw-date" -> None, "winners" -> List(Map("winner-id" -> 23, "numbers" -> List(2, 45, 34, 23, 3, 5)), Map("winner-id" -> 54, "numbers" -> List(52, 3, 12, 11, 18, 22)))))
     }
   }
 

@@ -12,9 +12,19 @@ object ScalaType {
     val mf = ManifestFactory.manifestOf(erasure, typeArgs.map(_.manifest))
     new ScalaType(mf)
   }
-}
-class ScalaType(private val manifest: Manifest[_]) extends Descriptor with Equals {
 
+  def apply(target: TypeInfo): ScalaType = {
+    target match {
+      case t: TypeInfo with SourceType => t.scalaType
+      case t =>
+        val tArgs = t.parameterizedType.map(_.getActualTypeArguments.toList.map(Reflector.scalaTypeOf(_))).getOrElse(Nil)
+        ScalaType(target.clazz, tArgs)
+    }
+  }
+}
+class ScalaType(private val manifest: Manifest[_]) extends Equals {
+
+  private[this] val self = this
   val erasure: Class[_] = manifest.erasure
 
   val typeArgs: Seq[ScalaType] = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
@@ -26,9 +36,19 @@ class ScalaType(private val manifest: Manifest[_]) extends Descriptor with Equal
 
   val isArray: Boolean = erasure.isArray
 
-  lazy val rawFullName: String = erasure.getName
+  private[this] var _rawFullName: String = null
+  def rawFullName: String = {
+    if (_rawFullName == null)
+      _rawFullName = erasure.getName
+    _rawFullName
+  }
 
-  lazy val rawSimpleName: String = erasure.getSimpleName
+  private[this] var _rawSimpleName: String = null
+  def rawSimpleName: String = {
+    if (_rawSimpleName == null)
+      _rawSimpleName = erasure.getSimpleName
+    _rawSimpleName
+  }
 
   lazy val simpleName: String =
     rawSimpleName + (if (typeArgs.nonEmpty) typeArgs.map(_.simpleName).mkString("[", ", ", "]") else (if (typeVars.nonEmpty) typeVars.map(_._2.simpleName).mkString("[", ", ", "]") else ""))
@@ -37,12 +57,18 @@ class ScalaType(private val manifest: Manifest[_]) extends Descriptor with Equal
     rawFullName + (if (typeArgs.nonEmpty) typeArgs.map(_.fullName).mkString("[", ", ", "]") else "")
 
   lazy val typeInfo: TypeInfo =
-    TypeInfo(erasure, if (typeArgs.nonEmpty) Some(Reflector.mkParameterizedType(erasure, typeArgs.map(_.erasure).toSeq)) else None)
+    new TypeInfo(
+      erasure,
+      if (typeArgs.nonEmpty) Some(Reflector.mkParameterizedType(erasure, typeArgs.map(_.erasure).toSeq)) else None
+    ) with SourceType {
+      val scalaType: ScalaType = self
+    }
 
-  lazy val isPrimitive: Boolean = Reflector.isPrimitive(erasure)
+  lazy val isPrimitive = Reflector.isPrimitive(erasure)
+  def isPrimitive(extra: Set[Type] = Set.empty): Boolean = Reflector.isPrimitive(erasure, extra)
 
   def isMap = classOf[Map[_, _]].isAssignableFrom(erasure)
-  def isCollection = classOf[Iterable[_]].isAssignableFrom(erasure)
+  def isCollection = erasure.isArray || classOf[Iterable[_]].isAssignableFrom(erasure)
   def isOption = classOf[Option[_]].isAssignableFrom(erasure)
   def <:<(that: ScalaType): Boolean = manifest <:< that.manifest
   def >:>(that: ScalaType): Boolean = manifest >:> that.manifest
@@ -59,7 +85,7 @@ class ScalaType(private val manifest: Manifest[_]) extends Descriptor with Equal
     case _ => false
   }
 
-  def copy(typeArgs: Seq[ScalaType] = typeArgs, typeVars: Map[TypeVariable[_], ScalaType] = typeVars) = {
+  def copy(erasure: Class[_] = erasure, typeArgs: Seq[ScalaType] = typeArgs, typeVars: Map[TypeVariable[_], ScalaType] = typeVars) = {
     new ScalaType(ManifestFactory.manifestOf(erasure, typeArgs.map(_.manifest)))
   }
 
@@ -75,9 +101,10 @@ case class ConstructorParamDescriptor(name: String, mangledName: String, argInde
 case class ConstructorDescriptor(params: Seq[ConstructorParamDescriptor], constructor: java.lang.reflect.Constructor[_], isPrimary: Boolean) extends Descriptor
 case class SingletonDescriptor(simpleName: String, fullName: String, erasure: ScalaType, instance: AnyRef, properties: Seq[PropertyDescriptor]) extends Descriptor
 
-case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaType, companion: Option[SingletonDescriptor], constructors: Seq[ConstructorDescriptor], properties: Seq[PropertyDescriptor]) extends Descriptor {
+sealed trait ObjectDescriptor extends Descriptor
+case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaType, companion: Option[SingletonDescriptor], constructors: Seq[ConstructorDescriptor], properties: Seq[PropertyDescriptor]) extends ObjectDescriptor {
 
-  def bestMatching(argNames: List[String]): Option[Seq[ConstructorParamDescriptor]] = {
+  def bestMatching(argNames: List[String]): Option[ConstructorDescriptor] = {
     val names = Set(argNames: _*)
     def countOptionals(args: List[ConstructorParamDescriptor]) =
       args.foldLeft(0)((n, x) => {
@@ -97,12 +124,12 @@ case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaT
           (newScore == best._2 && countOptionals(c.params.toList) < countOptionals(best._1.params.toList)) || newScore > best._2
         if (newIsBetter) (c, newScore) else best
       }
-      Some(best._1.params)
+      Some(best._1)
     }
   }
 
   lazy val mostComprehensive: Seq[ConstructorParamDescriptor] = constructors.sortBy(-_.params.size).head.params
 }
 
-case class ValueDescriptor(simpleName: String, fullName: String, erasure: ScalaType, default: Option[() => Any] = None) extends Descriptor
+case class PrimitiveDescriptor(erasure: ScalaType, default: Option[() => Any] = None) extends ObjectDescriptor
 

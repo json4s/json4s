@@ -28,12 +28,12 @@ object JacksonJsonQueryExamples extends JsonQueryExamples[JValue]("Jackson") wit
 abstract class JsonQueryExamples[T](mod: String) extends Specification(mod+" JSON Query Examples") with JsonMethods[T] {
   "List of IPs" in {
     val ips = for { JString(ip) <- json \\ "ip" } yield ip
-    ips mustEqual List("192.168.1.125", "192.168.1.126", "192.168.1.127", "192.168.2.125", "192.168.2.126")
+    ips must_== List("192.168.1.125", "192.168.1.126", "192.168.1.127", "192.168.2.125", "192.168.2.126")
   }
 
   "List of IPs converted to XML" in {
     val ips = <ips>{ for { JString(ip) <- json \\ "ip" } yield <ip>{ ip }</ip> }</ips>
-    ips mustEqual <ips><ip>192.168.1.125</ip><ip>192.168.1.126</ip><ip>192.168.1.127</ip><ip>192.168.2.125</ip><ip>192.168.2.126</ip></ips>
+    ips must_== <ips><ip>192.168.1.125</ip><ip>192.168.1.126</ip><ip>192.168.1.127</ip><ip>192.168.2.125</ip><ip>192.168.2.126</ip></ips>
   }
 
   "List of IPs in cluster2" in {
@@ -41,11 +41,11 @@ abstract class JsonQueryExamples[T](mod: String) extends Specification(mod+" JSO
       cluster @ JObject(x) <- json \ "data_center"
       if (x contains JField("name", JString("cluster2")))
       JString(ip) <- cluster \\ "ip" } yield ip
-    ips mustEqual List("192.168.2.125", "192.168.2.126")
+    ips must_== List("192.168.2.125", "192.168.2.126")
   }
 
   "Total cpus in data center" in {
-    (for { JInt(x) <- json \\ "cpus" } yield x) reduceLeft (_ + _) mustEqual 40
+    (for { JInt(x) <- json \\ "cpus" } yield x) reduceLeft (_ + _) must_== 40
   }
 
   "Servers sorted by uptime" in {
@@ -58,7 +58,7 @@ abstract class JsonQueryExamples[T](mod: String) extends Specification(mod+" JSO
       JField("uptime", JInt(uptime)) <- server
     } yield Server(ip, uptime.longValue)
 
-    servers sortWith (_.uptime > _.uptime) mustEqual List(Server("192.168.1.127", 901214), Server("192.168.2.125", 453423), Server("192.168.2.126", 214312), Server("192.168.1.126", 189822), Server("192.168.1.125", 150123))
+    servers sortWith (_.uptime > _.uptime) must_== List(Server("192.168.1.127", 901214), Server("192.168.2.125", 453423), Server("192.168.2.126", 214312), Server("192.168.1.126", 189822), Server("192.168.1.125", 150123))
   }
 
   "Clusters administered by liza" in {
@@ -69,7 +69,7 @@ abstract class JsonQueryExamples[T](mod: String) extends Specification(mod+" JSO
       JField("name", JString(name)) <- cluster
     } yield name
 
-    clusters mustEqual List("cluster2")
+    clusters must_== List("cluster2")
   }
 
   lazy val json = parse("""

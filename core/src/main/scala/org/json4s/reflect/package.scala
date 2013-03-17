@@ -1,7 +1,7 @@
 package org.json4s
 
 import com.thoughtworks.paranamer.{BytecodeReadingParanamer, CachingParanamer}
-import java.lang.reflect.{Constructor, Type}
+import java.lang.reflect.{Constructor, ParameterizedType, Type}
 import java.util.concurrent.ConcurrentHashMap
 import scalashim._
 import scalaj.collection.Imports._
@@ -29,9 +29,22 @@ package object reflect {
   private[reflect] val ClassLoaders = Vector(getClass.getClassLoader)
   private[this] val paranamer = new CachingParanamer(new BytecodeReadingParanamer)
 
+
+
+  case class TypeInfo(clazz: Class[_], parameterizedType: Option[ParameterizedType])
+
+  private[reflect] trait SourceType {
+    def scalaType: ScalaType
+  }
+
+  trait ParameterNameReader {
+    def lookupParameterNames(constructor: Constructor[_]): Seq[String]
+  }
+
+
   object ParanamerReader extends ParameterNameReader {
     def lookupParameterNames(constructor: Constructor[_]): Seq[String] =
-      paranamer.lookupParameterNames(constructor)
+      paranamer.lookupParameterNames(constructor).toSeq
   }
 
 //  def isPrimitive(t: Type) = Reflector.isPrimitive(t)

@@ -3,6 +3,7 @@ package org.json4s
 import org.specs.Specification
 import java.util.Date
 import reflect._
+import java.sql.Timestamp
 
 case class RRSimple(id: Int, name: String, items: List[String], createdAt: Date)
 case class RRSimpleJoda(id: Int, name: String, items: List[String], createdAt: DateTime)
@@ -15,8 +16,38 @@ case class NestedType4(dat: List[Map[Double, Option[List[Map[Long, Option[Int]]]
 case class NestedType5(dat: List[Map[Double, Option[List[Map[Long, Option[Map[Byte, Either[Double, Long]]]]]]]], lis: List[List[List[List[List[Int]]]]])
 case class NestedResType[T, S, V <: Option[S]](t: T, v: V, dat: List[Map[T, V]], lis: List[List[List[List[List[S]]]]])
 
+class NormalClass {
+  val complex: RRSimple = RRSimple(1, "ba", Nil, new Date)
+  val string: String = "bla"
+  val primitive: Int = 1
+  val optPrimitive: Option[Int] = Some(3)
+}
+
 class ReflectorSpec extends Specification {
   "Reflector" should {
+
+    "describe primitives" in {
+      Reflector.describe[Int] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Int])
+      Reflector.describe[Byte] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Byte])
+      Reflector.describe[Short] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Short])
+      Reflector.describe[Long] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Long])
+      Reflector.describe[Double] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Double])
+      Reflector.describe[Float] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Float])
+      Reflector.describe[java.lang.Integer] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Integer])
+      Reflector.describe[java.lang.Byte] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Byte])
+      Reflector.describe[java.lang.Short] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Short])
+      Reflector.describe[java.lang.Long] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Long])
+      Reflector.describe[java.lang.Double] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Double])
+      Reflector.describe[java.lang.Float] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Float])
+      Reflector.describe[BigInt] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[BigInt])
+      Reflector.describe[BigDecimal] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[BigDecimal])
+      Reflector.describe[java.math.BigInteger] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.math.BigInteger])
+      Reflector.describe[java.math.BigDecimal] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.math.BigDecimal])
+      Reflector.describe[String] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[String])
+      Reflector.describe[Date] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Date])
+      Reflector.describe[Timestamp] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Timestamp])
+    }
+
     "describe a simple case class" in {
       val desc = Reflector.describe[RRSimple].asInstanceOf[ClassDescriptor]
       desc.constructors.size must_== 1
@@ -175,6 +206,22 @@ class ReflectorSpec extends Specification {
       val params = desc.constructors.head.params
       params(0).name must_== "objects"
       params(0).argType must_== Reflector.scalaTypeOf[List[Obj[_]]]
+    }
+
+    "describe the fields of a class" in {
+      val desc = Reflector.describe[NormalClass].asInstanceOf[ClassDescriptor]
+      desc.constructors.size must_== 1
+      val params = desc.properties
+      params.size must_== 4
+      params(0).name must_== "complex"
+      params(0).returnType must_== Reflector.scalaTypeOf[RRSimple]
+      params(1).name must_== "string"
+      params(1).returnType must_== Reflector.scalaTypeOf[String]
+      params(2).name must_== "primitive"
+      params(2).returnType must_== Reflector.scalaTypeOf[Int]
+      params(3).name must_== "optPrimitive"
+      params(3).returnType must_== Reflector.scalaTypeOf[Option[Int]]
+
     }
   }
 }

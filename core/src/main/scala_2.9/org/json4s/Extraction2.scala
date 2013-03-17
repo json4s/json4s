@@ -20,7 +20,7 @@
 //   */
 //  def extract[A](json: JValue)(implicit formats: Formats, mf: Manifest[A]): A = {
 //    try {
-////      extract0(json, Preamble.descriptorOf(mf.erasure)).asInstanceOf[A]
+////      extract(json, Preamble.descriptorOf(mf.erasure)).asInstanceOf[A]
 //      null
 //    } catch {
 //      case e: MappingException => throw e
@@ -216,7 +216,7 @@
 //    }
 //
 //  }
-//    //extract0(json, mappingOf(target.clazz))
+//    //extract(json, mappingOf(target.clazz))
 //
 //
 //  def primitive2jvalue(a: Any, builder: Builder[_])(implicit formats: Formats) = a match {

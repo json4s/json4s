@@ -23,7 +23,7 @@ object NativeMergeExamples extends MergeExamples[Document]("Native") with native
 object JacksonMergeExamples extends MergeExamples[JValue]("Jackson") with jackson.JsonMethods
 abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge Examples") with JsonMethods[T] {
   "Merge example" in {
-    (scala1 merge scala2) mustEqual expectedMergeResult
+    (scala1 merge scala2) must_== expectedMergeResult
   }
 
   lazy val scala1 = parse("""
@@ -62,7 +62,7 @@ abstract class MergeExamples[T](mod: String) extends Specification(mod+" Merge E
     }""")
 
   "Lotto example" in {
-    (lotto1 merge lotto2) mustEqual mergedLottoResult
+    (lotto1 merge lotto2) must_== mergedLottoResult
   }
 
   lazy val lotto1 = parse("""

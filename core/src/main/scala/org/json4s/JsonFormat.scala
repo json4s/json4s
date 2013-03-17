@@ -240,3 +240,4 @@ trait DefaultJsonFormats {
     def read(value: _root_.org.json4s.JValue): T = reader.read(value)
   }
 }
+

@@ -24,6 +24,12 @@ import java.util
 import scalaj.collection.Imports._
 import scala.util.DynamicVariable
 import annotation.implicitNotFound
+import java.lang.reflect.Type
+
+object Formats {
+  def read[T](json: JValue)(implicit reader: Reader[T]): T = reader.read(json)
+  def write[T](obj: T)(implicit writer: Writer[T]): JValue = writer.write(obj)
+}
 
 /** Formats to use when converting JSON.
  * Formats are usually configured by using an implicit parameter:
@@ -40,6 +46,7 @@ trait Formats { self: Formats =>
   val customSerializers: List[Serializer[_]] = Nil
   val fieldSerializers: List[(Class[_], FieldSerializer[_])] = Nil
   val wantsBigDecimal: Boolean = false
+  def primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
 
   /**
    * The name of the field in JSON where type hints are added (jsonClass by default)
@@ -49,7 +56,7 @@ trait Formats { self: Formats =>
   /**
    * Parameter name reading strategy. By default 'paranamer' is used.
    */
-  val parameterNameReader: ParameterNameReader = reflect.ParanamerReader
+  val parameterNameReader: reflect.ParameterNameReader = reflect.ParanamerReader
 
   def withBigDecimal: Formats = new Formats {
     val dateFormat: DateFormat = Formats.this.dateFormat
@@ -174,13 +181,15 @@ trait Formats { self: Formats =>
      */
     def classFor(hint: String): Option[Class[_]]
 
-    @deprecated("Use `containsHint` without `_?` instead")
+    @deprecated("Use `containsHint` without `_?` instead", "3.2.0")
     def containsHint_?(clazz: Class[_]) = containsHint(clazz)
     def containsHint(clazz: Class[_]) = hints exists (_ isAssignableFrom clazz)
     def deserialize: PartialFunction[(String, JObject), Any] = Map()
     def serialize: PartialFunction[Any, JObject] = Map()
 
     def components: List[TypeHints] = List(this)
+
+
 
     /**
      * Adds the specified type hints to this type hints.

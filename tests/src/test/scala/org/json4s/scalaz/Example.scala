@@ -19,15 +19,15 @@ object Example extends Specification {
     val a1 = field[String]("zip")(json) <*> (field[String]("street")(json) map Address.curried)
     val a2 = (field[String]("street")(json) |@| field[String]("zip")(json)) { Address }
     val a3 = Address.applyJSON(field("street"), field("zip"))(json)
-    a1 mustEqual Success(Address("Manhattan 2", "00223"))
-    a2 mustEqual a1
-    a3 mustEqual a1
+    a1 must_== Success(Address("Manhattan 2", "00223"))
+    a2 must_== a1
+    a3 must_== a1
   }
 
   "Failed address parsing" in {
     val json = parse(""" {"street": "Manhattan 2", "zip": "00223" } """)
     val a = (field[String]("streets")(json) |@| field[String]("zip")(json)) { Address }
-    a.fail.toOption.get.list mustEqual List(NoSuchFieldError("streets", json))
+    a.fail.toOption.get.list must_== List(NoSuchFieldError("streets", json))
   }
 
   "Parse Person with Address" in {
@@ -37,7 +37,7 @@ object Example extends Specification {
 
     val p = parse(""" {"name":"joe","age":34,"address":{"street": "Manhattan 2", "zip": "00223" }} """)
     val person = Person.applyJSON(field("name"), field("age"), field("address"))(p)
-    person mustEqual Success(Person("joe", 34, Address("Manhattan 2", "00223")))
+    person must_== Success(Person("joe", 34, Address("Manhattan 2", "00223")))
   }
 
   "Format Person with Address" in {
@@ -50,17 +50,17 @@ object Example extends Specification {
     val json = makeObj(("name" -> toJSON(p.name)) ::
                        ("age" -> toJSON(p.age)) ::
                        ("address" -> toJSON(p.address)) :: Nil)
-    json.shows mustEqual
+    json.shows must_==
       """{"name":"joe","age":34,"address":{"street":"Manhattan 2","zip":"00223"}}"""
   }
 
   "Parse Map" in {
     val json = parse(""" {"street": "Manhattan 2", "zip": "00223" } """)
-    fromJSON[Map[String, String]](json) mustEqual Success(Map("street" -> "Manhattan 2", "zip" -> "00223"))
+    fromJSON[Map[String, String]](json) must_== Success(Map("street" -> "Manhattan 2", "zip" -> "00223"))
   }
 
   "Format Map" in {
-    toJSON(Map("street" -> "Manhattan 2", "zip" -> "00223")).shows mustEqual
+    toJSON(Map("street" -> "Manhattan 2", "zip" -> "00223")).shows must_==
       """{"street":"Manhattan 2","zip":"00223"}"""
   }
 }
