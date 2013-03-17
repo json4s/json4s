@@ -121,7 +121,7 @@ object Json4sBuild extends Build {
   lazy val examples = Project(
      id = "json4s-examples",
      base = file("examples"),
-     settings = json4sSettings ++ Seq(
+     settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
        libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.9.4",
        libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.9.2" % "2.1.3"
      )

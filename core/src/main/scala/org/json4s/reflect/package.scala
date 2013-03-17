@@ -18,9 +18,13 @@ package object reflect {
         cache.get(x)
       else {
         val v = f(x)
-        cache.put(x, v)
-        v
+        replace(x, v)
       }
+    }
+
+    def replace(x: A, v: R):R = {
+      cache.put(x, v)
+      v
     }
   }
 

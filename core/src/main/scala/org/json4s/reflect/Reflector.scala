@@ -36,8 +36,8 @@ object Reflector {
 
   def describe[T](implicit mf: Manifest[T]): ObjectDescriptor = describe(scalaTypeOf[T])
   def describe(clazz: Class[_]): ObjectDescriptor = describe(scalaTypeOf(clazz))
-  def describe(fqn: String, paranamer: ParameterNameReader = ParanamerReader): Option[ObjectDescriptor] =
-    scalaTypeOf(fqn) map (describe(_, paranamer))
+  def describe(fqn: String): Option[ObjectDescriptor] =
+    scalaTypeOf(fqn) map (describe(_))
   def describe(st: ScalaType, paranamer: ParameterNameReader = ParanamerReader): ObjectDescriptor =
     descriptors(st, createDescriptor(_, paranamer))
 

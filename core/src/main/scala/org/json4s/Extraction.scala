@@ -278,15 +278,12 @@ object Extraction {
     } else if (scalaType.isCollection) {
       new CollectionBuilder(json, scalaType).result
     } else {
-      if(scalaType.isPrimitive(formats.primitives))
-        convert(json, scalaType.erasure, formats, None)
-      else
-        Reflector.describe(scalaType, formats.parameterNameReader) match {
-          case PrimitiveDescriptor(tpe, default) =>
-            convert(json, tpe.erasure, formats, default)
-          case c: ClassDescriptor =>
-            new ClassInstanceBuilder(json, c).result
-        }
+      Reflector.describe(scalaType, formats.parameterNameReader) match {
+        case PrimitiveDescriptor(tpe, default) =>
+          convert(json, tpe.erasure, formats, default)
+        case c: ClassDescriptor =>
+          new ClassInstanceBuilder(json, c).result
+      }
     }
   }
 
@@ -383,7 +380,8 @@ object Extraction {
           else if (x == null) defv(x)
           else x
         } catch {
-          case e @ MappingException(msg, _) =>
+          case e @ MappingException(msg, c) =>
+            c.printStackTrace()
             if (descr.isOptional) defv(None) else fail("No usable value for " + descr.name + "\n" + msg, e)
         }
       }
