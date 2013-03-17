@@ -24,16 +24,18 @@ object ScalaType {
     else if (mf.erasure == classOf[java.util.Date]) ScalaType.DateType
     else if (mf.erasure == classOf[java.sql.Timestamp]) ScalaType.TimestampType
     else if (mf.erasure == classOf[Symbol]) ScalaType.SymbolType
+    else if (mf.erasure == classOf[Number]) ScalaType.NumberType
     else if (mf.erasure == classOf[JObject]) ScalaType.JObjectType
     else if (mf.erasure == classOf[JArray]) ScalaType.JArrayType
     else if (mf.erasure == classOf[JValue]) ScalaType.JValueType
     /* end optimization */
     else {
-      if (!mf.erasure.isArray) types(mf, new ScalaType(_))
-      else {
-        val nmf = ManifestFactory.manifestOf(mf.erasure, List(ManifestFactory.manifestOf(mf.erasure.getComponentType)))
-        types(nmf, new ScalaType(_))
-      }
+//      if (!mf.erasure.isArray) types(mf, new ScalaType(_))
+//      else {
+//        val nmf = ManifestFactory.manifestOf(mf.erasure, List(ManifestFactory.manifestOf(mf.erasure.getComponentType)))
+//        types(nmf, new ScalaType(_))
+//      }
+      new ScalaType(mf)
     }
   }
 
@@ -53,44 +55,67 @@ object ScalaType {
 
   // Deal with the most common cases as an optimization
   /* optimization */
-  private val IntType: ScalaType = new ScalaType(Manifest.Int) { override val isPrimitive = true }
-  private val LongType: ScalaType = new ScalaType(Manifest.Long) { override val isPrimitive = true }
-  private val ByteType: ScalaType = new ScalaType(Manifest.Byte) { override val isPrimitive = true }
-  private val ShortType: ScalaType = new ScalaType(Manifest.Short) { override val isPrimitive = true }
-  private val BooleanType: ScalaType = new ScalaType(Manifest.Boolean) { override val isPrimitive = true }
-  private val FloatType: ScalaType = new ScalaType(Manifest.Float) { override val isPrimitive = true }
-  private val DoubleType: ScalaType = new ScalaType(Manifest.Double) { override val isPrimitive = true }
-  private val StringType: ScalaType = new ScalaType(manifest[String]) { override val isPrimitive = true }
-  private val SymbolType: ScalaType = new ScalaType(manifest[Symbol]) { override val isPrimitive = true }
-  private val BigDecimalType: ScalaType = new ScalaType(manifest[BigDecimal]) { override val isPrimitive = true }
-  private val BigIntType: ScalaType = new ScalaType(manifest[BigInt]) { override val isPrimitive = true }
-  private val JValueType: ScalaType = new ScalaType(manifest[JValue]) { override val isPrimitive = true }
-  private val JObjectType: ScalaType = new ScalaType(manifest[JObject]) { override val isPrimitive = true }
-  private val JArrayType: ScalaType = new ScalaType(manifest[JArray]) { override val isPrimitive = true }
-  private val DateType: ScalaType = new ScalaType(manifest[java.util.Date]) { override val isPrimitive = true }
-  private val TimestampType: ScalaType = new ScalaType(manifest[java.sql.Timestamp]) { override val isPrimitive = true }
+  private val IntType: ScalaType = new PrimitiveScalaType(Manifest.Int)
+  private val NumberType: ScalaType = new PrimitiveScalaType(manifest[Number])
+  private val LongType: ScalaType = new PrimitiveScalaType(Manifest.Long)
+  private val ByteType: ScalaType = new PrimitiveScalaType(Manifest.Byte)
+  private val ShortType: ScalaType = new PrimitiveScalaType(Manifest.Short)
+  private val BooleanType: ScalaType = new PrimitiveScalaType(Manifest.Boolean)
+  private val FloatType: ScalaType = new PrimitiveScalaType(Manifest.Float)
+  private val DoubleType: ScalaType = new PrimitiveScalaType(Manifest.Double)
+  private val StringType: ScalaType = new PrimitiveScalaType(manifest[java.lang.String])
+  private val SymbolType: ScalaType = new PrimitiveScalaType(manifest[Symbol])
+  private val BigDecimalType: ScalaType = new PrimitiveScalaType(manifest[BigDecimal])
+  private val BigIntType: ScalaType = new PrimitiveScalaType(manifest[BigInt])
+  private val JValueType: ScalaType = new PrimitiveScalaType(manifest[JValue])
+  private val JObjectType: ScalaType = new PrimitiveScalaType(manifest[JObject])
+  private val JArrayType: ScalaType = new PrimitiveScalaType(manifest[JArray])
+  private val DateType: ScalaType = new PrimitiveScalaType(manifest[java.util.Date])
+  private val TimestampType: ScalaType = new PrimitiveScalaType(manifest[java.sql.Timestamp])
+
+  private class PrimitiveScalaType(mf: Manifest[_]) extends ScalaType(mf) {
+    override val isPrimitive = true
+  }
+  private class CopiedScalaType(
+                  mf: Manifest[_],
+                  private[this] var _typeVars: Map[TypeVariable[_], ScalaType],
+                  override val isPrimitive: Boolean) extends ScalaType(mf) {
+
+//    override def typeArgs: Seq[ScalaType] = {
+//      if (_typeArgs == null)
+//        _typeArgs = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
+//          if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
+//        )
+//      _typeArgs
+//    }
+
+    override def typeVars: Map[TypeVariable[_], ScalaType] = {
+      if (_typeVars == null)
+        _typeVars = Map.empty ++
+          erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).toList.zip(manifest.typeArguments map (ScalaType(_)))
+      _typeVars
+    }
+  }
   /* end optimization */
 }
 class ScalaType(private val manifest: Manifest[_]) extends Equals {
 
-  import ScalaType.types
+  import ScalaType.{ types, CopiedScalaType }
   private[this] val self = this
+  val erasure: Class[_] = manifest.erasure
 
-  private[this] var _erasure: Class[_] = null  // Don't use a lazy value, optimization
-  def erasure: Class[_] = {
-    if (_erasure == null)
-      _erasure = manifest.erasure
-    _erasure
-  }
+//  private[this] var _typeArgs: Seq[ScalaType] = null
+//  def typeArgs: Seq[ScalaType] = {
+//    if (_typeArgs == null)
+//      _typeArgs = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
+//        if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
+//      )
+//    _typeArgs
+//  }
 
-  private[this] var _typeArgs: Seq[ScalaType] = null
-  def typeArgs: Seq[ScalaType] = {
-    if (_typeArgs == null)
-      _typeArgs = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
-        if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
-      )
-    _typeArgs
-  }
+  val typeArgs: Seq[ScalaType] = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
+    if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
+  )
 
   private[this] var _typeVars: Map[TypeVariable[_], ScalaType] = null
   def typeVars: Map[TypeVariable[_], ScalaType] = {
@@ -99,6 +124,7 @@ class ScalaType(private val manifest: Manifest[_]) extends Equals {
         erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).toList.zip(manifest.typeArguments map (ScalaType(_)))
     _typeVars
   }
+
 
   val isArray: Boolean = erasure.isArray
 
@@ -150,7 +176,7 @@ class ScalaType(private val manifest: Manifest[_]) extends Equals {
     case _ => false
   }
 
-  def copy(erasure: Class[_] = _erasure, typeArgs: Seq[ScalaType] = _typeArgs, typeVars: Map[TypeVariable[_], ScalaType] = _typeVars): ScalaType = {
+  def copy(erasure: Class[_] = erasure, typeArgs: Seq[ScalaType] = typeArgs, typeVars: Map[TypeVariable[_], ScalaType] = _typeVars): ScalaType = {
     /* optimization */
     if (erasure == classOf[Int] || erasure == classOf[java.lang.Integer]) ScalaType.IntType
     else if (erasure == classOf[Long] || erasure == classOf[java.lang.Long]) ScalaType.LongType
@@ -165,42 +191,16 @@ class ScalaType(private val manifest: Manifest[_]) extends Equals {
     else if (erasure == classOf[java.util.Date]) ScalaType.DateType
     else if (erasure == classOf[java.sql.Timestamp]) ScalaType.TimestampType
     else if (erasure == classOf[Symbol]) ScalaType.SymbolType
+    else if (erasure == classOf[Number]) ScalaType.NumberType
     else if (erasure == classOf[JObject]) ScalaType.JObjectType
     else if (erasure == classOf[JArray]) ScalaType.JArrayType
     else if (erasure == classOf[JValue]) ScalaType.JValueType
     /* end optimization */
     else {
-      val e = erasure
-      val ta = typeArgs
-      val tv = typeVars
-      val prim = isPrimitive
-      val st = new ScalaType(ManifestFactory.manifestOf(erasure, typeArgs.map(_.manifest))) {
-        private[this] var _erasure: Class[_] = e
-        override def erasure: Class[_] = {
-          if (_erasure == null)
-            _erasure = manifest.erasure
-          _erasure
-        }
-
-        private[this] var _typeArgs: Seq[ScalaType] = ta
-        override def typeArgs: Seq[ScalaType] = {
-          if (_typeArgs == null)
-            _typeArgs = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
-              if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
-            )
-          _typeArgs
-        }
-
-        private[this] var _typeVars: Map[TypeVariable[_], ScalaType] = tv
-        override def typeVars: Map[TypeVariable[_], ScalaType] = {
-          if (_typeVars == null)
-            _typeVars = Map.empty ++
-              erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).toList.zip(manifest.typeArguments map (ScalaType(_)))
-          _typeVars
-        }
-        override val isPrimitive = prim
-      }
-      types.replace(manifest, st)
+      val mf = ManifestFactory.manifestOf(erasure, typeArgs.map(_.manifest))
+      val st = new CopiedScalaType(mf, typeVars, isPrimitive)
+//      types.replace(mf, st)
+      st
     }
   }
 

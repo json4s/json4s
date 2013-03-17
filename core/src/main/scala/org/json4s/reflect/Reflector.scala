@@ -32,7 +32,10 @@ object Reflector {
   def scalaTypeOf[T](implicit mf: Manifest[T]): ScalaType = ScalaType(mf)
   def scalaTypeOf(clazz: Class[_]): ScalaType = ScalaType(ManifestFactory.manifestOf(clazz))
   def scalaTypeOf(t: Type): ScalaType = ScalaType(ManifestFactory.manifestOf(t))
-  def scalaTypeOf(name: String): Option[ScalaType] = resolveClass[AnyRef](name, ClassLoaders) map (c => scalaTypeOf(c))
+
+  private[this] val stringTypes = new Memo[String, Option[ScalaType]]
+  def scalaTypeOf(name: String): Option[ScalaType] =
+    stringTypes(name, resolveClass[AnyRef](_, ClassLoaders) map (c => scalaTypeOf(c)))
 
   def describe[T](implicit mf: Manifest[T]): ObjectDescriptor = describe(scalaTypeOf[T])
   def describe(clazz: Class[_]): ObjectDescriptor = describe(scalaTypeOf(clazz))

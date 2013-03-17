@@ -47,7 +47,6 @@ object Extraction {
     } catch {
       case e: MappingException => throw e
       case e: Exception =>
-        e.printStackTrace()
         throw new MappingException("unknown error", e)
     }
   }
@@ -279,10 +278,8 @@ object Extraction {
       new CollectionBuilder(json, scalaType).result
     } else {
       Reflector.describe(scalaType, formats.parameterNameReader) match {
-        case PrimitiveDescriptor(tpe, default) =>
-          convert(json, tpe.erasure, formats, default)
-        case c: ClassDescriptor =>
-          new ClassInstanceBuilder(json, c).result
+        case PrimitiveDescriptor(tpe, default) => convert(json, tpe, formats, default)
+        case c: ClassDescriptor => new ClassInstanceBuilder(json, c).result
       }
     }
   }
@@ -380,8 +377,7 @@ object Extraction {
           else if (x == null) defv(x)
           else x
         } catch {
-          case e @ MappingException(msg, c) =>
-            c.printStackTrace()
+          case e @ MappingException(msg, _) =>
             if (descr.isOptional) defv(None) else fail("No usable value for " + descr.name + "\n" + msg, e)
         }
       }
@@ -430,57 +426,60 @@ object Extraction {
     } else thunk(json)
   }
 
-  private[this] def convert(json: JValue, targetType: Class[_], formats: Formats, default: Option[() => Any]): Any = json match {
-    case JInt(x) if (targetType == classOf[Int]) => x.intValue
-    case JInt(x) if (targetType == classOf[JavaInteger]) => new JavaInteger(x.intValue)
-    case JInt(x) if (targetType == classOf[BigInt]) => x
-    case JInt(x) if (targetType == classOf[Long]) => x.longValue
-    case JInt(x) if (targetType == classOf[JavaLong]) => new JavaLong(x.longValue)
-    case JInt(x) if (targetType == classOf[Double]) => x.doubleValue
-    case JInt(x) if (targetType == classOf[JavaDouble]) => new JavaDouble(x.doubleValue)
-    case JInt(x) if (targetType == classOf[Float]) => x.floatValue
-    case JInt(x) if (targetType == classOf[JavaFloat]) => new JavaFloat(x.floatValue)
-    case JInt(x) if (targetType == classOf[Short]) => x.shortValue
-    case JInt(x) if (targetType == classOf[JavaShort]) => new JavaShort(x.shortValue)
-    case JInt(x) if (targetType == classOf[Byte]) => x.byteValue
-    case JInt(x) if (targetType == classOf[JavaByte]) => new JavaByte(x.byteValue)
-    case JInt(x) if (targetType == classOf[String]) => x.toString
-    case JInt(x) if (targetType == classOf[Number]) => x.longValue
-    case JDouble(x) if (targetType == classOf[Double]) => x
-    case JDouble(x) if (targetType == classOf[JavaDouble]) => new JavaDouble(x)
-    case JDouble(x) if (targetType == classOf[Float]) => x.floatValue
-    case JDouble(x) if (targetType == classOf[JavaFloat]) => new JavaFloat(x.floatValue)
-    case JDouble(x) if (targetType == classOf[String]) => x.toString
-    case JDouble(x) if (targetType == classOf[Int]) => x.intValue
-    case JDouble(x) if (targetType == classOf[Long]) => x.longValue
-    case JDouble(x) if (targetType == classOf[Number]) => x
-    case JDecimal(x) if (targetType == classOf[Double]) => x.doubleValue()
-    case JDecimal(x) if (targetType == classOf[JavaDouble]) => new JavaDouble(x.doubleValue())
-    case JDecimal(x) if (targetType == classOf[BigDecimal]) => x
-    case JDecimal(x) if (targetType == classOf[JavaBigDecimal]) => x.bigDecimal
-    case JDecimal(x) if (targetType == classOf[Float]) => x.floatValue
-    case JDecimal(x) if (targetType == classOf[JavaFloat]) => new JavaFloat(x.floatValue)
-    case JDecimal(x) if (targetType == classOf[String]) => x.toString
-    case JDecimal(x) if (targetType == classOf[Int]) => x.intValue
-    case JDecimal(x) if (targetType == classOf[Long]) => x.longValue
-    case JDecimal(x) if (targetType == classOf[Number]) => x
-    case JString(s) if (targetType == classOf[String]) => s
-    case JString(s) if (targetType == classOf[Symbol]) => Symbol(s)
-    case JString(s) if (targetType == classOf[Date]) => formats.dateFormat.parse(s).getOrElse(fail("Invalid date '" + s + "'"))
-    case JString(s) if (targetType == classOf[Timestamp]) => new Timestamp(formats.dateFormat.parse(s).getOrElse(fail("Invalid date '" + s + "'")).getTime)
-    case JBool(x) if (targetType == classOf[Boolean]) => x
-    case JBool(x) if (targetType == classOf[JavaBoolean]) => new JavaBoolean(x)
-    case j: JValue if (targetType == classOf[JValue]) => j
-    case j: JObject if (targetType == classOf[JObject]) => j
-    case j: JArray if (targetType == classOf[JArray]) => j
-    case JNull => null
-    case JNothing =>
-      default map (_.apply()) getOrElse fail("Did not find value which can be converted into " + targetType.getName)
-    case _ =>
-      val custom = formats.customDeserializer(formats)
-      val typeInfo = TypeInfo(targetType, None)
-      if (custom.isDefinedAt(typeInfo, json)) custom(typeInfo, json)
-      else fail("Do not know how to convert " + json + " into " + targetType)
+  private[this] def convert(json: JValue, target: ScalaType, formats: Formats, default: Option[() => Any]): Any = {
+    val targetType = target.erasure
+    json match {
+      case JInt(x) if (targetType == classOf[Int]) => x.intValue
+      case JInt(x) if (targetType == classOf[JavaInteger]) => new JavaInteger(x.intValue)
+      case JInt(x) if (targetType == classOf[BigInt]) => x
+      case JInt(x) if (targetType == classOf[Long]) => x.longValue
+      case JInt(x) if (targetType == classOf[JavaLong]) => new JavaLong(x.longValue)
+      case JInt(x) if (targetType == classOf[Double]) => x.doubleValue
+      case JInt(x) if (targetType == classOf[JavaDouble]) => new JavaDouble(x.doubleValue)
+      case JInt(x) if (targetType == classOf[Float]) => x.floatValue
+      case JInt(x) if (targetType == classOf[JavaFloat]) => new JavaFloat(x.floatValue)
+      case JInt(x) if (targetType == classOf[Short]) => x.shortValue
+      case JInt(x) if (targetType == classOf[JavaShort]) => new JavaShort(x.shortValue)
+      case JInt(x) if (targetType == classOf[Byte]) => x.byteValue
+      case JInt(x) if (targetType == classOf[JavaByte]) => new JavaByte(x.byteValue)
+      case JInt(x) if (targetType == classOf[String]) => x.toString
+      case JInt(x) if (targetType == classOf[Number]) => x.longValue
+      case JDouble(x) if (targetType == classOf[Double]) => x
+      case JDouble(x) if (targetType == classOf[JavaDouble]) => new JavaDouble(x)
+      case JDouble(x) if (targetType == classOf[Float]) => x.floatValue
+      case JDouble(x) if (targetType == classOf[JavaFloat]) => new JavaFloat(x.floatValue)
+      case JDouble(x) if (targetType == classOf[String]) => x.toString
+      case JDouble(x) if (targetType == classOf[Int]) => x.intValue
+      case JDouble(x) if (targetType == classOf[Long]) => x.longValue
+      case JDouble(x) if (targetType == classOf[Number]) => x
+      case JDecimal(x) if (targetType == classOf[Double]) => x.doubleValue()
+      case JDecimal(x) if (targetType == classOf[JavaDouble]) => new JavaDouble(x.doubleValue())
+      case JDecimal(x) if (targetType == classOf[BigDecimal]) => x
+      case JDecimal(x) if (targetType == classOf[JavaBigDecimal]) => x.bigDecimal
+      case JDecimal(x) if (targetType == classOf[Float]) => x.floatValue
+      case JDecimal(x) if (targetType == classOf[JavaFloat]) => new JavaFloat(x.floatValue)
+      case JDecimal(x) if (targetType == classOf[String]) => x.toString
+      case JDecimal(x) if (targetType == classOf[Int]) => x.intValue
+      case JDecimal(x) if (targetType == classOf[Long]) => x.longValue
+      case JDecimal(x) if (targetType == classOf[Number]) => x
+      case JString(s) if (targetType == classOf[String]) => s
+      case JString(s) if (targetType == classOf[Symbol]) => Symbol(s)
+      case JString(s) if (targetType == classOf[Date]) => formats.dateFormat.parse(s).getOrElse(fail("Invalid date '" + s + "'"))
+      case JString(s) if (targetType == classOf[Timestamp]) => new Timestamp(formats.dateFormat.parse(s).getOrElse(fail("Invalid date '" + s + "'")).getTime)
+      case JBool(x) if (targetType == classOf[Boolean]) => x
+      case JBool(x) if (targetType == classOf[JavaBoolean]) => new JavaBoolean(x)
+      case j: JValue if (targetType == classOf[JValue]) => j
+      case j: JObject if (targetType == classOf[JObject]) => j
+      case j: JArray if (targetType == classOf[JArray]) => j
+      case JNull => null
+      case JNothing =>
+        default map (_.apply()) getOrElse fail("Did not find value which can be converted into " + targetType.getName)
+      case _ =>
+        val custom = formats.customDeserializer(formats)
+        val typeInfo = target.typeInfo
+        if (custom.isDefinedAt(typeInfo, json)) custom(typeInfo, json)
+        else fail("Do not know how to convert " + json + " into " + targetType)
+    }
   }
 
 
