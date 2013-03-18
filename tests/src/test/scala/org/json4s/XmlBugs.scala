@@ -34,7 +34,7 @@ abstract class XmlBugs[T](mod: String) extends Specification with JsonMethods[T]
 
     "HarryH's XML with attributes parses correctly" in {
       val json = toJson(<tips><group type="Nearby"><tip><id>10</id></tip></group></tips>)
-      compact(render(json)) mustEqual """{"tips":{"group":{"type":"Nearby","tip":{"id":"10"}}}}"""
+      compact(render(json)) must_== """{"tips":{"group":{"type":"Nearby","tip":{"id":"10"}}}}"""
     }
 
     "Jono's XML with attributes parses correctly" in {
@@ -44,8 +44,8 @@ abstract class XmlBugs[T](mod: String) extends Specification with JsonMethods[T]
       val example2 = <word term="example" self="http://localhost:8080/word/example" available="true"></word>
       val expected2 = """{"self":"http://localhost:8080/word/example","term":"example","available":"true"}"""
 
-      (toJson(example1) diff parse(expected1)) mustEqual Diff(JNothing, JNothing, JNothing)
-      (toJson(example2) diff parse(expected2)) mustEqual Diff(JNothing, JNothing, JNothing)
+      (toJson(example1) diff parse(expected1)) must_== Diff(JNothing, JNothing, JNothing)
+      (toJson(example2) diff parse(expected2)) must_== Diff(JNothing, JNothing, JNothing)
     }
 
     "Nodes with attributes converted to correct JSON" in {
@@ -58,14 +58,15 @@ abstract class XmlBugs[T](mod: String) extends Specification with JsonMethods[T]
         """{"root":{"n":[{"id":"10","x":"abc"},{"id":"11","x":"bcd"}]}}"""
       else
         """{"root":{"n":[{"x":"abc","id":"10"},{"x":"bcd","id":"11"}]}}"""
-      compact(render(toJson(xml))) mustEqual expected
+      compact(render(toJson(xml))) must_== expected
     }
 
     "XML with empty node is converted correctly to JSON" in {
       val xml =
         <tips><group type="Foo"></group><group type="Bar"><tip><text>xxx</text></tip><tip><text>yyy</text></tip></group></tips>
       val expected = """{"tips":{"group":[{"type":"Foo"},{"type":"Bar","tip":[{"text":"xxx"},{"text":"yyy"}]}]}}"""
-      compact(render(toJson(xml))) mustEqual expected
+      compact(render(toJson(xml))) must_== expected
     }
+
   }
 }

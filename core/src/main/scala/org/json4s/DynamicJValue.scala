@@ -3,8 +3,7 @@ package org.json4s
 import JsonAST._
 import scala.language.dynamics
 
-// Should I make this into a subclass of Jvalue?
-case class DynamicJValue(jv: JValue) extends Dynamic {
+class DynamicJValue(val raw: JValue) extends Dynamic {
   /**
    * Adds dynamic style to JValues. Only meaningful for JObjects
    * <p>
@@ -12,23 +11,22 @@ case class DynamicJValue(jv: JValue) extends Dynamic {
    * JObject(JField("name",JString("joe"))::Nil).name == JString("joe")
    * </pre>
    */
-  def selectDynamic(name:String):DynamicJValue = jv match {
-    case jObj: JObject => {
-      jObj.obj.find{ case (n, v) => n == name} match {
-        case Some((_, v)) => new DynamicJValue(v)
-        case None => new DynamicJValue(JNothing)
-      }
-    }
-    case _ => new DynamicJValue(JNothing)
+  def selectDynamic(name:String) = new DynamicJValue(raw \ name)
+  
+  override def hashCode():Int = raw.hashCode
+
+  override def equals(p1: Any): Boolean = p1 match {
+    case j: DynamicJValue => raw == j.raw
+    case j: JValue => raw == j
+    case _ => false
   }
-  
-  override def hashCode():Int = jv.hashCode
-  
 }
 
-object DynamicJValue {
-  implicit def dynamic2Jv(dynJv: DynamicJValue) = dynJv.jv
-  implicit def dynamic2monadic(dynJv: DynamicJValue) = new MonadicJValue(dynJv.jv)
+trait DynamicJValueImplicits {
+  implicit def dynamic2Jv(dynJv: DynamicJValue) = dynJv.raw
+  implicit def dynamic2monadic(dynJv: DynamicJValue) = new MonadicJValue(dynJv.raw)
   def dyn(jv:JValue) = new DynamicJValue(jv)
 }
+
+object DynamicJValue extends DynamicJValueImplicits
 

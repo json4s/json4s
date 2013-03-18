@@ -21,8 +21,14 @@ import java.util.{Date, TimeZone}
 import reflect.Reflector
 import scalashim._
 import java.util
-import collection.JavaConverters._
 import scala.util.DynamicVariable
+import annotation.implicitNotFound
+import java.lang.reflect.Type
+
+object Formats {
+  def read[T](json: JValue)(implicit reader: Reader[T]): T = reader.read(json)
+  def write[T](obj: T)(implicit writer: Writer[T]): JValue = writer.write(obj)
+}
 
 /** Formats to use when converting JSON.
  * Formats are usually configured by using an implicit parameter:
@@ -30,12 +36,16 @@ import scala.util.DynamicVariable
  * implicit val formats = org.json4s.DefaultFormats
  * </pre>
  */
+@implicitNotFound(
+  "No org.json4s.Formats found. Try to bring an instance of org.json4s.Formats in scope or use the org.json4s.DefaultFormats."
+)
 trait Formats { self: Formats =>
   val dateFormat: DateFormat
   val typeHints: TypeHints = NoTypeHints
   val customSerializers: List[Serializer[_]] = Nil
   val fieldSerializers: List[(Class[_], FieldSerializer[_])] = Nil
   val wantsBigDecimal: Boolean = false
+  def primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
 
   /**
    * The name of the field in JSON where type hints are added (jsonClass by default)
@@ -45,7 +55,7 @@ trait Formats { self: Formats =>
   /**
    * Parameter name reading strategy. By default 'paranamer' is used.
    */
-  val parameterNameReader: ParameterNameReader = reflect.ParanamerReader
+  val parameterNameReader: reflect.ParameterNameReader = reflect.ParanamerReader
 
   def withBigDecimal: Formats = new Formats {
     val dateFormat: DateFormat = Formats.this.dateFormat
@@ -170,13 +180,15 @@ trait Formats { self: Formats =>
      */
     def classFor(hint: String): Option[Class[_]]
 
-    @deprecated("Use `containsHint` without `_?` instead")
+    @deprecated("Use `containsHint` without `_?` instead", "3.2.0")
     def containsHint_?(clazz: Class[_]) = containsHint(clazz)
     def containsHint(clazz: Class[_]) = hints exists (_ isAssignableFrom clazz)
     def deserialize: PartialFunction[(String, JObject), Any] = Map()
     def serialize: PartialFunction[Any, JObject] = Map()
 
     def components: List[TypeHints] = List(this)
+
+
 
     /**
      * Adds the specified type hints to this type hints.
@@ -191,9 +203,9 @@ trait Formats { self: Formats =>
        */
       def hintFor(clazz: Class[_]): String = {
         (components.reverse
-          filter (_.containsHint_?(clazz))
-          map (th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error(s"hintFor/classFor not invertible for $th"))))
-          sortWith((x, y) => (delta(x._2, clazz) - delta(y._2, clazz)) == 0)).head._1
+          filter (_.containsHint(clazz))
+          map (th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error("hintFor/classFor not invertible for " + th))))
+          sortWith ((x, y) => (delta(x._2, clazz) - delta(y._2, clazz)) <= 0)).head._1
       }
 
       def classFor(hint: String): Option[Class[_]] = {
@@ -201,7 +213,7 @@ trait Formats { self: Formats =>
           scala.util.control.Exception.allCatch opt (h.classFor(hint)) map (_.isDefined) getOrElse(false)
 
         components find (hasClass) flatMap (_.classFor(hint))
-      }
+    }
 
       override def deserialize: PartialFunction[(String, JObject), Any] = components.foldLeft[PartialFunction[(String, JObject),Any]](Map()) {
         (result, cur) => result.orElse(cur.deserialize)
@@ -239,9 +251,7 @@ trait Formats { self: Formats =>
   /** Use short class name as a type hint.
    */
   case class ShortTypeHints(hints: List[Class[_]]) extends TypeHints {
-    def hintFor(clazz: Class[_]) = {
-      clazz.getSimpleName
-    }
+    def hintFor(clazz: Class[_]) = clazz.getName.substring(clazz.getName.lastIndexOf(".")+1)
     def classFor(hint: String) = hints find (hintFor(_) == hint)
   }
 
@@ -312,7 +322,7 @@ trait Formats { self: Formats =>
     def deserialize(implicit format: Formats) = {
       case (TypeInfo(Class, _), json) =>
         if (ser(format)._1.isDefinedAt(json)) ser(format)._1(json)
-        else throw new MappingException(s"Can't convert $json to $Class")
+        else throw new MappingException("Can't convert " + json + " to " + Class)
     }
 
     def serialize(implicit format: Formats) = ser(format)._2

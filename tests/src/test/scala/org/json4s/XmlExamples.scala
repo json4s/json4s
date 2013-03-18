@@ -114,6 +114,7 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
       val a = attrToObject("stats", "count", s => JInt(s.s.toInt)) _
       compact(render(a(toJson(messageXml2)))) mustEqual expected2
       compact(render(a(toJson(messageXml3)))) mustEqual expected2
+
     }
   }
 
@@ -150,6 +151,7 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
             </playlist>
           </playlists>
         </b:band>
+
 
   val users1 =
         <users count="2">

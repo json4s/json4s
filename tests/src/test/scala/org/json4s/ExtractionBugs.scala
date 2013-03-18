@@ -1,6 +1,7 @@
 package org.json4s
 
 import org.specs2.mutable.Specification
+import reflect.{ClassDescriptor, Reflector}
 import text.Document
 
 object NativeExtractionBugs extends ExtractionBugs[Document]("Native") with native.JsonMethods
@@ -36,37 +37,37 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
 
   "ClassCastException (BigInt) regression 2 must pass" in {
     val opt = OptionOfInt(Some(39))
-    Extraction.decompose(opt).extract[OptionOfInt].opt.get mustEqual 39
+    Extraction.decompose(opt).extract[OptionOfInt].opt.get must_== 39
   }
 
   "Extraction should not fail when Maps values are Lists" in {
     val m = PMap(Map("a" -> List("b"), "c" -> List("d")))
-    Extraction.decompose(m).extract[PMap] mustEqual m
+    Extraction.decompose(m).extract[PMap] must_== m
   }
 
   "Extraction should always choose constructor with the most arguments if more than one constructor exists" in {
-    val args = Meta.Reflection.primaryConstructorArgs(classOf[ManyConstructors])
-    args.size mustEqual 4
+    val args = Reflector.describe[ManyConstructors].asInstanceOf[ClassDescriptor].mostComprehensive
+    args.size must_== 4
   }
 
   "Extraction should handle AnyRef" in {
     implicit val formats = DefaultFormats.withHints(FullTypeHints(classOf[ExtractWithAnyRef] :: Nil))
     val json = JObject(JField("jsonClass", JString(classOf[ExtractWithAnyRef].getName)) :: Nil)
     val extracted = Extraction.extract[AnyRef](json)
-    extracted mustEqual ExtractWithAnyRef()
+    extracted must_== ExtractWithAnyRef()
   }
 
   "Extraction should work with unicode encoded field names (issue 1075)" in {
-    parse("""{"foo.bar,baz":"x"}""").extract[UnicodeFieldNames] mustEqual UnicodeFieldNames("x")
+    parse("""{"foo.bar,baz":"x"}""").extract[UnicodeFieldNames] must_== UnicodeFieldNames("x")
   }
 
   "Extraction should not fail if case class has a companion object" in {
-    parse("""{"nums":[10]}""").extract[HasCompanion] mustEqual HasCompanion(List(10))
+    parse("""{"nums":[10]}""").extract[HasCompanion] must_== HasCompanion(List(10))
   }
 
   "Issue 1169" in {
     val json = parse("""{"data":[{"one":1, "two":2}]}""")
-    json.extract[Response] mustEqual Response(List(Map("one" -> 1, "two" -> 2)))
+    json.extract[Response] must_== Response(List(Map("one" -> 1, "two" -> 2)))
   }
 
 

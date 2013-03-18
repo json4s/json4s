@@ -1,6 +1,7 @@
 package org.json4s
 
 import java.io.{ StringWriter, Writer => JWriter }
+import scalashim._
 
 object JsonWriter {
   def ast: JsonWriter[JValue] = new JDoubleAstRootJsonWriter
@@ -225,7 +226,7 @@ private final class JDecimalJArrayJsonWriter(parent: JsonWriter[JValue]) extends
 private sealed trait JValueJsonWriter extends JsonWriter[JValue] {
   
   def addNode(node: JValue): JsonWriter[JValue]
-
+  
   def endObject(): JsonWriter[JValue] = {
     sys.error("You have to start an object to be able to end it (endObject called before startObject)")
   }
@@ -264,6 +265,8 @@ private sealed trait JDoubleAstJsonWriter extends JValueJsonWriter {
   def startObject(): JsonWriter[JValue] = {
     new JDoubleJObjectJsonWriter(this)
   }
+
+
   def float(value: Float): JsonWriter[JValue] = addNode(JDouble(value))
 
   def double(value: Double): JsonWriter[JValue] = addNode(JDouble(value))
@@ -287,7 +290,6 @@ private sealed trait JDecimalAstJsonWriter extends JValueJsonWriter {
   def bigDecimal(value: BigDecimal): JsonWriter[JValue] = addNode(JDecimal(value))
 
 }
-
 
 private final class FieldStreamingJsonWriter[T <: JWriter](name: String, isFirst: Boolean, protected[this] val nodes: T, protected[this] val level: Int, parent: ObjectStreamingJsonWriter[T], protected[this] val pretty: Boolean, protected[this] val spaces: Int) extends StreamingJsonWriter[T] {
   def result: T = nodes

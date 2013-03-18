@@ -45,13 +45,13 @@ object Serialization extends Serialization {
   def read[A](json: String)(implicit formats: Formats, mf: Manifest[A]): A =
     JsonMethods.parse(json, formats.wantsBigDecimal).extract(formats, mf)
 
-  @deprecated("You can use formats now to indicate you want to use decimals instead of doubles")
+  @deprecated("You can use formats now to indicate you want to use decimals instead of doubles", "3.2.0")
   def read[A](json: String, useBigDecimalForDouble: Boolean)(implicit formats: Formats, mf: Manifest[A]): A =
     if (useBigDecimalForDouble) read(json)(formats.withBigDecimal, mf) else read(json)(formats.withDouble, mf)
 
   /** Deserialize from a Reader.
    */
-  @deprecated("You can use formats now to indicate you want to use decimals instead of doubles")
+  @deprecated("You can use formats now to indicate you want to use decimals instead of doubles", "3.2.0")
   def read[A](in: Reader, useBigDecimalForDouble: Boolean)(implicit formats: Formats, mf: Manifest[A]): A = {
     if (useBigDecimalForDouble) read(in)(formats.withBigDecimal, mf) else read(in)(formats.withDouble, mf)
   }

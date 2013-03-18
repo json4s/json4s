@@ -1,28 +1,53 @@
 package org.json4s
 
 import com.thoughtworks.paranamer.{BytecodeReadingParanamer, CachingParanamer}
-import java.lang.reflect.{Constructor, Type}
+import java.lang.reflect.{Constructor, ParameterizedType, Type}
 import java.util.concurrent.ConcurrentHashMap
 import scalashim._
-import collection.JavaConverters._
 import java.util.Date
 import java.sql.Timestamp
 
 package object reflect {
 
   private[reflect] class Memo[A, R] {
-    private[this] val cache = new ConcurrentHashMap[A, R]().asScala
-    def apply(x: A, f: A => R): R = cache.getOrElseUpdate(x, f(x))
+    private[this] val cache = new ConcurrentHashMap[A, R](1500, 1, 1)
+
+    def apply(x: A, f: A => R): R = {
+      if (cache.containsKey(x))
+        cache.get(x)
+      else {
+        val v = f(x)
+        replace(x, v)
+      }
+    }
+
+    def replace(x: A, v: R):R = {
+      cache.put(x, v)
+      v
+    }
   }
 
-  private[reflect] val ConstructorDefault = "init$default"
+  private[reflect] val ConstructorDefault = "$lessinit$greater$default"
   private[reflect] val ModuleFieldName = "MODULE$"
   private[reflect] val ClassLoaders = Vector(getClass.getClassLoader)
   private[this] val paranamer = new CachingParanamer(new BytecodeReadingParanamer)
 
+
+
+  case class TypeInfo(clazz: Class[_], parameterizedType: Option[ParameterizedType])
+
+  private[reflect] trait SourceType {
+    def scalaType: ScalaType
+  }
+
+  trait ParameterNameReader {
+    def lookupParameterNames(constructor: Constructor[_]): Seq[String]
+  }
+
+
   object ParanamerReader extends ParameterNameReader {
     def lookupParameterNames(constructor: Constructor[_]): Seq[String] =
-      paranamer.lookupParameterNames(constructor)
+      paranamer.lookupParameterNames(constructor).toSeq
   }
 
 //  def isPrimitive(t: Type) = Reflector.isPrimitive(t)
