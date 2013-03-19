@@ -1,7 +1,11 @@
 # Benchresults
 
 ## Serialization
+<<<<<<< HEAD
 Java serialization (ser)          232ms
+=======
+Java serialization (ser)          232ms  
+>>>>>>> master
 Java noop                           0ms  
 Java toString (ser)               115ms  
 
