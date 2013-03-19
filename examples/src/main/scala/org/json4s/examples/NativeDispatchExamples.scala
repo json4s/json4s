@@ -5,7 +5,7 @@ import dispatch._
 import com.ning.http.client.Response
 
 
-object DispatchExamples extends App with jackson.JsonMethods {
+object DispatchExamples extends App with native.JsonMethods {
 
   import Api.formats
   object read {

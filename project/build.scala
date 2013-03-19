@@ -118,6 +118,12 @@ object Json4sBuild extends Build {
     settings = json4sSettings ++ Seq(libraryDependencies ++= jackson)
   ) dependsOn(core % "compile;test->test")
 
+  lazy val playSupport = Project(
+    id = "json4s-play",
+    base = file("play"),
+    settings = json4sSettings ++ Seq(libraryDependencies ++= jackson)
+  ) dependsOn(core % "compile;test->test")
+
   lazy val examples = Project(
      id = "json4s-examples",
      base = file("examples"),
