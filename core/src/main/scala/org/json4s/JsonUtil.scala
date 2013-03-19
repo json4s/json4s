@@ -1,39 +1,24 @@
 package org.json4s
 
+import java.io.StringWriter
 
-trait JsonUtil[T] { self: JsonMethods[T] =>
+abstract class JsonUtil(fmts: Formats) {
 
-  implicit protected def formats: Formats
+  protected[this] implicit val formats: Formats = fmts
 
-  protected def serializer: Serialization
+  def write[A <: AnyRef: Manifest](a: A): String
+  def write[A <: AnyRef: Manifest, W <: java.io.Writer](a: A, out: W): W
 
-  import java.io.{Reader, StringWriter, Writer}
-  /** Serialize to String.
-   */
-  def write[A <: AnyRef](a: A): String = serializer.write(a)
+  def writePretty[A <: AnyRef](a: A): String
+  def writePretty[A <: AnyRef, W <: java.io.Writer](a: A, out: W): W
 
-  /** Serialize to Writer.
-   */
-  def write[A <: AnyRef, W <: Writer](a: A, out: W): W = serializer.write(a, out)
+  def read[A: Manifest](json: JsonInput):A = parse(json).extract[A]
+  def readOpt[A: Manifest](json: JsonInput): Option[A] = parseOpt(json) flatMap (_.extractOpt[A])
 
-  /** Serialize to String (pretty format).
-   */
-  def writePretty[A <: AnyRef](a: A): String = serializer.writePretty(a)
+  def parse(json: JsonInput): JValue
+  def parseOpt(json: JsonInput): Option[JValue]
 
-  /** Serialize to Writer (pretty format).
-   */
-  def writePretty[A <: AnyRef, W <: Writer](a: A, out: W): W = serializer.writePretty(a, out)
+  def decompose(any: Any) = Extraction.decompose(any)
 
-  /** Deserialize from a String.
-   */
-  def read[A](json: String, useBigDecimal: Boolean = false)(implicit mf: Manifest[A]): A = serializer.read(json, useBigDecimal)
-
-  /** Deserialize from a Reader.
-   */
-  def read[A](in: Reader, useBigDecimal: Boolean)(implicit mf: Manifest[A]): A = serializer.read(in, useBigDecimal)
-
-  /** Deserialize from a Reader.
-   */
-  def read[A](in: Reader)(implicit mf: Manifest[A]): A = serializer.read(in, false)
-
+  def withFormats(fmts: Formats): JsonUtil
 }

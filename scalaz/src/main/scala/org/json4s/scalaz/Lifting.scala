@@ -19,7 +19,6 @@ package scalaz
 
 
 import _root_.scalaz._
-import Scalaz._
 
 trait Lifting { this: Types =>
   implicit def Func2ToJSON[A: JSONR, B: JSONR, R](z: (A, B) => R) = new {

@@ -17,7 +17,7 @@ object Json4sModule {
       }
       case _ => Version.unknownVersion()
     }
-  } catch { case _ => Version.unknownVersion() }
+  } catch { case _: Throwable => Version.unknownVersion() }
 }
 
 class Json4sScalaModule extends Module {

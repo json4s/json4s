@@ -18,7 +18,7 @@ package org.json4s
 package scalaz
 
 import _root_.scalaz._
-import Scalaz._
+import syntax.validation._
 
 trait Tuples { this: Types =>
   implicit def Tuple2JSON[A: JSON, B: JSON]: JSON[(A, B)] = new JSON[(A, B)] {

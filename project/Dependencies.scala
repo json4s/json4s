@@ -29,7 +29,7 @@ object Dependencies {
 //  lazy val specsVersion      = defaultOrMapped("1.13", "2.8.0" -> "1.5", "2.8.1" -> "1.5", "2.8.2" -> "1.5", "2.9.0" -> "1.7.1", "2.9.0-1" -> "1.8.2")
   /* stop stealing */
 
-  lazy val scalaz_core = "org.scalaz" %% "scalaz-core" % "7.0.0-M7"
+  lazy val scalaz_core = "org.scalaz" %% "scalaz-core" % "7.0.0-M9"
 
   val jodaTime = Seq("joda-time" % "joda-time" % "2.1", "org.joda" % "joda-convert" % "1.2")
 

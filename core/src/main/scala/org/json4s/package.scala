@@ -19,6 +19,7 @@ package org
 package object json4s {
   
 
+
   type JValue   = JsonAST.JValue
   val  JNothing = JsonAST.JNothing
   val  JNull    = JsonAST.JNull
@@ -50,6 +51,7 @@ package object json4s {
   implicit def file2JsonInput(file: java.io.File): JsonInput = FileInput(file)
   implicit def jvalue2extractable(jv: JValue) = new ExtractableJsonAstNode(jv)
   implicit def jvalue2monadic(jv: JValue) = new MonadicJValue(jv)
+  implicit def jsonwritable[T: Writer](a: T) = new ToJsonWritable[T](a)
 
   case class MappingException(msg: String, cause: Exception) extends Exception(msg, cause) {
     def this(msg: String) = this(msg, null)

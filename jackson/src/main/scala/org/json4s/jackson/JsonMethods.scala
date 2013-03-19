@@ -1,15 +1,12 @@
 package org.json4s
 package jackson
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.{ObjectMapper, DeserializationFeature}
 import util.control.Exception.allCatch
-import org.json4s
-import io.Source
-import com.fasterxml.jackson.databind.DeserializationFeature
 
-trait JsonMethods extends json4s.JsonMethods[JValue] {
+trait JsonMethods extends org.json4s.JsonMethods[JValue] {
 
-  private lazy val _defaultMapper = {
+  private[this] lazy val _defaultMapper = {
     val m = new ObjectMapper()
     m.registerModule(new Json4sScalaModule)
     m
@@ -40,6 +37,8 @@ trait JsonMethods extends json4s.JsonMethods[JValue] {
   }
 
 
-
+  def asJValue[T](obj: T)(implicit writer: Writer[T]): JValue = writer.write(obj)
+  def fromJValue[T](json: JValue)(implicit reader: Reader[T]): T = reader.read(json)
 }
+
 object JsonMethods extends JsonMethods

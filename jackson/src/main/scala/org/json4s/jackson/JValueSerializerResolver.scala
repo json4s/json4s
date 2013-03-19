@@ -2,7 +2,6 @@ package org.json4s
 package jackson
 
 import com.fasterxml.jackson.databind.ser.Serializers
-import org.json4s._
 import com.fasterxml.jackson.databind.{BeanDescription, JavaType, SerializationConfig}
 
 private object JValueSerializerResolver extends Serializers.Base {
@@ -11,4 +10,5 @@ private object JValueSerializerResolver extends Serializers.Base {
     if (!JVALUE.isAssignableFrom(theType.getRawClass)) null
     else new JValueSerializer
   }
+
 }

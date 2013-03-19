@@ -2,7 +2,6 @@ package org.json4s
 package jackson
 
 import com.fasterxml.jackson.databind.deser.Deserializers
-import org.json4s._
 import com.fasterxml.jackson.databind.{BeanDescription, DeserializationConfig, JavaType}
 
 private object JValueDeserializerResolver extends Deserializers.Base {

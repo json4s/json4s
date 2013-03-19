@@ -18,11 +18,12 @@ package org.json4s
 package scalaz
 
 import _root_.scalaz._
-import Scalaz._
+import std.option._
+import syntax.validation._
 
 
 trait Types {
-  type Result[+A] = ValidationNEL[Error, A]
+  type Result[+A] = ValidationNel[Error, A]
 
   sealed trait Error
   case class UnexpectedJSONError(was: JValue, expected: Class[_ <: JValue]) extends Error

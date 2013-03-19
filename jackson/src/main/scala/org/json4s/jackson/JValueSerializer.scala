@@ -2,9 +2,7 @@ package org.json4s
 package jackson
 
 import com.fasterxml.jackson.databind.{SerializerProvider, JsonSerializer}
-import org.json4s._
 import com.fasterxml.jackson.core.JsonGenerator
-import java.math.BigInteger
 
 class JValueSerializer extends JsonSerializer[JValue]{
   def serialize(value: JValue, json: JsonGenerator, provider: SerializerProvider) {
@@ -30,4 +28,6 @@ class JValueSerializer extends JsonSerializer[JValue]{
       case JNothing => ()
     }
   }
+
+  override def isEmpty(value: JValue): Boolean = value == JNothing
 }
