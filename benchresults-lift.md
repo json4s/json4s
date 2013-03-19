@@ -9,8 +9,8 @@ json4s-native	780ms
 json4s-jackson	444ms
 
 ## Serialization
-Java serialization (ser)          204ms
-Java noop                           0ms
+Java serialization (ser)          204ms  
+Java noop                           0ms  
 Java toString (ser)               112ms  
 
 ### Jackson with Scala module
@@ -56,8 +56,4 @@ json4s-jackson (full)            5749ms
 json4s-native (ser)              4592ms  
 json4s-jackson (ser)             4220ms  
 json4s-native (deser)            1509ms  
-<<<<<<< HEAD
 json4s-jackson (deser)           1433ms
-=======
-json4s-jackson (deser)           1433ms  
->>>>>>> master
