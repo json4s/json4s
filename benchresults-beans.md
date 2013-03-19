@@ -48,4 +48,4 @@ json4s-jackson (full)            1804ms
 json4s-native (ser)               850ms
 json4s-jackson (ser)              594ms
 json4s-native (deser)            1160ms
-json4s-jackson (deser)           1078ms
+json4s-jackson (deser)           1078ms  
