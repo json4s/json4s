@@ -17,6 +17,7 @@
 package org.json4s
 
 import java.util.Locale.ENGLISH
+import java.io.StringWriter
 
 object JsonAST {
 
@@ -171,23 +172,20 @@ object JsonAST {
     def unapply(f: JField): Option[(String, JValue)] = Some(f)
   }
 
-  private[json4s] def quote(s: String): String = {
-    val buf = new StringBuilder
-    for (i ← 0 until s.length) {
-      val c = s.charAt(i)
-      buf.append(c match {
-        case '"' ⇒ "\\\""
-        case '\\' ⇒ "\\\\"
-        case '\b' ⇒ "\\b"
-        case '\f' ⇒ "\\f"
-        case '\n' ⇒ "\\n"
-        case '\r' ⇒ "\\r"
-        case '\t' ⇒ "\\t"
-        case c if ((c >= '\u0000' && c < '\u001f') || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100')) ⇒ "\\u%04x".format(c: Int)
-        case c ⇒ c
-      })
-    }
-    buf.toString
+  private[json4s] def quote(s: String): String = quote(s, new StringWriter()).toString
+  private[json4s] def quote(s: String, writer: java.io.Writer): java.io.Writer = {
+    s map {
+      case '"' ⇒ "\\\""
+      case '\\' ⇒ "\\\\"
+      case '\b' ⇒ "\\b"
+      case '\f' ⇒ "\\f"
+      case '\n' ⇒ "\\n"
+      case '\r' ⇒ "\\r"
+      case '\t' ⇒ "\\t"
+      case c if ((c >= '\u0000' && c < '\u001f') || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100')) ⇒ "\\u%04x".format(c: Int)
+      case c ⇒ c.toString
+    } foreach writer.append
+    writer
   }
 }
 

@@ -8,7 +8,6 @@ import com.typesafe.sbt.SbtStartScript
 
 object Json4sBuild extends Build {
   import Dependencies._
-  import Resolvers._
 
   val manifestSetting = packageOptions <+= (name, version, organization) map {
     (title, version, vendor) =>
@@ -28,9 +27,9 @@ object Json4sBuild extends Build {
 
   val publishSetting = publishTo <<= (version) { version: String =>
     if (version.trim.endsWith("SNAPSHOT"))
-      Some(sonatypeNexusSnapshots)
+      Some(Opts.resolver.sonatypeSnapshots)
     else
-      Some(sonatypeNexusStaging)
+      Some(Opts.resolver.sonatypeStaging)
   }
 
   val mavenCentralFrouFrou = Seq(

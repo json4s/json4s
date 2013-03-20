@@ -3,12 +3,12 @@ The results of the benchmarks before touching extraction and the scalasig parsin
 
 ## Parsing
 
-Scala std	 162570ms
-Jackson	        433ms
-json4s-native	780ms
-json4s-jackson	444ms
+Scala std	 162570ms  
+Jackson	        433ms  
+json4s-native	780ms  
+json4s-jackson	444ms  
 
-## Serialization
+## Serialization  
 Java serialization (ser)          204ms  
 Java noop                           0ms  
 Java toString (ser)               112ms  
