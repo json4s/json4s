@@ -311,7 +311,7 @@ private final class FieldStreamingJsonWriter[T <: JWriter](name: String, isFirst
       writePretty()
     }
     nodes.append("\"")
-    nodes.append(JsonAST.quote(name))
+    JsonAST.quote(name, nodes)
     nodes.append("\":")
   }
 
@@ -321,6 +321,13 @@ private final class FieldStreamingJsonWriter[T <: JWriter](name: String, isFirst
     parent
   }
 
+  def addAndQuoteNode(node: String): JsonWriter[T] = {
+    writeName(hasPretty = false)
+    nodes.append("\"")
+    JsonAST.quote(node, nodes)
+    nodes.append("\"")
+    parent
+  }
 }
 private final class ObjectStreamingJsonWriter[T <: JWriter](protected[this] val nodes: T, protected[this] val level: Int, parent: StreamingJsonWriter[T], protected[this] val pretty: Boolean, protected[this] val spaces: Int) extends StreamingJsonWriter[T] {
   nodes write '{'
@@ -340,7 +347,17 @@ private final class ObjectStreamingJsonWriter[T <: JWriter](protected[this] val 
     nodes.write('}')
     parent
   }
-  
+
+
+  def addAndQuoteNode(node: String): JsonWriter[T] = {
+    if (isFirst) isFirst = false
+    else nodes.append(",")
+    nodes.append("\"")
+    JsonAST.quote(node, nodes)
+    nodes.append("\"")
+    this
+  }
+
   override def startArray(): JsonWriter[T] = {
     sys.error("You have to start a field to be able to end it (startArray called before startField in a JObject builder)")
   }
@@ -423,6 +440,14 @@ private final class ArrayStreamingJsonWriter[T <: JWriter](protected[this] val n
     nodes.write(node)
     this
   }
+
+  def addAndQuoteNode(node: String): JsonWriter[T] = {
+    writeComma()
+    nodes.append("\"")
+    JsonAST.quote(node, nodes)
+    nodes.append("\"")
+    this
+  }
 }
 private final class RootStreamingJsonWriter[T <: JWriter](protected[this] val nodes: T = new StringWriter(), protected[this] val pretty: Boolean = false, protected[this] val spaces: Int = 2) extends StreamingJsonWriter[T] {
 
@@ -430,6 +455,14 @@ private final class RootStreamingJsonWriter[T <: JWriter](protected[this] val no
 
   final def addNode(node: String): JsonWriter[T] = {
     nodes write node
+    this
+  }
+
+
+  final def addAndQuoteNode(node: String): JsonWriter[T] = {
+    nodes.append("\"")
+    JsonAST.quote(node, nodes)
+    nodes.append("\"")
     this
   }
 
@@ -451,6 +484,7 @@ private sealed trait StreamingJsonWriter[T <: JWriter] extends JsonWriter[T] {
   }
 
   def addNode(node: String): JsonWriter[T]
+  def addAndQuoteNode(node: String): JsonWriter[T]
 
   def endObject(): JsonWriter[T] = {
     sys.error("You have to start an object to be able to end it (endObject called before startObject)")
@@ -460,7 +494,7 @@ private sealed trait StreamingJsonWriter[T <: JWriter] extends JsonWriter[T] {
     sys.error("You have to start an object before starting a field.")
   }
 
-  def string(value: String): JsonWriter[T] = addNode("\""+JsonAST.quote(value)+"\"")
+  def string(value: String): JsonWriter[T] = addAndQuoteNode(value)
 
   def byte(value: Byte): JsonWriter[T] = addNode(value.toString)
 
