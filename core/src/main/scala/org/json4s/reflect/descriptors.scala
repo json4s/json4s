@@ -244,7 +244,10 @@ case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaT
 
   private[this] var _mostComprehensive: Seq[ConstructorParamDescriptor] = null
   def mostComprehensive: Seq[ConstructorParamDescriptor] = {
-    if (_mostComprehensive == null) _mostComprehensive = constructors.sortBy(-_.params.size).head.params
+    if (_mostComprehensive == null)
+      _mostComprehensive =
+        if (constructors.nonEmpty) constructors.sortBy(-_.params.size).headOption.map(_.params).getOrElse(Nil)
+        else Nil
     _mostComprehensive
   }
 }
