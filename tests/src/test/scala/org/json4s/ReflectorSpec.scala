@@ -15,6 +15,7 @@ case class NestedType3(dat: List[Map[Double, Option[List[Option[Int]]]]], lis: L
 case class NestedType4(dat: List[Map[Double, Option[List[Map[Long, Option[Int]]]]]], lis: List[List[List[List[List[Int]]]]])
 case class NestedType5(dat: List[Map[Double, Option[List[Map[Long, Option[Map[Byte, Either[Double, Long]]]]]]]], lis: List[List[List[List[List[Int]]]]])
 case class NestedResType[T, S, V <: Option[S]](t: T, v: V, dat: List[Map[T, V]], lis: List[List[List[List[List[S]]]]])
+case object TheObject
 
 class NormalClass {
   val complex: RRSimple = RRSimple(1, "ba", Nil, new Date)
@@ -25,6 +26,12 @@ class NormalClass {
 
 class ReflectorSpec extends Specification {
   "Reflector" should {
+
+    "describe a case object" in {
+      val descr = Reflector.describe(TheObject.getClass).asInstanceOf[ClassDescriptor]
+      descr.mostComprehensive must not(throwAnException)
+      println(Reflector.describe(TheObject.getClass))
+    }
 
     "describe primitives" in {
       Reflector.describe[Int] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Int])
@@ -221,7 +228,6 @@ class ReflectorSpec extends Specification {
       params(2).returnType must_== Reflector.scalaTypeOf[Int]
       params(3).name must_== "optPrimitive"
       params(3).returnType must_== Reflector.scalaTypeOf[Option[Int]]
-
     }
   }
 }

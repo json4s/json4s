@@ -159,12 +159,6 @@ object JsonAST {
     def values = arr.map(_.values)
     override def apply(i: Int): JValue = arr(i)
   }
-//
-//  case class LazyJArray(arr: Stream[JValue]) extends JValue {
-//    type Values = Stream[Any]
-//    def values = arr.map(_.values)
-//    override def apply(i: Int): JValue = arr(i)
-//  }
 
   type JField = (String, JValue)
   object JField {
@@ -172,20 +166,33 @@ object JsonAST {
     def unapply(f: JField): Option[(String, JValue)] = Some(f)
   }
 
-  private[json4s] def quote(s: String): String = quote(s, new StringWriter()).toString
-  private[json4s] def quote(s: String, writer: java.io.Writer): java.io.Writer = {
-    s map {
-      case '"' ⇒ "\\\""
-      case '\\' ⇒ "\\\\"
-      case '\b' ⇒ "\\b"
-      case '\f' ⇒ "\\f"
-      case '\n' ⇒ "\\n"
-      case '\r' ⇒ "\\r"
-      case '\t' ⇒ "\\t"
-      case c if ((c >= '\u0000' && c < '\u001f') || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100')) ⇒ "\\u%04x".format(c: Int)
-      case c ⇒ c.toString
-    } foreach writer.append
-    writer
+  private[this] trait StringAppender[T] {
+    def append(s: String): T
+    def subj: T
+  }
+  private[this] class StringWriterAppender(val subj: java.io.Writer) extends StringAppender[java.io.Writer] {
+    def append(s: String): java.io.Writer = subj.append(s)
+  }
+  private[this] class StringBuilderAppender(val subj: StringBuilder) extends StringAppender[StringBuilder] {
+    def append(s: String): StringBuilder = subj.append(s)
+  }
+
+  private[json4s] def quote(s: String): String = quote(s, new StringBuilderAppender(new StringBuilder)).toString
+  private[json4s] def quote(s: String, writer: java.io.Writer): java.io.Writer = quote(s, new StringWriterAppender(writer))
+  private[this] def quote[T](s: String, appender: StringAppender[T]): T = {
+    s foreach { c =>
+      if (c == '"') appender.append("\\\"")
+      else if (c == '\\') appender.append("\\\\")
+      else if (c == '\b') appender.append("\\b")
+      else if (c == '\f') appender.append("\\f")
+      else if (c == '\n') appender.append("\\n")
+      else if (c == '\r') appender.append("\\r")
+      else if (c == '\t') appender.append("\\t")
+      else if ((c >= '\u0000' && c < '\u001f') || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100'))
+        appender.append("\\u%04x".format(c: Int))
+      else appender.append(c.toString)
+    }
+    appender.subj
   }
 }
 
