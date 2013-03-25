@@ -6,7 +6,7 @@ import sbtbuildinfo.Plugin._
 import com.typesafe.sbt.SbtStartScript
 
 
-object Json4sBuild extends Build {
+object build extends Build {
   import Dependencies._
   import Resolvers._
 
@@ -90,7 +90,13 @@ object Json4sBuild extends Build {
       unmanagedSourceDirectories in Compile <+= (scalaVersion, baseDirectory) {
         case (v, dir) if v startsWith "2.8" => dir / "src/main/scala_2.8"
         case (v, dir) if v startsWith "2.9" => dir / "src/main/scala_2.9"
-      }
+      },
+      initialCommands in (Test, console) :=
+        """
+          |import org.json4s._
+          |import reflect._
+          |import scala.tools.scalap.scalax.rules.scalasig._
+        """.stripMargin
     )
   ) dependsOn(ast % "compile;test->test")
 
@@ -165,7 +171,15 @@ object Json4sBuild extends Build {
   lazy val json4sTests = Project(
     id = "json4s-tests",
     base = file("tests"),
-    settings = json4sSettings ++ Seq(libraryDependencies <++= scalaVersion { sv => Seq(specs(sv), scalacheck(sv), mockito) })
+    settings = json4sSettings ++ Seq(
+      libraryDependencies <++= scalaVersion { sv => Seq(specs(sv), scalacheck(sv), mockito) },
+      initialCommands in (Test, console) :=
+        """
+          |import org.json4s._
+          |import reflect._
+          |import scala.tools.scalap.scalax.rules.scalasig._
+        """.stripMargin
+    )
   ) dependsOn(core, native, json4sExt, nativeLift, scalazExt, jacksonSupport, mongo)
 
   lazy val benchmark = Project(

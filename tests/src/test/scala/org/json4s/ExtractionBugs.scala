@@ -7,6 +7,13 @@ import text.Document
 object NativeExtractionBugs extends ExtractionBugs[Document]("Native") with native.JsonMethods
 object JacksonExtractionBugs extends ExtractionBugs[JValue]("Native") with jackson.JsonMethods
 
+trait SharedModule {
+  case class SharedObj(name: String, visible: Boolean = false)
+}
+
+object PingPongGame extends SharedModule
+
+
 object ExtractionBugs {
   case class Response(data: List[Map[String, Int]])
 
@@ -28,11 +35,12 @@ object ExtractionBugs {
     def hello = "hello"
   }
   case class HasCompanion(nums: List[Int])
+
 }
 abstract class ExtractionBugs[T](mod: String) extends Specification(mod+" Extraction bugs Specification") with JsonMethods[T] {
 
   import ExtractionBugs._
-  implicit val formats = DefaultFormats
+  implicit val formats: Formats = DefaultFormats.withCompanions(classOf[PingPongGame.SharedObj] -> PingPongGame)
 
   "ClassCastException (BigInt) regression 2 must pass" in {
     val opt = OptionOfInt(Some(39))
@@ -42,6 +50,13 @@ abstract class ExtractionBugs[T](mod: String) extends Specification(mod+" Extrac
   "Extraction should not fail when Maps values are Lists" in {
     val m = PMap(Map("a" -> List("b"), "c" -> List("d")))
     Extraction.decompose(m).extract[PMap] must_== m
+  }
+
+  "Extraction should not fail when class is defined in a trait" in {
+    val inst = PingPongGame.SharedObj("jeff", visible = true)
+    val extr = Extraction.decompose(inst)
+    extr must_== JObject("name" -> JString("jeff"), "visible" -> JBool(true))
+    extr.extract[PingPongGame.SharedObj] must_== inst
   }
 
   "Extraction should always choose constructor with the most arguments if more than one constructor exists" in {

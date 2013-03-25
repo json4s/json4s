@@ -45,6 +45,29 @@ package object reflect {
     def lookupParameterNames(constructor: Constructor[_]): Seq[String]
   }
 
+  trait ReflectorDescribable[T] {
+    def companionClasses: List[(Class[_], AnyRef)]
+    def paranamer: ParameterNameReader
+    def scalaType: ScalaType
+  }
+
+  implicit def scalaTypeDescribable(t: ScalaType)(implicit formats: Formats = DefaultFormats): ReflectorDescribable[ScalaType] = new ReflectorDescribable[ScalaType] {
+    val companionClasses: List[(Class[_], AnyRef)] = formats.companions
+    val paranamer: ParameterNameReader = formats.parameterNameReader
+    val scalaType: ScalaType = t
+  }
+
+  implicit def classDescribable(t: Class[_])(implicit formats: Formats = DefaultFormats): ReflectorDescribable[Class[_]] = new ReflectorDescribable[Class[_]] {
+    val companionClasses: List[(Class[_], AnyRef)] = formats.companions
+    val paranamer: ParameterNameReader = formats.parameterNameReader
+    val scalaType: ScalaType =  Reflector.scalaTypeOf(t)
+  }
+
+  implicit def stringDescribable(t: String)(implicit formats: Formats = DefaultFormats): ReflectorDescribable[String] = new ReflectorDescribable[String] {
+    val companionClasses: List[(Class[_], AnyRef)] = formats.companions
+    val paranamer: ParameterNameReader = formats.parameterNameReader
+    val scalaType: ScalaType = Reflector.scalaTypeOf(t) getOrElse (throw new MappingException("Couldn't find class for " + t))
+  }
 
   object ParanamerReader extends ParameterNameReader {
     def lookupParameterNames(constructor: Constructor[_]): Seq[String] =
