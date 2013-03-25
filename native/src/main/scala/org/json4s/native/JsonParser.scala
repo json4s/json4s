@@ -17,7 +17,6 @@
 package org.json4s
 package native
 
-import scalashim._
 import org.json4s.ParserUtil.{Buffer, parseDouble, ParseException}
 
 /** JSON parser.

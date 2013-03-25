@@ -7,6 +7,13 @@ import text.Document
 object NativeExtractionBugs extends ExtractionBugs[Document]("Native") with native.JsonMethods
 object JacksonExtractionBugs extends ExtractionBugs[JValue]("Native") with jackson.JsonMethods
 
+trait SharedModule {
+  case class SharedObj(name: String, visible: Boolean = false)
+}
+
+object PingPongGame extends SharedModule
+
+
 object ExtractionBugs {
   case class Response(data: List[Map[String, Int]])
 
@@ -28,48 +35,56 @@ object ExtractionBugs {
     def hello = "hello"
   }
   case class HasCompanion(nums: List[Int])
+
 }
 abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMethods[T] {
-  title(mod+" Extraction bugs Specification")
 
   import ExtractionBugs._
-  implicit val formats = DefaultFormats
+  implicit val formats: Formats = DefaultFormats.withCompanions(classOf[PingPongGame.SharedObj] -> PingPongGame)
 
-  "ClassCastException (BigInt) regression 2 must pass" in {
-    val opt = OptionOfInt(Some(39))
-    Extraction.decompose(opt).extract[OptionOfInt].opt.get must_== 39
+  (mod+" Extraction bugs Specification") should {
+    "ClassCastException (BigInt) regression 2 must pass" in {
+      val opt = OptionOfInt(Some(39))
+      Extraction.decompose(opt).extract[OptionOfInt].opt.get must_== 39
+    }
+
+    "Extraction should not fail when Maps values are Lists" in {
+      val m = PMap(Map("a" -> List("b"), "c" -> List("d")))
+      Extraction.decompose(m).extract[PMap] must_== m
+    }
+
+    "Extraction should not fail when class is defined in a trait" in {
+      val inst = PingPongGame.SharedObj("jeff", visible = true)
+      val extr = Extraction.decompose(inst)
+      extr must_== JObject("name" -> JString("jeff"), "visible" -> JBool(true))
+      extr.extract[PingPongGame.SharedObj] must_== inst
+    }
+
+    "Extraction should always choose constructor with the most arguments if more than one constructor exists" in {
+      val args = Reflector.describe[ManyConstructors].asInstanceOf[ClassDescriptor].mostComprehensive
+      args.size must_== 4
+    }
+
+    "Extraction should handle AnyRef" in {
+      implicit val formats = DefaultFormats.withHints(FullTypeHints(classOf[ExtractWithAnyRef] :: Nil))
+      val json = JObject(JField("jsonClass", JString(classOf[ExtractWithAnyRef].getName)) :: Nil)
+      val extracted = Extraction.extract[AnyRef](json)
+      extracted must_== ExtractWithAnyRef()
+    }
+
+    "Extraction should work with unicode encoded field names (issue 1075)" in {
+      parse("""{"foo.bar,baz":"x"}""").extract[UnicodeFieldNames] must_== UnicodeFieldNames("x")
+    }
+
+    "Extraction should not fail if case class has a companion object" in {
+      parse("""{"nums":[10]}""").extract[HasCompanion] must_== HasCompanion(List(10))
+    }
+
+    "Issue 1169" in {
+      val json = parse("""{"data":[{"one":1, "two":2}]}""")
+      json.extract[Response] must_== Response(List(Map("one" -> 1, "two" -> 2)))
+    }
+
   }
-
-  "Extraction should not fail when Maps values are Lists" in {
-    val m = PMap(Map("a" -> List("b"), "c" -> List("d")))
-    Extraction.decompose(m).extract[PMap] must_== m
-  }
-
-  "Extraction should always choose constructor with the most arguments if more than one constructor exists" in {
-    val args = Reflector.describe[ManyConstructors].asInstanceOf[ClassDescriptor].mostComprehensive
-    args.size must_== 4
-  }
-
-  "Extraction should handle AnyRef" in {
-    implicit val formats = DefaultFormats.withHints(FullTypeHints(classOf[ExtractWithAnyRef] :: Nil))
-    val json = JObject(JField("jsonClass", JString(classOf[ExtractWithAnyRef].getName)) :: Nil)
-    val extracted = Extraction.extract[AnyRef](json)
-    extracted must_== ExtractWithAnyRef()
-  }
-
-  "Extraction should work with unicode encoded field names (issue 1075)" in {
-    parse("""{"foo.bar,baz":"x"}""").extract[UnicodeFieldNames] must_== UnicodeFieldNames("x")
-  }
-
-  "Extraction should not fail if case class has a companion object" in {
-    parse("""{"nums":[10]}""").extract[HasCompanion] must_== HasCompanion(List(10))
-  }
-
-  "Issue 1169" in {
-    val json = parse("""{"data":[{"one":1, "two":2}]}""")
-    json.extract[Response] must_== Response(List(Map("one" -> 1, "two" -> 2)))
-  }
-
-
 }
 

@@ -1,12 +1,12 @@
 import sbt._
 import Keys._
 import xml.Group
-import sbtscalashim.Plugin._
+//import sbtscalashim.Plugin._
 import sbtbuildinfo.Plugin._
 import com.typesafe.sbt.SbtStartScript
 
 
-object Json4sBuild extends Build {
+object build extends Build {
   import Dependencies._
 
   val manifestSetting = packageOptions <+= (name, version, organization) map {
@@ -73,8 +73,7 @@ object Json4sBuild extends Build {
   lazy val ast = Project(
     id = "json4s-ast",
     base = file("ast"),
-    settings = json4sSettings ++ scalaShimSettings ++ buildInfoSettings ++ Seq(
-      sourceGenerators in Compile <+= scalaShim,
+    settings = json4sSettings ++ buildInfoSettings ++ Seq(
       sourceGenerators in Compile <+= buildInfo,
       buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
       buildInfoPackage := "org.json4s"
@@ -90,7 +89,13 @@ object Json4sBuild extends Build {
         case (v, dir) if v startsWith "2.8" => dir / "src/main/scala_2.8"
         case (v, dir) if v startsWith "2.9" => dir / "src/main/scala_2.9"
         case (v, dir) if v startsWith "2.10" => dir / "src/main/scala_2.10"
-      }
+      },
+      initialCommands in (Test, console) :=
+        """
+          |import org.json4s._
+          |import reflect._
+          |import scala.tools.scalap.scalax.rules.scalasig._
+        """.stripMargin
     )
   ) dependsOn(ast % "compile;test->test")
 
@@ -162,13 +167,21 @@ object Json4sBuild extends Build {
        libraryDependencies ++= Seq(
          "org.mongodb" % "mongo-java-driver" % "2.10.1"
        )
-     )
+      )
   ) dependsOn(core % "compile;test->test")
 
   lazy val json4sTests = Project(
     id = "json4s-tests",
     base = file("tests"),
-    settings = json4sSettings ++ Seq(libraryDependencies ++= Seq(specs, scalacheck, mockito))
+    settings = json4sSettings ++ Seq(
+      libraryDependencies ++= Seq(specs, scalacheck, mockito),
+      initialCommands in (Test, console) :=
+        """
+          |import org.json4s._
+          |import reflect._
+          |import scala.tools.scalap.scalax.rules.scalasig._
+        """.stripMargin
+    )
   ) dependsOn(core, native, json4sExt, scalazExt, jacksonSupport, mongo)
 
   lazy val benchmark = Project(

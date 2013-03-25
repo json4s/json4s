@@ -22,8 +22,11 @@ import text.Document
 object NativeMergeExamples extends MergeExamples[Document]("Native") with native.JsonMethods
 object JacksonMergeExamples extends MergeExamples[JValue]("Jackson") with jackson.JsonMethods
 abstract class MergeExamples[T](mod: String) extends Specification with JsonMethods[T] {
-  (mod+" Merge Examples") in {
-    (scala1 merge scala2) must_== expectedMergeResult
+
+  (mod+" Merge Examples") should {
+    "Merge example" in {
+      (scala1 merge scala2) must_== expectedMergeResult
+    }
   }
 
   lazy val scala1 = parse("""

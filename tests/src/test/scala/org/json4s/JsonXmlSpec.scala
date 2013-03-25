@@ -16,8 +16,8 @@
 
 package org.json4s
 
-import org.specs2.mutable.Specification
 import org.specs2.ScalaCheck
+import org.specs2.mutable.Specification
 import org.scalacheck.Arbitrary
 import text.Document
 
@@ -34,7 +34,7 @@ abstract class JsonXmlSpec[T](mod: String) extends Specification with NodeGen wi
   import Xml._
   import scala.xml.Node
 
-  (mod+" JSON XML Specification") in {
+  (mod+" JSON XML Specification") should {
     "Valid XML can be converted to JSON and back (symmetric op)" in {
       val conversion = (xml: Node) => { toXml(toJson(xml)).head must_== xml }
       prop(conversion)

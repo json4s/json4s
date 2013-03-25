@@ -1,6 +1,5 @@
 package org.json4s
 
-import scalashim._
 
 object ParserUtil {
 

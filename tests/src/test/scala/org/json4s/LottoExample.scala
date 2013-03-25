@@ -35,11 +35,9 @@ object JacksonLottoExample extends LottoExample[JValue]("Jackson") with jackson.
 }
 
 abstract class LottoExample[T](mod: String) extends Specification with JsonMethods[T] {
-
-  title(mod + " Lotto Examples")
   import LottoExample._
 
-  "The Lotto Examples" should {
+  ("The " + mod + " Lotto Examples") should {
     "pass" in {
       compact(render(json)) must_== """{"lotto":{"id":5,"winning-numbers":[2,45,34,23,7,5,3],"winners":[{"winner-id":23,"numbers":[2,45,34,23,3,5]},{"winner-id":54,"numbers":[52,3,12,11,18,22]}]}}"""
       val exp: Winner = Winner(23, List(2, 45, 34, 23, 3, 5))

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+function die() {
+    echo "$*" 1>&2
+    exit 1
+}
+
+
+MAINCLASS="org.json4s.examples.SerBench"
+shift
+if test x"$MAINCLASS" = x; then
+    die 'This "start" script requires a main class name as the first argument, because a mainClass was not specified in SBT and not autodetected by SBT (usually means you have zero, or more than one, main classes).  You could specify in your SBT build: mainClass in Compile := Some("Whatever")'
+fi
+
+
+exec java $JAVA_OPTS -cp "./examples/target/scala-2.10/classes:./core/target/scala-2.10/classes:./ast/target/scala-2.10/classes:./native/target/scala-2.10/classes:./jackson/target/scala-2.10/classes:./ext/target/scala-2.10/classes:./mongo/target/scala-2.10/classes:/Users/ivan/.sbt/boot.0.12.2/scala-2.10.0/lib/scala-library.jar:/Users/ivan/.ivy2/cache/com.thoughtworks.paranamer/paranamer/jars/paranamer-2.5.2.jar:/Users/ivan/.ivy2/cache/org.scala-lang/scalap/jars/scalap-2.10.0.jar:/Users/ivan/.sbt/boot.0.12.2/scala-2.10.0/lib/scala-compiler.jar:/Users/ivan/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.10.0.jar:/Users/ivan/.ivy2/cache/com.fasterxml.jackson.core/jackson-databind/jars/jackson-databind-2.1.2.jar:/Users/ivan/.ivy2/cache/joda-time/joda-time/jars/joda-time-2.1.jar:/Users/ivan/.ivy2/cache/org.joda/joda-convert/jars/joda-convert-1.2.jar:/Users/ivan/.ivy2/cache/org.mongodb/mongo-java-driver/jars/mongo-java-driver-2.10.1.jar:/Users/ivan/.ivy2/cache/net.databinder.dispatch/dispatch-core_2.10/jars/dispatch-core_2.10-0.9.4.jar:/Users/ivan/.ivy2/cache/com.ning/async-http-client/jars/async-http-client-1.7.5.jar:/Users/ivan/.ivy2/cache/io.netty/netty/bundles/netty-3.4.4.Final.jar:/Users/ivan/.ivy2/cache/org.slf4j/slf4j-api/jars/slf4j-api-1.6.2.jar:/Users/ivan/.ivy2/cache/com.fasterxml.jackson.module/jackson-module-scala_2.10/jars/jackson-module-scala_2.10-2.1.3.jar:/Users/ivan/.ivy2/cache/com.fasterxml.jackson.core/jackson-core/jars/jackson-core-2.1.2.jar:/Users/ivan/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/jars/jackson-annotations-2.1.2.jar:/Users/ivan/.ivy2/cache/com.google.guava/guava/jars/guava-13.0.1.jar" "$MAINCLASS" "$@"
+

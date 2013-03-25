@@ -1,7 +1,6 @@
 package org.json4s
 
 import java.io.{ StringWriter, Writer => JWriter }
-import scalashim._
 
 object JsonWriter {
   def ast: JsonWriter[JValue] = new JDoubleAstRootJsonWriter
@@ -297,12 +296,12 @@ private final class FieldStreamingJsonWriter[T <: JWriter](name: String, isFirst
 
   override def startArray(): JsonWriter[T] = {
     writeName(hasPretty = true)
-    super.startArray()
+    new ArrayStreamingJsonWriter(nodes, level + 1, parent, pretty, spaces)
   }
 
   override def startObject(): JsonWriter[T] = {
     writeName(hasPretty = true)
-    super.startObject()
+    new ObjectStreamingJsonWriter(nodes, level + 1, parent, pretty, spaces)
   }
 
   private[this] def writeName(hasPretty: Boolean) {

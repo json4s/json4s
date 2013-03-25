@@ -9,18 +9,17 @@ import org.specs2.mutable.Specification
 * System under specification for JSON Printing.
 */
 object JsonPrintingSpec extends Specification with JValueGen with ScalaCheck {
-  title("JSON Printing Specification")
   import scala.text.Document
   import native.Printer
   import native.JsonMethods._
 
   "rendering does not change semantics" in {
     val rendering = (json: Document) => parse(Printer.pretty(json)) must_== parse(Printer.compact(json))
-    org.scalacheck.Prop.forAll(rendering)
+    prop(rendering)
   }
 
   private def parse(json: String) = scala.util.parsing.json.JSON.parseFull(json)
 
-  implicit def arbDoc: Arbitrary[Document] = Arbitrary(genJValue.map(render(_).asInstanceOf[Document]))
+  implicit def arbDoc: Arbitrary[Document] = Arbitrary(genJValue.map(render(_)))
 }
 

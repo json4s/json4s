@@ -27,17 +27,17 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
   import Xml._
   import scala.xml.{Group, Text}
 
-  (mod+" XML Examples") in {
+  (mod+" XML Examples") should {
     "Basic conversion example" in {
       val json = toJson(users1)
-      compact(render(json)) mustEqual """{"users":{"count":"2","user":[{"disabled":"true","id":"1","name":"Harry"},{"id":"2","name":"David","nickname":"Dave"}]}}"""
+      compact(render(json)) must_== """{"users":{"count":"2","user":[{"disabled":"true","id":"1","name":"Harry"},{"id":"2","name":"David","nickname":"Dave"}]}}"""
     }
 
     "Conversion transformation example 1" in {
       val json = toJson(users1).transformField {
         case JField("id", JString(s)) => JField("id", JInt(s.toInt))
       }
-      compact(render(json)) mustEqual """{"users":{"count":"2","user":[{"disabled":"true","id":1,"name":"Harry"},{"id":2,"name":"David","nickname":"Dave"}]}}"""
+      compact(render(json)) must_== """{"users":{"count":"2","user":[{"disabled":"true","id":1,"name":"Harry"},{"id":2,"name":"David","nickname":"Dave"}]}}"""
     }
 
     "Conversion transformation example 2" in {
@@ -45,12 +45,12 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
         case JField("id", JString(s)) => JField("id", JInt(s.toInt))
         case JField("user", x: JObject) => JField("user", JArray(x :: Nil))
       }
-      compact(render(json)) mustEqual """{"users":{"user":[{"id":1,"name":"Harry"}]}}"""
+      compact(render(json)) must_== """{"users":{"user":[{"id":1,"name":"Harry"}]}}"""
     }
 
     "Primitive array example" in {
       val xml = <chars><char>a</char><char>b</char><char>c</char></chars>
-      compact(render(toJson(xml))) mustEqual """{"chars":{"char":["a","b","c"]}}"""
+      compact(render(toJson(xml))) must_== """{"chars":{"char":["a","b","c"]}}"""
     }
 
     "Lotto example which flattens number arrays into encoded string arrays" in {
@@ -63,7 +63,8 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
         case JField("numbers", JArray(nums)) => JField("numbers", flattenArray(nums))
       })
 
-      printer.format(xml(0)) mustEqual printer.format(
+
+      printer.format(xml(0)) must_== printer.format(
         <lotto>
           <id>5</id>
           <winning-numbers>2,45,34,23,7,5,3</winning-numbers>
@@ -134,6 +135,7 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
   val messageXml3 = <message expiry_date="20091126"><stats count="0"></stats></message>
 
   val expected2 = """{"message":{"expiry_date":"20091126","stats":{"count":0}}}"""
+
 
   val band =
         <b:band>

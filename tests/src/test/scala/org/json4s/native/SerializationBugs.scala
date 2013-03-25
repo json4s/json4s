@@ -21,7 +21,7 @@ object SerializationBugs extends Specification {
 
     val g1 = Game(Map("a" -> Plan(Some(Action("f1", "s", Array(), None)),
                                   Some("A"),
-                                  Some(Action("f2", "s2", Array(0, 1, 2), None)))))
+                                  Some(Action("f2", "s2", Array[Number](0, 1, 2), None)))))
     val ser = swrite(g1)
     val g2 = read[Game](ser)
     val plan = g2.buy("a")
@@ -83,7 +83,7 @@ object SerializationBugs extends Specification {
         case (TypeInfo(SeqClass, parameterizedType), JArray(xs)) =>
           val typeInfo = TypeInfo(parameterizedType
             .map(_.getActualTypeArguments()(0))
-            .getOrElse(failure("No type parameter info for type Seq")).asInstanceOf[Class[_]], None)
+            .getOrElse(reflect.fail("No type parameter info for type Seq")).asInstanceOf[Class[_]], None)
           xs.map(x => Extraction.extract(x, typeInfo))
       }
     }

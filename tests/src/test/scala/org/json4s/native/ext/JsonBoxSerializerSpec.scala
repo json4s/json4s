@@ -72,3 +72,4 @@
 //
 //case class Person(name: String, age: Box[Int], mother: Box[Person], thing: Box[String] = Empty)
 //
+

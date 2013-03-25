@@ -19,7 +19,6 @@ package mongo
 
 import java.util.{Calendar, Date, GregorianCalendar, UUID}
 import java.util.regex.Pattern
-import scalashim._
 import org.bson.types.ObjectId
 
 object Meta {

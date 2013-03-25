@@ -32,12 +32,6 @@ object ScalaType {
     else {
       if (mf.typeArguments.isEmpty) types(mf, new ScalaType(_))
       else new ScalaType(mf)
-//      if (!mf.erasure.isArray) types(mf, new ScalaType(_))
-//      else {
-//        val nmf = ManifestFactory.manifestOf(mf.erasure, List(ManifestFactory.manifestOf(mf.erasure.getComponentType)))
-//        types(nmf, new ScalaType(_))
-//      }
-//      new ScalaType(mf)
     }
   }
 
@@ -83,14 +77,6 @@ object ScalaType {
                   private[this] var _typeVars: Map[TypeVariable[_], ScalaType],
                   override val isPrimitive: Boolean) extends ScalaType(mf) {
 
-//    override def typeArgs: Seq[ScalaType] = {
-//      if (_typeArgs == null)
-//        _typeArgs = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
-//          if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
-//        )
-//      _typeArgs
-//    }
-
     override def typeVars: Map[TypeVariable[_], ScalaType] = {
       if (_typeVars == null)
         _typeVars = Map.empty ++
@@ -103,17 +89,7 @@ object ScalaType {
 class ScalaType(private val manifest: Manifest[_]) extends Equals {
 
   import ScalaType.{ types, CopiedScalaType }
-  private[this] val self = this
   val erasure: Class[_] = manifest.erasure
-
-//  private[this] var _typeArgs: Seq[ScalaType] = null
-//  def typeArgs: Seq[ScalaType] = {
-//    if (_typeArgs == null)
-//      _typeArgs = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
-//        if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
-//      )
-//    _typeArgs
-//  }
 
   val typeArgs: Seq[ScalaType] = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
     if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
@@ -155,7 +131,7 @@ class ScalaType(private val manifest: Manifest[_]) extends Equals {
       erasure,
       if (typeArgs.nonEmpty) Some(Reflector.mkParameterizedType(erasure, typeArgs.map(_.erasure).toSeq)) else None
     ) with SourceType {
-      val scalaType: ScalaType = self
+      val scalaType: ScalaType = ScalaType.this
     }
 
   val isPrimitive = false
@@ -213,7 +189,7 @@ case class PropertyDescriptor(name: String, mangledName: String, returnType: Sca
   def get(receiver: AnyRef) = field.get(receiver)
 }
 case class ConstructorParamDescriptor(name: String, mangledName: String, argIndex: Int, argType: ScalaType, defaultValue: Option[() => Any]) extends Descriptor {
-  lazy val isOptional = defaultValue.isDefined || classOf[Option[_]].isAssignableFrom(argType.erasure)
+  lazy val isOptional = defaultValue.isDefined || argType.isOption
 }
 case class ConstructorDescriptor(params: Seq[ConstructorParamDescriptor], constructor: java.lang.reflect.Constructor[_], isPrimary: Boolean) extends Descriptor
 case class SingletonDescriptor(simpleName: String, fullName: String, erasure: ScalaType, instance: AnyRef, properties: Seq[PropertyDescriptor]) extends Descriptor
@@ -234,10 +210,13 @@ case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaT
     else {
       val best = constructors.tail.foldLeft((constructors.head, score(constructors.head.params.toList))) { (best, c) =>
         val newScore = score(c.params.toList)
-        val newIsBetter =
-          (newScore == best._2 && countOptionals(c.params.toList) < countOptionals(best._1.params.toList)) || newScore > best._2
+        val newIsBetter = {
+          (newScore == best._2 && countOptionals(c.params.toList) < countOptionals(best._1.params.toList)) ||
+            newScore > best._2
+        }
         if (newIsBetter) (c, newScore) else best
       }
+
       Some(best._1)
     }
   }
@@ -248,6 +227,7 @@ case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaT
       _mostComprehensive =
         if (constructors.nonEmpty) constructors.sortBy(-_.params.size).headOption.map(_.params).getOrElse(Nil)
         else Nil
+
     _mostComprehensive
   }
 }

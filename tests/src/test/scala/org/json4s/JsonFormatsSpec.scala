@@ -16,17 +16,17 @@ abstract class JsonFormatsSpec[T](mod: String) extends Specification with TypeHi
   val hintsForDog    = ShortTypeHintExamples.formats.typeHints.hintFor(classOf[Dog])
   val hintsForAnimal = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Animal])
 
-  (mod+" JsonFormats Specification") in {
+  (mod+" JsonFormats Specification") should {
     "hintsFor across composite formats" in {
-      formats.typeHints.hintFor(classOf[Fish])   mustEqual (hintsForFish)
-      formats.typeHints.hintFor(classOf[Dog])    mustEqual (hintsForDog)
-      formats.typeHints.hintFor(classOf[Animal]) mustEqual (hintsForAnimal)
+      formats.typeHints.hintFor(classOf[Fish])   must_== (hintsForFish)
+      formats.typeHints.hintFor(classOf[Dog])    must_== (hintsForDog)
+      formats.typeHints.hintFor(classOf[Animal]) must_== (hintsForAnimal)
     }
 
     "classFor across composite formats" in {
-      formats.typeHints.classFor(hintsForFish)   mustEqual (ShortTypeHintExamples.formats.typeHints.classFor(hintsForFish))
-      formats.typeHints.classFor(hintsForDog)    mustEqual (ShortTypeHintExamples.formats.typeHints.classFor(hintsForDog))
-      formats.typeHints.classFor(hintsForAnimal) mustEqual (FullTypeHintExamples.formats.typeHints.classFor(hintsForAnimal))
+      formats.typeHints.classFor(hintsForFish)   must_== (ShortTypeHintExamples.formats.typeHints.classFor(hintsForFish))
+      formats.typeHints.classFor(hintsForDog)    must_== (ShortTypeHintExamples.formats.typeHints.classFor(hintsForDog))
+      formats.typeHints.classFor(hintsForAnimal) must_== (FullTypeHintExamples.formats.typeHints.classFor(hintsForAnimal))
     }
 
     "parameter name reading strategy can be changed" in {
@@ -35,7 +35,7 @@ abstract class JsonFormatsSpec[T](mod: String) extends Specification with TypeHi
       }
       implicit val formats = new DefaultFormats { override val parameterNameReader = TestReader }
       val json = parse("""{"name":"joe","age":35}""")
-      json.extract[NamesNotSameAsInJson] mustEqual NamesNotSameAsInJson("joe", 35)
+      json.extract[NamesNotSameAsInJson] must_== NamesNotSameAsInJson("joe", 35)
     }
   }
 }

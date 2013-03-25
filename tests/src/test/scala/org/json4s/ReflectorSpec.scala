@@ -4,6 +4,7 @@ import org.specs2.mutable.Specification
 import java.util.Date
 import reflect._
 import java.sql.Timestamp
+import tools.scalap.scalax.rules.scalasig.ClassSymbol
 
 case class RRSimple(id: Int, name: String, items: List[String], createdAt: Date)
 case class RRSimpleJoda(id: Int, name: String, items: List[String], createdAt: DateTime)
@@ -17,6 +18,40 @@ case class NestedType5(dat: List[Map[Double, Option[List[Map[Long, Option[Map[By
 case class NestedResType[T, S, V <: Option[S]](t: T, v: V, dat: List[Map[T, V]], lis: List[List[List[List[List[S]]]]])
 case object TheObject
 
+object PathTypes {
+
+  trait WithCaseClass {
+    case class FromTrait(name: String)
+  }
+
+  object HasTrait extends WithCaseClass {
+    def descr = Reflector.describe[FromTrait]
+  }
+  class ContainsCaseClass {
+    case class InternalType(name: String)
+
+    def methodWithCaseClass = {
+      case class InMethod(name: String)
+      implicit val formats: Formats = DefaultFormats.withCompanions(classOf[InMethod] -> this)
+      Reflector.describe[InMethod]
+    }
+
+    def methodWithClosure = {
+      val fn = () => {
+        case class InFunction(name: String)
+//        val st = Reflector.scalaTypeOf[InFunction] // -> Reflector.describe[InFunction]
+//        val sig = ScalaSigReader.findScalaSig(st.erasure)
+//        val classes = sig.get.symbols.collect({ case c: ClassSymbol => c })
+//        (st, classes)
+        Reflector.describe[InFunction]
+      }
+      fn()
+    }
+  }
+
+
+}
+
 class NormalClass {
   val complex: RRSimple = RRSimple(1, "ba", Nil, new Date)
   val string: String = "bla"
@@ -25,11 +60,54 @@ class NormalClass {
 }
 
 class ReflectorSpec extends Specification {
+
+  implicit val formats: Formats = DefaultFormats.withCompanions(classOf[PathTypes.HasTrait.FromTrait] -> PathTypes.HasTrait)
+
   "Reflector" should {
 
+    val inst = new PathTypes.ContainsCaseClass
+
+    "describe a class defined in a class constructor" in {
+      val fmts: Formats = formats.withCompanions(classOf[inst.InternalType] -> inst)
+      Reflector.describe(manifest[PathTypes.HasTrait.FromTrait], fmts) match {
+        case d: ClassDescriptor =>
+          d.constructors must not(beEmpty)
+          d.constructors.head.params.size must_== 2
+          d.properties.size must_== 1
+        case _ => fail("Expected a class descriptor")
+      }
+    }
+
+    "describe a class defined in a trait constructor" in {
+      Reflector.describe[PathTypes.HasTrait.FromTrait] match {
+        case d: ClassDescriptor =>
+          d.constructors must not(beEmpty)
+          d.constructors.head.params.size must_== 2
+          d.properties.size must_== 1
+          d.companion.map(_.instance) must beSome(PathTypes.HasTrait.FromTrait)
+          d.constructors.head.params(0).defaultValue.get() must_== PathTypes.HasTrait
+        case _ => fail("Expected a class descriptor")
+      }
+    }
+
+    "describe a class defined in a method" in {
+//      inst.methodWithCaseClass match {
+//        case d: ClassDescriptor =>
+//          println(d)
+//          d.constructors must not(beEmpty)
+//          d.constructors.head.params.size must_== 1
+//          d.properties.size must_== 1
+//        case _ => fail("Expected a class descriptor")
+//      }
+      inst.methodWithCaseClass must throwA[MappingException]
+    }
+
+    "describe a class defined in a closure" in {
+      inst.methodWithClosure must throwA[MappingException]
+    }
     "describe a case object" in {
       val descr = Reflector.describe(TheObject.getClass).asInstanceOf[ClassDescriptor]
-      descr.mostComprehensive must not(throwAnException)
+      descr.mostComprehensive must not(throwAn[Exception])
       println(Reflector.describe(TheObject.getClass))
     }
 

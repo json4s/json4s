@@ -19,8 +19,8 @@ package org.json4s
 
 import java.util.{Date, TimeZone}
 import reflect.Reflector
-import scalashim._
 import java.util
+import scala.collection.JavaConverters._
 import scala.util.DynamicVariable
 import annotation.implicitNotFound
 import java.lang.reflect.Type
@@ -40,67 +40,90 @@ object Formats {
   "No org.json4s.Formats found. Try to bring an instance of org.json4s.Formats in scope or use the org.json4s.DefaultFormats."
 )
 trait Formats { self: Formats =>
-  val dateFormat: DateFormat
-  val typeHints: TypeHints = NoTypeHints
-  val customSerializers: List[Serializer[_]] = Nil
-  val fieldSerializers: List[(Class[_], FieldSerializer[_])] = Nil
-  val wantsBigDecimal: Boolean = false
+  def dateFormat: DateFormat
+  def typeHints: TypeHints = NoTypeHints
+  def customSerializers: List[Serializer[_]] = Nil
+  def fieldSerializers: List[(Class[_], FieldSerializer[_])] = Nil
+  def wantsBigDecimal: Boolean = false
   def primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
+  def companions: List[(Class[_], AnyRef)] = Nil
 
   /**
    * The name of the field in JSON where type hints are added (jsonClass by default)
    */
-  val typeHintFieldName = "jsonClass"
+  def typeHintFieldName = "jsonClass"
 
   /**
    * Parameter name reading strategy. By default 'paranamer' is used.
    */
-  val parameterNameReader: reflect.ParameterNameReader = reflect.ParanamerReader
+  def parameterNameReader: reflect.ParameterNameReader = reflect.ParanamerReader
 
   def withBigDecimal: Formats = new Formats {
-    val dateFormat: DateFormat = Formats.this.dateFormat
+    val dateFormat: DateFormat = self.dateFormat
     override val typeHintFieldName = self.typeHintFieldName
-    override val parameterNameReader = self.parameterNameReader
-    override val typeHints = self.typeHints
+    override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
+    override val typeHints: TypeHints = self.typeHints
     override val customSerializers = self.customSerializers
     override val fieldSerializers = self.fieldSerializers
     override val wantsBigDecimal = true
+    override val primitives: Set[Type] = self.primitives
+    override val companions: List[(Class[_], AnyRef)] = self.companions
   }
 
   def withDouble: Formats = new Formats {
-    val dateFormat: DateFormat = Formats.this.dateFormat
+    val dateFormat: DateFormat = self.dateFormat
     override val typeHintFieldName = self.typeHintFieldName
-    override val parameterNameReader = self.parameterNameReader
-    override val typeHints = self.typeHints
+    override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
+    override val typeHints: TypeHints = self.typeHints
     override val customSerializers = self.customSerializers
     override val fieldSerializers = self.fieldSerializers
     override val wantsBigDecimal = false
+    override val primitives: Set[Type] = self.primitives
+    override val companions: List[(Class[_], AnyRef)] = self.companions
+  }
+
+  def withCompanions(comps: (Class[_], AnyRef)*): Formats = {
+    new Formats {
+      val dateFormat: DateFormat = self.dateFormat
+      override val typeHintFieldName = self.typeHintFieldName
+      override val parameterNameReader = self.parameterNameReader
+      override val typeHints: TypeHints = self.typeHints
+      override val customSerializers = self.customSerializers
+      override val fieldSerializers = self.fieldSerializers
+      override val wantsBigDecimal = self.wantsBigDecimal
+      override val primitives: Set[Type] = self.primitives
+      override val companions: List[(Class[_], AnyRef)] = comps.toList ::: self.companions
+    }
   }
 
   /**
    * Adds the specified type hints to this formats.
    */
   def + (extraHints: TypeHints): Formats = new Formats {
-    val dateFormat = Formats.this.dateFormat
+    val dateFormat: DateFormat = self.dateFormat
     override val typeHintFieldName = self.typeHintFieldName
-    override val parameterNameReader = self.parameterNameReader
-    override val typeHints = self.typeHints + extraHints
+    override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
+    override val typeHints: TypeHints = self.typeHints + extraHints
     override val customSerializers = self.customSerializers
     override val fieldSerializers = self.fieldSerializers
     override val wantsBigDecimal = self.wantsBigDecimal
+    override val primitives: Set[Type] = self.primitives
+    override val companions: List[(Class[_], AnyRef)] = self.companions
   }
 
   /**
    * Adds the specified custom serializer to this formats.
    */
   def + (newSerializer: Serializer[_]): Formats = new Formats {
-    val dateFormat = Formats.this.dateFormat
+    val dateFormat: DateFormat = self.dateFormat
     override val typeHintFieldName = self.typeHintFieldName
-    override val parameterNameReader = self.parameterNameReader
-    override val typeHints = self.typeHints
+    override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
+    override val typeHints: TypeHints = self.typeHints
     override val customSerializers = newSerializer :: self.customSerializers
     override val fieldSerializers = self.fieldSerializers
     override val wantsBigDecimal = self.wantsBigDecimal
+    override val primitives: Set[Type] = self.primitives
+    override val companions: List[(Class[_], AnyRef)] = self.companions
   }
 
   /**
@@ -113,13 +136,15 @@ trait Formats { self: Formats =>
    * Adds a field serializer for a given type to this formats.
    */
   def + [A](newSerializer: FieldSerializer[A])(implicit mf: Manifest[A]): Formats = new Formats {
-    val dateFormat = Formats.this.dateFormat
+    val dateFormat: DateFormat = self.dateFormat
     override val typeHintFieldName = self.typeHintFieldName
-    override val parameterNameReader = self.parameterNameReader
-    override val typeHints = self.typeHints
+    override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
+    override val typeHints: TypeHints = self.typeHints
     override val customSerializers = self.customSerializers
-    override val fieldSerializers = (mf.erasure, newSerializer) :: self.fieldSerializers
+    override val fieldSerializers = (mf.erasure -> newSerializer) :: self.fieldSerializers
     override val wantsBigDecimal = self.wantsBigDecimal
+    override val primitives: Set[Type] = self.primitives
+    override val companions: List[(Class[_], AnyRef)] = self.companions
   }
 
   private[json4s] def fieldSerializer(clazz: Class[_]): Option[FieldSerializer[_]] = {
@@ -269,17 +294,26 @@ trait Formats { self: Formats =>
   object DefaultFormats extends DefaultFormats {
     val losslessDate = new ThreadLocal(new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"))
     val UTC = TimeZone.getTimeZone("UTC")
-    private[json4s] class ThreadLocal[A](init: => A) extends java.lang.ThreadLocal[A] with (() => A) {
-      override def initialValue = init
-      def apply = get
-    }
+
   }
 
+  private[json4s] class ThreadLocal[A](init: => A) extends java.lang.ThreadLocal[A] with (() => A) {
+    override def initialValue = init
+    def apply = get
+  }
   trait DefaultFormats extends Formats {
     import java.text.{ParseException, SimpleDateFormat}
-    import DefaultFormats.ThreadLocal
 
     private[this] val df = new ThreadLocal[SimpleDateFormat](dateFormatter)
+
+    override val typeHintFieldName = "jsonClass"
+    override val parameterNameReader: reflect.ParameterNameReader = reflect.ParanamerReader
+    override val typeHints: TypeHints = NoTypeHints
+    override val customSerializers = Nil
+    override val fieldSerializers = Nil
+    override val wantsBigDecimal = false
+    override val primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
+    override val companions: List[(Class[_], AnyRef)] = Nil
 
     val dateFormat = new DateFormat {
       def parse(s: String) = try {
@@ -291,7 +325,7 @@ trait Formats { self: Formats =>
       def format(d: Date) = formatter.format(d)
 
       private[this] def formatter = {
-        val f = df.get()
+        val f = df()
         f.setTimeZone(DefaultFormats.UTC)
         f
       }

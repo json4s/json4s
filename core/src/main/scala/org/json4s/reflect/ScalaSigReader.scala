@@ -2,10 +2,9 @@ package org.json4s
 package reflect
 
 import scala.tools.scalap.scalax.rules.scalasig._
-import scalashim._
 import annotation.tailrec
 
-private[json4s] object ScalaSigReader {
+object ScalaSigReader {
   def readConstructor(argName: String, clazz: Class[_], typeArgIndex: Int, argNames: List[String]): Class[_] = {
     val cl = findClass(clazz)
     val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
@@ -62,6 +61,13 @@ private[json4s] object ScalaSigReader {
     ms.find(m => m.children.map(_.name) == argNames)
   }
 
+
+
+  def findFields(c: ClassSymbol): Seq[MethodSymbol] =
+    c.children collect {
+      case m: MethodSymbol if m.infoType.isInstanceOf[NullaryMethodType] && !m.isSynthetic => m
+    }
+
   private def findField(c: ClassSymbol, name: String): Option[MethodSymbol] = 
     (c.children collect { case m: MethodSymbol if m.name == name => m }).headOption
 
@@ -110,7 +116,7 @@ private[json4s] object ScalaSigReader {
       case NullaryMethodType(TypeRefType(_, _, args)) => args(typeArgIdx)
     }
 
-    def findPrimitive(t: Type): Symbol = t match { 
+    @tailrec def findPrimitive(t: Type): Symbol = t match {
       case TypeRefType(ThisType(_), symbol, _) => symbol
       case ref @ TypeRefType(_, _, _) => findPrimitive(ref)
       case x => fail("Unexpected type info " + x)
@@ -149,24 +155,34 @@ private[json4s] object ScalaSigReader {
 //  }
 
   val ModuleFieldName = "MODULE$"
+  val OuterFieldName = "$outer"
   val ClassLoaders = Vector(this.getClass.getClassLoader)
 
-  def companionClass(clazz: Class[_], classLoaders: Iterable[ClassLoader]) = {
-    val path = if (clazz.getName.endsWith("$")) clazz.getName else "%s$".format(clazz.getName)
-    val c = resolveClass(path, classLoaders)
-    if (c.isDefined) c.get else sys.error("Could not resolve clazz='%s'".format(path))
+//  def companionClass(clazz: Class[_], classLoaders: Iterable[ClassLoader] = ClassLoaders) = {
+//    val path = if (clazz.getName.endsWith("$")) clazz.getName else "%s$".format(clazz.getName)
+//    resolveClass(path, classLoaders)
+//  }
+//
+//  def companionObject(clazz: Class[_], classLoaders: Iterable[ClassLoader] = ClassLoaders, companion: Option[AnyRef] = None) =
+//    companionClass(clazz, classLoaders) map (_.getField(ModuleFieldName).get(companion.orNull))
+//
+//  def companions(t: java.lang.reflect.Type, companion: Option[AnyRef] = None) = {
+//    val k = Reflector.rawClassOf(t)
+//    val cc = companionClass(k, ClassLoaders)
+//    def safeField(ccc: Class[_]) =
+//      try { Option(ccc.getField(ModuleFieldName)).map(_.get(companion.orNull)) } catch { case _: Throwable => None }
+//    cc map (ccc => (ccc, safeField(ccc)))
+//  }
+
+  def companions(t: String, companion: Option[AnyRef] = None, classLoaders: Iterable[ClassLoader] = ClassLoaders) = {
+    def path(tt: String) = if (tt.endsWith("$")) tt else (tt + "$")
+    val cc: Option[Class[_]] = resolveClass(path(t), classLoaders) flatMap ((c: Class[_]) => resolveClass(path(Reflector.rawClassOf(c).getName), classLoaders))
+    def safeField(ccc: Class[_]) =
+      try { Option(ccc.getField(ModuleFieldName)).map(_.get(companion.orNull)) } catch { case _: Throwable => None }
+    cc map (ccc => (ccc, safeField(ccc)))
   }
 
-  def companionObject(clazz: Class[_], classLoaders: Iterable[ClassLoader]) =
-    companionClass(clazz, classLoaders).getField(ModuleFieldName).get(null)
-
-  def companions(t: java.lang.reflect.Type) = {
-    val k = Reflector.rawClassOf(t)
-    val cc = companionClass(k, ClassLoaders)
-    (cc, cc.getField(ModuleFieldName).get(null))
-  }
-
-  def resolveClass[X <: AnyRef](c: String, classLoaders: Iterable[ClassLoader]): Option[Class[X]] = classLoaders match {
+  def resolveClass[X <: AnyRef](c: String, classLoaders: Iterable[ClassLoader] = ClassLoaders): Option[Class[X]] = classLoaders match {
     case Nil      => sys.error("resolveClass: expected 1+ classloaders but received empty list")
     case List(cl) => Some(Class.forName(c, true, cl).asInstanceOf[Class[X]])
     case many => {

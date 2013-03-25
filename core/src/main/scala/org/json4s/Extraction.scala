@@ -22,10 +22,7 @@ import java.util.Date
 import java.sql.Timestamp
 import reflect._
 import scala.reflect.Manifest
-import scalashim._
-
-
-
+import scala.collection.JavaConverters._
 
 /** Function to extract values from JSON AST using case classes.
  *
@@ -276,7 +273,7 @@ object Extraction {
     } else if (scalaType.isCollection) {
       new CollectionBuilder(json, scalaType).result
     } else {
-      Reflector.describe(scalaType, formats.parameterNameReader) match {
+      Reflector.describe(scalaType) match {
         case PrimitiveDescriptor(tpe, default) => convert(json, tpe, formats, default)
         case c: ClassDescriptor => new ClassInstanceBuilder(json, c).result
       }
@@ -321,10 +318,14 @@ object Extraction {
       def unapply(fs: List[JField]): Option[(String, List[JField])] =
         if (formats.typeHints == NoTypeHints) None
         else {
-          val grouped = fs groupBy (_._1 == formats.typeHintFieldName)
-          if (grouped.isDefinedAt(true))
-            Some((grouped(true).head._2.values.toString, grouped.get(false).getOrElse(Nil)))
-          else None
+          fs.partition(_._1 == formats.typeHintFieldName) match {
+            case (Nil, _) => None
+            case (t, f) => Some((t.head._2.values.toString, f))
+          }
+//          val grouped = fs groupBy (_._1 == formats.typeHintFieldName)
+//          if (grouped.isDefinedAt(true))
+//            Some((grouped(true).head._2.values.toString, grouped.get(false).getOrElse(Nil)))
+//          else None
         }
     }
     private[this] var _constructor: ConstructorDescriptor = null
@@ -337,6 +338,7 @@ object Extraction {
               case JObject(fs) => fs.map(_._1)
               case _ => Nil
             }
+            println("Finding argument names: %s in constructors: %s" format (argNames, descr.constructors.map(_.params.map(_.name))))
             val r = descr.bestMatching(argNames)
             r.getOrElse(fail("No constructor for type " + descr.erasure + ", " + json))
           }
