@@ -26,6 +26,7 @@ object ValidationExample extends Specification {
 // FIXME enable when 2.8 no longer supported, 2.9 needs: import Validation.Monad._
 //      val person = Person.applyJSON(field("name"), validate[Int]("age") >=> min(18) >=> max(60) apply _)
 //      person(json).fail.toOption.get.list must_== List(UncategorizedError("min", "17 < 18", Nil))
+      pending
     }
 
     "pass when age within limits" in {
@@ -33,6 +34,7 @@ object ValidationExample extends Specification {
 // FIXME enable when 2.8 no longer supported, 2.9 needs: import Validation.Monad._
 //      val person = Person.applyJSON(field("name"), validate[Int]("age") >=> min(16) >=> max(60) apply _)
 //      person(json) must_== Success(Person("joe", 17))
+      pending
     }
   }
 
