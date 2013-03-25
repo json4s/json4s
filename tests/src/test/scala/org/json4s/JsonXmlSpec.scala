@@ -36,12 +36,12 @@ abstract class JsonXmlSpec[T](mod: String) extends Specification with NodeGen wi
 
   (mod+" JSON XML Specification") should {
     "Valid XML can be converted to JSON and back (symmetric op)" in {
-      val conversion = (xml: Node) => { toXml(toJson(xml)).head == xml }
+      val conversion = (xml: Node) => { toXml(toJson(xml)).head must_== xml }
       prop(conversion)
     }
 
     "JSON can be converted to XML, and back to valid JSON (non symmetric op)" in {
-      val conversion = (json: JValue) => { parse(compact(render(toJson(toXml(json))))); true }
+      val conversion = (json: JValue) => { parse(compact(render(toJson(toXml(json))))); true must beTrue}
       prop(conversion)
     }
   }

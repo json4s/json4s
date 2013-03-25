@@ -17,13 +17,13 @@ object JsonParserSpec extends Specification with JValueGen with ScalaCheck {
 
   "A JSON Parser" should {
     "Any valid json can be parsed" in {
-      val parsing = (json: JValue) => { parse(Printer.pretty(render(json))); true }
+      val parsing = (json: JValue) => { parse(Printer.pretty(render(json))); true must beTrue }
       prop(parsing)
     }
 
     "Buffer size does not change parsing result" in {
       val bufSize = Gen.choose(2, 64)
-      val parsing = (x: JValue, s1: Int, s2: Int) => { parseVal(x, s1) == parseVal(x, s2) }
+      val parsing = (x: JValue, s1: Int, s2: Int) => { parseVal(x, s1) must_== parseVal(x, s2) }
       forAll(genObject, bufSize, bufSize)(parsing)
     }
 

@@ -18,7 +18,7 @@ package org.json4s
 
 import org.specs2.mutable.Specification
 import org.scalacheck._
-import org.scalacheck.Prop.{forAll, forAllNoShrink}
+import org.scalacheck.Prop.forAllNoShrink
 import org.specs2.ScalaCheck
 import org.specs2.matcher.MatchResult
 
@@ -135,8 +135,8 @@ object JsonAstSpec extends Specification with JValueGen with ScalaCheck {
       // ensure that we test some JObject instances
       val fieldReplacement = (x: JObject, replacement: JObject) => anyReplacement(x, replacement)
 
-      forAll(fieldReplacement)
-      forAll(anyReplacement)
+      prop(fieldReplacement)
+      prop(anyReplacement)
     }
 
   }

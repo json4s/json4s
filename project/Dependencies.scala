@@ -20,7 +20,7 @@ object Dependencies {
 
   lazy val scalazGroup       = defaultOrMapped("org.scalaz", "2.8.0" -> "com.googlecode.scalaz")
   lazy val scalazVersion     = defaultOrMapped("6.0.4", "2.9.0" -> "6.0.RC2")
-  lazy val specs2Version      = defaultOrMapped("1.12.4.1", "2.9.1" -> "1.12.4", "2.9.1-1" -> "1.12.4", "2.9.0-1" -> "1.8.2", "2.9.0" -> "1.7.1")
+  lazy val specs2Version      = defaultOrMapped("1.12.4", "2.9.2" -> "1.12.4.1", "2.9.3" -> "1.12.4.1")
   /* stop stealing */
 
   lazy val scalaz_core: ModuleMap = sv => scalazGroup(sv)        % "scalaz-core"        % scalazVersion(sv) cross crossMapped("2.8.2" -> "2.8.1", "2.9.1-1" -> "2.9.1", "2.9.3" -> "2.9.2")
@@ -29,7 +29,7 @@ object Dependencies {
 
   val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.0" % "test"
 
-  lazy val specs: ModuleMap      = "org.specs2" %% "specs2" % specs2Version(_) % "test"
+  lazy val specs: ModuleMap      = "org.specs2" % "specs2" % specs2Version(_) % "test" cross crossMapped("2.9.0" -> "2.9.1", "2.9.0-1" -> "2.9.1")
 
   val jackson = Seq(
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.2")

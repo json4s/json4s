@@ -86,11 +86,9 @@ object build extends Build {
     settings = json4sSettings ++ Seq(
       libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv)) },
       unmanagedSourceDirectories in Compile <+= (scalaVersion, baseDirectory) {
-        case (v, dir) if v startsWith "2.8" => dir / "src/main/scala_2.8"
         case (v, dir) if v startsWith "2.9" => dir / "src/main/scala_2.9"
       },
-      initialCommands in (Test, console) :=
-        """
+      initialCommands in (Test, console) := """
           |import org.json4s._
           |import reflect._
           |import scala.tools.scalap.scalax.rules.scalasig._
@@ -121,12 +119,12 @@ object build extends Build {
     base = file("jackson"),
     settings = json4sSettings ++ Seq(libraryDependencies ++= jackson)
   ) dependsOn(core % "compile;test->test")
-
-  lazy val playSupport = Project(
-    id = "json4s-play",
-    base = file("play"),
-    settings = json4sSettings ++ Seq(libraryDependencies ++= jackson)
-  ) dependsOn(core % "compile;test->test")
+//
+//  lazy val playSupport = Project(
+//    id = "json4s-play",
+//    base = file("play"),
+//    settings = json4sSettings ++ Seq(libraryDependencies ++= jackson)
+//  ) dependsOn(core % "compile;test->test")
 
   lazy val examples = Project(
      id = "json4s-examples",

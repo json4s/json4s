@@ -14,7 +14,7 @@ object JsonPrintingSpec extends Specification with JValueGen with ScalaCheck {
   import native.JsonMethods._
 
   "rendering does not change semantics" in {
-    val rendering = (json: Document) => parse(Printer.pretty(json)) == parse(Printer.compact(json))
+    val rendering = (json: Document) => parse(Printer.pretty(json)) must_== parse(Printer.compact(json))
     prop(rendering)
   }
 
