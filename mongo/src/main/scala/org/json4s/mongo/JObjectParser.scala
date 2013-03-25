@@ -17,13 +17,12 @@
 package org.json4s
 package mongo
 
-import scalaj.collection.Imports._
+import scala.collection.JavaConverters._
 import java.util.{Date, UUID}
 import java.util.regex.Pattern
 import com.mongodb.{BasicDBObject, BasicDBList, DBObject}
 import org.bson.types.ObjectId
 import java.util.concurrent.atomic.AtomicReference
-import scalashim._
 import org.json4s.ParserUtil.ParseException
 
 object JObjectParser  {

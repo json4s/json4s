@@ -16,87 +16,88 @@
 
 package org.json4s
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 import text.Document
 
 object NativeXmlExamples extends XmlExamples[Document]("Native") with native.JsonMethods
 object JacksonXmlExamples extends XmlExamples[JValue]("Jackson") with jackson.JsonMethods
 
-abstract class XmlExamples[T](mod: String) extends Specification(mod+" XML Examples") with JsonMethods[T]{
+abstract class XmlExamples[T](mod: String) extends Specification with JsonMethods[T]{
   import JsonDSL._
   import Xml._
   import scala.xml.{Group, Text}
 
-  "Basic conversion example" in {
-    val json = toJson(users1)
-    compact(render(json)) must_== """{"users":{"count":"2","user":[{"disabled":"true","id":"1","name":"Harry"},{"id":"2","name":"David","nickname":"Dave"}]}}"""
-  }
-
-  "Conversion transformation example 1" in {
-    val json = toJson(users1).transformField {
-      case JField("id", JString(s)) => JField("id", JInt(s.toInt))
+  (mod+" XML Examples") should {
+    "Basic conversion example" in {
+      val json = toJson(users1)
+      compact(render(json)) must_== """{"users":{"count":"2","user":[{"disabled":"true","id":"1","name":"Harry"},{"id":"2","name":"David","nickname":"Dave"}]}}"""
     }
-    compact(render(json)) must_== """{"users":{"count":"2","user":[{"disabled":"true","id":1,"name":"Harry"},{"id":2,"name":"David","nickname":"Dave"}]}}"""
-  }
 
-  "Conversion transformation example 2" in {
-    val json = toJson(users2).transformField {
-      case JField("id", JString(s)) => JField("id", JInt(s.toInt))
-      case JField("user", x: JObject) => JField("user", JArray(x :: Nil))
+    "Conversion transformation example 1" in {
+      val json = toJson(users1).transformField {
+        case JField("id", JString(s)) => JField("id", JInt(s.toInt))
+      }
+      compact(render(json)) must_== """{"users":{"count":"2","user":[{"disabled":"true","id":1,"name":"Harry"},{"id":2,"name":"David","nickname":"Dave"}]}}"""
     }
-    compact(render(json)) must_== """{"users":{"user":[{"id":1,"name":"Harry"}]}}"""
-  }
 
-  "Primitive array example" in {
-    val xml = <chars><char>a</char><char>b</char><char>c</char></chars>
-    compact(render(toJson(xml))) must_== """{"chars":{"char":["a","b","c"]}}"""
-  }
+    "Conversion transformation example 2" in {
+      val json = toJson(users2).transformField {
+        case JField("id", JString(s)) => JField("id", JInt(s.toInt))
+        case JField("user", x: JObject) => JField("user", JArray(x :: Nil))
+      }
+      compact(render(json)) must_== """{"users":{"user":[{"id":1,"name":"Harry"}]}}"""
+    }
 
-  "Lotto example which flattens number arrays into encoded string arrays" in {
-    def flattenArray(nums: List[JValue]) = JString(nums.map(_.values).mkString(","))
+    "Primitive array example" in {
+      val xml = <chars><char>a</char><char>b</char><char>c</char></chars>
+      compact(render(toJson(xml))) must_== """{"chars":{"char":["a","b","c"]}}"""
+    }
 
-    val printer = new scala.xml.PrettyPrinter(100,2)
-    val lotto: JObject = LottoExample.json
-    val xml = toXml(lotto.transformField {
-      case JField("winning-numbers", JArray(nums)) => JField("winning-numbers", flattenArray(nums))
-      case JField("numbers", JArray(nums)) => JField("numbers", flattenArray(nums))
-    })
+    "Lotto example which flattens number arrays into encoded string arrays" in {
+      def flattenArray(nums: List[JValue]) = JString(nums.map(_.values).mkString(","))
 
-    printer.format(xml(0)) must_== printer.format(
-      <lotto>
-        <id>5</id>
-        <winning-numbers>2,45,34,23,7,5,3</winning-numbers>
-        <winners>
-          <winner-id>23</winner-id>
-          <numbers>2,45,34,23,3,5</numbers>
-        </winners>
-        <winners>
-          <winner-id>54</winner-id>
-          <numbers>52,3,12,11,18,22</numbers>
-        </winners>
-      </lotto>)
-  }
+      val printer = new scala.xml.PrettyPrinter(100,2)
+      val lotto: JObject = LottoExample.json
+      val xml = toXml(lotto.transformField {
+        case JField("winning-numbers", JArray(nums)) => JField("winning-numbers", flattenArray(nums))
+        case JField("numbers", JArray(nums)) => JField("numbers", flattenArray(nums))
+      })
 
-  "Band example with namespaces" in {
-    val json = toJson(band)
-    json must_== parse("""{
-  "b:band":{
-    "name":"The Fall",
-    "genre":"rock",
-    "influence":"",
-    "playlists":{
-      "playlist":[{
-        "name":"hits",
-        "song":["Hit the north","Victoria"]
-      },{
-        "name":"mid 80s",
-        "song":["Eat your self fitter","My new house"]
-      }]
+      printer.format(xml(0)) must_== printer.format(
+        <lotto>
+          <id>5</id>
+          <winning-numbers>2,45,34,23,7,5,3</winning-numbers>
+          <winners>
+            <winner-id>23</winner-id>
+            <numbers>2,45,34,23,3,5</numbers>
+          </winners>
+          <winners>
+            <winner-id>54</winner-id>
+            <numbers>52,3,12,11,18,22</numbers>
+          </winners>
+        </lotto>)
+    }
+
+    "Band example with namespaces" in {
+      val json = toJson(band)
+      json must_== parse("""{
+    "b:band":{
+      "name":"The Fall",
+      "genre":"rock",
+      "influence":"",
+      "playlists":{
+        "playlist":[{
+          "name":"hits",
+          "song":["Hit the north","Victoria"]
+        },{
+          "name":"mid 80s",
+          "song":["Eat your self fitter","My new house"]
+        }]
+      }
+    }
+  }""")
     }
   }
-}""")
-  }
-
   val band =
     <b:band>
       <name>The Fall</name>

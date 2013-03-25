@@ -16,7 +16,7 @@
 
 package org.json4s
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 import text.Document
 
 object NativeExamples extends Examples[Document]("Native") with native.JsonMethods
@@ -93,121 +93,122 @@ object Examples {
   val symbols = ("f1" -> 'foo) ~ ("f2" -> 'bar)
 }
 
-abstract class Examples[T](mod: String) extends Specification(mod + " Examples") with JsonMethods[T] {
+abstract class Examples[T](mod: String) extends Specification with JsonMethods[T] {
 
   import JsonAST.concat
-  import JsonDSL._
   import Examples._
+  import JsonDSL._
+  (mod + " Examples") should {
 
-  "Lotto example" in {
-    val json = parse(lotto)
-    val renderedLotto = compact(render(json))
-    json must_== parse(renderedLotto)
-  }
-
-  "Person example" in {
-    val json = parse(person)
-    val renderedPerson = pretty(render(json))
-    json must_== parse(renderedPerson)
-    render(json) must_== render(personDSL)
-    compact(render(json \\ "name")) must_== """{"name":"Joe","name":"Marilyn"}"""
-    compact(render(json \ "person" \ "name")) must_== "\"Joe\""
-  }
-
-  "Transformation example" in {
-    val uppercased = parse(person).transformField { case JField(n, v) => JField(n.toUpperCase, v) }
-    val rendered = compact(render(uppercased))
-    rendered must_==
-      """{"PERSON":{"NAME":"Joe","AGE":35,"SPOUSE":{"PERSON":{"NAME":"Marilyn","AGE":33}}}}"""
-  }
-
-  "Remove example" in {
-    val json = parse(person) removeField { _ == JField("name", "Marilyn") }
-    compact(render(json \\ "name")) must_== """{"name":"Joe"}"""
-  }
-
-  "Queries on person example" in {
-    val json = parse(person)
-    val filtered = json filterField {
-      case JField("name", _) => true
-      case _ => false
+    "Lotto example" in {
+      val json = parse(lotto)
+      val renderedLotto = compact(render(json))
+      json must_== parse(renderedLotto)
     }
-    filtered must_== List(JField("name", JString("Joe")), JField("name", JString("Marilyn")))
 
-    val found = json findField {
-      case JField("name", _) => true
-      case _ => false
+    "Person example" in {
+      val json = parse(person)
+      val renderedPerson = pretty(render(json))
+      json must_== parse(renderedPerson)
+      render(json) must_== render(personDSL)
+      compact(render(json \\ "name")) must_== """{"name":"Joe","name":"Marilyn"}"""
+      compact(render(json \ "person" \ "name")) must_== "\"Joe\""
     }
-    found must_== Some(JField("name", JString("Joe")))
-  }
 
-  "Object array example" in {
-    val json = parse(objArray)
-    compact(render(json \ "children" \ "name")) must_== """["Mary","Mazy"]"""
-    compact(render((json \ "children")(0) \ "name")) must_== "\"Mary\""
-    compact(render((json \ "children")(1) \ "name")) must_== "\"Mazy\""
-    (for { JObject(o) <- json; JField("name", JString(y)) <- o } yield y) must_== List("joe", "Mary", "Mazy")
-  }
+    "Transformation example" in {
+      val uppercased = parse(person).transformField { case JField(n, v) => JField(n.toUpperCase, v) }
+      val rendered = compact(render(uppercased))
+      rendered must_==
+        """{"PERSON":{"NAME":"Joe","AGE":35,"SPOUSE":{"PERSON":{"NAME":"Marilyn","AGE":33}}}}"""
+    }
 
-  "Unbox values using XPath-like type expression" in {
-    parse(objArray) \ "children" \\ classOf[JInt] must_== List(5, 3)
-    parse(lotto) \ "lotto" \ "winning-numbers" \ classOf[JInt] must_== List(2, 45, 34, 23, 7, 5, 3)
-    parse(lotto) \\ "winning-numbers" \ classOf[JInt] must_== List(2, 45, 34, 23, 7, 5, 3)
-  }
+    "Remove example" in {
+      val json = parse(person) removeField { _ == JField("name", "Marilyn") }
+      compact(render(json \\ "name")) must_== """{"name":"Joe"}"""
+    }
 
-  "Quoted example" in {
-    val json = parse(quoted)
-    List("foo \" \n \t \r bar") must_== json.values
-  }
+    "Queries on person example" in {
+      val json = parse(person)
+      val filtered = json filterField {
+        case JField("name", _) => true
+        case _ => false
+      }
+      filtered must_== List(JField("name", JString("Joe")), JField("name", JString("Marilyn")))
 
-  "Null example" in {
-    compact(render(parse(""" {"name": null} """))) must_== """{"name":null}"""
-  }
+      val found = json findField {
+        case JField("name", _) => true
+        case _ => false
+      }
+      found must_== Some(JField("name", JString("Joe")))
+    }
 
-  "Null rendering example" in {
-    compact(render(nulls)) must_== """{"f1":null,"f2":[null,"s"]}"""
-  }
+    "Object array example" in {
+      val json = parse(objArray)
+      compact(render(json \ "children" \ "name")) must_== """["Mary","Mazy"]"""
+      compact(render((json \ "children")(0) \ "name")) must_== "\"Mary\""
+      compact(render((json \ "children")(1) \ "name")) must_== "\"Mazy\""
+      (for { JObject(o) <- json; JField("name", JString(y)) <- o } yield y) must_== List("joe", "Mary", "Mazy")
+    }
 
-  "Symbol example" in {
-    compact(render(symbols)) must_== """{"f1":"foo","f2":"bar"}"""
-  }
+    "Unbox values using XPath-like type expression" in {
+      parse(objArray) \ "children" \\ classOf[JInt] must_== List(5, 3)
+      parse(lotto) \ "lotto" \ "winning-numbers" \ classOf[JInt] must_== List(2, 45, 34, 23, 7, 5, 3)
+      parse(lotto) \\ "winning-numbers" \ classOf[JInt] must_== List(2, 45, 34, 23, 7, 5, 3)
+    }
 
-  "Unicode example" in {
-    parse("[\" \\u00e4\\u00e4li\\u00f6t\"]") must_== JArray(List(JString(" \u00e4\u00e4li\u00f6t")))
-  }
+    "Quoted example" in {
+      val json = parse(quoted)
+      List("foo \" \n \t \r bar") must_== json.values
+    }
 
-  "Exponent example" in {
-    parse("""{"num": 2e5 }""") must_== JObject(List(JField("num", JDouble(200000.0))))
-    parse("""{"num": -2E5 }""") must_== JObject(List(JField("num", JDouble(-200000.0))))
-    parse("""{"num": 2.5e5 }""") must_== JObject(List(JField("num", JDouble(250000.0))))
-    parse("""{"num": 2.5e-5 }""") must_== JObject(List(JField("num", JDouble(2.5e-5))))
-  }
+    "Null example" in {
+      compact(render(parse(""" {"name": null} """))) must_== """{"name":null}"""
+    }
 
-  "JSON building example" in {
-    val json = JObject(("name", JString("joe")), ("age", JInt(34))) ++ JObject(("name", JString("mazy")), ("age", JInt(31)))
-    compact(render(json)) must_== """[{"name":"joe","age":34},{"name":"mazy","age":31}]"""
-  }
+    "Null rendering example" in {
+      compact(render(nulls)) must_== """{"f1":null,"f2":[null,"s"]}"""
+    }
 
-  "JSON building with implicit primitive conversions example" in {
-    import DoubleMode._
-    val json = JObject(("name", "joe"), ("age", 34)) ++ JObject(("name", "mazy"), ("age", 31))
-    compact(render(json)) must_== """[{"name":"joe","age":34},{"name":"mazy","age":31}]"""
-  }
+    "Symbol example" in {
+      compact(render(symbols)) must_== """{"f1":"foo","f2":"bar"}"""
+    }
 
-  "Example which collects all integers and forms a new JSON" in {
-    val json = parse(person)
-    val ints = json.fold(JNothing: JValue) { (a, v) => v match {
-      case x: JInt => a ++ x
-      case _ => a
-    }}
-    compact(render(ints)) must_== """[35,33]"""
-  }
+    "Unicode example" in {
+      parse("[\" \\u00e4\\u00e4li\\u00f6t\"]") must_== JArray(List(JString(" \u00e4\u00e4li\u00f6t")))
+    }
 
-  "Generate JSON with DSL example" in {
-    val json: JValue =
-      ("id" -> 5) ~
-      ("tags" -> Map("a" -> 5, "b" -> 7))
-    compact(render(json)) must_== """{"id":5,"tags":{"a":5,"b":7}}"""
-  }
+    "Exponent example" in {
+      parse("""{"num": 2e5 }""") must_== JObject(List(JField("num", JDouble(200000.0))))
+      parse("""{"num": -2E5 }""") must_== JObject(List(JField("num", JDouble(-200000.0))))
+      parse("""{"num": 2.5e5 }""") must_== JObject(List(JField("num", JDouble(250000.0))))
+      parse("""{"num": 2.5e-5 }""") must_== JObject(List(JField("num", JDouble(2.5e-5))))
+    }
 
+    "JSON building example" in {
+      val json = JObject(("name", JString("joe")), ("age", JInt(34))) ++ JObject(("name", JString("mazy")), ("age", JInt(31)))
+      compact(render(json)) must_== """[{"name":"joe","age":34},{"name":"mazy","age":31}]"""
+    }
+
+    "JSON building with implicit primitive conversions example" in {
+      import DoubleMode._
+      val json = JObject(("name", "joe"), ("age", 34)) ++ JObject(("name", "mazy"), ("age", 31))
+      compact(render(json)) must_== """[{"name":"joe","age":34},{"name":"mazy","age":31}]"""
+    }
+
+    "Example which collects all integers and forms a new JSON" in {
+      val json = parse(person)
+      val ints = json.fold(JNothing: JValue) { (a, v) => v match {
+        case x: JInt => a ++ x
+        case _ => a
+      }}
+      compact(render(ints)) must_== """[35,33]"""
+    }
+
+    "Generate JSON with DSL example" in {
+      val json: JValue =
+        ("id" -> 5) ~
+        ("tags" -> Map("a" -> 5, "b" -> 7))
+      compact(render(json)) must_== """{"id":5,"tags":{"a":5,"b":7}}"""
+    }
+  }
 }

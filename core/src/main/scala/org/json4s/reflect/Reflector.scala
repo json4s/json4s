@@ -4,10 +4,9 @@ package reflect
 import java.{util => jutil}
 import java.lang.reflect._
 import scala.util.control.Exception._
-import scalaj.collection.Imports._
+import scala.collection.JavaConverters._
 import java.util.Date
 import java.sql.Timestamp
-import scalashim._
 import collection.mutable.ArrayBuffer
 import annotation.tailrec
 import collection.mutable

@@ -3,8 +3,7 @@ package org.json4s
 import com.thoughtworks.paranamer.{BytecodeReadingParanamer, CachingParanamer}
 import java.lang.reflect.{Constructor, ParameterizedType, Type}
 import java.util.concurrent.ConcurrentHashMap
-import scalashim._
-import scalaj.collection.Imports._
+import scala.collection.JavaConverters._
 import java.util.Date
 import java.sql.Timestamp
 

@@ -1,7 +1,7 @@
 package org.json4s
 package ext
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 object EnumNameSerializerSpec extends native.JsonMethods {
 

@@ -22,8 +22,7 @@ import java.util.Date
 import java.sql.Timestamp
 import reflect._
 import scala.reflect.Manifest
-import scalashim._
-import scalaj.collection.Imports._
+import scala.collection.JavaConverters._
 
 
 

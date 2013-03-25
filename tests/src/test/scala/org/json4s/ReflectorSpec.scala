@@ -1,6 +1,6 @@
 package org.json4s
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 import java.util.Date
 import reflect._
 import java.sql.Timestamp
@@ -71,7 +71,7 @@ class ReflectorSpec extends Specification {
       val fmts: Formats = formats.withCompanions(classOf[inst.InternalType] -> inst)
       Reflector.describe(manifest[PathTypes.HasTrait.FromTrait], fmts) match {
         case d: ClassDescriptor =>
-          d.constructors must notBeEmpty
+          d.constructors must not(beEmpty)
           d.constructors.head.params.size must_== 2
           d.properties.size must_== 1
         case _ => fail("Expected a class descriptor")
@@ -81,7 +81,7 @@ class ReflectorSpec extends Specification {
     "describe a class defined in a trait constructor" in {
       Reflector.describe[PathTypes.HasTrait.FromTrait] match {
         case d: ClassDescriptor =>
-          d.constructors must notBeEmpty
+          d.constructors must not(beEmpty)
           d.constructors.head.params.size must_== 2
           d.properties.size must_== 1
           d.companion.map(_.instance) must beSome(PathTypes.HasTrait.FromTrait)
@@ -94,7 +94,7 @@ class ReflectorSpec extends Specification {
 //      inst.methodWithCaseClass match {
 //        case d: ClassDescriptor =>
 //          println(d)
-//          d.constructors must notBeEmpty
+//          d.constructors must not(beEmpty)
 //          d.constructors.head.params.size must_== 1
 //          d.properties.size must_== 1
 //        case _ => fail("Expected a class descriptor")

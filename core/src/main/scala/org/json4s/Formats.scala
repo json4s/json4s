@@ -19,9 +19,8 @@ package org.json4s
 
 import java.util.{Date, TimeZone}
 import reflect.Reflector
-import scalashim._
 import java.util
-import scalaj.collection.Imports._
+import scala.collection.JavaConverters._
 import scala.util.DynamicVariable
 import annotation.implicitNotFound
 import java.lang.reflect.Type

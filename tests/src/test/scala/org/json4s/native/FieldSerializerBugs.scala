@@ -1,6 +1,6 @@
 package org.json4s
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 object FieldSerializerBugs extends Specification {
   import native.JsonMethods._

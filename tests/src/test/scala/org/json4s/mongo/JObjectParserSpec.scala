@@ -19,12 +19,12 @@ package mongo
 import JsonDSL._
 
 import org.bson.types.ObjectId
-import org.specs.Specification
-import scalaj.collection.Imports._
+import org.specs2.mutable.Specification
+import scala.collection.JavaConverters._
 import com.mongodb.DBObject
 import scala.util.control.Exception._
 
-object JObjectParserSpec extends Specification("JObjectParser Specification")  {
+object JObjectParserSpec extends Specification  {
 
 
   def buildTestData: (ObjectId, DBObject) = {
@@ -32,6 +32,8 @@ object JObjectParserSpec extends Specification("JObjectParser Specification")  {
     val dbo = JObjectParser.parse(("x" -> oid.toString))(DefaultFormats)
     (oid, dbo)
   }
+
+  sequential
 
   "JObjectParser" should {
     "convert strings to ObjectId by default" in {

@@ -17,212 +17,213 @@
 package org.json4s
 
 import java.util.Date
-import org.specs.Specification
+import org.specs2.mutable.Specification
 import java.text.SimpleDateFormat
 import text.Document
 
 object NativeExtractionExamples extends ExtractionExamples[Document]("Native") with native.JsonMethods
 object JacksonExtractionExamples extends ExtractionExamples[JValue]("Jackson") with jackson.JsonMethods
 
-abstract class ExtractionExamples[T](mod: String) extends Specification(mod+" Extraction Examples Specification") with JsonMethods[T] {
+abstract class ExtractionExamples[T](mod: String) extends Specification with JsonMethods[T] {
 
   implicit lazy val formats = DefaultFormats
+  (mod+" Extraction Examples Specification") should {
+    "Extraction example" in {
+      val json = parse(testJson)
+      json.extract[Person] must_== Person("joe", Address("Bulevard", "Helsinki"), List(Child("Mary", 5, Some(date("2004-09-04T18:06:22Z"))), Child("Mazy", 3, None)))
+    }
 
-  "Extraction example" in {
-    val json = parse(testJson)
-    json.extract[Person] must_== Person("joe", Address("Bulevard", "Helsinki"), List(Child("Mary", 5, Some(date("2004-09-04T18:06:22Z"))), Child("Mazy", 3, None)))
-  }
+    "Extraction with path expression example" in {
+      val json = parse(testJson)
+      (json \ "address").extract[Address] must_== Address("Bulevard", "Helsinki")
+    }
 
-  "Extraction with path expression example" in {
-    val json = parse(testJson)
-    (json \ "address").extract[Address] must_== Address("Bulevard", "Helsinki")
-  }
+    "Partial extraction example" in {
+      val json = parse(testJson)
+      json.extract[SimplePerson] must_== SimplePerson("joe", Address("Bulevard", "Helsinki"))
+    }
 
-  "Partial extraction example" in {
-    val json = parse(testJson)
-    json.extract[SimplePerson] must_== SimplePerson("joe", Address("Bulevard", "Helsinki"))
-  }
+    "Extract with a default value" in {
+      val json = parse(testJson)
+      (json \ "address2").extractOrElse(Address("Tie", "Helsinki")) must_== Address("Tie", "Helsinki")
+    }
 
-  "Extract with a default value" in {
-    val json = parse(testJson)
-    (json \ "address2").extractOrElse(Address("Tie", "Helsinki")) must_== Address("Tie", "Helsinki")
-  }
+    "Map with primitive values extraction example" in {
+      val json = parse(testJson)
+      json.extract[PersonWithMap] must_==
+        PersonWithMap("joe", Map("street" -> "Bulevard", "city" -> "Helsinki"))
+    }
 
-  "Map with primitive values extraction example" in {
-    val json = parse(testJson)
-    json.extract[PersonWithMap] must_==
-      PersonWithMap("joe", Map("street" -> "Bulevard", "city" -> "Helsinki"))
-  }
+    "Map with object values extraction example" in {
+      val json = parse(twoAddresses)
+      json.extract[PersonWithAddresses] must_==
+        PersonWithAddresses("joe", Map("address1" -> Address("Bulevard", "Helsinki"),
+                                       "address2" -> Address("Soho", "London")))
+    }
 
-  "Map with object values extraction example" in {
-    val json = parse(twoAddresses)
-    json.extract[PersonWithAddresses] must_==
-      PersonWithAddresses("joe", Map("address1" -> Address("Bulevard", "Helsinki"),
-                                     "address2" -> Address("Soho", "London")))
-  }
+    "Simple value extraction example" in {
+      val json = parse(testJson)
+      json.extract[Name] must_== Name("joe")
+      (json \ "children")(0).extract[Name] must_== Name("Mary")
+      (json \ "children")(1).extract[Name] must_== Name("Mazy")
+    }
 
-  "Simple value extraction example" in {
-    val json = parse(testJson)
-    json.extract[Name] must_== Name("joe")
-    (json \ "children")(0).extract[Name] must_== Name("Mary")
-    (json \ "children")(1).extract[Name] must_== Name("Mazy")
-  }
+    "Primitive value extraction example" in {
+      val json = parse(testJson)
+      (json \ "name").extract[String] must_== "joe"
+      (json \ "name").extractOpt[String] must_== Some("joe")
+      (json \ "name").extractOpt[Int] must_== None
+      ((json \ "children")(0) \ "birthdate").extract[Date] must_== date("2004-09-04T18:06:22Z")
 
-  "Primitive value extraction example" in {
-    val json = parse(testJson)
-    (json \ "name").extract[String] must_== "joe"
-    (json \ "name").extractOpt[String] must_== Some("joe")
-    (json \ "name").extractOpt[Int] must_== None
-    ((json \ "children")(0) \ "birthdate").extract[Date] must_== date("2004-09-04T18:06:22Z")
+      JInt(1).extract[Int] must_== 1
+      JInt(1).extract[String] must_== "1"
+    }
 
-    JInt(1).extract[Int] must_== 1
-    JInt(1).extract[String] must_== "1"
-  }
+    "Primitive extraction example" in {
+      val json = parse(primitives)
+      json.extract[Primitives] must_== Primitives(124, 123L, 126.5, 127.5.floatValue, "128", 'symb, 125, 129.byteValue, true)
+    }
 
-  "Primitive extraction example" in {
-    val json = parse(primitives)
-    json.extract[Primitives] must_== Primitives(124, 123L, 126.5, 127.5.floatValue, "128", 'symb, 125, 129.byteValue, true)
-  }
+    "Null extraction example" in {
+      val json = parse("""{ "name": null, "age": 5, "birthdate": null }""")
+      json.extract[Child] must_== Child(null, 5, None)
+    }
 
-  "Null extraction example" in {
-    val json = parse("""{ "name": null, "age": 5, "birthdate": null }""")
-    json.extract[Child] must_== Child(null, 5, None)
-  }
+    "Date extraction example" in {
+      val json = parse("""{"name":"e1","timestamp":"2009-09-04T18:06:22Z"}""")
+      json.extract[Event] must_== Event("e1", date("2009-09-04T18:06:22Z"))
+    }
 
-  "Date extraction example" in {
-    val json = parse("""{"name":"e1","timestamp":"2009-09-04T18:06:22Z"}""")
-    json.extract[Event] must_== Event("e1", date("2009-09-04T18:06:22Z"))
-  }
+    "Timestamp extraction example" in {
+      val json = parse("""{"timestamp":"2009-09-04T18:06:22Z"}""")
+      new Date((json \ "timestamp").extract[java.sql.Timestamp].getTime) must_== date("2009-09-04T18:06:22Z")
+    }
 
-  "Timestamp extraction example" in {
-    val json = parse("""{"timestamp":"2009-09-04T18:06:22Z"}""")
-    new Date((json \ "timestamp").extract[java.sql.Timestamp].getTime) must_== date("2009-09-04T18:06:22Z")
-  }
+    "Option extraction example" in {
+      val json = parse("""{ "name": null, "age": 5, "mother":{"name":"Marilyn"}}""")
+      json.extract[OChild] must_== OChild(None, 5, Some(Parent("Marilyn")), None)
+    }
 
-  "Option extraction example" in {
-    val json = parse("""{ "name": null, "age": 5, "mother":{"name":"Marilyn"}}""")
-    json.extract[OChild] must_== OChild(None, 5, Some(Parent("Marilyn")), None)
-  }
+    "Missing JSON array can be extracted as an empty List" in {
+      parse(missingChildren).extract[Person] must_== Person("joe", Address("Bulevard", "Helsinki"), Nil)
+    }
 
-  "Missing JSON array can be extracted as an empty List" in {
-    parse(missingChildren).extract[Person] must_== Person("joe", Address("Bulevard", "Helsinki"), Nil)
-  }
+    "Multidimensional array extraction example" in {
+      parse(multiDimensionalArrays).extract[MultiDim] must_== MultiDim(
+        List(List(List(1, 2), List(3)), List(List(4), List(5, 6))),
+        List(List(Name("joe"), Name("mary")), List(Name("mazy"))))
+    }
 
-  "Multidimensional array extraction example" in {
-    parse(multiDimensionalArrays).extract[MultiDim] must_== MultiDim(
-      List(List(List(1, 2), List(3)), List(List(4), List(5, 6))),
-      List(List(Name("joe"), Name("mary")), List(Name("mazy"))))
-  }
+    "Flatten example with simple case class" in {
+      val f = Extraction.flatten(Extraction.decompose(SimplePerson("joe", Address("Bulevard", "Helsinki"))))
+      val e = Map(".name" -> "\"joe\"", ".address.street" -> "\"Bulevard\"", ".address.city"   -> "\"Helsinki\"")
 
-  "Flatten example with simple case class" in {
-    val f = Extraction.flatten(Extraction.decompose(SimplePerson("joe", Address("Bulevard", "Helsinki"))))
-    val e = Map(".name" -> "\"joe\"", ".address.street" -> "\"Bulevard\"", ".address.city"   -> "\"Helsinki\"")
+      f must_== e
+    }
 
-    f must_== e
-  }
+    "Unflatten example with top level string and int" in {
+      val m = Map(".name" -> "\"joe\"", ".age" -> "32")
 
-  "Unflatten example with top level string and int" in {
-    val m = Map(".name" -> "\"joe\"", ".age" -> "32")
+      Extraction.unflatten(m) must_== JObject(List(JField("name",JString("joe")), JField("age",JInt(32))))
+    }
 
-    Extraction.unflatten(m) must_== JObject(List(JField("name",JString("joe")), JField("age",JInt(32))))
-  }
+    "Unflatten example with top level string and double" in {
+      val m = Map(".name" -> "\"joe\"", ".age" -> "32.2")
 
-  "Unflatten example with top level string and double" in {
-    val m = Map(".name" -> "\"joe\"", ".age" -> "32.2")
+      Extraction.unflatten(m) must_== JObject(List(JField("name",JString("joe")), JField("age",JDouble(32.2))))
+    }
 
-    Extraction.unflatten(m) must_== JObject(List(JField("name",JString("joe")), JField("age",JDouble(32.2))))
-  }
+    "Unflatten example with two-level string properties" in {
+      val m = Map(".name" -> "\"joe\"", ".address.street" -> "\"Bulevard\"", ".address.city"   -> "\"Helsinki\"")
 
-  "Unflatten example with two-level string properties" in {
-    val m = Map(".name" -> "\"joe\"", ".address.street" -> "\"Bulevard\"", ".address.city"   -> "\"Helsinki\"")
+      Extraction.unflatten(m) must_== JObject(List(JField("name", JString("joe")), JField("address", JObject(List(JField("street", JString("Bulevard")), JField("city", JString("Helsinki")))))))
+    }
 
-    Extraction.unflatten(m) must_== JObject(List(JField("name", JString("joe")), JField("address", JObject(List(JField("street", JString("Bulevard")), JField("city", JString("Helsinki")))))))
-  }
+    "Unflatten example with top level array" in {
+      val m = Map(".foo[2]" -> "2", ".foo[0]" -> "0", ".foo[1]" -> "1")
 
-  "Unflatten example with top level array" in {
-    val m = Map(".foo[2]" -> "2", ".foo[0]" -> "0", ".foo[1]" -> "1")
+      Extraction.unflatten(m) must_== JObject(List(JField("foo", JArray(List(JInt(0), JInt(1), JInt(2))))))
+    }
 
-    Extraction.unflatten(m) must_== JObject(List(JField("foo", JArray(List(JInt(0), JInt(1), JInt(2))))))
-  }
+    "Flatten and unflatten are symmetric" in {
+      val parsed = parse(testJson)
 
-  "Flatten and unflatten are symmetric" in {
-    val parsed = parse(testJson)
+      Extraction.unflatten(Extraction.flatten(parsed)) must_== parsed
+    }
 
-    Extraction.unflatten(Extraction.flatten(parsed)) must_== parsed
-  }
+    "Flatten preserves empty sets" in {
+      val s = SetWrapper(Set())
 
-  "Flatten preserves empty sets" in {
-    val s = SetWrapper(Set())
+      Extraction.flatten(Extraction.decompose(s)).get(".set") must_== Some("[]")
+    }
 
-    Extraction.flatten(Extraction.decompose(s)).get(".set") must_== Some("[]")
-  }
+    "Flatten and unflatten are symmetric with empty sets" in {
+      val s = SetWrapper(Set())
 
-  "Flatten and unflatten are symmetric with empty sets" in {
-    val s = SetWrapper(Set())
+      Extraction.unflatten(Extraction.flatten(Extraction.decompose(s))).extract[SetWrapper] must_== s
+    }
 
-    Extraction.unflatten(Extraction.flatten(Extraction.decompose(s))).extract[SetWrapper] must_== s
-  }
+    "List extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[List[Name]] must_== List(Name("Mary"), Name("Mazy"))
+    }
 
-  "List extraction example" in {
-    val json = parse(testJson) \ "children"
-    json.extract[List[Name]] must_== List(Name("Mary"), Name("Mazy"))
-  }
+    "Map extraction example" in {
+      val json = parse(testJson) \ "address"
+      json.extract[Map[String, String]] must_== Map("street" -> "Bulevard", "city" -> "Helsinki")
+    }
 
-  "Map extraction example" in {
-    val json = parse(testJson) \ "address"
-    json.extract[Map[String, String]] must_== Map("street" -> "Bulevard", "city" -> "Helsinki")
-  }
+    "Extraction and decomposition are symmetric" in {
+      val person = parse(testJson).extract[Person]
+      Extraction.decompose(person).extract[Person] must_== person
+    }
 
-  "Extraction and decomposition are symmetric" in {
-    val person = parse(testJson).extract[Person]
-    Extraction.decompose(person).extract[Person] must_== person
-  }
+    "Extraction failure message example" in {
+      val json = parse("""{"city":"San Francisco"}""")
+      json.extract[Address] must throwA(MappingException("No usable value for street\nDid not find value which can be converted into java.lang.String", null))
+    }
 
-  "Extraction failure message example" in {
-    val json = parse("""{"city":"San Francisco"}""")
-    json.extract[Address] must throwA(MappingException("No usable value for street\nDid not find value which can be converted into java.lang.String", null))
-  }
+    "Best matching constructor selection example" in {
+      parse("""{"name":"john","age":32,"size":"M"}""").extract[MultipleConstructors] must_==
+        MultipleConstructors("john", 32, Some("M"))
 
-  "Best matching constructor selection example" in {
-    parse("""{"name":"john","age":32,"size":"M"}""").extract[MultipleConstructors] must_==
-      MultipleConstructors("john", 32, Some("M"))
+      parse("""{"name":"john","age":32}""").extract[MultipleConstructors] must_==
+        MultipleConstructors("john", 32, Some("S"))
 
-    parse("""{"name":"john","age":32}""").extract[MultipleConstructors] must_==
-      MultipleConstructors("john", 32, Some("S"))
+      parse("""{"name":"john","foo":"xxx"}""").extract[MultipleConstructors] must_==
+        MultipleConstructors("john", 30, None)
 
-    parse("""{"name":"john","foo":"xxx"}""").extract[MultipleConstructors] must_==
-      MultipleConstructors("john", 30, None)
+      parse("""{"name":"john","age":32,"size":null}""").extract[MultipleConstructors] must_==
+        MultipleConstructors("john", 32, None)
 
-    parse("""{"name":"john","age":32,"size":null}""").extract[MultipleConstructors] must_==
-      MultipleConstructors("john", 32, None)
+      parse("""{"birthYear":1990,"name":"john","foo":2}""").extract[MultipleConstructors] must_==
+        MultipleConstructors("john", 20, None)
 
-    parse("""{"birthYear":1990,"name":"john","foo":2}""").extract[MultipleConstructors] must_==
-      MultipleConstructors("john", 20, None)
+      parse("""{"foo":2,"age":12,"size":"XS"}""").extract[MultipleConstructors] must_==
+        MultipleConstructors("unknown", 12, Some("XS"))
+    }
 
-    parse("""{"foo":2,"age":12,"size":"XS"}""").extract[MultipleConstructors] must_==
-      MultipleConstructors("unknown", 12, Some("XS"))
-  }
+    "Partial JSON extraction" in {
+      parse(stringField).extract[ClassWithJSON] must_== ClassWithJSON("one", JString("msg"))
+      parse(objField).extract[ClassWithJSON] must_== ClassWithJSON("one", JObject(List(JField("yes", JString("woo")))))
+    }
 
-  "Partial JSON extraction" in {
-    parse(stringField).extract[ClassWithJSON] must_== ClassWithJSON("one", JString("msg"))
-    parse(objField).extract[ClassWithJSON] must_== ClassWithJSON("one", JObject(List(JField("yes", JString("woo")))))
-  }
+    "Double can be coerced to Int or Long" in {
+      JDouble(2.1).extract[Int] must_== 2
+      JDouble(2.1).extract[Long] must_== 2L
+    }
 
-  "Double can be coerced to Int or Long" in {
-    JDouble(2.1).extract[Int] must_== 2
-    JDouble(2.1).extract[Long] must_== 2L
-  }
+    "Map with nested non-polymorphic list extraction example" in {
+      parse("""{"a":["b"]}""").extract[Map[String, List[String]]] must_== Map("a" -> List("b"))
+    }
 
-  "Map with nested non-polymorphic list extraction example" in {
-    parse("""{"a":["b"]}""").extract[Map[String, List[String]]] must_== Map("a" -> List("b"))
-  }
+    "List with nested non-polymorphic list extraction example" in {
+      parse("""[["a"]]""").extract[List[List[String]]] must_== List(List("a"))
+    }
 
-  "List with nested non-polymorphic list extraction example" in {
-    parse("""[["a"]]""").extract[List[List[String]]] must_== List(List("a"))
-  }
-
-  "Complex nested non-polymorphic collections extraction example" in {
-    parse("""{"a":[{"b":"c"}]}""").extract[Map[String, List[Map[String, String]]]] must_== Map("a" -> List(Map("b" -> "c")))
+    "Complex nested non-polymorphic collections extraction example" in {
+      parse("""{"a":[{"b":"c"}]}""").extract[Map[String, List[Map[String, String]]]] must_== Map("a" -> List(Map("b" -> "c")))
+    }
   }
 
   val testJson =

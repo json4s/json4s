@@ -5,7 +5,7 @@ import _root_.scalaz._
 import Scalaz._
 import JsonScalaz._
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 object TupleExample extends Specification {
   "Parse tuple from List" in {

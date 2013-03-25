@@ -1,32 +1,34 @@
 package org.json4s
 
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 
 /**
 * System under specification for JSON Pull Parser.
 */
-object PullParserExamples extends Specification("JSON Pull Parser Examples") {
+object PullParserExamples extends Specification() {
   import native.JsonParser
   import JsonParser._
 
-  "Pull parsing example" in {
-    val parser = (p: Parser) => {
-      def parse: BigInt = p.nextToken match {
-        case FieldStart("postalCode") => p.nextToken match {
-          case IntVal(code) => code
-          case _ => p.fail("expected int")
+  "A JSON Pull Parser" should {
+    "Pull parsing example" in {
+      val parser = (p: Parser) => {
+        def parse: BigInt = p.nextToken match {
+          case FieldStart("postalCode") => p.nextToken match {
+            case IntVal(code) => code
+            case _ => p.fail("expected int")
+          }
+          case End => p.fail("no field named 'postalCode'")
+          case _ => parse
         }
-        case End => p.fail("no field named 'postalCode'")
-        case _ => parse
+
+        parse
       }
 
-      parse
+      val postalCode = JsonParser.parse(json, parser)
+      postalCode must_== 10021
     }
-
-    val postalCode = JsonParser.parse(json, parser)
-    postalCode must_== 10021
   }
 
   val json = """

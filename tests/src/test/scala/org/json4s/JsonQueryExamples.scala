@@ -16,7 +16,7 @@
 
 package org.json4s
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 import text.Document
 
 object NativeJsonQueryExamples extends JsonQueryExamples[Document]("Native") with native.JsonMethods
@@ -25,51 +25,54 @@ object JacksonJsonQueryExamples extends JsonQueryExamples[JValue]("Jackson") wit
 /**
 * System under specification for JSON Query Examples.
 */
-abstract class JsonQueryExamples[T](mod: String) extends Specification(mod+" JSON Query Examples") with JsonMethods[T] {
-  "List of IPs" in {
-    val ips = for { JString(ip) <- json \\ "ip" } yield ip
-    ips must_== List("192.168.1.125", "192.168.1.126", "192.168.1.127", "192.168.2.125", "192.168.2.126")
-  }
+abstract class JsonQueryExamples[T](mod: String) extends Specification with JsonMethods[T] {
 
-  "List of IPs converted to XML" in {
-    val ips = <ips>{ for { JString(ip) <- json \\ "ip" } yield <ip>{ ip }</ip> }</ips>
-    ips must_== <ips><ip>192.168.1.125</ip><ip>192.168.1.126</ip><ip>192.168.1.127</ip><ip>192.168.2.125</ip><ip>192.168.2.126</ip></ips>
-  }
+  (mod+" JSON Query Examples") should {
+    "List of IPs" in {
+      val ips = for { JString(ip) <- json \\ "ip" } yield ip
+      ips must_== List("192.168.1.125", "192.168.1.126", "192.168.1.127", "192.168.2.125", "192.168.2.126")
+    }
 
-  "List of IPs in cluster2" in {
-    val ips = for {
-      cluster @ JObject(x) <- json \ "data_center"
-      if (x contains JField("name", JString("cluster2")))
-      JString(ip) <- cluster \\ "ip" } yield ip
-    ips must_== List("192.168.2.125", "192.168.2.126")
-  }
+    "List of IPs converted to XML" in {
+      val ips = <ips>{ for { JString(ip) <- json \\ "ip" } yield <ip>{ ip }</ip> }</ips>
+      ips must_== <ips><ip>192.168.1.125</ip><ip>192.168.1.126</ip><ip>192.168.1.127</ip><ip>192.168.2.125</ip><ip>192.168.2.126</ip></ips>
+    }
 
-  "Total cpus in data center" in {
-    (for { JInt(x) <- json \\ "cpus" } yield x) reduceLeft (_ + _) must_== 40
-  }
+    "List of IPs in cluster2" in {
+      val ips = for {
+        cluster @ JObject(x) <- json \ "data_center"
+        if (x contains JField("name", JString("cluster2")))
+        JString(ip) <- cluster \\ "ip" } yield ip
+      ips must_== List("192.168.2.125", "192.168.2.126")
+    }
 
-  "Servers sorted by uptime" in {
-    case class Server(ip: String, uptime: Long)
+    "Total cpus in data center" in {
+      (for { JInt(x) <- json \\ "cpus" } yield x) reduceLeft (_ + _) must_== 40
+    }
 
-    val servers = for {
-      JArray(servers) <- json \\ "servers"
-      JObject(server) <- servers
-      JField("ip", JString(ip)) <- server
-      JField("uptime", JInt(uptime)) <- server
-    } yield Server(ip, uptime.longValue)
+    "Servers sorted by uptime" in {
+      case class Server(ip: String, uptime: Long)
 
-    servers sortWith (_.uptime > _.uptime) must_== List(Server("192.168.1.127", 901214), Server("192.168.2.125", 453423), Server("192.168.2.126", 214312), Server("192.168.1.126", 189822), Server("192.168.1.125", 150123))
-  }
+      val servers = for {
+        JArray(servers) <- json \\ "servers"
+        JObject(server) <- servers
+        JField("ip", JString(ip)) <- server
+        JField("uptime", JInt(uptime)) <- server
+      } yield Server(ip, uptime.longValue)
 
-  "Clusters administered by liza" in {
-    val clusters = for {
-      JObject(cluster) <- json
-      JField("admins", JArray(admins)) <- cluster
-      if admins contains JString("liza")
-      JField("name", JString(name)) <- cluster
-    } yield name
+      servers sortWith (_.uptime > _.uptime) must_== List(Server("192.168.1.127", 901214), Server("192.168.2.125", 453423), Server("192.168.2.126", 214312), Server("192.168.1.126", 189822), Server("192.168.1.125", 150123))
+    }
 
-    clusters must_== List("cluster2")
+    "Clusters administered by liza" in {
+      val clusters = for {
+        JObject(cluster) <- json
+        JField("admins", JArray(admins)) <- cluster
+        if admins contains JString("liza")
+        JField("name", JString(name)) <- cluster
+      } yield name
+
+      clusters must_== List("cluster2")
+    }
   }
 
   lazy val json = parse("""

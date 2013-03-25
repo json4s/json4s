@@ -25,12 +25,12 @@ import java.util.{Date, UUID}
 import java.util.regex.Pattern
 
 import org.bson.types.ObjectId
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 import com.mongodb.{BasicDBList, DBObject}
-import scalaj.collection.Imports._
+import scala.collection.JavaConverters._
 
-object BsonDSLSpec extends Specification("BsonDSL Specification")  {
+object BsonDSLSpec extends Specification  {
 
 
   "BsonDSL" should {

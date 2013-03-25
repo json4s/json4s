@@ -5,7 +5,7 @@ import Scalaz._
 import JsonScalaz._
 import org.json4s._
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 object ValidationExample extends Specification {
 

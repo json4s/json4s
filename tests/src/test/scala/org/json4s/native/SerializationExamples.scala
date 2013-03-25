@@ -2,7 +2,7 @@ package org.json4s
 
 
 import java.util.Date
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 object SerializationExamples extends Specification {
   import native.Serialization.{read, write => swrite}
@@ -312,10 +312,10 @@ object CustomSerializerExamples extends Specification {
   i2.startTime must_== i.startTime
   i2.endTime must_== i.endTime
 
-  val p = Pattern.compile("^Curly")
-  val pser = swrite(p)
+  val pp = Pattern.compile("^Curly")
+  val pser = swrite(pp)
   pser must_== """{"$pattern":"^Curly"}"""
-  read[Pattern](pser).pattern must_== p.pattern
+  read[Pattern](pser).pattern must_== pp.pattern
 
   val d = new Date(0)
   val dser = swrite(d)

@@ -1,7 +1,7 @@
 import sbt._
 import Keys._
 import xml.Group
-import sbtscalashim.Plugin._
+//import sbtscalashim.Plugin._
 import sbtbuildinfo.Plugin._
 import com.typesafe.sbt.SbtStartScript
 
@@ -55,8 +55,8 @@ object build extends Build {
   val json4sSettings = Defaults.defaultSettings ++ mavenCentralFrouFrou ++ Seq(
     organization := "org.json4s",
     version := "3.3.0-SNAPSHOT",
-    scalaVersion := "2.9.2",
-    crossScalaVersions := Seq("2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2"),
+    scalaVersion := "2.9.3",
+    crossScalaVersions := Seq("2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2", "2.9.3"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
@@ -73,8 +73,7 @@ object build extends Build {
   lazy val ast = Project(
     id = "json4s-ast",
     base = file("ast"),
-    settings = json4sSettings ++ scalaShimSettings ++ buildInfoSettings ++ Seq(
-      sourceGenerators in Compile <+= scalaShim,
+    settings = json4sSettings ++ buildInfoSettings ++ Seq(
       sourceGenerators in Compile <+= buildInfo,
       buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
       buildInfoPackage := "org.json4s"
@@ -86,7 +85,6 @@ object build extends Build {
     base = file("core"),
     settings = json4sSettings ++ Seq(
       libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv)) },
-      libraryDependencies += scalaj_collection,
       unmanagedSourceDirectories in Compile <+= (scalaVersion, baseDirectory) {
         case (v, dir) if v startsWith "2.8" => dir / "src/main/scala_2.8"
         case (v, dir) if v startsWith "2.9" => dir / "src/main/scala_2.9"
@@ -134,7 +132,7 @@ object build extends Build {
      id = "json4s-examples",
      base = file("examples"),
      settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
-       libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.9.4",
+       libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.9.2" % "0.9.4",
        libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.9.2" % "2.1.3"
      )
   ) dependsOn(
@@ -162,8 +160,7 @@ object build extends Build {
      base = file("mongo"),
      settings = json4sSettings ++ Seq(
        libraryDependencies ++= Seq(
-         "org.mongodb" % "mongo-java-driver" % "2.10.1",
-         scalaj_collection
+         "org.mongodb" % "mongo-java-driver" % "2.10.1"
       )
      )
   ) dependsOn(core % "compile;test->test")
@@ -172,7 +169,7 @@ object build extends Build {
     id = "json4s-tests",
     base = file("tests"),
     settings = json4sSettings ++ Seq(
-      libraryDependencies <++= scalaVersion { sv => Seq(specs(sv), scalacheck(sv), mockito) },
+      libraryDependencies <++= scalaVersion { sv => Seq(specs(sv), scalacheck, mockito) },
       initialCommands in (Test, console) :=
         """
           |import org.json4s._
