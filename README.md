@@ -89,11 +89,11 @@ Note, replace XXX with correct Json4s version.
 
 For the native support add the following dependency to your project description:
 
-    val json4sNative = "org.json4s" %% "json4s-native" % "3.1.0"
+    val json4sNative = "org.json4s" %% "json4s-native" % "3.2.2"
 
 For the Jackson support add the following dependency to your project description:
 
-    val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.1.0"
+    val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.2"
 
 ### Maven users
 
@@ -102,7 +102,7 @@ For the native support add the following dependency to your pom:
     <dependency>
       <groupId>org.json4s</groupId>
       <artifactId>json4s-native_${scala.version}</artifactId>
-      <version>3.1.0</version>
+      <version>3.2.2</version>
     </dependency>
 
 For the jackson support add the following dependency to your pom:
@@ -110,15 +110,15 @@ For the jackson support add the following dependency to your pom:
     <dependency>
       <groupId>org.json4s</groupId>
       <artifactId>json4s-jackson_${scala.version}</artifactId>
-      <version>3.1.0</version>
+      <version>3.2.2</version>
     </dependency>
 
 ### Others
 
 Download following jars:
 
-* http://repo1.maven.org/maven2/org/json4s/3.1.0/json4s-core_2.9.2-3.1.0.jar
-* http://repo1.maven.org/maven2/org/json4s/3.1.0/json4s-native_2.9.2-3.1.0.jar
+* http://repo1.maven.org/maven2/org/json4s/3.2.0/json4s-core_2.9.2-3.2.0.jar
+* http://repo1.maven.org/maven2/org/json4s/3.2.0/json4s-native_2.9.2-3.2.0.jar
 * http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.2/paranamer-2.5.2.jar
 * scalap (Only for Scala-2.9 compatible versions)
 
@@ -707,6 +707,34 @@ rename and ignore fields are provided:
       renameFrom("animalname", "name"))
 
     implicit val formats = DefaultFormats + dogSerializer
+
+Serializing classes defined in traits or classes
+------------------------------------------------
+
+We've added support for case classes defined in a trait. But they do need custom formats. I'll explain why and then how.
+
+##### Why?
+
+For classes defined in a trait it's a bit difficult to get to their companion object, which is needed to provide default values.  We could punt on those but that brings us to the next problem, the compiler generates an extra field in the constructor of such case classes.  The first field in the constructor of those case classes is called `$outer` and is of type of the *defining trait*.  So somehow we need to get an instance of that object, naively we could scan all classes and collect the ones that are implementing the trait, but when there are more than one: which one to take?
+
+##### How?
+
+I've chosen to extend the formats to include a list of companion mappings for those case classes. So you can have formats that belong to your modules and keep the mappings in there. That will then make default values work and provide the much needed `$outer` field.
+
+```scala
+trait SharedModule {
+  case class SharedObj(name: String, visible: Boolean = false)
+}
+
+object PingPongGame extends SharedModule
+implicit val formats: Formats =
+  DefaultFormats.withCompanions(classOf[PingPongGame.SharedObj] -> PingPongGame)
+
+val inst = PingPongGame.SharedObj("jeff", visible = true)
+val extr = Extraction.decompose(inst)
+extr must_== JObject("name" -> JString("jeff"), "visible" -> JBool(true))
+extr.extract[PingPongGame.SharedObj] must_== inst
+```
 
 Serializing non-supported types
 -------------------------------
