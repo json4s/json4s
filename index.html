@@ -125,12 +125,12 @@ Note, replace XXX with correct Json4s version.</p>
 
 <p>For the native support add the following dependency to your project description:</p>
 
-<pre><code>val json4sNative = "org.json4s" %% "json4s-native" % "3.1.0"
+<pre><code>val json4sNative = "org.json4s" %% "json4s-native" % "3.2.2"
 </code></pre>
 
 <p>For the Jackson support add the following dependency to your project description:</p>
 
-<pre><code>val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.1.0"
+<pre><code>val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.2"
 </code></pre>
 
 <h3>Maven users</h3>
@@ -140,7 +140,7 @@ Note, replace XXX with correct Json4s version.</p>
 <pre><code>&lt;dependency&gt;
   &lt;groupId&gt;org.json4s&lt;/groupId&gt;
   &lt;artifactId&gt;json4s-native_${scala.version}&lt;/artifactId&gt;
-  &lt;version&gt;3.1.0&lt;/version&gt;
+  &lt;version&gt;3.2.2&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -149,7 +149,7 @@ Note, replace XXX with correct Json4s version.</p>
 <pre><code>&lt;dependency&gt;
   &lt;groupId&gt;org.json4s&lt;/groupId&gt;
   &lt;artifactId&gt;json4s-jackson_${scala.version}&lt;/artifactId&gt;
-  &lt;version&gt;3.1.0&lt;/version&gt;
+  &lt;version&gt;3.2.2&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -158,9 +158,9 @@ Note, replace XXX with correct Json4s version.</p>
 <p>Download following jars:</p>
 
 <ul>
-<li><a href="http://repo1.maven.org/maven2/org/json4s/3.1.0/json4s-core_2.9.2-3.1.0.jar">http://repo1.maven.org/maven2/org/json4s/3.1.0/json4s-core_2.9.2-3.1.0.jar</a></li>
-<li><a href="http://repo1.maven.org/maven2/org/json4s/3.1.0/json4s-native_2.9.2-3.1.0.jar">http://repo1.maven.org/maven2/org/json4s/3.1.0/json4s-native_2.9.2-3.1.0.jar</a></li>
-<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.1/paranamer-2.5.1.jar">http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.1/paranamer-2.5.1.jar</a></li>
+<li><a href="http://repo1.maven.org/maven2/org/json4s/3.2.0/json4s-core_2.9.2-3.2.0.jar">http://repo1.maven.org/maven2/org/json4s/3.2.0/json4s-core_2.9.2-3.2.0.jar</a></li>
+<li><a href="http://repo1.maven.org/maven2/org/json4s/3.2.0/json4s-native_2.9.2-3.2.0.jar">http://repo1.maven.org/maven2/org/json4s/3.2.0/json4s-native_2.9.2-3.2.0.jar</a></li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.2/paranamer-2.5.2.jar">http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.2/paranamer-2.5.2.jar</a></li>
 <li>scalap (Only for Scala-2.9 compatible versions)</li>
 </ul><h2>Extras</h2>
 
@@ -672,7 +672,7 @@ res0: PersonWithAddresses("joe", Map("address1" -&gt; Address("Bulevard", "Helsi
 <h1>Serialization</h1>
 
 <p>Case classes can be serialized and deserialized.
-Please see other examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/SerializationExamples.scala">SerializationExamples.scala</a>.</p>
+Please see other examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/native/SerializationExamples.scala">SerializationExamples.scala</a>.</p>
 
 <pre><code>scala&gt; import org.json4s._
 scala&gt; import org.json4s.native.Serialization
@@ -751,6 +751,32 @@ rename and ignore fields are provided:</p>
 
 implicit val formats = DefaultFormats + dogSerializer
 </code></pre>
+
+<h2>Serializing classes defined in traits or classes</h2>
+
+<p>We've added support for case classes defined in a trait. But they do need custom formats. I'll explain why and then how.</p>
+
+<h5>Why?</h5>
+
+<p>For classes defined in a trait it's a bit difficult to get to their companion object, which is needed to provide default values.  We could punt on those but that brings us to the next problem, the compiler generates an extra field in the constructor of such case classes.  The first field in the constructor of those case classes is called <code>$outer</code> and is of type of the <em>defining trait</em>.  So somehow we need to get an instance of that object, naively we could scan all classes and collect the ones that are implementing the trait, but when there are more than one: which one to take?</p>
+
+<h5>How?</h5>
+
+<p>I've chosen to extend the formats to include a list of companion mappings for those case classes. So you can have formats that belong to your modules and keep the mappings in there. That will then make default values work and provide the much needed <code>$outer</code> field.</p>
+
+<div class="highlight"><pre><span class="k">trait</span> <span class="nc">SharedModule</span> <span class="o">{</span>
+  <span class="k">case</span> <span class="k">class</span> <span class="nc">SharedObj</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">visible</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+<span class="o">}</span>
+
+<span class="k">object</span> <span class="nc">PingPongGame</span> <span class="k">extends</span> <span class="nc">SharedModule</span>
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">formats</span><span class="k">:</span> <span class="kt">Formats</span> <span class="o">=</span>
+  <span class="nc">DefaultFormats</span><span class="o">.</span><span class="n">withCompanions</span><span class="o">(</span><span class="n">classOf</span><span class="o">[</span><span class="kt">PingPongGame.SharedObj</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="nc">PingPongGame</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">inst</span> <span class="k">=</span> <span class="nc">PingPongGame</span><span class="o">.</span><span class="nc">SharedObj</span><span class="o">(</span><span class="s">"jeff"</span><span class="o">,</span> <span class="n">visible</span> <span class="k">=</span> <span class="kc">true</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">extr</span> <span class="k">=</span> <span class="nc">Extraction</span><span class="o">.</span><span class="n">decompose</span><span class="o">(</span><span class="n">inst</span><span class="o">)</span>
+<span class="n">extr</span> <span class="n">must_==</span> <span class="nc">JObject</span><span class="o">(</span><span class="s">"name"</span> <span class="o">-&gt;</span> <span class="nc">JString</span><span class="o">(</span><span class="s">"jeff"</span><span class="o">),</span> <span class="s">"visible"</span> <span class="o">-&gt;</span> <span class="nc">JBool</span><span class="o">(</span><span class="kc">true</span><span class="o">))</span>
+<span class="n">extr</span><span class="o">.</span><span class="n">extract</span><span class="o">[</span><span class="kt">PingPongGame.SharedObj</span><span class="o">]</span> <span class="n">must_==</span> <span class="n">inst</span>
+</pre></div>
 
 <h2>Serializing non-supported types</h2>
 
