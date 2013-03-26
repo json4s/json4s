@@ -338,7 +338,7 @@ object Extraction {
               case JObject(fs) => fs.map(_._1)
               case _ => Nil
             }
-            println("Finding argument names: %s in constructors: %s" format (argNames, descr.constructors.map(_.params.map(_.name))))
+//            println("Finding argument names: %s in constructors: %s" format (argNames, descr.constructors.map(_.params.map(_.name))))
             val r = descr.bestMatching(argNames)
             r.getOrElse(fail("No constructor for type " + descr.erasure + ", " + json))
           }
