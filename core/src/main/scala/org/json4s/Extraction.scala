@@ -277,7 +277,7 @@ object Extraction {
       new CollectionBuilder(json, scalaType).result
     } else {
       Reflector.describe(scalaType) match {
-        case PrimitiveDescriptor(tpe, default) => convert(json, tpe, formats, default)
+        case PrimitiveDescriptor(tpe, default) => convert(json, tpe, formats, default) //customOrElse(tpe, json)(convert(_, tpe, formats, default))
         case c: ClassDescriptor => new ClassInstanceBuilder(json, c).result
       }
     }
