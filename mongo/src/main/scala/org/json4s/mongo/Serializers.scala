@@ -70,19 +70,19 @@ class PatternSerializer extends Serializer[Pattern] {
 * Queries for a Date (dt) using the lift-json DSL look like:
 * ("dt" -> ("$dt" -> formats.dateFormat.format(dt)))
 */
-class DateSerializer extends Serializer[Date] {
+class DateSerializer(fieldName: String = "$dt") extends Serializer[Date] {
   private val DateClass = classOf[Date]
 
   def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), Date] = {
     case (TypeInfo(DateClass, _), json) => json match {
-      case JObject(JField("$dt", JString(s)) :: Nil) =>
+      case JObject(JField(`fieldName`, JString(s)) :: Nil) =>
         format.dateFormat.parse(s).getOrElse(throw new MappingException(s"Can't parse $s to Date"))
       case x => throw new MappingException(s"Can't convert $x to Date")
     }
   }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case x: Date => Meta.dateAsJValue(x, format)
+    case d: Date => JObject(JField(fieldName, JString(format.dateFormat.format(d))) :: Nil)
   }
 }
 
