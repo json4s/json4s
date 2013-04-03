@@ -120,7 +120,7 @@ Download following jars:
 * http://repo1.maven.org/maven2/org/json4s/3.2.0/json4s-core_2.10-3.2.3.jar
 * http://repo1.maven.org/maven2/org/json4s/3.2.0/json4s-native_2.10-3.2.3.jar
 * http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.2/paranamer-2.5.2.jar
-* scalap (Only for Scala-2.9 compatible versions)
+* scalap (Only for Scala-2.9+ compatible versions)
 
 Extras
 ------
