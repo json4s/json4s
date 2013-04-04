@@ -57,7 +57,7 @@ object build extends Build {
     scalaVersion := "2.9.3",
     crossScalaVersions := Seq("2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2", "2.9.3"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize"),
-    version := "3.3.0-SNAPSHOT",
+    version := "3.2.4",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     publishSetting,
