@@ -57,7 +57,7 @@ object build extends Build {
     scalaVersion := "2.9.3",
     crossScalaVersions := Seq("2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2", "2.9.3"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize"),
-    version := "3.3.0-SNAPSHOT",
+    version := "3.2.4",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     publishSetting,
@@ -130,7 +130,7 @@ object build extends Build {
      id = "json4s-examples",
      base = file("examples"),
      settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
-       libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.9.2" % "0.9.4",
+       libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.9.2" % "0.9.5",
        libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.9.2" % "2.1.3"
      )
   ) dependsOn(
