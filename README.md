@@ -117,8 +117,8 @@ For the jackson support add the following dependency to your pom:
 
 Download following jars:
 
-* http://repo1.maven.org/maven2/org/json4s/3.2.0/json4s-core_2.9.2-3.2.4.jar
-* http://repo1.maven.org/maven2/org/json4s/3.2.0/json4s-native_2.9.2-3.2.4.jar
+* http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.4/json4s-core_2.9.2-3.2.4.jar
+* http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.4/json4s-native_2.9.2-3.2.4.jar
 * http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.2/paranamer-2.5.2.jar
 * scalap (Only for Scala-2.9 compatible versions)
 
