@@ -1,5 +1,5 @@
-Scalaz support for Lift JSON
-============================
+Scalaz support for json4s
+=========================
 
 This project adds a type class to parse JSON:
 
@@ -74,7 +74,7 @@ Installation
 
 Add dependency to your SBT project description:
 
-    val lift_json_scalaz = "net.liftweb" %% "lift-json-scalaz" % "XXX"
+    val json4s_scalaz = "org.json4s" %% "json4s-scalaz" % "XXX"
 
 Links
 -----
