@@ -122,9 +122,24 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
         """{"PERSON":{"NAME":"Joe","AGE":35,"SPOUSE":{"PERSON":{"NAME":"Marilyn","AGE":33}}}}"""
     }
 
-    "Remove example" in {
+    "Remove Field example" in {
       val json = parse(person) removeField { _ == JField("name", "Marilyn") }
-      compact(render(json \\ "name")) must_== """{"name":"Joe"}"""
+      (json \\ "name") must_== JString("Joe")
+      compact(render(json \\ "name")) must_== "\"Joe\""
+    }
+
+    "Remove example" in {
+      val json = parse(person) remove { _ == JString("Marilyn") }
+      (json \\ "name") must_== JString("Joe")
+      compact(render(json \\ "name")) must_== "\"Joe\""
+    }
+
+    "XPath operator should behave the same after adding and removing a second field with the same name" in {
+      val json = parse(lotto)
+      val addition = parse("""{"lotto-two": {"lotto-id": 6}}""")
+      val json2 = json merge addition removeField { _ == JField("lotto-id", 6) }
+
+      (json2 \\ "lotto-id") must_== (json \\ "lotto-id")
     }
 
     "Queries on person example" in {

@@ -294,8 +294,8 @@ class MonadicJValue(jv: JValue) {
    * }
    * </pre>
    */
-  def removeField(p: JField ⇒ Boolean): JValue = jv transformField  {
-    case x if p(x) ⇒ (x._1, JNothing)
+  def removeField(p: JField ⇒ Boolean): JValue = jv transform {
+    case JObject(l) => JObject(l.filterNot(p))
   }
 
   /**
@@ -305,9 +305,12 @@ class MonadicJValue(jv: JValue) {
    * JArray(JInt(1) :: JInt(2) :: JNull :: Nil) remove { _ == JNull }
    * </pre>
    */
-  def remove(p: JValue ⇒ Boolean): JValue = jv map {
-    case x if p(x) ⇒ JNothing
-    case x ⇒ x
+  def remove(p: JValue ⇒ Boolean): JValue = {
+    if(p(jv)) JNothing
+    else jv transform {
+      case JObject(l) => JObject(l.filterNot(f ⇒ p(f._2)))
+      case JArray(l) => JArray(l.filterNot(p))
+    }
   }
 
   private[this] def camelize(word: String): String = {
@@ -355,6 +358,9 @@ class MonadicJValue(jv: JValue) {
    * Remove the [[org.json4s.JsonAST.JNothing]] and [[org.json4s.JsonAST.JNull]] from
    * a [[org.json4s.JsonAST.JArray]] or [[org.json4s.JsonAST.JObject]]
    */
-  def noNulls = removeField(_._2 == JNull)
+  def noNulls = remove {
+    case JNull | JNothing => true
+    case _ => false
+  }
 
 }
