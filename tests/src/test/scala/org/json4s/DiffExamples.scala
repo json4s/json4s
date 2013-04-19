@@ -74,6 +74,13 @@ abstract class DiffExamples[T](mod: String) extends Specification with JsonMetho
     json1 diff json2 must_== Diff(expectedChanges, expectedAdditions, expectedDeletions)
   }
 
+  "After adding and removing a field, there should be no difference" in {
+    import JsonDSL._
+    val addition = parse("""{"author":"Martin"}""")
+    val scala2 = scala1 merge addition removeField { _ == JField("author", "Martin") }
+    scala1 diff scala2 must_== Diff(JNothing, JNothing, JNothing)
+  }
+
   private def read(resource: String) =
     parse(getClass.getResourceAsStream(resource))
 
