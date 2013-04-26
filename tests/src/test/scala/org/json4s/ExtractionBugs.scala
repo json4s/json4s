@@ -36,6 +36,8 @@ object ExtractionBugs {
     def hello = "hello"
   }
   case class HasCompanion(nums: List[Int])
+  
+  case class ABigDecimal(num: BigDecimal)
 
 
 
@@ -98,6 +100,11 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       lst.add("one")
       lst.add("two")
       json.extract[util.ArrayList[String]] must_== lst
+    }
+    
+    "Parse 0 as BigDecimal" in {
+      val bd = ABigDecimal(BigDecimal("0"))
+      parse("""{"num": 0}""", useBigDecimalForDouble = true).extract[ABigDecimal] must_== bd
     }
 
   }

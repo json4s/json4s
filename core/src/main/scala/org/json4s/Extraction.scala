@@ -454,6 +454,8 @@ object Extraction {
       case JInt(x) if (targetType == classOf[JavaByte]) => new JavaByte(x.byteValue)
       case JInt(x) if (targetType == classOf[String]) => x.toString
       case JInt(x) if (targetType == classOf[Number]) => x.longValue
+      case JInt(x) if (targetType == classOf[BigDecimal]) => BigDecimal(x)
+      case JInt(x) if (targetType == classOf[JavaBigDecimal]) => BigDecimal(x).bigDecimal
       case JDouble(x) if (targetType == classOf[Double]) => x
       case JDouble(x) if (targetType == classOf[JavaDouble]) => new JavaDouble(x)
       case JDouble(x) if (targetType == classOf[Float]) => x.floatValue
