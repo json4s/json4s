@@ -4,7 +4,7 @@ import org.specs2.mutable.Specification
 import java.util.UUID
 
 object SerializationBugs extends Specification {
-  import native.Serialization.{read, write => swrite}
+  import native.Serialization.{ read, write => swrite }
 
   implicit val formats = native.Serialization.formats(NoTypeHints)
 
@@ -20,8 +20,8 @@ object SerializationBugs extends Specification {
     import plan2._
 
     val g1 = Game(Map("a" -> Plan(Some(Action("f1", "s", Array(), None)),
-                                  Some("A"),
-                                  Some(Action("f2", "s2", Array[Number](0, 1, 2), None)))))
+      Some("A"),
+      Some(Action("f2", "s2", Array[Number](0, 1, 2), None)))))
     val ser = swrite(g1)
     val g2 = read[Game](ser)
     val plan = g2.buy("a")
@@ -128,7 +128,7 @@ object SerializationBugs extends Specification {
       }
 
       def serialize(implicit format: Formats) = {
-        case SingleValue(x: Double) => JObject(List(JField("val", JDouble(x))))
+        case SingleValue(x: Double)         => JObject(List(JField("val", JDouble(x))))
         case VectorValue(x: Vector[Double]) => JObject(List(JField("val", JArray(x.toList.map(JDouble(_))))))
       }
     }
@@ -138,6 +138,57 @@ object SerializationBugs extends Specification {
     val ser = swrite(MapHolder(Map("hello" -> SingleValue(2.0))))
     read[MapHolder](ser) must_== MapHolder(Map("hello" -> SingleValue(2.0)))
   }
+
+  "Serialization of case class with many Option[T] fields" should {
+
+    "produce valid JSON object with all fields undefined (set to None)" in {
+      val optFields = OptionalFields(None, None, None, None)
+      val str = native.Serialization.write(optFields)
+      str must_== "{}"
+    }
+
+    "produce valid JSON object with one string field defined" in {
+      val optFields = OptionalFields(Some("hello"), None, None, None)
+      val str = native.Serialization.write(optFields)
+      str must_== """{"optString":"hello"}"""
+    }
+
+    "produce valid JSON object with two fields defined #1" in {
+      val optFields = OptionalFields(Some("hello"), None, None, Some(OptionalFields(None, None, None, None)))
+      val str = native.Serialization.write(optFields)
+      str must_== """{"optString":"hello","optObj":{}}"""
+    }
+
+    "produce valid JSON object with two fields defined #2" in {
+      val optFields = OptionalFields(None, None, Some(1.0), Some(OptionalFields(None, None, None, None)))
+      val str = native.Serialization.write(optFields)
+      str must_== """{"optDouble":1.0,"optObj":{}}"""
+    }
+
+    "produce valid JSON object with all fields defined" in {
+      val optFields = OptionalFields(Some("hello"), Some(42), Some(1.0), Some(OptionalFields(None, None, None, None)))
+      val str = native.Serialization.write(optFields)
+      str must_== """{"optString":"hello","optInt":42,"optDouble":1.0,"optObj":{}}"""
+    }
+
+    "produce valid JSON object with nested JSON object" in {
+      val optFields = OptionalFields(None, None, None,
+        Some(OptionalFields(None, None, None, None)))
+      val str = native.Serialization.write(optFields)
+      str must_== """{"optObj":{}}"""
+    }
+
+    "produce valid JSON object with deeply nested JSON objects" in {
+      val optFields = OptionalFields(None, None, None,
+        Some(OptionalFields(None, None, None,
+          Some(OptionalFields(None, None, None,
+            Some(OptionalFields(None, None, None,
+              Some(OptionalFields(None, None, None, None)))))))))
+      val str = native.Serialization.write(optFields)
+      str must_== """{"optObj":{"optObj":{"optObj":{"optObj":{}}}}}"""
+    }
+  }
+
 }
 
 case class Eith(x: Either[String, Int])
@@ -173,3 +224,5 @@ case class SingleValue[A](value: A) extends SingleOrVector[A]
 case class VectorValue[A](value: IndexedSeq[A]) extends SingleOrVector[A]
 
 case class MapHolder(a: Map[String, SingleOrVector[Double]])
+
+case class OptionalFields(optString: Option[String], optInt: Option[Int], optDouble: Option[Double], optObj: Option[OptionalFields])

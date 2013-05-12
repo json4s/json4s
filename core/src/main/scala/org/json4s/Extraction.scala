@@ -71,10 +71,11 @@ object Extraction {
     def prependTypeHint(clazz: Class[_], o: JObject) =
       JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
 
-    def addField(name: String, v: Any, obj: JsonWriter[T]) = {
-      val f = obj.startField(name)
-      decomposeWithBuilder(v, f)
-    }
+    def addField(name: String, v: Any, obj: JsonWriter[T]) = 
+      if (v != None) {
+        val f = obj.startField(name)
+        decomposeWithBuilder(v, f)
+      }
 
     val serializer = formats.typeHints.serialize
     val any = a.asInstanceOf[AnyRef]
