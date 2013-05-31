@@ -8,7 +8,7 @@ package object jackson {
   def parseJsonOpt(in: JsonInput, useBigDecimalForDouble: Boolean = false): Option[JValue] =
     JsonMethods.parseOpt(in, useBigDecimalForDouble)
 
-  def renderJValue(value: JValue): JValue = JsonMethods.render(value)
+  def renderJValue(value: JValue)(implicit formats: Formats = DefaultFormats): JValue = JsonMethods.render(value)
   def compactJson(d: JValue): String = JsonMethods.compact(d)
   def prettyJson(d: JValue): String = JsonMethods.pretty(d)
 }
