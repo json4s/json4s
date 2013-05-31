@@ -3,7 +3,6 @@ package jackson
 
 import scala.reflect.Manifest
 import java.io.OutputStream
-import prefs.EmptyValueStrategy
 
 /**
  * Functions to serialize and deserialize a case class.
@@ -21,31 +20,31 @@ object Serialization extends Serialization {
   /**
    * Serialize to String.
    */
-  def write[A <: AnyRef](a: A)(implicit formats: Formats, emptyStrategy: EmptyValueStrategy): String =
+  def write[A <: AnyRef](a: A)(implicit formats: Formats): String =
     JsonMethods.mapper.writeValueAsString(Extraction.decompose(a))
 
   /**
    * Serialize to Writer.
    */
-  def write[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats, emptyStrategy: EmptyValueStrategy): W = {
+  def write[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
     JsonMethods.mapper.writeValue(out, Extraction.decompose(a))
     out
   }
 
-  def write[A <: AnyRef](a: A, out: OutputStream)(implicit formats: Formats, emptyStrategy: EmptyValueStrategy) {
+  def write[A <: AnyRef](a: A, out: OutputStream)(implicit formats: Formats) {
     JsonMethods.mapper.writeValue(out, Extraction.decompose(a))
   }
 
   /**
    * Serialize to String (pretty format).
    */
-  def writePretty[A <: AnyRef](a: A)(implicit formats: Formats, emptyStrategy: EmptyValueStrategy): String =
+  def writePretty[A <: AnyRef](a: A)(implicit formats: Formats): String =
     JsonMethods.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(Extraction.decompose(a))
 
   /**
    * Serialize to Writer (pretty format).
    */
-  def writePretty[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats, emptyStrategy: EmptyValueStrategy): W = {
+  def writePretty[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
     JsonMethods.mapper.writerWithDefaultPrettyPrinter.writeValue(out, Extraction.decompose(a))
     out
   }

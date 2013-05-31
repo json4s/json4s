@@ -19,7 +19,6 @@ package native
 
 import scala.reflect.Manifest
 import java.io.BufferedWriter
-import prefs.EmptyValueStrategy
 
 /**
  * Functions to serialize and deserialize a case class.
@@ -37,27 +36,27 @@ object Serialization extends Serialization {
   /**
    * Serialize to String.
    */
-  def write[A <: AnyRef](a: A)(implicit formats: Formats, emptyStrategy: EmptyValueStrategy): String = {
+  def write[A <: AnyRef](a: A)(implicit formats: Formats): String = {
     (write(a, new StringWriter)).toString
   }
 
   /**
    * Serialize to Writer.
    */
-  def write[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats, emptyStrategy: EmptyValueStrategy): W = {
+  def write[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
     Extraction.decomposeWithBuilder(a, JsonWriter.streaming(out))
   }
 
   /**
    * Serialize to String (pretty format).
    */
-  def writePretty[A <: AnyRef](a: A)(implicit formats: Formats, emptyStrategy: EmptyValueStrategy): String =
+  def writePretty[A <: AnyRef](a: A)(implicit formats: Formats): String =
     (writePretty(a, new StringWriter)).toString
 
   /**
    * Serialize to Writer (pretty format).
    */
-  def writePretty[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats, emptyStrategy: EmptyValueStrategy): W = {
+  def writePretty[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
     Extraction.decomposeWithBuilder(a, JsonWriter.streamingPretty(out))
   }
 

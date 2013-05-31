@@ -30,8 +30,8 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
     parse(in, useBigDecimalForDouble)
   }
 
-  def render(value: JValue)(implicit emptyStrategy: EmptyValueStrategy = EmptyValueStrategy.default): JValue =
-    emptyStrategy(value)
+  def render(value: JValue)(implicit formats: Formats = DefaultFormats): JValue =
+    formats.emptyValueStrategy.replaceEmpty(value)
 
   def compact(d: JValue): String = mapper.writeValueAsString(d)
 

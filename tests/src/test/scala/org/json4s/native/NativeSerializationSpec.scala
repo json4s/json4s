@@ -5,6 +5,6 @@ object NativeSerializationSpec extends SerializationSpec {
 
   val serialization = Serialization
 
-  implicit val formats = Serialization.formats(NoTypeHints)
+  val baseFormats = Serialization.formats(NoTypeHints)
 
 }

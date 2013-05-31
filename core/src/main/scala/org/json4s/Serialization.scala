@@ -8,22 +8,22 @@ trait Serialization {
   /**
    * Serialize to String.
    */
-  def write[A <: AnyRef](a: A)(implicit formats: Formats, emptyStrategy: EmptyValueStrategy): String
+  def write[A <: AnyRef](a: A)(implicit formats: Formats): String
 
   /**
    * Serialize to Writer.
    */
-  def write[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats, emptyStrategy: EmptyValueStrategy): W
+  def write[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W
 
   /**
    * Serialize to String (pretty format).
    */
-  def writePretty[A <: AnyRef](a: A)(implicit formats: Formats, emptyStrategy: EmptyValueStrategy): String
+  def writePretty[A <: AnyRef](a: A)(implicit formats: Formats): String
 
   /**
    * Serialize to Writer (pretty format).
    */
-  def writePretty[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats, emptyStrategy: EmptyValueStrategy): W
+  def writePretty[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W
 
   /**
    * Deserialize from a String.
@@ -53,5 +53,6 @@ trait Serialization {
   def formats(hints: TypeHints) = new Formats {
     val dateFormat = DefaultFormats.lossless.dateFormat
     override val typeHints = hints
+    override val emptyValueStrategy = EmptyValueStrategy.default
   }
 }

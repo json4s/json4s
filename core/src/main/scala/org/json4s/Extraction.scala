@@ -68,13 +68,13 @@ object Extraction {
    * Extraction.decompose(Person("joe", 25)) == JObject(JField("age",JInt(25)) :: JField("name",JString("joe")) :: Nil)
    * </pre>
    */
-  def decomposeWithBuilder[T](a: Any, builder: JsonWriter[T])(implicit formats: Formats, emptyValStrategy: EmptyValueStrategy = EmptyValueStrategy.default): T = {
+  def decomposeWithBuilder[T](a: Any, builder: JsonWriter[T])(implicit formats: Formats): T = {
     val current = builder
     def prependTypeHint(clazz: Class[_], o: JObject) =
       JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
 
     def addField(name: String, v: Any, obj: JsonWriter[T]): Any = v match {
-      case None => emptyValStrategy.noneValReplacement map (decomposeWithBuilder(_, obj.startField(name)))
+      case None => formats.emptyValueStrategy.noneValReplacement map (decomposeWithBuilder(_, obj.startField(name)))
       case _ => decomposeWithBuilder(v, obj.startField(name))
     }
 
@@ -162,7 +162,7 @@ object Extraction {
    * Extraction.decompose(Person("joe", 25)) == JObject(JField("age",JInt(25)) :: JField("name",JString("joe")) :: Nil)
    * </pre>
    */
-  def decompose(a: Any)(implicit formats: Formats, emptyValStrategy: EmptyValueStrategy = EmptyValueStrategy.default): JValue =
+  def decompose(a: Any)(implicit formats: Formats): JValue =
     decomposeWithBuilder(a, if (formats.wantsBigDecimal) JsonWriter.bigDecimalAst else JsonWriter.ast)
 
   private[this] def writePrimitive(a: Any, builder: JsonWriter[_])(implicit formats: Formats) = a match {

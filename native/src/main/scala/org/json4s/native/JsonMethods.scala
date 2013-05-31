@@ -31,8 +31,8 @@ trait JsonMethods extends org.json4s.JsonMethods[Document] {
    * @see Printer#compact
    * @see Printer#pretty
    */
-  def render(value: JValue)(implicit emptyValStrategy: EmptyValueStrategy = EmptyValueStrategy.default): Document =
-    emptyValStrategy(value) match {
+  def render(value: JValue)(implicit formats: Formats = DefaultFormats): Document =
+    formats.emptyValueStrategy.replaceEmpty(value) match {
       case null => text("null")
       case JBool(true) => text("true")
       case JBool(false) => text("false")

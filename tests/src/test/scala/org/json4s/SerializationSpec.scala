@@ -8,9 +8,11 @@ trait SerializationSpec extends Specification {
 
   val serialization: org.json4s.Serialization
 
-  implicit val formats: Formats
+  val baseFormats: Formats
 
   "Serialization of case class with many Option[T] fields" should {
+
+    implicit val formats = baseFormats.skippingEmptyValues
 
     "produce valid JSON without empty fields" in {
       "from case class with all fields empty" in {
@@ -63,7 +65,7 @@ trait SerializationSpec extends Specification {
     }
 
     "produce valid JSON with preserved empty fields" in {
-      implicit val emptyStrategy = org.json4s.prefs.EmptyValueStrategy.Preserve.preserve
+      implicit val formats = baseFormats.preservingEmptyValues
 
       "from case class with all fields empty" in {
         val optFields = OptionalFields(None, None, None, None)

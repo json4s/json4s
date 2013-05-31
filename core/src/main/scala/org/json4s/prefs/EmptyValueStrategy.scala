@@ -13,35 +13,31 @@ object EmptyValueStrategy {
   /**
    * Skip empty fields/sequence items by default.
    */
-  implicit val default = Skip.skip
+  def default = skip
 
   /**
    * Skip empty fields and sequence items.
    */
-  object Skip {
-    implicit val skip = new EmptyValueStrategy {
-      def noneValReplacement = None
+  val skip = new EmptyValueStrategy {
+    def noneValReplacement = None
 
-      def apply(value: JValue) = value
-    }
+    def replaceEmpty(value: JValue) = value
   }
 
   /**
    * Preserve empty fields and sequence items as "null".
    */
-  object Preserve {
-    implicit val preserve = new EmptyValueStrategy {
+  val preserve = new EmptyValueStrategy {
 
-      def noneValReplacement = Some(JNull)
+    def noneValReplacement = Some(JNull)
 
-      def apply(value: JValue): JValue = value match {
-        case JArray(items) => JArray(items map apply)
-        case JObject(fields) => JObject(fields map {
-          case JField(name, value) => JField(name, apply(value))
-        })
-        case JNothing => JNull
-        case oth => oth
-      }
+    def replaceEmpty(value: JValue): JValue = value match {
+      case JArray(items) => JArray(items map replaceEmpty)
+      case JObject(fields) => JObject(fields map {
+        case JField(name, value) => JField(name, replaceEmpty(value))
+      })
+      case JNothing => JNull
+      case oth => oth
     }
   }
 
@@ -54,6 +50,6 @@ trait EmptyValueStrategy {
 
   def noneValReplacement: Option[AnyRef]
 
-  def apply(elem: JValue): JValue
+  def replaceEmpty(elem: JValue): JValue
 
 }

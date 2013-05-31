@@ -5,6 +5,6 @@ object JacksonSerializationSpec extends SerializationSpec {
 
   val serialization = org.json4s.jackson.Serialization
 
-  implicit val formats = org.json4s.jackson.Serialization.formats(NoTypeHints)
+  val baseFormats = org.json4s.jackson.Serialization.formats(NoTypeHints)
 
 }

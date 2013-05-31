@@ -7,13 +7,13 @@ object EmptyValueTreatmentExamples {
 
   import JsonDSL._
 
-  private val weekPlans = Seq(Some("event for monday"), None, None, None, Some("friday boogie night!"), Some("uh, headaches.."), Some("sunday layziness"))
+  private[examples] val weekPlans = Seq(Some("event for monday"), None, None, None, Some("friday boogie night!"), Some("uh, headaches.."), Some("sunday's layziness"))
 
-  private val eventAsMap = Map(
+  private[examples] val eventAsMap = Map(
     ("eventType" -> Some("event")),
     ("duration" -> None))
 
-  private val eventAsCaseClass = EventAsCaseClass("dinner")
+  private[examples] val eventAsCaseClass = EventAsCaseClass("dinner")
 
   def main(args: Array[String]) {
     jacksonWaySkippingNulls
@@ -26,19 +26,17 @@ object EmptyValueTreatmentExamples {
     import jackson.JsonMethods._
     import jackson.Serialization._
 
-    // this import is optional, as long as default strategy points to Skip
-    import prefs.EmptyValueStrategy.Skip._
-    implicit val formats = jackson.Serialization.formats(NoTypeHints)
+    implicit val formats = jackson.Serialization.formats(NoTypeHints).skippingEmptyValues
 
     // perform the show
     println("\n\n### Jackson way, skipping nulls ###")
-    println("\nserializing " + weekPlans)
+    println("\n- serializing " + weekPlans)
     println("\t" + compact(render(weekPlans))) // = ["event for monday","friday boogie night!","uh, headaches..","sunday layziness"]
 
-    println("\nserializing " + eventAsMap)
+    println("\n- serializing " + eventAsMap)
     println("\t" + compact(render(eventAsMap))) // = {"eventType":"event"}
 
-    println("\nserializing " + eventAsCaseClass)
+    println("\n- serializing " + eventAsCaseClass)
     println("\t" + write(eventAsCaseClass)) // = {"eventType":"dinner"}
   }
 
@@ -46,18 +44,17 @@ object EmptyValueTreatmentExamples {
     import jackson.JsonMethods._
     import jackson.Serialization._
 
-    import prefs.EmptyValueStrategy.Preserve._
-    implicit val formats = jackson.Serialization.formats(NoTypeHints)
+    implicit val formats = jackson.Serialization.formats(NoTypeHints).preservingEmptyValues
 
     // perform the show
     println("\n\n### Jackson way, preserving nulls ###")
-    println("\nserializing " + weekPlans)
+    println("\n- serializing " + weekPlans)
     println("\t" + compact(render(weekPlans))) // = ["event for monday",null,null,null,"friday boogie night!","uh, headaches..","sunday layziness"]
 
-    println("\nserializing " + eventAsMap)
+    println("\n- serializing " + eventAsMap)
     println("\t" + compact(render(eventAsMap))) // = {"eventType":"event","duration":null}
 
-    println("\nserializing " + eventAsCaseClass)
+    println("\n- serializing " + eventAsCaseClass)
     println("\t" + write(eventAsCaseClass)) // = {"eventType":"dinner","duration":null}
   }
 
@@ -65,19 +62,17 @@ object EmptyValueTreatmentExamples {
     import native.JsonMethods._
     import native.Serialization._
 
-    // this import is optional, as long as default strategy points to Skip
-    import prefs.EmptyValueStrategy.Skip._
-    implicit val formats = native.Serialization.formats(NoTypeHints)
+    implicit val formats = native.Serialization.formats(NoTypeHints).skippingEmptyValues
 
     // perform the show
     println("\n\n### Native way, skipping nulls ###")
-    println("\nserializing " + weekPlans)
+    println("\n- serializing " + weekPlans)
     println("\t" + compact(render(weekPlans))) // = ["event for monday","friday boogie night!","uh, headaches..","sunday layziness"]
 
-    println("\nserializing " + eventAsMap)
+    println("\n- serializing " + eventAsMap)
     println("\t" + compact(render(eventAsMap))) // = {"eventType":"event"}
 
-    println("\nserializing " + eventAsCaseClass)
+    println("\n- serializing " + eventAsCaseClass)
     println("\t" + write(eventAsCaseClass)) // = {"eventType":"dinner"}
   }
 
@@ -85,18 +80,17 @@ object EmptyValueTreatmentExamples {
     import native.JsonMethods._
     import native.Serialization._
 
-    import prefs.EmptyValueStrategy.Preserve._
-    implicit val formats = native.Serialization.formats(NoTypeHints)
+    implicit val formats = native.Serialization.formats(NoTypeHints).preservingEmptyValues
 
     // perform the show
-    println("\n\n### Native way, preserving nulls ###\n")
-    println("\nserializing " + weekPlans)
+    println("\n\n### Native way, preserving nulls ###")
+    println("\n- serializing " + weekPlans)
     println("\t" + compact(render(weekPlans))) // = ["event for monday",null,null,null,"friday boogie night!","uh, headaches..","sunday layziness"]
 
-    println("\nserializing " + eventAsMap)
+    println("\n- serializing " + eventAsMap)
     println("\t" + compact(render(eventAsMap))) // = {"eventType":"event","duration":null}
 
-    println("\nserializing " + eventAsCaseClass)
+    println("\n- serializing " + eventAsCaseClass)
     println("\t" + write(eventAsCaseClass)) // = {"eventType":"dinner","duration":null}
   }
 
