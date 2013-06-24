@@ -139,6 +139,7 @@ class ScalaType(private val manifest: Manifest[_]) extends Equals {
   def isMap = classOf[Map[_, _]].isAssignableFrom(erasure)
   def isCollection = erasure.isArray || classOf[Iterable[_]].isAssignableFrom(erasure) || classOf[java.util.Collection[_]].isAssignableFrom(erasure)
   def isOption = classOf[Option[_]].isAssignableFrom(erasure)
+  def isEither = classOf[Either[_, _]].isAssignableFrom(erasure)
   def <:<(that: ScalaType): Boolean = manifest <:< that.manifest
   def >:>(that: ScalaType): Boolean = manifest >:> that.manifest
 
