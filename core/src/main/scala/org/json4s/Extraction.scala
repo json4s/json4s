@@ -118,6 +118,13 @@ object Extraction {
         if (v.isDefined) {
           decomposeWithBuilder(v.get, current)
         }
+      } else if (classOf[Either[_, _]].isAssignableFrom(k)) {
+        val v = any.asInstanceOf[Either[_, _]]
+        if (v.isLeft) {
+          decomposeWithBuilder(v.left.get, current)
+        } else {
+          decomposeWithBuilder(v.right.get, current)
+        }
       } else {
         val klass = Reflector.scalaTypeOf(k)
         val descriptor = Reflector.describe(klass).asInstanceOf[reflect.ClassDescriptor]
@@ -267,7 +274,16 @@ object Extraction {
   }
 
   def extract(json: JValue, scalaType: ScalaType)(implicit formats: Formats): Any = {
-    if (scalaType.isOption) {
+    if (scalaType.isEither) {
+      import scala.util.Try
+      Try {
+        Left(extract(json, scalaType.typeArgs(0)))
+      } orElse Try {
+        Right(extract(json, scalaType.typeArgs(1)))
+      } recover {
+        case e: Exception => fail("Expected value but got " + json)
+      } get
+    } else if (scalaType.isOption) {
       customOrElse(scalaType, json)(_.toOption flatMap (j => Option(extract(j, scalaType.typeArgs.head))))
     } else if (scalaType.isMap) {
       val ta = scalaType.typeArgs(1)
