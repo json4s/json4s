@@ -65,4 +65,3 @@ abstract class EitherTest[T](mod: String) extends Specification with JsonMethods
     }
   }
 }
-

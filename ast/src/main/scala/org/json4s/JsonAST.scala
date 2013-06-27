@@ -240,7 +240,7 @@ object JsonAST {
       else if (c == '\n') appender.append("\\n")
       else if (c == '\r') appender.append("\\r")
       else if (c == '\t') appender.append("\\t")
-      else if ((c >= '\u0000' && c < '\u001f') || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100'))
+      else if ((c >= '\u0000' && c <= '\u001f') || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100'))
         appender.append("\\u%04x".format(c: Int))
       else appender.append(c.toString)
       i += 1
