@@ -189,6 +189,10 @@ object SerializationBugs extends Specification {
     }
   }
 
+  "Escapes control characters" in {
+    val ser = native.Serialization.write("\u0000\u001f")
+    ser must_== "\"\\u0000\\u001f\""
+  }
 }
 
 case class Eith(x: Either[String, Int])
