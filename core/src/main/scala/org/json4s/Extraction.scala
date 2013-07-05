@@ -64,6 +64,15 @@ object Extraction {
    * </pre>
    */
   def decomposeWithBuilder[T](a: Any, builder: JsonWriter[T])(implicit formats: Formats): T = {
+    internalDecomposeWithBuilder(a,builder)(formats)
+    builder.result
+  }
+
+  /** Decompose a case class into JSON.
+   *
+   * This is broken out to avoid calling builder.result when we return from recusion
+   */
+  def internalDecomposeWithBuilder[T](a: Any, builder: JsonWriter[T])(implicit formats: Formats):Unit = {
     val current = builder
     def prependTypeHint(clazz: Class[_], o: JObject) =
       JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
@@ -71,7 +80,7 @@ object Extraction {
     def addField(name: String, v: Any, obj: JsonWriter[T]) =
       if (v != None) {
         val f = obj.startField(name)
-        decomposeWithBuilder(v, f)
+        internalDecomposeWithBuilder(v, f)
       }
 
     val serializer = formats.typeHints.serialize
@@ -102,29 +111,29 @@ object Extraction {
       } else if (classOf[Iterable[_]].isAssignableFrom(k)) {
         val arr = current.startArray()
         val iter = any.asInstanceOf[Iterable[_]].iterator
-        while(iter.hasNext) { decomposeWithBuilder(iter.next(), arr) }
+        while(iter.hasNext) { internalDecomposeWithBuilder(iter.next(), arr) }
         arr.endArray()
       } else if (classOf[java.util.Collection[_]].isAssignableFrom(k)) {
         val arr = current.startArray()
         val iter = any.asInstanceOf[java.util.Collection[_]].iterator
-        while(iter.hasNext) { decomposeWithBuilder(iter.next(), arr) }
+        while(iter.hasNext) { internalDecomposeWithBuilder(iter.next(), arr) }
         arr.endArray()
       } else if (k.isArray) {
         val arr = current.startArray()
         val iter = any.asInstanceOf[Array[_]].iterator
-        while(iter.hasNext) { decomposeWithBuilder(iter.next(), arr) }
+        while(iter.hasNext) { internalDecomposeWithBuilder(iter.next(), arr) }
         arr.endArray()
       } else if (classOf[Option[_]].isAssignableFrom(k)) {
         val v = any.asInstanceOf[Option[_]]
         if (v.isDefined) {
-          decomposeWithBuilder(v.get, current)
+          internalDecomposeWithBuilder(v.get, current)
         }
       } else if (classOf[Either[_, _]].isAssignableFrom(k)) {
         val v = any.asInstanceOf[Either[_, _]]
         if (v.isLeft) {
-          decomposeWithBuilder(v.left.get, current)
+          internalDecomposeWithBuilder(v.left.get, current)
         } else {
-          decomposeWithBuilder(v.right.get, current)
+          internalDecomposeWithBuilder(v.right.get, current)
         }
       } else {
         val klass = Reflector.scalaTypeOf(k)
@@ -153,7 +162,6 @@ object Extraction {
         obj.endObject()
       }
     } else current addJValue prependTypeHint(any.getClass, serializer(any))
-    current.result
   }
 
   /** Decompose a case class into JSON.
