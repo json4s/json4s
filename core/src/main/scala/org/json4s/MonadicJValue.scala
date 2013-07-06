@@ -273,16 +273,17 @@ class MonadicJValue(jv: JValue) {
   def filter(p: JValue ⇒ Boolean): List[JValue] =
     fold(List[JValue]())((acc, e) ⇒ if (p(e)) e :: acc else acc).reverse
 
-//
-//  def withFilter(p: JValue => Boolean) = new JValueWithFilter(jv, p)
-//  final class JValueWithFilter(self: JValue, pred: JValue => Boolean) {
-//    def map(f: JValue => JValue): List[JValue] =
-//      fold(List.empty[JValue])((acc, e) => if (pred(e)) f(e) :: acc else acc )
-//    def flatMap(f: JValue => List[JValue]): List[JValue] =
-//      fold(List.empty[JValue])((acc, e) => if (pred(e)) f(e) ::: acc else acc )
-//    def withFilter(secondary: JValue => Boolean) = new JValueWithFilter(self, x => pred(x) && secondary(x))
-//  }
-
+  def withFilter(p: JValue => Boolean) = new JValueWithFilter(jv, p)
+  class JValueWithFilter(self: JValue, p: JValue => Boolean) {
+    def map[T](f: JValue => T): List[T] =
+      self.filter(p).map(f)
+    def flatMap[T](f: JValue => List[T]): List[T] =
+      self.filter(p).flatMap(f)
+    def foreach(f: JValue => Unit): Unit =
+      self.filter(p).foreach(f)
+    def withFilter(q: JValue => Boolean): JValueWithFilter =
+      new JValueWithFilter(self, x => p(x) && q(x))
+  }
 
   /**
    * Return a JSON where all fields matching the given predicate are removed.
