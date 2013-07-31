@@ -287,14 +287,12 @@ object Extraction {
 
   def extract(json: JValue, scalaType: ScalaType)(implicit formats: Formats): Any = {
     if (scalaType.isEither) {
-      import scala.util.Try
-      Try {
+      import scala.util.control.Exception.allCatch
+      (allCatch opt {
         Left(extract(json, scalaType.typeArgs(0)))
-      } orElse Try {
+      } orElse (allCatch opt {
         Right(extract(json, scalaType.typeArgs(1)))
-      } recover {
-        case e: Exception => fail("Expected value but got " + json)
-      } get
+      })).getOrElse(fail("Expected value but got " + json))
     } else if (scalaType.isOption) {
       customOrElse(scalaType, json)(_.toOption flatMap (j => Option(extract(j, scalaType.typeArgs.head))))
     } else if (scalaType.isMap) {
