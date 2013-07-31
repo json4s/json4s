@@ -32,9 +32,9 @@ object Dependencies {
   lazy val specs: ModuleMap      = "org.specs2" % "specs2" % specs2Version(_) % "test" cross crossMapped("2.9.0" -> "2.9.1", "2.9.0-1" -> "2.9.1")
 
   val jackson = Seq(
-      "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.2")
+      "com.fasterxml.jackson.core" % "jackson-databind" % "2.2.2")
 
-  val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.5.2"
+  val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.5.6"
 
   lazy val scalap: ModuleMap      = "org.scala-lang"             % "scalap"             % _
 
