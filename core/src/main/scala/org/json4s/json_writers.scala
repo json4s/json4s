@@ -1,6 +1,7 @@
 package org.json4s
 
 import java.io.{ StringWriter, Writer => JWriter }
+import scala.collection.mutable.ListBuffer
 
 object JsonWriter {
   def ast: JsonWriter[JValue] = new JDoubleAstRootJsonWriter
@@ -67,9 +68,9 @@ private final class JDecimalAstRootJsonWriter extends JDecimalAstJsonWriter {
   }
 }
 private final class JDoubleJObjectJsonWriter(parent: JsonWriter[JValue]) extends JsonWriter[JValue] {
-  private[this] var nodes = List.empty[JField]
+  private[this] val nodes = ListBuffer[JField]()
   def addNode(node: JField): JDoubleJObjectJsonWriter = {
-    nodes ::= node
+    nodes append node
     this
   }
   def startArray(): JsonWriter[JValue] = {
@@ -125,12 +126,12 @@ private final class JDoubleJObjectJsonWriter(parent: JsonWriter[JValue]) extends
   def addJValue(jv: _root_.org.json4s.JValue): JsonWriter[_root_.org.json4s.JValue] =
     sys.error("You have to start a field to be able to end it (addJValue called before startField in a JObject builder)")
 
-  def result: JValue = JObject(nodes.reverse)
+  def result: JValue = JObject(nodes.toList)
 }
 private final class JDecimalJObjectJsonWriter(parent: JsonWriter[JValue]) extends JsonWriter[JValue] {
-  private[this] var nodes = List.empty[JField]
+  private[this] val nodes = ListBuffer[JField]()
   def addNode(node: JField): JDecimalJObjectJsonWriter = {
-    nodes ::= node
+    nodes append node
     this
   }
   def startArray(): JsonWriter[JValue] = {
@@ -186,13 +187,13 @@ private final class JDecimalJObjectJsonWriter(parent: JsonWriter[JValue]) extend
   def addJValue(jv: _root_.org.json4s.JValue): JsonWriter[_root_.org.json4s.JValue] =
     sys.error("You have to start a field to be able to end it (addJValue called before startField in a JObject builder)")
 
-  def result: JValue = JObject(nodes.reverse)
+  def result: JValue = JObject(nodes.toList:_*)
 }
 
 private final class JDoubleJArrayJsonWriter(parent: JsonWriter[JValue]) extends JDoubleAstJsonWriter {
-  private[this] var nodes = List.empty[JValue]
+  private[this] val nodes = ListBuffer[JValue]()
   def addNode(node: JValue): JsonWriter[JValue] = {
-    nodes ::= node
+    nodes append node
     this
   }
 
@@ -203,13 +204,13 @@ private final class JDoubleJArrayJsonWriter(parent: JsonWriter[JValue]) extends 
     }
   }
 
-  def result: JValue = JArray(nodes.reverse)
+  def result: JValue = JArray(nodes.toList)
 }
 
 private final class JDecimalJArrayJsonWriter(parent: JsonWriter[JValue]) extends JDecimalAstJsonWriter {
-  private[this] var nodes = List.empty[JValue]
+  private[this] val nodes = ListBuffer[JValue]()
   def addNode(node: JValue): JsonWriter[JValue] = {
-    nodes ::= node
+    nodes append node
     this
   }
 
@@ -220,7 +221,7 @@ private final class JDecimalJArrayJsonWriter(parent: JsonWriter[JValue]) extends
     }
   }
 
-  def result: JValue = JArray(nodes.reverse)
+  def result: JValue = JArray(nodes.toList)
 }
 private sealed trait JValueJsonWriter extends JsonWriter[JValue] {
   
