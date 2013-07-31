@@ -14,7 +14,7 @@ object Dependencies {
 
   /* stop stealing */
 
-  lazy val scalaz_core = "org.scalaz" %% "scalaz-core" % "7.0.0-M9"
+  lazy val scalaz_core = "org.scalaz" %% "scalaz-core" % "7.0.2"
 
   val jodaTime = Seq("joda-time" % "joda-time" % "2.1", "org.joda" % "joda-convert" % "1.2")
 
@@ -23,9 +23,9 @@ object Dependencies {
   lazy val specs = "org.specs2" %% "specs2"      % "1.14"  % "test"
 
   val jackson = Seq(
-      "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.2")
+      "com.fasterxml.jackson.core" % "jackson-databind" % "2.2.2")
 
-  val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.5.2"
+  val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.5.6"
 
   lazy val scalap: ModuleMap      = "org.scala-lang"             % "scalap"             % _
 

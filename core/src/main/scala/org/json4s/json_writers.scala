@@ -187,7 +187,7 @@ private final class JDecimalJObjectJsonWriter(parent: JsonWriter[JValue]) extend
   def addJValue(jv: _root_.org.json4s.JValue): JsonWriter[_root_.org.json4s.JValue] =
     sys.error("You have to start a field to be able to end it (addJValue called before startField in a JObject builder)")
 
-  def result: JValue = JObject(nodes.toList)
+  def result: JValue = JObject(nodes.toList:_*)
 }
 
 private final class JDoubleJArrayJsonWriter(parent: JsonWriter[JValue]) extends JDoubleAstJsonWriter {
