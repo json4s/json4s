@@ -402,7 +402,10 @@ Please see more examples in [JsonQueryExamples.scala](https://github.com/json4s/
              }
            """)
 
-    scala> for { JField("age", JInt(age)) <- json } yield age
+    scala> for {
+             JObject(child) <- json
+             JField("age", JInt(age))  <- child
+           } yield age
     res0: List[BigInt] = List(5, 3)
 
     scala> for {
