@@ -410,7 +410,7 @@ object Extraction {
           else x
         } catch {
           case e @ MappingException(msg, _) =>
-            if (descr.isOptional) defv(None) else fail("No usable value for " + descr.name + "\n" + msg, e)
+            if (descr.isOptional  && !formats.strict) defv(None) else fail("No usable value for " + descr.name + "\n" + msg, e)
         }
       }
     }
