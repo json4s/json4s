@@ -47,6 +47,7 @@ trait Formats { self: Formats =>
   def wantsBigDecimal: Boolean = false
   def primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
   def companions: List[(Class[_], AnyRef)] = Nil
+  def strict: Boolean = false 
 
   /**
    * The name of the field in JSON where type hints are added (jsonClass by default)
@@ -68,6 +69,7 @@ trait Formats { self: Formats =>
     override val wantsBigDecimal: Boolean = true
     override val primitives: Set[Type] = self.primitives
     override val companions: List[(Class[_], AnyRef)] = self.companions
+    override val strict: Boolean = self.strict
   }
 
   def withDouble: Formats = new Formats {
@@ -80,6 +82,7 @@ trait Formats { self: Formats =>
     override val wantsBigDecimal: Boolean = false
     override val primitives: Set[Type] = self.primitives
     override val companions: List[(Class[_], AnyRef)] = self.companions
+    override val strict: Boolean = self.strict
   }
 
   def withCompanions(comps: (Class[_], AnyRef)*): Formats = {
@@ -93,6 +96,7 @@ trait Formats { self: Formats =>
       override val wantsBigDecimal: Boolean = self.wantsBigDecimal
       override val primitives: Set[Type] = self.primitives
       override val companions: List[(Class[_], AnyRef)] = comps.toList ::: self.companions
+      override val strict: Boolean = self.strict
     }
   }
 
@@ -109,6 +113,8 @@ trait Formats { self: Formats =>
     override val wantsBigDecimal: Boolean = self.wantsBigDecimal
     override val primitives: Set[Type] = self.primitives
     override val companions: List[(Class[_], AnyRef)] = self.companions
+    override val strict: Boolean = self.strict
+
   }
 
   /**
@@ -124,6 +130,7 @@ trait Formats { self: Formats =>
     override val wantsBigDecimal: Boolean = self.wantsBigDecimal
     override val primitives: Set[Type] = self.primitives
     override val companions: List[(Class[_], AnyRef)] = self.companions
+    override val strict: Boolean = self.strict
   }
 
   /**
@@ -146,6 +153,7 @@ trait Formats { self: Formats =>
     override val wantsBigDecimal: Boolean = self.wantsBigDecimal
     override val primitives: Set[Type] = self.primitives
     override val companions: List[(Class[_], AnyRef)] = self.companions
+    override val strict: Boolean = self.strict
   }
 
   private[json4s] def fieldSerializer(clazz: Class[_]): Option[FieldSerializer[_]] = {
@@ -315,6 +323,7 @@ trait Formats { self: Formats =>
     override val wantsBigDecimal: Boolean = false
     override val primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
     override val companions: List[(Class[_], AnyRef)] = Nil
+    override val strict: Boolean = false
 
     val dateFormat: DateFormat = new DateFormat {
       def parse(s: String) = try {
