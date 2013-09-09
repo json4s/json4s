@@ -67,7 +67,7 @@ composition >=>.
       if (y > x) Fail("max", y + " > " + x) else y.success
 
     // Creates a function JValue => Result[Person]
-    Person.applyJSON(field("name"), validate[Int]("age") >=> min(18) >=> max(60))
+    Person.applyJSON(field[String]("name"), validate[Int]("age") >==> min(18) >==> max(60))
 
 Installation
 ------------
