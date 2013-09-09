@@ -67,7 +67,10 @@ trait Types {
     case x => UnexpectedJSONError(x, classOf[JObject]).failureNel
   }
 
-  def validate[A <: JValue : JSONR](name: String): Kleisli[Result, JValue, A] = Kleisli.kleisli(field[A](name))
+  type EitherNel[+a] = NonEmptyList[Error] \/ a
+  def validate[A: JSONR](name: String) = Kleisli(field[A](name)).mapK[EitherNel, A](_.disjunction)
+  implicit def function2EitherNel[A](f: A => Result[A]): (A => EitherNel[A]) = (a: A) => f(a).disjunction
+  implicit def kleisli2Result[A](v: Kleisli[EitherNel, JValue, A]): JValue => Result[A] = (v.run _).andThen(_.validation)
 
   def makeObj(fields: Traversable[(String, JValue)]): JObject = 
     JObject(fields.toList.map { case (n, v) => JField(n, v) })
