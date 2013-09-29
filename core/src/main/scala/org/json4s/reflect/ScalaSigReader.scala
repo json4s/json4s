@@ -30,7 +30,7 @@ object ScalaSigReader {
 
   def readField(name: String, clazz: Class[_], typeArgIndex: Int): Class[_] = {
     def read(current: Class[_]): MethodSymbol = {
-      if (current == null) 
+      if (current == null)
         fail("Can't find field " + name + " from " + clazz)
       else
         findField(findClass(current), name).getOrElse(read(current.getSuperclass))
@@ -44,11 +44,13 @@ object ScalaSigReader {
   }
 
   def findClass(sig: ScalaSig, clazz: Class[_]): Option[ClassSymbol] = {
-    sig.symbols.collect { case c: ClassSymbol if !c.isModule => c }.find(_.name == clazz.getSimpleName).orElse {
-      sig.topLevelClasses.find(_.symbolInfo.name == clazz.getSimpleName).orElse {
-        sig.topLevelObjects.map { obj => 
+    val name = safeSimpleName(clazz)
+
+    sig.symbols.collect { case c: ClassSymbol if !c.isModule => c }.find(_.name == name).orElse {
+      sig.topLevelClasses.find(_.symbolInfo.name == name).orElse {
+        sig.topLevelObjects.map { obj =>
           val t = obj.infoType.asInstanceOf[TypeRefType]
-          t.symbol.children collect { case c: ClassSymbol => c } find(_.symbolInfo.name == clazz.getSimpleName) 
+          t.symbol.children collect { case c: ClassSymbol => c } find(_.symbolInfo.name == name)
         }.head
       }
     }
@@ -68,7 +70,7 @@ object ScalaSigReader {
       case m: MethodSymbol if m.infoType.isInstanceOf[NullaryMethodType] && !m.isSynthetic => m
     }
 
-  private def findField(c: ClassSymbol, name: String): Option[MethodSymbol] = 
+  private def findField(c: ClassSymbol, name: String): Option[MethodSymbol] =
     (c.children collect { case m: MethodSymbol if m.name == name => m }).headOption
 
   def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndex: Int): Class[_] = {

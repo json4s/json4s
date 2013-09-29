@@ -115,8 +115,9 @@ class ScalaType(private val manifest: Manifest[_]) extends Equals {
 
   private[this] var _rawSimpleName: String = null
   def rawSimpleName: String = {
-    if (_rawSimpleName == null)
-      _rawSimpleName = erasure.getSimpleName
+    if (_rawSimpleName == null) {
+      _rawSimpleName = safeSimpleName(erasure)
+    }
     _rawSimpleName
   }
 
