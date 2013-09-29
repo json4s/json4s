@@ -193,6 +193,11 @@ object SerializationBugs extends Specification {
     val ser = native.Serialization.write("\u0000\u001f")
     ser must_== "\"\\u0000\\u001f\""
   }
+
+  "classes in deeply nested objects can be serialized" in {
+    val ser = swrite(Zot.Bar.Foo("s"))
+    read[Zot.Bar.Foo](ser).s must_== "s"
+  }
 }
 
 case class Eith(x: Either[String, Int])
@@ -230,3 +235,10 @@ case class VectorValue[A](value: IndexedSeq[A]) extends SingleOrVector[A]
 case class MapHolder(a: Map[String, SingleOrVector[Double]])
 
 case class OptionalFields(optString: Option[String], optInt: Option[Int], optDouble: Option[Double], optObj: Option[OptionalFields])
+
+object Zot {
+  object Bar {
+    case class Foo(s: String)
+  }
+}
+

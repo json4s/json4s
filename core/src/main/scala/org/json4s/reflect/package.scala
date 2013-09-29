@@ -9,6 +9,26 @@ import java.sql.Timestamp
 
 package object reflect {
 
+  def safeSimpleName(clazz: Class[_]) =
+    try {
+      clazz.getSimpleName
+    } catch {
+      case t: Throwable =>
+        val packageNameLen = Some(clazz.getPackage) map (_.getName.length + 1) getOrElse 0
+        stripDollar(clazz.getName.substring(packageNameLen))
+    }
+
+  def stripDollar(name: String): String = {
+    val index = name.lastIndexOf('$')
+    if (index == -1) {
+      name
+    } else if (index == name.length - 1) {
+      stripDollar(name.substring(0, index))
+    } else {
+      name.substring(index + 1)
+    }
+  }
+
   private[reflect] class Memo[A, R] {
     private[this] val cache = new ConcurrentHashMap[A, R](1500, 1, 1)
 
