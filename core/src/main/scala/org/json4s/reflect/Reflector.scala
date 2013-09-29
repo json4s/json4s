@@ -126,7 +126,7 @@ object Reflector {
             companion = mapping map { o =>
               val inst = o.getClass.getMethod(tpe.simpleName).invoke(o)
               val kl = inst.getClass
-              SingletonDescriptor(kl.getSimpleName, kl.getName, scalaTypeOf(kl), inst, Seq.empty)
+              SingletonDescriptor(safeSimpleName(kl), kl.getName, scalaTypeOf(kl), inst, Seq.empty)
             }
 
             val default = mapping.map(() => _)
@@ -135,7 +135,8 @@ object Reflector {
           case (paramName, index) =>
             if (companion.isEmpty && !triedCompanion) {
               companion = (ScalaSigReader.companions(tpe.rawFullName) collect {
-                case (kl, Some(cOpt)) => SingletonDescriptor(kl.getSimpleName, kl.getName, scalaTypeOf(kl), cOpt, Seq.empty)
+                case (kl, Some(cOpt)) => SingletonDescriptor(safeSimpleName(kl),
+                                                             kl.getName, scalaTypeOf(kl), cOpt, Seq.empty)
               })
               triedCompanion = true
             }
