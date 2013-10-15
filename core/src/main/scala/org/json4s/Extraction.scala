@@ -430,7 +430,6 @@ object Extraction {
         setFields(instance.asInstanceOf[AnyRef])
       } catch {
         case e @ (_:IllegalArgumentException | _:InstantiationException) =>
-          e.printStackTrace
           fail("Parsed JSON values do not match with class constructor\nargs=" +
                args.mkString(",") + "\narg types=" + args.map(a => if (a != null)
                  a.asInstanceOf[AnyRef].getClass.getName else "null").mkString(",") +
