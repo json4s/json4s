@@ -195,9 +195,11 @@ object JsonAST {
     def values = obj.map { case (n, v) ⇒ (n, v.values) } toMap
 
     override def equals(that: Any): Boolean = that match {
-      case o: JObject ⇒ Set(obj.toArray: _*) == Set(o.obj.toArray: _*)
+      case o: JObject ⇒ obj.toSet == o.obj.toSet
       case _ ⇒ false
     }
+
+    override def hashCode = obj.toSet[JField].hashCode
   }
   case object JObject {
     def apply(fs: JField*): JObject = JObject(fs.toList)
