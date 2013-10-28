@@ -9,7 +9,6 @@ object FieldSerializerBugs extends Specification {
 
   implicit val formats = DefaultFormats + FieldSerializer[AnyRef]()
 
-/* FIXME: For some reason this fails on CI
   "AtomicInteger should not cause stack overflow" in {
     import java.util.concurrent.atomic.AtomicInteger
 
@@ -17,7 +16,11 @@ object FieldSerializerBugs extends Specification {
     val atomic = read[AtomicInteger](ser)
     atomic.get must_== 1
   }
-  */
+
+  "Serializing a singleton object should not cause stack overflow" in {
+    swrite(SingletonObject)
+    ()
+  }
 
   "Name with symbols is correctly serialized" in {
     implicit val formats = DefaultFormats + FieldSerializer[AnyRef]()
@@ -53,6 +56,8 @@ object FieldSerializerBugs extends Specification {
 
   case class Type1(num: Int)
   case class Type2(num: Int)
+
+  object SingletonObject
 }
 
 
