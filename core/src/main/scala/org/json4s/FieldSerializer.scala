@@ -13,10 +13,10 @@ package org.json4s
  * )
  * </pre>
  */
-case class FieldSerializer[A: Manifest](
+case class FieldSerializer[A](
   serializer:   PartialFunction[(String, Any), Option[(String, Any)]] = Map(),
   deserializer: PartialFunction[JField, JField] = Map()
-)
+)(implicit val mf: Manifest[A])
 
 object FieldSerializer {
   def renameFrom(name: String, newName: String): PartialFunction[JField, JField] = {
