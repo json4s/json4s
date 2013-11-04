@@ -59,7 +59,7 @@ object Reflector {
       val ls = allCatch.withApply(_ => fail("Case classes defined in function bodies are not supported.")) { clazz.getDeclaredFields.toIterator }
       while (ls.hasNext) {
         val f = ls.next()
-        if (!Modifier.isStatic(f.getModifiers) || !Modifier.isTransient(f.getModifiers) || !Modifier.isPrivate(f.getModifiers)) {
+        if (!Modifier.isStatic(f.getModifiers) && !Modifier.isTransient(f.getModifiers)) {
           val st = ScalaType(f.getType, f.getGenericType match {
             case p: ParameterizedType => p.getActualTypeArguments.toSeq.zipWithIndex map { case (cc, i) =>
               if (cc == classOf[java.lang.Object]) Reflector.scalaTypeOf(ScalaSigReader.readField(f.getName, clazz, i))
