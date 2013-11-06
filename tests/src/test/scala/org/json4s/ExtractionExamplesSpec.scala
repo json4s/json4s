@@ -61,6 +61,11 @@ abstract class ExtractionExamples[T](mod: String) extends Specification with Jso
                                        "address2" -> Address("Soho", "London")))
     }
 
+    "Mutable map extraction example" in {
+      val json = parse("""{ "name": "Joe" }""")
+      json.extract[scala.collection.Map[String, String]] must_== scala.collection.Map("name" -> "Joe")
+    }
+
     "Simple value extraction example" in {
       val json = parse(testJson)
       json.extract[Name] must_== Name("joe")
