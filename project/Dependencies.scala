@@ -8,7 +8,7 @@ object Dependencies {
     CrossVersion.binaryMapped(Map(mappings: _*) orElse { case v => v })
 
   def defaultOrMapped(default: String, alternatives: (String, String)*): String => String =
-    Map(alternatives: _*) orElse { case _ => default }
+    Map(alternatives: _*).withDefaultValue(default)
 
   type ModuleMap = String => ModuleID
 
