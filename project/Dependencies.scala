@@ -34,7 +34,7 @@ object Dependencies {
   val jackson = Seq(
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.2.2")
 
-  val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.5.6"
+  val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.6"
 
   lazy val scalap: ModuleMap      = "org.scala-lang"             % "scalap"             % _
 
