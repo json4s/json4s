@@ -39,7 +39,8 @@
         <ul></ul>
       </nav>
       <section>
-        <h1>JSON4S <a href="https://jenkins.backchat.io/job/json4s/"><img src="https://jenkins.backchat.io/job/json4s/badge/icon" alt="Build Status"></a>
+        <h1>
+<a name="json4s-" class="anchor" href="#json4s-"><span class="octicon octicon-link"></span></a>JSON4S <a href="https://jenkins.backchat.io/job/json4s/"><img src="https://jenkins.backchat.io/job/json4s/badge/icon" alt="Build Status"></a>
 </h1>
 
 <p>At this moment there are at least 6 json libraries for scala, not counting the java json libraries.
@@ -49,7 +50,8 @@ json libraries.</p>
 <p>At this moment the approach taken to working with the AST has been taken from lift-json and the native package
 is in fact lift-json but outside of the lift project.</p>
 
-<h2>Lift JSON</h2>
+<h2>
+<a name="lift-json" class="anchor" href="#lift-json"><span class="octicon octicon-link"></span></a>Lift JSON</h2>
 
 <p>This project also attempts to set lift-json free from the release schedule imposed by the lift framework.
 The Lift framework carries many dependencies and as such it's typically a blocker for many other scala projects when
@@ -58,13 +60,14 @@ a new version of scala is released.</p>
 <p>So the native package in this library is in fact verbatim lift-json in a different package name, this means that
 your import statements will change if you use this library.</p>
 
-<div class="highlight"><pre><span class="k">import</span> <span class="nn">org.json4s._</span>
+<div class="highlight highlight-scala"><pre><span class="k">import</span> <span class="nn">org.json4s._</span>
 <span class="k">import</span> <span class="nn">org.json4s.native.JsonMethods._</span>
 </pre></div>
 
 <p>After that everything works exactly the same as it would with lift-json</p>
 
-<h2>Jackson</h2>
+<h2>
+<a name="jackson" class="anchor" href="#jackson"><span class="octicon octicon-link"></span></a>Jackson</h2>
 
 <p>In addition to the native parser there is also an implementation that uses jackson for parsing to the AST.
 The jackson module includes most of the jackson-module-scala functionality and the ability to use it with the
@@ -72,18 +75,19 @@ lift-json AST.</p>
 
 <p>To use jackson instead of the native parser:</p>
 
-<div class="highlight"><pre><span class="k">import</span> <span class="nn">org.json4s._</span>
+<div class="highlight highlight-scala"><pre><span class="k">import</span> <span class="nn">org.json4s._</span>
 <span class="k">import</span> <span class="nn">org.json4s.jackson.JsonMethods._</span>
 </pre></div>
 
-<h2>Guide</h2>
+<h2>
+<a name="guide" class="anchor" href="#guide"><span class="octicon octicon-link"></span></a>Guide</h2>
 
 <p>Parsing and formatting utilities for JSON.</p>
 
 <p>A central concept in lift-json library is Json AST which models the structure of
 a JSON document as a syntax tree.</p>
 
-<div class="highlight"><pre><span class="k">sealed</span> <span class="k">abstract</span> <span class="k">class</span> <span class="nc">JValue</span>
+<div class="highlight highlight-scala"><pre><span class="k">sealed</span> <span class="k">abstract</span> <span class="k">class</span> <span class="nc">JValue</span>
 <span class="k">case</span> <span class="k">object</span> <span class="nc">JNothing</span> <span class="k">extends</span> <span class="nc">JValue</span> <span class="c1">// 'zero' for JValue</span>
 <span class="k">case</span> <span class="k">object</span> <span class="nc">JNull</span> <span class="k">extends</span> <span class="nc">JValue</span>
 <span class="k">case</span> <span class="k">class</span> <span class="nc">JString</span><span class="o">(</span><span class="n">s</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">JValue</span>
@@ -116,31 +120,34 @@ are summarized in a following picture.</p>
 <li>XML conversions</li>
 <li>Serialization</li>
 <li>Low level pull parser API</li>
-</ul><h1>Installation</h1>
+</ul><h1>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h1>
 
 <p>You can add the json4s as a dependency in following ways.
 Note, replace XXX with correct Json4s version.</p>
 
-<h3>SBT users</h3>
+<h3>
+<a name="sbt-users" class="anchor" href="#sbt-users"><span class="octicon octicon-link"></span></a>SBT users</h3>
 
 <p>For the native support add the following dependency to your project description:</p>
 
-<pre><code>val json4sNative = "org.json4s" %% "json4s-native" % "3.2.2"
+<pre><code>val json4sNative = "org.json4s" %% "json4s-native" % "3.2.6"
 </code></pre>
 
 <p>For the Jackson support add the following dependency to your project description:</p>
 
-<pre><code>val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.2"
+<pre><code>val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.6"
 </code></pre>
 
-<h3>Maven users</h3>
+<h3>
+<a name="maven-users" class="anchor" href="#maven-users"><span class="octicon octicon-link"></span></a>Maven users</h3>
 
 <p>For the native support add the following dependency to your pom:</p>
 
 <pre><code>&lt;dependency&gt;
   &lt;groupId&gt;org.json4s&lt;/groupId&gt;
   &lt;artifactId&gt;json4s-native_${scala.version}&lt;/artifactId&gt;
-  &lt;version&gt;3.2.2&lt;/version&gt;
+  &lt;version&gt;3.2.6&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -149,20 +156,22 @@ Note, replace XXX with correct Json4s version.</p>
 <pre><code>&lt;dependency&gt;
   &lt;groupId&gt;org.json4s&lt;/groupId&gt;
   &lt;artifactId&gt;json4s-jackson_${scala.version}&lt;/artifactId&gt;
-  &lt;version&gt;3.2.2&lt;/version&gt;
+  &lt;version&gt;3.2.6&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
-<h3>Others</h3>
+<h3>
+<a name="others" class="anchor" href="#others"><span class="octicon octicon-link"></span></a>Others</h3>
 
 <p>Download following jars:</p>
 
 <ul>
-<li><a href="http://repo1.maven.org/maven2/org/json4s/3.2.0/json4s-core_2.9.2-3.2.0.jar">http://repo1.maven.org/maven2/org/json4s/3.2.0/json4s-core_2.9.2-3.2.0.jar</a></li>
-<li><a href="http://repo1.maven.org/maven2/org/json4s/3.2.0/json4s-native_2.9.2-3.2.0.jar">http://repo1.maven.org/maven2/org/json4s/3.2.0/json4s-native_2.9.2-3.2.0.jar</a></li>
-<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.2/paranamer-2.5.2.jar">http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.2/paranamer-2.5.2.jar</a></li>
+<li><a href="http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.6/json4s-core_2.9.3-3.2.6.jar">http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.6/json4s-core_2.9.3-3.2.6.jar</a></li>
+<li><a href="http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.6/json4s-native_2.9.3-3.2.6.jar">http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.6/json4s-native_2.9.3-3.2.6.jar</a></li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.6/paranamer-2.5.6.jar">http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.6/paranamer-2.5.6.jar</a></li>
 <li>scalap (Only for Scala-2.9 compatible versions)</li>
-</ul><h2>Extras</h2>
+</ul><h2>
+<a name="extras" class="anchor" href="#extras"><span class="octicon octicon-link"></span></a>Extras</h2>
 
 <ul>
 <li><a href="https://github.com/json4s/json4s/tree/master/ext">ext</a></li>
@@ -176,16 +185,18 @@ Note, replace XXX with correct Json4s version.</p>
 <li><a href="https://github.com/json4s/json4s/tree/master/native-lift">native-lift</a></li>
 </ul><p>Support for Box</p>
 
-<h1>Migration from older versions</h1>
+<h1>
+<a name="migration-from-older-versions" class="anchor" href="#migration-from-older-versions"><span class="octicon octicon-link"></span></a>Migration from older versions</h1>
 
-<h2>3.0.0 -&gt;</h2>
+<h2>
+<a name="300--" class="anchor" href="#300--"><span class="octicon octicon-link"></span></a>3.0.0 -&gt;</h2>
 
 <p>JField is no longer a JValue. This means more type safety since it is no longer possible
 to create invalid JSON where JFields are added directly into JArrays for instance. Most
 noticeable consequence of this change is that map, transform, find and filter come in
 two versions:</p>
 
-<div class="highlight"><pre><span class="k">def</span> <span class="n">map</span><span class="o">(</span><span class="n">f</span><span class="k">:</span> <span class="kt">JValue</span> <span class="o">=&gt;</span> <span class="nc">JValue</span><span class="o">)</span><span class="k">:</span> <span class="kt">JValue</span>
+<div class="highlight highlight-scala"><pre><span class="k">def</span> <span class="n">map</span><span class="o">(</span><span class="n">f</span><span class="k">:</span> <span class="kt">JValue</span> <span class="o">=&gt;</span> <span class="nc">JValue</span><span class="o">)</span><span class="k">:</span> <span class="kt">JValue</span>
 <span class="k">def</span> <span class="n">mapField</span><span class="o">(</span><span class="n">f</span><span class="k">:</span> <span class="kt">JField</span> <span class="o">=&gt;</span> <span class="nc">JField</span><span class="o">)</span><span class="k">:</span> <span class="kt">JValue</span>
 <span class="k">def</span> <span class="n">transform</span><span class="o">(</span><span class="n">f</span><span class="k">:</span> <span class="kt">PartialFunction</span><span class="o">[</span><span class="kt">JValue</span>, <span class="kt">JValue</span><span class="o">])</span><span class="k">:</span> <span class="kt">JValue</span>
 <span class="k">def</span> <span class="n">transformField</span><span class="o">(</span><span class="n">f</span><span class="k">:</span> <span class="kt">PartialFunction</span><span class="o">[</span><span class="kt">JField</span>, <span class="kt">JField</span><span class="o">])</span><span class="k">:</span> <span class="kt">JValue</span>
@@ -197,7 +208,8 @@ two versions:</p>
 <p>Use *Field functions to traverse fields in the JSON, and use the functions without 'Field'
 in the name to traverse values in the JSON.</p>
 
-<h2>2.2 -&gt;</h2>
+<h2>
+<a name="22--" class="anchor" href="#22--"><span class="octicon octicon-link"></span></a>2.2 -&gt;</h2>
 
 <p>Path expressions were changed after 2.2 version. Previous versions returned JField which
 unnecessarily complicated the use of the expressions. If you have used path expressions
@@ -211,7 +223,8 @@ with pattern matching like:</p>
 <pre><code>val JInt(x) = json \ "foo" \ "bar"
 </code></pre>
 
-<h1>Parsing JSON</h1>
+<h1>
+<a name="parsing-json" class="anchor" href="#parsing-json"><span class="octicon octicon-link"></span></a>Parsing JSON</h1>
 
 <p>Any valid json can be parsed into internal AST format.
 For native support:</p>
@@ -238,24 +251,26 @@ res1: org.json4s.package.JValue =
       JObject(List((name,JString(Toy)), (price,JDecimal(35.35))))
 </code></pre>
 
-<h1>Producing JSON</h1>
+<h1>
+<a name="producing-json" class="anchor" href="#producing-json"><span class="octicon octicon-link"></span></a>Producing JSON</h1>
 
 <p>You can generate json in 2 modes either in <code>DoubleMode</code> or in <code>BigDecimalMode</code>; the former will map all decimal values
 into a JDouble the latter into a JDecimal.</p>
 
 <p>For the double mode dsl use:</p>
 
-<div class="highlight"><pre><span class="k">import</span> <span class="nn">org.json4s.JsonDSL._</span>
+<div class="highlight highlight-scala"><pre><span class="k">import</span> <span class="nn">org.json4s.JsonDSL._</span>
 <span class="c1">// or</span>
 <span class="k">import</span> <span class="nn">org.json4s.JsonDSL.WithDouble._</span>
 </pre></div>
 
 <p>For the big decimal mode dsl use:</p>
 
-<div class="highlight"><pre><span class="k">import</span> <span class="nn">org.json4s.JsonDSL.WithBigDecimal._</span>
+<div class="highlight highlight-scala"><pre><span class="k">import</span> <span class="nn">org.json4s.JsonDSL.WithBigDecimal._</span>
 </pre></div>
 
-<h2>DSL rules</h2>
+<h2>
+<a name="dsl-rules" class="anchor" href="#dsl-rules"><span class="octicon octicon-link"></span></a>DSL rules</h2>
 
 <ul>
 <li>Primitive types map to JSON primitives.</li>
@@ -305,12 +320,13 @@ into a JDouble the latter into a JDecimal.</p>
 <p>Extending the dsl
 To extend the dsl with your own classes you must have an implicit conversion in scope of signature:</p>
 
-<div class="highlight"><pre><span class="k">type</span> <span class="kt">DslConversion</span> <span class="o">=</span> <span class="n">T</span> <span class="k">=&gt;</span> <span class="nc">JValue</span>
+<div class="highlight highlight-scala"><pre><span class="k">type</span> <span class="kt">DslConversion</span> <span class="o">=</span> <span class="n">T</span> <span class="k">=&gt;</span> <span class="nc">JValue</span>
 </pre></div>
 </li>
-</ul><h2>Example</h2>
+</ul><h2>
+<a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
 
-<div class="highlight"><pre><span class="k">object</span> <span class="nc">JsonExample</span> <span class="k">extends</span> <span class="nc">App</span> <span class="o">{</span>
+<div class="highlight highlight-scala"><pre><span class="k">object</span> <span class="nc">JsonExample</span> <span class="k">extends</span> <span class="nc">App</span> <span class="o">{</span>
   <span class="k">import</span> <span class="nn">org.json4s._</span>
   <span class="k">import</span> <span class="nn">org.json4s.JsonDSL._</span>
 
@@ -358,7 +374,8 @@ To extend the dsl with your own classes you must have an implicit conversion in 
 }
 </code></pre>
 
-<h2>Merging &amp; Diffing</h2>
+<h2>
+<a name="merging--diffing" class="anchor" href="#merging--diffing"><span class="octicon octicon-link"></span></a>Merging &amp; Diffing</h2>
 
 <p>Two JSONs can be merged and diffed with each other.
 Please see more examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/MergeExamples.scala">MergeExamples.scala</a> and <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/DiffExamples.scala">DiffExamples.scala</a>.</p>
@@ -412,9 +429,11 @@ JArray(List(JObject(List((winner-id,JInt(54)), (numbers,JArray(
 List(JInt(52), JInt(3), JInt(12), JInt(11), JInt(18), JInt(22))))))))))))))
 </code></pre>
 
-<h1>Querying JSON</h1>
+<h1>
+<a name="querying-json" class="anchor" href="#querying-json"><span class="octicon octicon-link"></span></a>Querying JSON</h1>
 
-<h2>"LINQ" style</h2>
+<h2>
+<a name="linq-style" class="anchor" href="#linq-style"><span class="octicon octicon-link"></span></a>"LINQ" style</h2>
 
 <p>JSON values can be extracted using for-comprehensions.
 Please see more examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/JsonQueryExamples.scala">JsonQueryExamples.scala</a>.</p>
@@ -436,7 +455,10 @@ scala&gt; val json = parse("""
          }
        """)
 
-scala&gt; for { JField("age", JInt(age)) &lt;- json } yield age
+scala&gt; for {
+         JObject(child) &lt;- json
+         JField("age", JInt(age))  &lt;- child
+       } yield age
 res0: List[BigInt] = List(5, 3)
 
 scala&gt; for {
@@ -448,7 +470,8 @@ scala&gt; for {
 res1: List[(String, BigInt)] = List((Mary,5))
 </code></pre>
 
-<h2>XPath + HOFs</h2>
+<h2>
+<a name="xpath--hofs" class="anchor" href="#xpath--hofs"><span class="octicon octicon-link"></span></a>XPath + HOFs</h2>
 
 <p>Json AST can be queried using XPath like functions. Following REPL session shows the usage of
 '\', '\\', 'find', 'filter', 'transform', 'remove' and 'values' functions.</p>
@@ -564,7 +587,8 @@ scala&gt; json \ "children" \\ classOf[JString]
 res3: List[org.json4s.JsonAST.JString#Values] = List(Mary, Mazy)
 </code></pre>
 
-<h1>Extracting values</h1>
+<h1>
+<a name="extracting-values" class="anchor" href="#extracting-values"><span class="octicon octicon-link"></span></a>Extracting values</h1>
 
 <p>Case classes can be used to extract values from parsed JSON. Non-existing values
 can be extracted into scala.Option and strings can be automatically converted into
@@ -669,7 +693,8 @@ res0: PersonWithAddresses("joe", Map("address1" -&gt; Address("Bulevard", "Helsi
                                      "address2" -&gt; Address("Soho", "London")))
 </code></pre>
 
-<h1>Serialization</h1>
+<h1>
+<a name="serialization" class="anchor" href="#serialization"><span class="octicon octicon-link"></span></a>Serialization</h1>
 
 <p>Case classes can be serialized and deserialized.
 Please see other examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/native/SerializationExamples.scala">SerializationExamples.scala</a>.</p>
@@ -706,7 +731,8 @@ res1: Child = Child(Mary,5,None)
 <li>Recursive types</li>
 <li>Serialization of fields of a class (see below)</li>
 <li>Custom serializer functions for types which are not supported (see below)</li>
-</ul><h2>Serializing polymorphic Lists</h2>
+</ul><h2>
+<a name="serializing-polymorphic-lists" class="anchor" href="#serializing-polymorphic-lists"><span class="octicon octicon-link"></span></a>Serializing polymorphic Lists</h2>
 
 <p>Type hints are required when serializing polymorphic (or heterogeneous) Lists. Serialized JSON objects
 will get an extra field named 'jsonClass' (the name can be changed by overriding 'typeHintFieldName' from Formats).</p>
@@ -726,7 +752,8 @@ res0: Animals = Animals(List(Dog(pluto), Fish(1.2)))
 <p>ShortTypeHints outputs short classname for all instances of configured objects. FullTypeHints outputs full
 classname. Other strategies can be implemented by extending TypeHints trait.</p>
 
-<h2>Serializing fields of a class</h2>
+<h2>
+<a name="serializing-fields-of-a-class" class="anchor" href="#serializing-fields-of-a-class"><span class="octicon octicon-link"></span></a>Serializing fields of a class</h2>
 
 <p>To enable serialization of fields, a FieldSerializer can be added for some type:</p>
 
@@ -752,19 +779,22 @@ rename and ignore fields are provided:</p>
 implicit val formats = DefaultFormats + dogSerializer
 </code></pre>
 
-<h2>Serializing classes defined in traits or classes</h2>
+<h2>
+<a name="serializing-classes-defined-in-traits-or-classes" class="anchor" href="#serializing-classes-defined-in-traits-or-classes"><span class="octicon octicon-link"></span></a>Serializing classes defined in traits or classes</h2>
 
 <p>We've added support for case classes defined in a trait. But they do need custom formats. I'll explain why and then how.</p>
 
-<h5>Why?</h5>
+<h5>
+<a name="why" class="anchor" href="#why"><span class="octicon octicon-link"></span></a>Why?</h5>
 
 <p>For classes defined in a trait it's a bit difficult to get to their companion object, which is needed to provide default values.  We could punt on those but that brings us to the next problem, the compiler generates an extra field in the constructor of such case classes.  The first field in the constructor of those case classes is called <code>$outer</code> and is of type of the <em>defining trait</em>.  So somehow we need to get an instance of that object, naively we could scan all classes and collect the ones that are implementing the trait, but when there are more than one: which one to take?</p>
 
-<h5>How?</h5>
+<h5>
+<a name="how" class="anchor" href="#how"><span class="octicon octicon-link"></span></a>How?</h5>
 
 <p>I've chosen to extend the formats to include a list of companion mappings for those case classes. So you can have formats that belong to your modules and keep the mappings in there. That will then make default values work and provide the much needed <code>$outer</code> field.</p>
 
-<div class="highlight"><pre><span class="k">trait</span> <span class="nc">SharedModule</span> <span class="o">{</span>
+<div class="highlight highlight-scala"><pre><span class="k">trait</span> <span class="nc">SharedModule</span> <span class="o">{</span>
   <span class="k">case</span> <span class="k">class</span> <span class="nc">SharedObj</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">visible</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
 <span class="o">}</span>
 
@@ -778,7 +808,8 @@ implicit val formats = DefaultFormats + dogSerializer
 <span class="n">extr</span><span class="o">.</span><span class="n">extract</span><span class="o">[</span><span class="kt">PingPongGame.SharedObj</span><span class="o">]</span> <span class="n">must_==</span> <span class="n">inst</span>
 </pre></div>
 
-<h2>Serializing non-supported types</h2>
+<h2>
+<a name="serializing-non-supported-types" class="anchor" href="#serializing-non-supported-types"><span class="octicon octicon-link"></span></a>Serializing non-supported types</h2>
 
 <p>It is possible to plug in custom serializer + deserializer functions for any type.
 Now, if we have a non case class Interval (thus, not supported by default), we can still serialize it
@@ -807,7 +838,8 @@ scala&gt; implicit val formats = Serialization.formats(NoTypeHints) + new Interv
 <p>Custom serializer is created by providing two partial functions. The first evaluates to a value
 if it can unpack the data from JSON. The second creates the desired JSON if the type matches.</p>
 
-<h2>Extensions</h2>
+<h2>
+<a name="extensions" class="anchor" href="#extensions"><span class="octicon octicon-link"></span></a>Extensions</h2>
 
 <p>Module json4s-ext contains extensions to extraction and serialization. Following types are supported.</p>
 
@@ -823,7 +855,8 @@ implicit val formats = org.json4s.DefaultFormats + new org.json4s.ext.EnumNameSe
 implicit val formats = org.json4s.DefaultFormats ++ org.json4s.ext.JodaTimeSerializers.all
 </code></pre>
 
-<h1>XML support</h1>
+<h1>
+<a name="xml-support" class="anchor" href="#xml-support"><span class="octicon octicon-link"></span></a>XML support</h1>
 
 <p>JSON structure can be converted to XML node and vice versa.
 Please see more examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/XmlExamples.scala">XmlExamples.scala</a>.</p>
@@ -874,7 +907,8 @@ is rarely a desired outcome. These both problems can be fixed by following trans
  res5: scala.xml.NodeSeq = &lt;users&gt;&lt;user&gt;&lt;id&gt;1&lt;/id&gt;&lt;name&gt;Harry&lt;/name&gt;&lt;/user&gt;&lt;user&gt;&lt;id&gt;2&lt;/id&gt;&lt;name&gt;David&lt;/name&gt;&lt;/user&gt;&lt;/users&gt;
 </code></pre>
 
-<h1>Low level pull parser API</h1>
+<h1>
+<a name="low-level-pull-parser-api" class="anchor" href="#low-level-pull-parser-api"><span class="octicon octicon-link"></span></a>Low level pull parser API</h1>
 
 <p>Pull parser API is provided for cases requiring extreme performance. It improves parsing
 performance by two ways. First, no intermediate AST is generated. Second, you can stop
@@ -923,7 +957,8 @@ Constructed parser recursively reads tokens until it finds <code>FieldStart("pos
 token. After that the next token must be <code>IntVal</code>, otherwise parsing fails. It returns parsed
 integer and stops parsing immediately.</p>
 
-<h1>FAQ</h1>
+<h1>
+<a name="faq" class="anchor" href="#faq"><span class="octicon octicon-link"></span></a>FAQ</h1>
 
 <p>Q1: I have a JSON object and I want to extract it to a case class:</p>
 
@@ -942,7 +977,8 @@ org.json4s.MappingException: Parsed JSON values do not match with class construc
 <p>Extraction does not work for classes defined in REPL. Compile the case class definitions
 with scalac and import those to REPL.</p>
 
-<h1>Kudos</h1>
+<h1>
+<a name="kudos" class="anchor" href="#kudos"><span class="octicon octicon-link"></span></a>Kudos</h1>
 
 <ul>
 <li><p>The original idea for DSL syntax was taken from Lift mailing list (<a href="http://markmail.org/message/lniven2hn22vhupu">by Marius</a>).</p></li>
@@ -951,7 +987,7 @@ with scalac and import those to REPL.</p>
       </section>
       <footer>
         <p>Project maintained by <a href="https://github.com/json4s">json4s</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></small></p>
       </footer>
     </div>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
