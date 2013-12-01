@@ -25,14 +25,13 @@ object Dependencies {
 
   lazy val scalaz_core: ModuleMap = sv => scalazGroup(sv)        % "scalaz-core"        % scalazVersion(sv) cross crossMapped("2.8.2" -> "2.8.1", "2.9.1-1" -> "2.9.1", "2.9.3" -> "2.9.2")
 
-  val jodaTime = Seq("joda-time" % "joda-time" % "2.1", "org.joda" % "joda-convert" % "1.2")
+  val jodaTime = Seq("joda-time" % "joda-time" % "2.3", "org.joda" % "joda-convert" % "1.5")
 
-  val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.0" % "test"
+  val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.1" % "test"
 
   lazy val specs: ModuleMap      = "org.specs2" % "specs2" % specs2Version(_) % "test" cross crossMapped("2.9.0" -> "2.9.1", "2.9.0-1" -> "2.9.1")
 
-  val jackson = Seq(
-      "com.fasterxml.jackson.core" % "jackson-databind" % "2.2.2")
+  val jackson = Seq("com.fasterxml.jackson.core" % "jackson-databind" % "2.3.0")
 
   val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.6"
 
