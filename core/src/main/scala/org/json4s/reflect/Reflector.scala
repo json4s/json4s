@@ -60,7 +60,7 @@ object Reflector {
       while (ls.hasNext) {
         val f = ls.next()
         val mod = f.getModifiers
-        if (!(Modifier.isStatic(mod) || Modifier.isTransient(mod) || Modifier.isPrivate(mod) || Modifier.isVolatile(mod) || f.isSynthetic)) {
+        if (!(Modifier.isStatic(mod) || Modifier.isTransient(mod) || Modifier.isVolatile(mod) || f.isSynthetic)) {
           val st = ScalaType(f.getType, f.getGenericType match {
             case p: ParameterizedType => p.getActualTypeArguments.toSeq.zipWithIndex map { case (cc, i) =>
               if (cc == classOf[java.lang.Object]) Reflector.scalaTypeOf(ScalaSigReader.readField(f.getName, clazz, i))
