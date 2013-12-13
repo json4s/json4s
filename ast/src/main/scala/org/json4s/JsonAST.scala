@@ -214,38 +214,5 @@ object JsonAST {
     def apply(name: String, value: JValue) = (name, value)
     def unapply(f: JField): Option[(String, JValue)] = Some(f)
   }
-
-  private[this] trait StringAppender[T] {
-    def append(s: String): T
-    def subj: T
-  }
-  private[this] class StringWriterAppender(val subj: java.io.Writer) extends StringAppender[java.io.Writer] {
-    def append(s: String): java.io.Writer = subj.append(s)
-  }
-  private[this] class StringBuilderAppender(val subj: StringBuilder) extends StringAppender[StringBuilder] {
-    def append(s: String): StringBuilder = subj.append(s)
-  }
-
-  private[json4s] def quote(s: String): String = quote(s, new StringBuilderAppender(new StringBuilder)).toString
-  private[json4s] def quote(s: String, writer: java.io.Writer): java.io.Writer = quote(s, new StringWriterAppender(writer))
-  private[this] def quote[T](s: String, appender: StringAppender[T]): T = { // hot path
-    var i = 0
-    val l = s.length
-    while(i < l) {
-      val c = s(i)
-      if (c == '"') appender.append("\\\"")
-      else if (c == '\\') appender.append("\\\\")
-      else if (c == '\b') appender.append("\\b")
-      else if (c == '\f') appender.append("\\f")
-      else if (c == '\n') appender.append("\\n")
-      else if (c == '\r') appender.append("\\r")
-      else if (c == '\t') appender.append("\\t")
-      else if ((c >= '\u0000' && c <= '\u001f') || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100'))
-        appender.append("\\u%04x".format(c: Int))
-      else appender.append(c.toString)
-      i += 1
-    }
-    appender.subj
-  }
 }
 

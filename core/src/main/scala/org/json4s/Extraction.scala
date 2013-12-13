@@ -207,7 +207,7 @@ object Extraction {
     def flatten0(path: String, json: JValue): Map[String, String] = {
       json match {
         case JNothing | JNull    => Map()
-        case JString(s)          => Map(path -> ("\"" + JsonAST.quote(s) + "\""))
+        case JString(s)          => Map(path -> ("\"" + ParserUtil.quote(s) + "\""))
         case JDouble(num)        => Map(path -> num.toString)
         case JDecimal(num)       => Map(path -> num.toString)
         case JInt(num)           => Map(path -> num.toString)
