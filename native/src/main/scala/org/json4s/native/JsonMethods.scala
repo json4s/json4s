@@ -35,10 +35,10 @@ trait JsonMethods extends org.json4s.JsonMethods[Document] {
     case JNull         => text("null")
     case JNothing      => sys.error("can't render 'nothing'")
     case JString(null) => text("null")
-    case JString(s)    => text("\""+JsonAST.quote(s)+"\"")
+    case JString(s)    => text("\""+ParserUtil.quote(s)+"\"")
     case JArray(arr)   => text("[") :: series(trimArr(arr).map(render)) :: text("]")
     case JObject(obj)  =>
-      val nested = break :: fields(trimObj(obj).map({case (n,v) => text("\""+JsonAST.quote(n)+"\":") :: render(v)}))
+      val nested = break :: fields(trimObj(obj).map({case (n,v) => text("\""+ParserUtil.quote(n)+"\":") :: render(v)}))
       text("{") :: nest(2, nested) :: break :: text("}")
   }
 

@@ -311,7 +311,7 @@ private final class FieldStreamingJsonWriter[T <: JWriter](name: String, isFirst
       writePretty()
     }
     nodes.append("\"")
-    JsonAST.quote(name, nodes)
+    ParserUtil.quote(name, nodes)
     nodes.append("\":")
   }
 
@@ -324,7 +324,7 @@ private final class FieldStreamingJsonWriter[T <: JWriter](name: String, isFirst
   def addAndQuoteNode(node: String): JsonWriter[T] = {
     writeName(hasPretty = false)
     nodes.append("\"")
-    JsonAST.quote(node, nodes)
+    ParserUtil.quote(node, nodes)
     nodes.append("\"")
     parent
   }
@@ -353,7 +353,7 @@ private final class ObjectStreamingJsonWriter[T <: JWriter](protected[this] val 
     if (isFirst) isFirst = false
     else nodes.append(",")
     nodes.append("\"")
-    JsonAST.quote(node, nodes)
+    ParserUtil.quote(node, nodes)
     nodes.append("\"")
     this
   }
@@ -444,7 +444,7 @@ private final class ArrayStreamingJsonWriter[T <: JWriter](protected[this] val n
   def addAndQuoteNode(node: String): JsonWriter[T] = {
     writeComma()
     nodes.append("\"")
-    JsonAST.quote(node, nodes)
+    ParserUtil.quote(node, nodes)
     nodes.append("\"")
     this
   }
@@ -461,7 +461,7 @@ private final class RootStreamingJsonWriter[T <: JWriter](protected[this] val no
 
   final def addAndQuoteNode(node: String): JsonWriter[T] = {
     nodes.append("\"")
-    JsonAST.quote(node, nodes)
+    ParserUtil.quote(node, nodes)
     nodes.append("\"")
     this
   }
