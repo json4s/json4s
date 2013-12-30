@@ -419,7 +419,19 @@ object Extraction {
     private[this] def instantiate = {
       val jconstructor = constructor.constructor
 
-      val args = constructor.params.map(a => buildCtorArg(json \ a.name, a))
+      val deserializedJson = json match {
+        case JObject(fields) =>
+          formats.fieldSerializer(descr.erasure.erasure) map { serializer =>
+            val idPf: PartialFunction[JField, JField] = { case f => f }
+
+            JObject(fields map { f =>
+              (serializer.deserializer orElse idPf)(f)
+            })
+          } getOrElse json
+        case other: JValue => other
+      }
+
+      val args = constructor.params.map(a => buildCtorArg(deserializedJson \ a.name, a))
       try {
         if (jconstructor.getDeclaringClass == classOf[java.lang.Object]) fail("No information known about type")
 
