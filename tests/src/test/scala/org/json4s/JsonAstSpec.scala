@@ -149,6 +149,13 @@ object JsonAstSpec extends Specification with JValueGen with ScalaCheck {
       prop(fieldReplacement)
       prop(anyReplacement)
     }
+
+    "equals hashCode" in check{ x: JObject =>
+      val y = JObject(scala.util.Random.shuffle(x.obj))
+
+      x must_== y
+      x.## must_== y.##
+    }
   }
 
   private def reorderFields(json: JValue) = json map {

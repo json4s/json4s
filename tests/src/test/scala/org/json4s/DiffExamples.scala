@@ -81,6 +81,12 @@ abstract class DiffExamples[T](mod: String) extends Specification with JsonMetho
     scala1 diff scala2 must_== Diff(JNothing, JNothing, JNothing)
   }
 
+  "Changing value type results in a change diff" in {
+    val original = JObject("a" -> JInt(1))
+    val changed = JObject("a" -> JString("different"))
+    original diff changed must_== Diff(changed, JNothing, JNothing)
+  }
+
   private def read(resource: String) =
     parse(getClass.getResourceAsStream(resource))
 

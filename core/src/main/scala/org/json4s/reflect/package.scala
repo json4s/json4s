@@ -93,27 +93,5 @@ package object reflect {
       paranamer.lookupParameterNames(constructor).toSeq
   }
 
-//  def isPrimitive(t: Type) = Reflector.isPrimitive(t)
-//
-//  def scalaTypeOf[T](implicit mf: Manifest[T]): ScalaType = types(mf.erasure, _ => Reflector.scalaTypeOf[T])
-//
-//  def scalaTypeOf(t: Type): ScalaType = types(t, Reflector.scalaTypeOf(_))
-//
-//  def describe[T](implicit mf: Manifest[T]): Descriptor = describe(scalaTypeOf[T])
-//
-//  def describe(clazz: Class[_]): Descriptor = describe(scalaTypeOf(clazz))
-//
-//  def describe(fqn: String): Option[Descriptor] = {
-//    Reflector.scalaTypeOf(fqn) map { st =>
-//      descriptors(st, Reflector.createClassDescriptor)
-//    }
-//  }
-//
-//  def describe(st: ScalaType): Descriptor = descriptors(st, Reflector.createClassDescriptor)
-//
-//  def rawClassOf(t: Type): Class[_] = rawClasses(t, Reflector.rawClassOf)
-//
-//  def unmangleName(name: String) = unmangledNames(name, Reflector.unmangleName)
-
   def fail(msg: String, cause: Exception = null) = throw new MappingException(msg, cause)
 }

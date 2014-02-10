@@ -9,7 +9,7 @@ object FieldSerializerBugs extends Specification {
 
   implicit val formats = DefaultFormats + FieldSerializer[AnyRef]()
 
-/* FIXME: For some reason this fails on CI
+/* FIXME: it doesn't cause a stack overflow but the ser/deser doesn't work
   "AtomicInteger should not cause stack overflow" in {
     import java.util.concurrent.atomic.AtomicInteger
 
@@ -17,7 +17,12 @@ object FieldSerializerBugs extends Specification {
     val atomic = read[AtomicInteger](ser)
     atomic.get must_== 1
   }
-  */
+*/
+
+  "Serializing a singleton object should not cause stack overflow" in {
+    swrite(SingletonObject)
+    ()
+  }
 
   "Name with symbols is correctly serialized" in {
     implicit val formats = DefaultFormats + FieldSerializer[AnyRef]()
@@ -36,11 +41,25 @@ object FieldSerializerBugs extends Specification {
     read[ClassWithOption](Serialization.write(t)).field must_== Some(5)
   }
 
+  "FieldSerializer's manifest should not be overridden when it's added to Formats" in {
+    val fieldSerializer = FieldSerializer[Type1](FieldSerializer.renameTo("num", "yum"))
+    implicit val formats = DefaultFormats + (fieldSerializer: FieldSerializer[_])
+    val expected1 = JObject(JField("yum", JInt(123)))
+    val expected2 = JObject(JField("num", JInt(456)))
+    Extraction.decompose(Type1(123)) must_== (expected1)
+    Extraction.decompose(Type2(456)) must_== (expected2)
+  }
+
   case class WithSymbol(`a-b*c`: Int)
 
   class ClassWithOption {
     var field: Option[Int] = None
   }
+
+  case class Type1(num: Int)
+  case class Type2(num: Int)
+
+  object SingletonObject
 }
 
 

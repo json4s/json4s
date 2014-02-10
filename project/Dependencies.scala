@@ -8,7 +8,7 @@ object Dependencies {
     CrossVersion.binaryMapped(Map(mappings: _*) orElse { case v => v })
 
   def defaultOrMapped(default: String, alternatives: (String, String)*): String => String =
-     Map(alternatives: _*).withDefaultValue(default)
+    Map(alternatives: _*).withDefaultValue(default)
 
   type ModuleMap = String => ModuleID
 
@@ -18,12 +18,11 @@ object Dependencies {
 
   val jodaTime = Seq("joda-time" % "joda-time" % "2.3", "org.joda" % "joda-convert" % "1.5")
 
-  lazy val scalacheck =  "org.scalacheck" %% "scalacheck" % "1.10.1" % "test"
+  val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.1" % "test"
 
   lazy val specs = "org.specs2" %% "specs2"      % "1.14"  % "test"
 
-  val jackson = Seq(
-      "com.fasterxml.jackson.core" % "jackson-databind" % "2.3.0")
+  val jackson = Seq("com.fasterxml.jackson.core" % "jackson-databind" % "2.3.1")
 
   val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.6"
 

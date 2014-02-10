@@ -63,7 +63,9 @@ object Diff {
     case (JDecimal(x), JDecimal(y)) if (x != y) => Diff(JDecimal(y), JNothing, JNothing)
     case (JString(x), JString(y)) if (x != y) => Diff(JString(y), JNothing, JNothing)
     case (JBool(x), JBool(y)) if (x != y) => Diff(JBool(y), JNothing, JNothing)
-    case (x, y) => Diff(JNothing, y, x)
+    case (JNothing, x) => Diff(JNothing, x, JNothing)
+    case (x, JNothing) => Diff(JNothing, JNothing, x)
+    case (x, y) => Diff(y, JNothing, JNothing)
   }
 
   private def diffFields(vs1: List[JField], vs2: List[JField]) = {

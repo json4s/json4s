@@ -60,7 +60,7 @@ object Reflector {
       while (ls.hasNext) {
         val f = ls.next()
         val mod = f.getModifiers
-        if (!(Modifier.isStatic(mod) || Modifier.isTransient(mod) || Modifier.isVolatile(mod) || f.isSynthetic)) {
+        if (!(Modifier.isStatic(mod) || Modifier.isTransient(mod) || Modifier.isVolatile(mod)  || f.isSynthetic)) {
           val st = ScalaType(f.getType, f.getGenericType match {
             case p: ParameterizedType => p.getActualTypeArguments.toSeq.zipWithIndex map { case (cc, i) =>
               if (cc == classOf[java.lang.Object]) Reflector.scalaTypeOf(ScalaSigReader.readField(f.getName, clazz, i))
@@ -136,8 +136,7 @@ object Reflector {
           case (paramName, index) =>
             if (companion.isEmpty && !triedCompanion) {
               companion = (ScalaSigReader.companions(tpe.rawFullName) collect {
-                case (kl, Some(cOpt)) => SingletonDescriptor(safeSimpleName(kl),
-                                                             kl.getName, scalaTypeOf(kl), cOpt, Seq.empty)
+                case (kl, Some(cOpt)) => SingletonDescriptor(safeSimpleName(kl), kl.getName, scalaTypeOf(kl), cOpt, Seq.empty)
               })
               triedCompanion = true
             }

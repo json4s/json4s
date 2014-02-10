@@ -142,14 +142,14 @@ trait Formats { self: Formats =>
   /**
    * Adds a field serializer for a given type to this formats.
    */
-  def + [A](newSerializer: FieldSerializer[A])(implicit mf: Manifest[A]): Formats = new Formats {
+  def + [A](newSerializer: FieldSerializer[A]): Formats = new Formats {
     val dateFormat: DateFormat = self.dateFormat
     override val typeHintFieldName: String = self.typeHintFieldName
     override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
     override val typeHints: TypeHints = self.typeHints
     override val customSerializers: List[Serializer[_]] = self.customSerializers
     override val fieldSerializers: List[(Class[_], FieldSerializer[_])] =
-      (mf.erasure -> newSerializer) :: self.fieldSerializers
+      (newSerializer.mf.erasure -> newSerializer) :: self.fieldSerializers
     override val wantsBigDecimal: Boolean = self.wantsBigDecimal
     override val primitives: Set[Type] = self.primitives
     override val companions: List[(Class[_], AnyRef)] = self.companions
