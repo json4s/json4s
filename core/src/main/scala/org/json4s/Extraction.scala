@@ -89,6 +89,33 @@ object Extraction {
     val serializer = formats.typeHints.serialize
     val any = a.asInstanceOf[AnyRef]
 
+    def decomposeObject(k: Class[_]) = {
+      val klass = Reflector.scalaTypeOf(k)
+      val descriptor = Reflector.describe(klass).asInstanceOf[reflect.ClassDescriptor]
+      val ctorParams = descriptor.mostComprehensive.map(_.name)
+      val iter = descriptor.properties.iterator
+      val obj = current.startObject()
+      if (formats.typeHints.containsHint(k)) {
+        val f = obj.startField(formats.typeHintFieldName)
+        f.string(formats.typeHints.hintFor(k))
+      }
+      val fs = formats.fieldSerializer(k)
+      while(iter.hasNext) {
+        val prop = iter.next()
+
+        val fieldVal = prop.get(any)
+        val n = prop.name
+        if (fs.isDefined) {
+          val ff = (fs.get.serializer orElse Map((n, fieldVal) -> Some((n, fieldVal))))((n, fieldVal))
+          if (ff.isDefined) {
+            val Some((nn, vv)) = ff
+            addField(nn, vv, obj)
+          }
+        } else if (ctorParams contains prop.name) addField(n, fieldVal, obj)
+      }
+      obj.endObject()
+    }
+
     if (formats.customSerializer(formats).isDefinedAt(a)) {
       current addJValue formats.customSerializer(formats)(a)
     } else if (!serializer.isDefinedAt(a)) {
@@ -138,31 +165,22 @@ object Extraction {
         } else {
           internalDecomposeWithBuilder(v.right.get, current)
         }
-      } else {
-        val klass = Reflector.scalaTypeOf(k)
-        val descriptor = Reflector.describe(klass).asInstanceOf[reflect.ClassDescriptor]
-        val ctorParams = descriptor.mostComprehensive.map(_.name)
-        val iter = descriptor.properties.iterator
-        val obj = current.startObject()
-        if (formats.typeHints.containsHint(k)) {
-          val f = obj.startField(formats.typeHintFieldName)
-          f.string(formats.typeHints.hintFor(k))
-        }
-        val fs = formats.fieldSerializer(k)
-        while(iter.hasNext) {
-          val prop = iter.next()
+      } else if (classOf[(_, _)].isAssignableFrom(k)) {
 
-          val fieldVal = prop.get(any)
-          val n = prop.name
-          if (fs.isDefined) {
-            val ff = (fs.get.serializer orElse Map((n, fieldVal) -> Some((n, fieldVal))))((n, fieldVal))
-            if (ff.isDefined) {
-              val Some((nn, vv)) = ff
-              addField(nn, vv, obj)
-            }
-          } else if (ctorParams contains prop.name) addField(n, fieldVal, obj)
+        any.asInstanceOf[(_, _)] match {
+          case (k: String, v) =>
+            val obj = current.startObject()
+            addField(k, v, obj)
+            obj.endObject()
+          case (k: Symbol, v) =>
+            val obj = current.startObject()
+            addField(k.name, v, obj)
+            obj.endObject()
+          case _: (_, _) =>
+            decomposeObject(k)
         }
-        obj.endObject()
+      } else {
+        decomposeObject(k)
       }
     } else current addJValue prependTypeHint(any.getClass, serializer(any))
   }
@@ -303,6 +321,14 @@ object Extraction {
       }
     } else if (scalaType.isCollection) {
       new CollectionBuilder(json, scalaType).result
+    } else if (classOf[(_, _)].isAssignableFrom(scalaType.erasure) && (classOf[String].isAssignableFrom(scalaType.typeArgs.head.erasure) || classOf[Symbol].isAssignableFrom(scalaType.typeArgs.head.erasure) )) {
+      val ta = scalaType.typeArgs(1)
+      json match {
+        case JObject(xs :: Nil) =>
+          if (classOf[Symbol].isAssignableFrom(scalaType.typeArgs.head.erasure)) (Symbol(xs._1), extract(xs._2, ta))
+          else (xs._1, extract(xs._2, ta))
+        case x => fail("Expected object with 1 element but got " + x)
+      }
     } else {
       Reflector.describe(scalaType) match {
         case PrimitiveDescriptor(tpe, default) => convert(json, tpe, formats, default) //customOrElse(tpe, json)(convert(_, tpe, formats, default))

@@ -225,5 +225,25 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
         ("tags" -> Map("a" -> 5, "b" -> 7))
       compact(render(json)) must_== """{"id":5,"tags":{"a":5,"b":7}}"""
     }
+
+    "Tuple2 example" in {
+      implicit val fmts = DefaultFormats
+      val json = """{"blah":123}"""
+      Extraction.extract[(String, Int)](parse(json)) must_== ("blah" -> 123)
+    }
+
+    "List[Tuple2] example" in {
+      implicit val fmts = DefaultFormats
+      val json = parse("""[{"blah1":13939},{"blah2":3948}]""")
+      Extraction.extract[List[(String, Int)]](json) must_== "blah1" -> 13939 :: "blah2" -> 3948 :: Nil
+    }
+
+    "List[Animal] example" in {
+//      case class Dog(name: String) extends Animal
+//      case class Fish(weight: Double) extends Animal
+      implicit val fmts = DefaultFormats + ShortTypeHints(List[Class[_]](classOf[Dog], classOf[Fish]))
+      val json = parse("""[{"name":"pluto","$type$":"Dog"},{"weight":1.3,"$type$":"Fish"}]""")
+      Extraction.extract[List[Animal]](json) must_== Dog("pluto") :: Fish(1.3) :: Nil
+    }
   }
 }
