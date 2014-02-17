@@ -133,7 +133,7 @@ object build extends Build {
      base = file("examples"),
      settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
        libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.11.0",
-       libraryDependencies <+= jacksonScala
+       libraryDependencies += jacksonScala
      )
   ) dependsOn(
     core % "compile;test->test",
