@@ -132,16 +132,8 @@ object build extends Build {
      id = "json4s-examples",
      base = file("examples"),
      settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
-<<<<<<< HEAD
        libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.11.0",
-       libraryDependencies <+= scalaVersion {
-         case v if v.startsWith("2.9") => "com.fasterxml.jackson.module" % "jackson-module-scala_2.9.3" % "2.3.1"
-         case _ => "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.3.1"
-       }
-=======
-       libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.9.2" % "0.11.0",
-       libraryDependencies += jacksonScala
->>>>>>> master
+       libraryDependencies <+= jacksonScala
      )
   ) dependsOn(
     core % "compile;test->test",
