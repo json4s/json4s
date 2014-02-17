@@ -1,4 +1,4 @@
-# JSON4S [![Build Status](https://jenkins.backchat.io/job/json4s/badge/icon)](https://jenkins.backchat.io/job/json4s/)
+# JSON4S [![Build Status](http://jenkins.backchat.io/job/json4s/badge/icon)](http://jenkins.backchat.io/job/json4s/)
 
 At this moment there are at least 6 json libraries for scala, not counting the java json libraries.
 All these libraries have a very similar AST. This project aims to provide a single AST to be used by other scala
