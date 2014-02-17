@@ -33,6 +33,8 @@ object Dependencies {
 
   val jackson = Seq("com.fasterxml.jackson.core" % "jackson-databind" % "2.3.1")
 
+  val jacksonScala = "com.fasterxml.jackson.module" % "jackson-module-scala" % "2.3.1" cross crossMapped("2.9.0" -> "2.9.1", "2.9.0-1" -> "2.9.1", "2.9.1-1" -> "2.9.1")
+
   val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.6"
 
   lazy val scalap: ModuleMap      = "org.scala-lang"             % "scalap"             % _
@@ -42,6 +44,8 @@ object Dependencies {
   val mockito = "org.mockito"                 % "mockito-all"              % "1.9.5"      % "test"
 
   val liftCommon = "net.liftweb" %% "lift-common" % "2.5.1" cross crossMapped("2.9.3" -> "2.9.2")
+
+
 
 //  val scalaj_collection = "org.scalaj" %% "scalaj-collection" % "1.2" cross CVMappingAll
 }

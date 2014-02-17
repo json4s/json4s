@@ -130,8 +130,8 @@ object build extends Build {
      id = "json4s-examples",
      base = file("examples"),
      settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
-       libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.9.3" % "0.11.0",
-       libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.9.3" % "2.3.1"
+       libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.9.2" % "0.11.0",
+       libraryDependencies += jacksonScala
      )
   ) dependsOn(
     core % "compile;test->test",
@@ -187,7 +187,7 @@ object build extends Build {
         "com.google.caliper" % "caliper" % "0.5-rc1",
         "com.google.code.gson" % "gson" % "1.7.1"
       ),
-      libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.9.2" % "2.1.3",
+      libraryDependencies += jacksonScala,
       runner in Compile in run <<= (thisProject, taskTemporaryDirectory, scalaInstance, baseDirectory, javaOptions, outputStrategy, javaHome, connectInput) map {
         (tp, tmp, si, base, options, strategy, javaHomeDir, connectIn) =>
           new MyRunner(tp.id, ForkOptions(javaHome = javaHomeDir, connectInput = connectIn, outputStrategy = strategy,
