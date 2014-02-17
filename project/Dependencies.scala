@@ -16,7 +16,7 @@ object Dependencies {
 
   lazy val scalaz_core = "org.scalaz" %% "scalaz-core" % "7.0.4"
 
-  val jodaTime = Seq("joda-time" % "joda-time" % "2.3", "org.joda" % "joda-convert" % "1.5")
+  val jodaTime = Seq("joda-time" % "joda-time" % "2.3", "org.joda" % "joda-convert" % "1.6")
 
   val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.1" % "test"
 
@@ -28,8 +28,11 @@ object Dependencies {
 
   lazy val scalap: ModuleMap      = "org.scala-lang"             % "scalap"             % _
 
-  val commonsCodec = "commons-codec"              % "commons-codec"      % "1.8"
+  val commonsCodec = "commons-codec"              % "commons-codec"      % "1.9"
 
   val mockito = "org.mockito"                 % "mockito-all"              % "1.9.5"      % "test"
 
+  val liftCommon = "net.liftweb" %% "lift-common" % "2.5.1" cross crossMapped("2.9.3" -> "2.9.2")
+
+//  val scalaj_collection = "org.scalaj" %% "scalaj-collection" % "1.2" cross CVMappingAll
 }

@@ -242,7 +242,6 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
 //      case class Dog(name: String) extends Animal
 //      case class Fish(weight: Double) extends Animal
       implicit val fmts = DefaultFormats + ShortTypeHints(List[Class[_]](classOf[Dog], classOf[Fish]))
-
       val json = parse(s"""[{"name":"pluto","${fmts.typeHintFieldName}":"Dog"},{"weight":1.3,"${fmts.typeHintFieldName}":"Fish"}]""")
       Extraction.extract[List[Animal]](json) must_== Dog("pluto") :: Fish(1.3) :: Nil
     }
