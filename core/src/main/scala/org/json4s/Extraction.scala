@@ -320,7 +320,7 @@ object Extraction {
         case x => fail("Expected object but got " + x)
       }
     } else if (scalaType.isCollection) {
-      new CollectionBuilder(json, scalaType).result
+      customOrElse(scalaType, json)(new CollectionBuilder(_, scalaType).result)
     } else if (classOf[(_, _)].isAssignableFrom(scalaType.erasure) && (classOf[String].isAssignableFrom(scalaType.typeArgs.head.erasure) || classOf[Symbol].isAssignableFrom(scalaType.typeArgs.head.erasure) )) {
       val ta = scalaType.typeArgs(1)
       json match {

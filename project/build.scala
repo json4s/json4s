@@ -130,8 +130,8 @@ object build extends Build {
      id = "json4s-examples",
      base = file("examples"),
      settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
-       libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.9.2" % "0.9.5",
-       libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.9.2" % "2.1.3"
+       libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.9.3" % "0.11.0",
+       libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.9.3" % "2.3.1"
      )
   ) dependsOn(
     core % "compile;test->test",
@@ -158,7 +158,7 @@ object build extends Build {
      base = file("mongo"),
      settings = json4sSettings ++ Seq(
        libraryDependencies ++= Seq(
-         "org.mongodb" % "mongo-java-driver" % "2.10.1"
+         "org.mongodb" % "mongo-java-driver" % "2.11.4"
       )
      )
   ) dependsOn(core % "compile;test->test")

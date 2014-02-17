@@ -25,23 +25,23 @@ object Dependencies {
 
   lazy val scalaz_core: ModuleMap = sv => scalazGroup(sv)        % "scalaz-core"        % scalazVersion(sv) cross crossMapped("2.8.2" -> "2.8.1", "2.9.1-1" -> "2.9.1", "2.9.3" -> "2.9.2")
 
-  val jodaTime = Seq("joda-time" % "joda-time" % "2.3", "org.joda" % "joda-convert" % "1.5")
+  val jodaTime = Seq("joda-time" % "joda-time" % "2.3", "org.joda" % "joda-convert" % "1.6")
 
   val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.1" % "test"
 
   lazy val specs: ModuleMap      = "org.specs2" % "specs2" % specs2Version(_) % "test" cross crossMapped("2.9.0" -> "2.9.1", "2.9.0-1" -> "2.9.1")
 
-  val jackson = Seq("com.fasterxml.jackson.core" % "jackson-databind" % "2.3.0")
+  val jackson = Seq("com.fasterxml.jackson.core" % "jackson-databind" % "2.3.1")
 
   val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.6"
 
   lazy val scalap: ModuleMap      = "org.scala-lang"             % "scalap"             % _
 
-  val commonsCodec = "commons-codec"              % "commons-codec"      % "1.7"
+  val commonsCodec = "commons-codec"              % "commons-codec"      % "1.9"
 
   val mockito = "org.mockito"                 % "mockito-all"              % "1.9.5"      % "test"
 
-  val liftCommon = "net.liftweb" %% "lift-common" % "2.4" cross CVMapping2911
+  val liftCommon = "net.liftweb" %% "lift-common" % "2.5.1" cross crossMapped("2.9.3" -> "2.9.2")
 
 //  val scalaj_collection = "org.scalaj" %% "scalaj-collection" % "1.2" cross CVMappingAll
 }
