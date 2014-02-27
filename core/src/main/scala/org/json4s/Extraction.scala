@@ -54,7 +54,7 @@ object Extraction {
    * @see org.json4s.JsonAST.JValue#extract
    */
   def extractOpt[A](json: JValue)(implicit formats: Formats, mf: Manifest[A]): Option[A] =
-    try { Some(extract(json)(formats, mf)) } catch { case _: MappingException => None }
+    try { Option(extract(json)(formats, mf)) } catch { case _: MappingException => None }
 
   def extract(json: JValue, target: TypeInfo)(implicit formats: Formats): Any = extract(json, ScalaType(target))
 
