@@ -32,7 +32,7 @@ trait DefaultReaders {
       case JDecimal(x) => x.toBigInt()
 //      case JString(s) if (s != null && s.trim.nonEmpty && s.forall(Character.isDigit)) => BigInt(s)
 //      case JNull => 0
-      case x => throw new MappingException("Can't convert %s to Int." format x)
+      case x => throw new MappingException("Can't convert %s to BigInt." format x)
     }
   }
 
@@ -126,7 +126,7 @@ trait DefaultReaders {
   implicit def mapReader[V](implicit valueReader: Reader[V]): Reader[immutable.Map[String, V]] = new Reader[immutable.Map[String, V]] {
     def read(value: _root_.org.json4s.JValue): Map[String, V] = value match {
       case JObject(v) => Map(v.map({ case JField(k, vl) => k -> valueReader.read(vl)}):_*)
-      case x => throw new MappingException("Can't convert %s to String." format x)
+      case x => throw new MappingException("Can't convert %s to Map." format x)
     }
   }
 
