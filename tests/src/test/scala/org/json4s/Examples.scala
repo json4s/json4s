@@ -111,7 +111,7 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       val renderedPerson = pretty(render(json))
       json must_== parse(renderedPerson)
       render(json) must_== render(personDSL)
-      compact(render(json \\ "name")) must_== """{"name":"Joe","name":"Marilyn"}"""
+      compact(render(json \\ "name")) must_== """["Joe","Marilyn"]"""
       compact(render(json \ "person" \ "name")) must_== "\"Joe\""
     }
 
