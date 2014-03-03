@@ -51,10 +51,7 @@ class MonadicJValue(jv: JValue) {
       case (acc, _) => acc
     }
 
-    values match {
-      case x :: Nil => x
-      case xs => JArray(xs.reverse)
-    }
+    JArray(values.reverse)
   }
 
   /**
