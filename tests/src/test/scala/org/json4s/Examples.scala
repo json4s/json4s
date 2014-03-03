@@ -117,6 +117,7 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
     "Recursive navigation example" in {
       val json = parse(person)
       compact(render(json \\ "name")) must_== """["Joe","Marilyn"]"""
+      compact(render(json \ "person" \ "spouse" \ "person" \\ "name")) must_== """["Marilyn"]"""
       compact(render(parse("""{ "name": "Joe"}""") \\ "name" )) must_== """["Joe"]"""
     }
 
