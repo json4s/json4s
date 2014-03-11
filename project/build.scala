@@ -85,10 +85,6 @@ object build extends Build {
     base = file("core"),
     settings = json4sSettings ++ Seq(
       libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv)) },
-      unmanagedSourceDirectories in Compile <+= (scalaVersion, baseDirectory) {
-        case (v, dir) if v startsWith "2.9" => dir / "src/main/scala_2.9"
-        case (v, dir) if v startsWith "2.10" => dir / "src/main/scala_2.10"
-      },
       initialCommands in (Test, console) := """
           |import org.json4s._
           |import reflect._
