@@ -128,9 +128,9 @@ object Extraction {
         current.addJValue(any.asInstanceOf[JValue])
       } else if (Reflector.isPrimitive(any.getClass)) {
         writePrimitive(any, current)(formats)
-      } else if (classOf[Map[_, _]].isAssignableFrom(k)) {
+      } else if (classOf[scala.collection.Map[_, _]].isAssignableFrom(k)) {
         val obj = current.startObject()
-        val iter = any.asInstanceOf[Map[_, _]].iterator
+        val iter = any.asInstanceOf[scala.collection.Map[_, _]].iterator
         while(iter.hasNext) {
           iter.next() match {
             case (k: String, v) => addField(k, v, obj)
