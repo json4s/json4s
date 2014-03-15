@@ -2,6 +2,7 @@ package org.json4s
 
 import org.specs2.mutable.Specification
 import java.util.UUID
+import scala.collection.mutable
 
 object SerializationBugs extends Specification {
   import native.Serialization.{ read, write => swrite }
@@ -197,6 +198,11 @@ object SerializationBugs extends Specification {
   "classes in deeply nested objects can be serialized" in {
     val ser = swrite(Zot.Bar.Foo("s"))
     read[Zot.Bar.Foo](ser).s must_== "s"
+  }
+
+  "mutable Map can be serialized" in {
+    val ser = swrite(mutable.Map("f" -> 1))
+    ser must_== """{"f":1}"""
   }
 }
 
