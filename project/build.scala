@@ -57,7 +57,7 @@ object build extends Build {
     scalaVersion := "2.9.3",
     crossScalaVersions := Seq("2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2", "2.9.3"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize"),
-    version := "3.2.8-SNAPSHOT",
+    version := "3.2.8",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     publishSetting,
@@ -85,9 +85,6 @@ object build extends Build {
     base = file("core"),
     settings = json4sSettings ++ Seq(
       libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv)) },
-      unmanagedSourceDirectories in Compile <+= (scalaVersion, baseDirectory) {
-        case (v, dir) if v startsWith "2.9" => dir / "src/main/scala_2.9"
-      },
       initialCommands in (Test, console) := """
           |import org.json4s._
           |import reflect._
