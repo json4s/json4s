@@ -107,6 +107,11 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       parse("""{"num": 0}""", useBigDecimalForDouble = true).extract[ABigDecimal] must_== bd
     }
 
+    "Extract a bigdecimal from a decimal value" in {
+      val bd = ABigDecimal(BigDecimal("12.305"))
+      parse("""{"num": 12.305}""", useBigDecimalForDouble = true).extract[ABigDecimal] must_== bd
+    }
+
   }
 }
 

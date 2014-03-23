@@ -138,7 +138,7 @@ object ParserUtil {
       }
     }
 
-    def near = new String(segment, (cur-20) max 0, (cur + 1) min Segments.segmentSize)
+    def near = new String(segment, (cur-20) max 0, 20 min cur)
 
     def release = segments.foreach(Segments.release)
 

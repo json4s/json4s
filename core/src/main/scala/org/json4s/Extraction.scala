@@ -528,6 +528,8 @@ object Extraction {
       case JDouble(x) if (targetType == classOf[Int]) => x.intValue
       case JDouble(x) if (targetType == classOf[Long]) => x.longValue
       case JDouble(x) if (targetType == classOf[Number]) => x
+      case JDouble(x) if (targetType == classOf[BigDecimal]) => BigDecimal(x)
+      case JDouble(x) if (targetType == classOf[JavaBigDecimal]) => BigDecimal(x).bigDecimal
       case JDecimal(x) if (targetType == classOf[Double]) => x.doubleValue()
       case JDecimal(x) if (targetType == classOf[JavaDouble]) => new JavaDouble(x.doubleValue())
       case JDecimal(x) if (targetType == classOf[BigDecimal]) => x
