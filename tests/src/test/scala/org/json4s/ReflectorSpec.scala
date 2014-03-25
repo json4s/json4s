@@ -84,7 +84,7 @@ class ReflectorSpec extends Specification {
           d.constructors must not(beEmpty)
           d.constructors.head.params.size must_== 2
           d.properties.size must_== 1
-          d.companion.map(_.instance) must beSome(PathTypes.HasTrait.FromTrait)
+          d.companion.map(_.instance) must_== Some(PathTypes.HasTrait.FromTrait)
           d.constructors.head.params(0).defaultValue.get() must_== PathTypes.HasTrait
         case _ => fail("Expected a class descriptor")
       }
@@ -107,8 +107,9 @@ class ReflectorSpec extends Specification {
     }
     "describe a case object" in {
       val descr = Reflector.describe(TheObject.getClass).asInstanceOf[ClassDescriptor]
-      descr.mostComprehensive must not(throwAn[Exception])
+      val res = descr.mostComprehensive must not(throwAn[Exception])
       println(Reflector.describe(TheObject.getClass))
+      res
     }
 
     "describe primitives" in {

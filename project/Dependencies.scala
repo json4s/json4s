@@ -14,13 +14,13 @@ object Dependencies {
 
   /* stop stealing */
 
-  lazy val scalaz_core = "org.scalaz" %% "scalaz-core" % "7.0.4"
+  lazy val scalaz_core = "org.scalaz" %% "scalaz-core" % "7.0.6"
 
   val jodaTime = Seq("joda-time" % "joda-time" % "2.3", "org.joda" % "joda-convert" % "1.6")
 
   val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.1" % "test"
 
-  lazy val specs = "org.specs2" %% "specs2"      % "1.14"  % "test"
+  lazy val specs = "org.specs2" %% "specs2"      % "2.3.10"  % "test"
 
   val jackson = Seq("com.fasterxml.jackson.core" % "jackson-databind" % "2.3.1")
 

@@ -20,8 +20,7 @@ object FieldSerializerBugs extends Specification {
 */
 
   "Serializing a singleton object should not cause stack overflow" in {
-    swrite(SingletonObject)
-    ()
+    swrite(SingletonObject) must not(throwAn[Exception])
   }
 
   "Name with symbols is correctly serialized" in {
