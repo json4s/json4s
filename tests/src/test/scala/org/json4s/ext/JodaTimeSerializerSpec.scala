@@ -51,7 +51,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
         override def dateFormatter = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'")
       } ++ JodaTimeSerializers.all
 
-      val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0, DateTimeZone.UTC), new DateMidnight(2011, 1, 16, DateTimeZone.UTC))
+      val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0), new DateMidnight(2011, 1, 16))
       val ser = s.write(x)
       ser must_== """{"dt":"2011-01-16 10:32:00Z","dm":"2011-01-16 00:00:00Z"}"""
     }
