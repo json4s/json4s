@@ -20,7 +20,7 @@ object Dependencies {
 
   val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.1" % "test"
 
-  lazy val specs = "org.specs2" %% "specs2"      % "2.3.10"  % "test"
+  lazy val specs = "org.specs2" %% "specs2"      % "2.3.11"  % "test"
 
   val jackson = Seq("com.fasterxml.jackson.core" % "jackson-databind" % "2.3.1")
 
