@@ -40,7 +40,7 @@
       </nav>
       <section>
         <h1>
-<a name="json4s-" class="anchor" href="#json4s-"><span class="octicon octicon-link"></span></a>JSON4S <a href="https://jenkins.backchat.io/job/json4s/"><img src="https://jenkins.backchat.io/job/json4s/badge/icon" alt="Build Status"></a>
+<a name="json4s-" class="anchor" href="#json4s-"><span class="octicon octicon-link"></span></a>JSON4S <a href="http://jenkins.backchat.io/job/json4s/"><img src="http://jenkins.backchat.io/job/json4s/badge/icon" alt="Build Status"></a>
 </h1>
 
 <p>At this moment there are at least 6 json libraries for scala, not counting the java json libraries.
@@ -131,12 +131,12 @@ Note, replace XXX with correct Json4s version.</p>
 
 <p>For the native support add the following dependency to your project description:</p>
 
-<pre><code>val json4sNative = "org.json4s" %% "json4s-native" % "3.2.6"
+<pre><code>val json4sNative = "org.json4s" %% "json4s-native" % "3.2.9"
 </code></pre>
 
 <p>For the Jackson support add the following dependency to your project description:</p>
 
-<pre><code>val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.6"
+<pre><code>val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.9"
 </code></pre>
 
 <h3>
@@ -147,7 +147,7 @@ Note, replace XXX with correct Json4s version.</p>
 <pre><code>&lt;dependency&gt;
   &lt;groupId&gt;org.json4s&lt;/groupId&gt;
   &lt;artifactId&gt;json4s-native_${scala.version}&lt;/artifactId&gt;
-  &lt;version&gt;3.2.6&lt;/version&gt;
+  &lt;version&gt;3.2.9&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -156,7 +156,7 @@ Note, replace XXX with correct Json4s version.</p>
 <pre><code>&lt;dependency&gt;
   &lt;groupId&gt;org.json4s&lt;/groupId&gt;
   &lt;artifactId&gt;json4s-jackson_${scala.version}&lt;/artifactId&gt;
-  &lt;version&gt;3.2.6&lt;/version&gt;
+  &lt;version&gt;3.2.9&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -166,8 +166,8 @@ Note, replace XXX with correct Json4s version.</p>
 <p>Download following jars:</p>
 
 <ul>
-<li><a href="http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.6/json4s-core_2.9.3-3.2.6.jar">http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.6/json4s-core_2.9.3-3.2.6.jar</a></li>
-<li><a href="http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.6/json4s-native_2.9.3-3.2.6.jar">http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.6/json4s-native_2.9.3-3.2.6.jar</a></li>
+<li><a href="http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.9/json4s-core_2.9.3-3.2.9.jar">http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.9/json4s-core_2.9.3-3.2.9.jar</a></li>
+<li><a href="http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.9/json4s-native_2.9.3-3.2.9.jar">http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.9/json4s-native_2.9.3-3.2.9.jar</a></li>
 <li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.6/paranamer-2.5.6.jar">http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.6/paranamer-2.5.6.jar</a></li>
 <li>scalap (Only for Scala-2.9 compatible versions)</li>
 </ul><h2>
@@ -187,6 +187,12 @@ Note, replace XXX with correct Json4s version.</p>
 
 <h1>
 <a name="migration-from-older-versions" class="anchor" href="#migration-from-older-versions"><span class="octicon octicon-link"></span></a>Migration from older versions</h1>
+
+<h2>
+<a name="330--" class="anchor" href="#330--"><span class="octicon octicon-link"></span></a>3.3.0 -&gt;</h2>
+
+<p>The behavior of <code>.toOption</code> on JValue has changed. Now both <code>JNothing</code> and <code>JNull</code> return None.
+For the old behavior you can use <code>toSome</code> which will only turn a <code>JNothing</code> into a None.</p>
 
 <h2>
 <a name="300--" class="anchor" href="#300--"><span class="octicon octicon-link"></span></a>3.0.0 -&gt;</h2>
@@ -316,14 +322,12 @@ into a JDouble the latter into a JDecimal.</p>
 
 <p>res4: String = {"name":"joe"}</p>
 </li>
-<li>
-<p>Extending the dsl
-To extend the dsl with your own classes you must have an implicit conversion in scope of signature:</p>
-
-<div class="highlight highlight-scala"><pre><span class="k">type</span> <span class="kt">DslConversion</span> <span class="o">=</span> <span class="n">T</span> <span class="k">=&gt;</span> <span class="nc">JValue</span>
+<li><p>Extending the dsl
+To extend the dsl with your own classes you must have an implicit conversion in scope of signature:</p></li>
+</ul><div class="highlight highlight-scala"><pre><span class="k">type</span> <span class="kt">DslConversion</span> <span class="o">=</span> <span class="n">T</span> <span class="k">=&gt;</span> <span class="nc">JValue</span>
 </pre></div>
-</li>
-</ul><h2>
+
+<h2>
 <a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
 
 <div class="highlight highlight-scala"><pre><span class="k">object</span> <span class="nc">JsonExample</span> <span class="k">extends</span> <span class="nc">App</span> <span class="o">{</span>
