@@ -334,11 +334,7 @@ trait Formats { self: Formats =>
 
       def format(d: Date) = formatter.format(d)
 
-      private[this] def formatter = {
-        val f = df()
-        f.setTimeZone(DefaultFormats.UTC)
-        f
-      }
+      private[this] def formatter = df()
     }
 
     protected def dateFormatter: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")

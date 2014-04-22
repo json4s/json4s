@@ -274,13 +274,18 @@ object CustomSerializerExamples extends Specification {
     }
   ))
 
+  def losslessUTC = {
+    val sdf = DefaultFormats.losslessDate.get()
+    sdf.setTimeZone(DefaultFormats.UTC)
+    sdf
+  }
+
   class DateSerializer extends CustomSerializer[Date](format => (
     {
-      case JObject(List(JField("$dt", JString(s)))) =>
-        format.dateFormat.parse(s).getOrElse(throw new MappingException(s"Can't parse $s to Date"))
+      case JObject(List(JField("$dt", JString(s)))) => losslessUTC.parse(s)
     },
     {
-      case x: Date => JObject(JField("$dt", JString(format.dateFormat.format(x))) :: Nil)
+      case x: Date => JObject(JField("$dt", JString(losslessUTC.format(x))) :: Nil)
     }
   ))
 
