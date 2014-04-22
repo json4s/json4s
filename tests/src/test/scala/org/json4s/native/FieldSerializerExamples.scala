@@ -50,6 +50,33 @@ object FieldSerializerExamples extends Specification {
     dog2.name must_== ""
     cat2.name must_== "tommy"
   }
+
+
+  "Renames a property name to/from" in {
+    val dudeSerializer = FieldSerializer[Dude](renameTo("name", "nm"), renameFrom("nm", "name"))
+    implicit val formats = DefaultFormats + dudeSerializer
+    val dude = Dude("Jeffrey")
+
+    val jv = Extraction.decompose(dude)
+    jv \ "nm" must_== JString("Jeffrey")
+
+    val result = Extraction.extract[Dude](jv)
+    result must_== dude
+  }
+
+  "Renames a property name to/from in subproperties" in {
+    val dudeSerializer = FieldSerializer[Dude](renameTo("name", "nm"), renameFrom("nm", "name"))
+    implicit val formats = DefaultFormats + dudeSerializer
+    val dude = Dude("Jeffrey", Dude("Angel") :: Dude("Constantin") :: Nil)
+
+    val jv = Extraction.decompose(dude)
+    jv \ "nm" must_== JString("Jeffrey")
+    jv \ "friends" \\ "nm" must_== JArray(List(JString("Angel"), JString("Constantin")))
+
+    val result = Extraction.extract[Dude](jv)
+    result must_== dude
+  }
+
 }
 
 abstract class Mammal {
@@ -60,5 +87,6 @@ abstract class Mammal {
 
 class WildDog(val color: String) extends Mammal
 class WildCat(val cuteness: Int) extends Mammal
-
 case class Owner(name: String, age: Int)
+case class Dude(name: String,  friends: List[Dude] = Nil)
+
