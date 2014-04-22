@@ -89,11 +89,11 @@ Note, replace XXX with correct Json4s version.
 
 For the native support add the following dependency to your project description:
 
-    val json4sNative = "org.json4s" %% "json4s-native" % "3.2.8"
+    val json4sNative = "org.json4s" %% "json4s-native" % "3.2.9"
 
 For the Jackson support add the following dependency to your project description:
 
-    val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.8"
+    val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.9"
 
 ### Maven users
 
@@ -102,7 +102,7 @@ For the native support add the following dependency to your pom:
     <dependency>
       <groupId>org.json4s</groupId>
       <artifactId>json4s-native_${scala.version}</artifactId>
-      <version>3.2.8</version>
+      <version>3.2.9</version>
     </dependency>
 
 For the jackson support add the following dependency to your pom:
@@ -110,15 +110,15 @@ For the jackson support add the following dependency to your pom:
     <dependency>
       <groupId>org.json4s</groupId>
       <artifactId>json4s-jackson_${scala.version}</artifactId>
-      <version>3.2.8</version>
+      <version>3.2.9</version>
     </dependency>
 
 ### Others
 
 Download following jars:
 
-* http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.8/json4s-core_2.9.3-3.2.8.jar
-* http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.8/json4s-native_2.9.3-3.2.8.jar
+* http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.9/json4s-core_2.9.3-3.2.9.jar
+* http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.9/json4s-native_2.9.3-3.2.9.jar
 * http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.6/paranamer-2.5.6.jar
 * scalap (Only for Scala-2.9 compatible versions)
 
