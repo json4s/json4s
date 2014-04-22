@@ -283,7 +283,7 @@ private sealed trait JDecimalAstJsonWriter extends JValueJsonWriter {
     new JDecimalJObjectJsonWriter(this)
   }
 
-  def float(value: Float): JsonWriter[JValue] = addNode(JDecimal(BigDecimal(value)))
+  def float(value: Float): JsonWriter[JValue] = double(value.toDouble)
 
   def double(value: Double): JsonWriter[JValue] = addNode(JDecimal(BigDecimal(value)))
 
@@ -453,13 +453,13 @@ private final class RootStreamingJsonWriter[T <: JWriter](protected[this] val no
 
   protected[this] val level: Int = 0
 
-  final def addNode(node: String): JsonWriter[T] = {
+  def addNode(node: String): JsonWriter[T] = {
     nodes write node
     this
   }
 
 
-  final def addAndQuoteNode(node: String): JsonWriter[T] = {
+  def addAndQuoteNode(node: String): JsonWriter[T] = {
     nodes.append("\"")
     ParserUtil.quote(node, nodes)
     nodes.append("\"")

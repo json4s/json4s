@@ -71,10 +71,6 @@ object BsonDSLSpec extends Specification  {
 
       ptrnList.map(_.pattern) must_== ptrnList2.map(_.pattern)
       ptrnList.map(_.flags) must_== ptrnList2.map(_.flags)
-      // for (i <- 0 to 2) yield {
-      //   ptrnList(i).pattern must_== ptrnList2(i).pattern
-      //   ptrnList(i).flags must_== ptrnList2(i).flags
-      // }
     }
 
     "Convert Regex properly" in {

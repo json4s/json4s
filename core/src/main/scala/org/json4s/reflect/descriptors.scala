@@ -80,7 +80,7 @@ object ScalaType {
     override def typeVars: Map[TypeVariable[_], ScalaType] = {
       if (_typeVars == null)
         _typeVars = Map.empty ++
-          erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).toList.zip(manifest.typeArguments map (ScalaType(_)))
+          erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).zip(typeArgs)
       _typeVars
     }
   }
@@ -99,7 +99,7 @@ class ScalaType(private val manifest: Manifest[_]) extends Equals {
   def typeVars: Map[TypeVariable[_], ScalaType] = {
     if (_typeVars == null)
       _typeVars = Map.empty ++
-        erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).toList.zip(manifest.typeArguments map (ScalaType(_)))
+        erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).zip(typeArgs)
     _typeVars
   }
 
