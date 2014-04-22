@@ -4,22 +4,22 @@
 # Author: Paul Phillips <paulp@typesafe.com>
 
 # todo - make this dynamic
-declare -r sbt_release_version=0.13.0
-declare -r sbt_unreleased_version=0.13.1-RC2
-declare -r buildProps=project/build.properties
+declare -r sbt_release_version="0.13.1"
+declare -r sbt_unreleased_version="0.13.2-SNAPSHOT" # -sbt-dev doesn't work at present
+declare -r buildProps="project/build.properties"
 
 declare sbt_jar sbt_dir sbt_create sbt_launch_dir
 declare scala_version java_home sbt_explicit_version
 declare verbose debug quiet noshare batch trace_level log_level
 declare sbt_saved_stty
 
-echoerr () { [[ -z $quiet ]]           && echo    "$@" >&2; }
+echoerr () { [[ -z "$quiet" ]]           && echo    "$@" >&2; }
 vlog ()    { [[ -n "$verbose$debug" ]] && echoerr "$@"; }
-dlog ()    { [[ -n $debug ]]           && echoerr "$@"; }
+dlog ()    { [[ -n "$debug" ]]           && echoerr "$@"; }
 
 # we'd like these set before we get around to properly processing arguments
 for arg in "$@"; do
-  case $arg in
+  case "$arg" in
     -q|-quiet)    quiet=true ;;
     -d|-debug)    debug=true ;;
   -v|-verbose)  verbose=true ;;
@@ -29,31 +29,31 @@ done
 
 # spaces are possible, e.g. sbt.version = 0.13.0
 build_props_sbt () {
-  [[ -r $buildProps ]] && \
-    grep ^sbt\.version $buildProps | tr '=' ' ' | awk '{ print $2; }'
+  [[ -r "$buildProps" ]] && \
+    grep '^sbt\.version' "$buildProps" | tr '=' ' ' | awk '{ print $2; }'
 }
 
 update_build_props_sbt () {
   local ver="$1"
   local old="$(build_props_sbt)"
 
-  [[ -r $buildProps ]] && [[ $ver != "$old" ]] && {
-    perl -pi -e "s/^sbt\.version\b.*\$/sbt.version=${ver}/" $buildProps
-    grep -q '^sbt.version[ =]' $buildProps || printf "\nsbt.version=%s\n" "$ver" >> $buildProps
+  [[ -r "$buildProps" ]] && [[ "$ver" != "$old" ]] && {
+    perl -pi -e "s/^sbt\.version\b.*\$/sbt.version=${ver}/" "$buildProps"
+    grep -q '^sbt.version[ =]' "$buildProps" || printf "\nsbt.version=%s\n" "$ver" >> "$buildProps"
 
-    echoerr !!!
-    echoerr !!! Updated file $buildProps setting sbt.version to: "$ver"
-    echoerr !!! Previous value was: "$old"
-    echoerr !!!
+    echoerr "!!!"
+    echoerr "!!! Updated file $buildProps setting sbt.version to: $ver"
+    echoerr "!!! Previous value was: $old"
+    echoerr "!!!"
   }
 }
 
 sbt_version () {
-  if [[ -n $sbt_explicit_version ]]; then
-    echo $sbt_explicit_version
+  if [[ -n "$sbt_explicit_version" ]]; then
+    echo "$sbt_explicit_version"
   else
-    local v=$(build_props_sbt)
-    if [[ -n $v ]]; then
+    local v="$(build_props_sbt)"
+    if [[ -n "$v" ]]; then
       echo "$v"
     else
       echo "$sbt_release_version"
@@ -63,16 +63,16 @@ sbt_version () {
 
 # restore stty settings (echo in particular)
 onSbtRunnerExit() {
-  [[ -n $sbt_saved_stty ]] || return
+  [[ -n "$sbt_saved_stty" ]] || return
   dlog ""
   dlog "restoring stty: $sbt_saved_stty"
-  stty $sbt_saved_stty
+  stty "$sbt_saved_stty"
   unset sbt_saved_stty
 }
 
 # save stty and trap exit, to ensure echo is reenabled if we are interrupted.
 trap onSbtRunnerExit EXIT
-sbt_saved_stty=$(stty -g 2>/dev/null)
+sbt_saved_stty="$(stty -g 2>/dev/null)"
 dlog "Saved stty: $sbt_saved_stty"
 
 # this seems to cover the bases on OSX, and someone will
@@ -81,7 +81,7 @@ get_script_path () {
   local path="$1"
   [[ -L "$path" ]] || { echo "$path" ; return; }
 
-  local target=$(readlink "$path")
+  local target="$(readlink "$path")"
   if [[ "${target:0:1}" == "/" ]]; then
     echo "$target"
   else
@@ -97,25 +97,24 @@ die() {
 make_url () {
   version="$1"
 
-  echo "$sbt_launch_repo/org.scala-sbt/sbt-launch/$version/sbt-launch.jar"
-}
-
-readarr () {
-  while read ; do
-    eval "$1+=(\"$REPLY\")"
-  done
+  case "$version" in
+        0.7.*) echo "http://simple-build-tool.googlecode.com/files/sbt-launch-0.7.7.jar" ;;
+      0.10.* ) echo "$sbt_launch_repo/org.scala-tools.sbt/sbt-launch/$version/sbt-launch.jar" ;;
+    0.11.[12]) echo "$sbt_launch_repo/org.scala-tools.sbt/sbt-launch/$version/sbt-launch.jar" ;;
+            *) echo "$sbt_launch_repo/org.scala-sbt/sbt-launch/$version/sbt-launch.jar" ;;
+  esac
 }
 
 init_default_option_file () {
-  local overriding_var=${!1}
-  local default_file=$2
-  if [[ ! -r "$default_file" && $overriding_var =~ ^@(.*)$ ]]; then
-    local envvar_file=${BASH_REMATCH[1]}
-    if [[ -r $envvar_file ]]; then
-      default_file=$envvar_file
+  local overriding_var="${!1}"
+  local default_file="$2"
+  if [[ ! -r "$default_file" && "$overriding_var" =~ ^@(.*)$ ]]; then
+    local envvar_file="${BASH_REMATCH[1]}"
+    if [[ -r "$envvar_file" ]]; then
+      default_file="$envvar_file"
     fi
   fi
-  echo $default_file
+  echo "$default_file"
 }
 
 declare -r cms_opts="-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC"
@@ -127,13 +126,13 @@ declare -r latest_29="2.9.3"
 declare -r latest_210="2.10.3"
 declare -r latest_211="2.11.0-M5"
 
-declare -r script_path=$(get_script_path "$BASH_SOURCE")
+declare -r script_path="$(get_script_path "$BASH_SOURCE")"
 declare -r script_name="${script_path##*/}"
 
 # some non-read-onlies set with defaults
-declare java_cmd=java
-declare sbt_opts_file=$(init_default_option_file SBT_OPTS .sbtopts)
-declare jvm_opts_file=$(init_default_option_file JVM_OPTS .jvmopts)
+declare java_cmd="java"
+declare sbt_opts_file="$(init_default_option_file SBT_OPTS .sbtopts)"
+declare jvm_opts_file="$(init_default_option_file JVM_OPTS .jvmopts)"
 declare sbt_launch_repo="http://typesafe.artifactoryonline.com/typesafe/ivy-releases"
 
 # pull -J and -D options to give to java.
@@ -154,16 +153,16 @@ declare sbt_launch_dir="$HOME/.sbt/launchers"
 [[ -w "$sbt_launch_dir" ]] || sbt_launch_dir="$(mktemp -d -t sbt_extras_launchers.XXXXXX)"
 
 build_props_scala () {
-  if [[ -r $buildProps ]]; then
-    versionLine=$(grep ^build.scala.versions $buildProps)
-    versionString=${versionLine##build.scala.versions=}
+  if [[ -r "$buildProps" ]]; then
+    versionLine="$(grep '^build.scala.versions' "$buildProps")"
+    versionString="${versionLine##build.scala.versions=}"
     echo "${versionString%% .*}"
   fi
 }
 
 execRunner () {
   # print the arguments one to a line, quoting any containing spaces
-  [[ $verbose || $debug ]] && echo "# Executing command line:" && {
+  [[ "$verbose" || "$debug" ]] && echo "# Executing command line:" && {
     for arg; do
       if [[ -n "$arg" ]]; then
         if printf "%s\n" "$arg" | grep -q ' '; then
@@ -176,24 +175,18 @@ execRunner () {
     echo ""
   }
 
-  if [[ -n $batch ]]; then
+  if [[ -n "$batch" ]]; then
     exec </dev/null
   fi
   exec "$@"
 }
 
 jar_url () {
-  case $1 in
-    0.13.*) make_url "$1" ;;
-         *) make_url "$sbt_release_version" ;;
-  esac
+  make_url "$1"
 }
 
 jar_file () {
-  case $1 in
-    0.13.*) echo "$sbt_launch_dir/$1/sbt-launch.jar" ;;
-         *) echo "$sbt_launch_dir/$sbt_release_version/sbt-launch.jar" ;;
-  esac
+  echo "$sbt_launch_dir/$1/sbt-launch.jar"
 }
 
 download_url () {
@@ -245,7 +238,6 @@ Usage: $script_name [options]
   !!! The only way to accomplish this pre-0.12.0 if there is a build.properties file which
   !!! contains an sbt.version property is to update the file on disk.  That's what this does.
   -sbt-version  <version>   use the specified version of sbt (default: $sbt_release_version)
-  -sbt-dev                  use an unreleased version of sbt (currently: $sbt_unreleased_version)
   -sbt-jar      <path>      use the specified jar as the sbt launcher
   -sbt-launch-dir <path>    directory to hold sbt launchers (default: $sbt_launch_dir)
   -sbt-launch-repo <url>    repo url for downloading sbt launcher jar (default: $sbt_launch_repo)
@@ -305,7 +297,7 @@ addDebugger () {
   addJava "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=$1"
 }
 setScalaVersion () {
-  [[ "$1" == *-SNAPSHOT ]] && addResolver 'Resolver.sonatypeRepo("snapshots")'
+  [[ "$1" == *"-SNAPSHOT" ]] && addResolver 'Resolver.sonatypeRepo("snapshots")'
   addSbt "++ $1"
 }
 
@@ -327,7 +319,7 @@ process_args ()
       -d|-debug) debug=true && log_level=Debug && shift ;;
       -q|-quiet) quiet=true && log_level=Error && shift ;;
 
-         -trace) require_arg integer "$1" "$2" && trace_level=$2 && shift 2 ;;
+         -trace) require_arg integer "$1" "$2" && trace_level="$2" && shift 2 ;;
            -ivy) require_arg path "$1" "$2" && addJava "-Dsbt.ivy.home=$2" && shift 2 ;;
      -no-colors) addJava "-Dsbt.log.noformat=true" && shift ;;
       -no-share) noshare=true && shift ;;
@@ -355,10 +347,10 @@ process_args ()
             -D*) addJava "$1" && shift ;;
             -J*) addJava "${1:2}" && shift ;;
             -S*) addScalac "${1:2}" && shift ;;
-            -28) setScalaVersion $latest_28 && shift ;;
-            -29) setScalaVersion $latest_29 && shift ;;
-           -210) setScalaVersion $latest_210 && shift ;;
-           -211) setScalaVersion $latest_211 && shift ;;
+            -28) setScalaVersion "$latest_28" && shift ;;
+            -29) setScalaVersion "$latest_29" && shift ;;
+           -210) setScalaVersion "$latest_210" && shift ;;
+           -211) setScalaVersion "$latest_211" && shift ;;
 
               *) addResidual "$1" && shift ;;
     esac
@@ -368,24 +360,26 @@ process_args ()
 # process the direct command line arguments
 process_args "$@"
 
-# skip #-styled comments
+# skip #-styled comments and blank lines
 readConfigFile() {
-  while read line; do echo "${line/\#.*/}"; done < "$1"
+  while read line; do
+    [[ $line =~ ^# ]] || [[ -z $line ]] || echo "$line"
+  done < "$1"
 }
 
 # if there are file/environment sbt_opts, process again so we
 # can supply args to this runner
 if [[ -r "$sbt_opts_file" ]]; then
   vlog "Using sbt options defined in file $sbt_opts_file"
-  readarr extra_sbt_opts < <(readConfigFile "$sbt_opts_file")
-elif [[ -n "$SBT_OPTS" && ! ($SBT_OPTS =~ ^@.*) ]]; then
+  while read opt; do extra_sbt_opts+=("$opt"); done < <(readConfigFile "$sbt_opts_file")
+elif [[ -n "$SBT_OPTS" && ! ("$SBT_OPTS" =~ ^@.*) ]]; then
   vlog "Using sbt options defined in variable \$SBT_OPTS"
   extra_sbt_opts=( $SBT_OPTS )
 else
   vlog "No extra sbt options have been defined"
 fi
 
-[[ -n $extra_sbt_opts ]] && process_args "${extra_sbt_opts[@]}"
+[[ -n "$extra_sbt_opts" ]] && process_args "${extra_sbt_opts[@]}"
 
 # reset "$@" to the residual args
 set -- "${residual_args[@]}"
@@ -393,9 +387,13 @@ argumentCount=$#
 
 # only exists in 0.12+
 setTraceLevel() {
-  case $(sbt_version) in
-     0.{7,10,11}.*) echoerr "Cannot set trace level in sbt version $(sbt_version)" ;;
-                 *) addSbt "set every traceLevel := $trace_level" ;;
+  case "$(sbt_version)" in
+    "0.7."* | "0.10."* | "0.11."* )
+      echoerr "Cannot set trace level in sbt version $(sbt_version)"
+    ;;
+    *)
+      addSbt "set every traceLevel := $trace_level"
+    ;;
   esac
 }
 
@@ -435,22 +433,29 @@ EOM
   exit 1
 }
 
-if [[ -n $noshare ]]; then
+if [[ -n "$noshare" ]]; then
   for opt in ${noshare_opts}; do
     addJava "$opt"
   done
 else
-  [[ -n "$sbt_dir" ]] || {
-    sbt_dir=~/.sbt/$(sbt_version)
-    vlog "Using $sbt_dir as sbt dir, -sbt-dir to override."
-  }
-  # addJava "-Dsbt.global.base=$sbt_dir"
+  case "$(sbt_version)" in
+    "0.7."* | "0.10."* | "0.11."* | "0.12."* )
+      [[ -n "$sbt_dir" ]] || {
+        sbt_dir="$HOME/.sbt/$(sbt_version)"
+        vlog "Using $sbt_dir as sbt dir, -sbt-dir to override."
+      }
+    ;;
+  esac
+
+  if [[ -n "$sbt_dir" ]]; then
+    addJava "-Dsbt.global.base=$sbt_dir"
+  fi
 fi
 
 if [[ -r "$jvm_opts_file" ]]; then
   vlog "Using jvm options defined in file $jvm_opts_file"
-  readarr extra_jvm_opts < <(readConfigFile "$jvm_opts_file")
-elif [[ -n "$JVM_OPTS" && ! ($JVM_OPTS =~ ^@.*) ]]; then
+  while read opt; do extra_jvm_opts+=("$opt"); done < <(readConfigFile "$jvm_opts_file")
+elif [[ -n "$JVM_OPTS" && ! ("$JVM_OPTS" =~ ^@.*) ]]; then
   vlog "Using jvm options defined in \$JVM_OPTS variable"
   extra_jvm_opts=( $JVM_OPTS )
 else
@@ -459,15 +464,18 @@ else
 fi
 
 # traceLevel is 0.12+
-[[ -n $trace_level ]] && setTraceLevel
+[[ -n "$trace_level" ]] && setTraceLevel
 
-[[ -n $log_level ]] && [[ $log_level != Info ]] && logLevalArg="set logLevel in Global := Level.$log_level"
+
+if [[ -n "$log_level" ]] && [[ "$log_level" != Info ]]; then
+  sbt_commands=("set logLevel in Global := Level.$log_level" "${sbt_commands[@]}")
+fi
+
 
 # run sbt
 execRunner "$java_cmd" \
   "${extra_jvm_opts[@]}" \
   "${java_args[@]}" \
   -jar "$sbt_jar" \
-  "$logLevalArg" \
   "${sbt_commands[@]}" \
   "${residual_args[@]}"

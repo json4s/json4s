@@ -36,8 +36,6 @@ object JObjectParserSpec extends Specification  {
     (oid, dbo)
   }
 
-  sequential
-
   "JObjectParser" should {
     "convert strings to ObjectId by default" in {
       val (oid, dbo) = buildTestData
@@ -46,7 +44,7 @@ object JObjectParserSpec extends Specification  {
       xval.isDefined must_== true
       xval.toList map { x =>
         x must_== oid
-      }
+      } reduce (_ and _)
     }
     "not convert strings to ObjectId when configured not to" in {
       JObjectParser.stringProcessor.set((s: String) => s)
@@ -57,7 +55,7 @@ object JObjectParserSpec extends Specification  {
       xval.isDefined must_== true
       xval.toList map { x =>
         x must_== oid.toString
-      }
+      } reduce (_ and _)
     }
   }
 }
