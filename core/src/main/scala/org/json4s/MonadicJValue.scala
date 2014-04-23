@@ -308,36 +308,28 @@ class MonadicJValue(jv: JValue) {
   }
 
   private[this] def camelize(word: String): String = {
-    val w = pascalize(word)
-    w.substring(0, 1).toLowerCase(ENGLISH) + w.substring(1)
+    "_([a-z\\d])".r.replaceAllIn(word, { m =>
+      m.group(1).toUpperCase()
+    })
   }
-  private[this] def pascalize(word: String): String = {
-    val lst = word.split("_").toList
-    (lst.headOption.map(s ⇒ s.substring(0, 1).toUpperCase(ENGLISH) + s.substring(1)).get ::
-      lst.tail.map(s ⇒ s.substring(0, 1).toUpperCase + s.substring(1))).mkString("")
-  }
+
   private[this] def underscore(word: String): String = {
-    val spacesPattern = "[-\\s]".r
-    val firstPattern = "([A-Z]+)([A-Z][a-z])".r
-    val secondPattern = "([a-z\\d])([A-Z])".r
-    val replacementPattern = "$1_$2"
-    spacesPattern.replaceAllIn(
-      secondPattern.replaceAllIn(
-        firstPattern.replaceAllIn(
-          word, replacementPattern), replacementPattern), "_").toLowerCase
+    "[A-Z\\d]".r.replaceAllIn(word, { m =>
+      "_" + m.group(0).toLowerCase()
+    })
   }
 
   /**
    * Camelize all the keys in this [[org.json4s.JsonAST.JValue]]
    */
   def camelizeKeys = rewriteJsonAST(camelize = true)
-  
+
   /**
    * Underscore all the keys in this [[org.json4s.JsonAST.JValue]]
    */
   def snakizeKeys = rewriteJsonAST(camelize = false)
 
-      
+
   /**
    * Underscore all the keys in this [[org.json4s.JsonAST.JValue]]
    */
