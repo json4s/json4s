@@ -284,6 +284,7 @@ Example
 object JsonExample extends App {
   import org.json4s._
   import org.json4s.JsonDSL._
+  import org.json4s.jackson.JsonMethods._
 
   case class Winner(id: Long, numbers: List[Int])
   case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[java.util.Date])
