@@ -79,6 +79,13 @@ lift-json AST.</p>
 <span class="k">import</span> <span class="nn">org.json4s.jackson.JsonMethods._</span>
 </pre></div>
 
+<p>Be aware that the default behavior of the jackson integration is to close the stream when it's done.
+If you want to change that:</p>
+
+<div class="highlight highlight-scala"><pre><span class="k">import</span> <span class="nn">com.fasterxml.jackson.databind.SerializationFeature</span>
+<span class="n">org</span><span class="o">.</span><span class="n">json4s</span><span class="o">.</span><span class="n">jackson</span><span class="o">.</span><span class="nc">JsonMethods</span><span class="o">.</span><span class="n">configure</span><span class="o">(</span><span class="nc">SerializationFeature</span><span class="o">.</span><span class="nc">CLOSE_CLOSEABLE</span><span class="o">,</span> <span class="kc">false</span><span class="o">)</span>
+</pre></div>
+
 <h2>
 <a name="guide" class="anchor" href="#guide"><span class="octicon octicon-link"></span></a>Guide</h2>
 
@@ -333,6 +340,7 @@ To extend the dsl with your own classes you must have an implicit conversion in 
 <div class="highlight highlight-scala"><pre><span class="k">object</span> <span class="nc">JsonExample</span> <span class="k">extends</span> <span class="nc">App</span> <span class="o">{</span>
   <span class="k">import</span> <span class="nn">org.json4s._</span>
   <span class="k">import</span> <span class="nn">org.json4s.JsonDSL._</span>
+  <span class="k">import</span> <span class="nn">org.json4s.jackson.JsonMethods._</span>
 
   <span class="k">case</span> <span class="k">class</span> <span class="nc">Winner</span><span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span> <span class="n">numbers</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Int</span><span class="o">])</span>
   <span class="k">case</span> <span class="k">class</span> <span class="nc">Lotto</span><span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span> <span class="n">winningNumbers</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Int</span><span class="o">],</span> <span class="n">winners</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Winner</span><span class="o">],</span> <span class="n">drawDate</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">java.util.Date</span><span class="o">])</span>
@@ -614,7 +622,7 @@ scala&gt; val json = parse("""
            "children": [
              {
                "name": "Mary",
-               "age": 5
+               "age": 5,
                "birthdate": "2004-09-04T18:06:22Z"
              },
              {
