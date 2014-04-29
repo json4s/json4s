@@ -36,7 +36,13 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 ```
 
+Be aware that the default behavior of the jackson integration is to close the stream when it's done.
+If you want to change that:
 
+```scala
+import com.fasterxml.jackson.databind.SerializationFeature
+org.json4s.jackson.JsonMethods.configure(SerializationFeature.CLOSE_CLOSEABLE, false)
+```
 
 ## Guide
 
