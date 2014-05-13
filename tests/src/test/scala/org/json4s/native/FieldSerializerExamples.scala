@@ -71,7 +71,7 @@ object FieldSerializerExamples extends Specification {
 
     val jv = Extraction.decompose(dude)
     jv \ "nm" must_== JString("Jeffrey")
-    jv \ "friends" \\ "nm" must_== JArray(List(JString("Angel"), JString("Constantin")))
+    jv \ "friends" \\ "nm" must_== JObject(List("nm" -> JString("Angel"), "nm" -> JString("Constantin")))
 
     val result = Extraction.extract[Dude](jv)
     result must_== dude
