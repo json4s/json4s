@@ -536,6 +536,7 @@ private sealed trait StreamingJsonWriter[T <: JWriter] extends JsonWriter[T] {
     case JObject(flds) =>
       val obj = startObject()
       flds foreach {
+        case (k, v) if v == JNothing => this
         case (k, v) => obj.startField(k).addJValue(v)
       }
       obj.endObject()

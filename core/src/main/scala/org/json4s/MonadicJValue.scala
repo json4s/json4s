@@ -46,12 +46,18 @@ class MonadicJValue(jv: JValue) {
    * </pre>
    */
   def \\(nameToFind: String): JValue = {
-    val values = jv.foldField(List[JValue]()) {
-      case (acc, (`nameToFind`, value)) => value :: acc
-      case (acc, _) => acc
+    def find(json: JValue): List[JField] = json match {
+      case JObject(l) ⇒ l.foldLeft(List[JField]()) {
+        case (a, (name, value)) ⇒
+          if (name == nameToFind) a ::: List((name, value)) ::: find(value) else a ::: find(value)
+      }
+      case JArray(l) ⇒ l.foldLeft(List[JField]())((a, json) ⇒ a ::: find(json))
+      case _ ⇒ Nil
     }
-
-    JArray(values.reverse)
+    find(jv) match {
+      case (_, x) :: Nil ⇒ x
+      case xs ⇒ JObject(xs)
+    }
   }
 
   /**

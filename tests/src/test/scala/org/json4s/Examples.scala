@@ -111,14 +111,8 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       val renderedPerson = pretty(render(json))
       json must_== parse(renderedPerson)
       render(json) must_== render(personDSL)
+      compact(render(json \\ "name")) must_== """{"name":"Joe","name":"Marilyn"}"""
       compact(render(json \ "person" \ "name")) must_== "\"Joe\""
-    }
-
-    "Recursive navigation example" in {
-      val json = parse(person)
-      compact(render(json \\ "name")) must_== """["Joe","Marilyn"]"""
-      compact(render(json \ "person" \ "spouse" \ "person" \\ "name")) must_== """["Marilyn"]"""
-      compact(render(parse("""{ "name": "Joe"}""") \\ "name" )) must_== """["Joe"]"""
     }
 
     "Transformation example" in {
@@ -130,14 +124,14 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
 
     "Remove Field example" in {
       val json = parse(person) removeField { _ == JField("name", "Marilyn") }
-      (json \\ "name") must_== JArray(List(JString("Joe")))
-      compact(render(json \\ "name")) must_== """["Joe"]"""
+      (json \\ "name") must_== JString("Joe")
+      compact(render(json \\ "name")) must_== "\"Joe\""
     }
 
     "Remove example" in {
       val json = parse(person) remove { _ == JString("Marilyn") }
-      (json \\ "name") must_== JArray(List(JString("Joe")))
-      compact(render(json \\ "name")) must_== """["Joe"]"""
+      (json \\ "name") must_== JString("Joe")
+      compact(render(json \\ "name")) must_== "\"Joe\""
     }
 
     "XPath operator should behave the same after adding and removing a second field with the same name" in {

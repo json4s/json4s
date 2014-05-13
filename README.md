@@ -36,7 +36,13 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 ```
 
+Be aware that the default behavior of the jackson integration is to close the stream when it's done.
+If you want to change that:
 
+```scala
+import com.fasterxml.jackson.databind.SerializationFeature
+org.json4s.jackson.JsonMethods.configure(SerializationFeature.CLOSE_CLOSEABLE, false)
+```
 
 ## Guide
 
@@ -285,6 +291,7 @@ Example
 object JsonExample extends App {
   import org.json4s._
   import org.json4s.JsonDSL._
+  import org.json4s.jackson.JsonMethods._
 
   case class Winner(id: Long, numbers: List[Int])
   case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[java.util.Date])
@@ -561,7 +568,7 @@ Please see more examples in [ExtractionExampleSpec.scala](https://github.com/jso
                "children": [
                  {
                    "name": "Mary",
-                   "age": 5
+                   "age": 5,
                    "birthdate": "2004-09-04T18:06:22Z"
                  },
                  {
