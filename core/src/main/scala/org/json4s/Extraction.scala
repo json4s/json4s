@@ -459,10 +459,15 @@ object Extraction {
 
       val args = constructor.params.map(a => buildCtorArg(deserializedJson \ a.name, a))
       try {
-        if (jconstructor.getDeclaringClass == classOf[java.lang.Object]) fail("No information known about type")
-
-        val instance = jconstructor.newInstance(args.map(_.asInstanceOf[AnyRef]).toArray: _*)
-        setFields(instance.asInstanceOf[AnyRef])
+        if (jconstructor.getDeclaringClass == classOf[java.lang.Object]) {
+          deserializedJson match {
+            case JObject(TypeHint(t, fs)) => mkWithTypeHint(t: String, fs: List[JField], descr.erasure)
+            case v: JValue => v.values
+          }
+        } else {
+          val instance = jconstructor.newInstance(args.map(_.asInstanceOf[AnyRef]).toArray: _*)
+          setFields(instance.asInstanceOf[AnyRef])
+        }
       } catch {
         case e @ (_:IllegalArgumentException | _:InstantiationException) =>
           fail("Parsed JSON values do not match with class constructor\nargs=" +
