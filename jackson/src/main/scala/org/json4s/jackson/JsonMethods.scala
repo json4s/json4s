@@ -1,7 +1,7 @@
 package org.json4s
 package jackson
 
-import com.fasterxml.jackson.databind.{ObjectMapper, DeserializationFeature}
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper, DeserializationFeature}
 import util.control.Exception.allCatch
 
 trait JsonMethods extends org.json4s.JsonMethods[JValue] {
@@ -39,6 +39,10 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
 
   def asJValue[T](obj: T)(implicit writer: Writer[T]): JValue = writer.write(obj)
   def fromJValue[T](json: JValue)(implicit reader: Reader[T]): T = reader.read(json)
+
+  def asJsonNode(jv: JValue): JsonNode = mapper.valueToTree[JsonNode](jv)
+  def fromJsonNode(jn: JsonNode): JValue = mapper.treeToValue[JValue](jn, classOf[JValue])
+
 }
 
 object JsonMethods extends JsonMethods

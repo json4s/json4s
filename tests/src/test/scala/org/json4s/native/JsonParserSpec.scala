@@ -4,6 +4,7 @@ import org.specs2.ScalaCheck
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop._
 import org.specs2.mutable.Specification
+import org.json4s.jackson.JsonMethods._
 
 /**
 * System under specification for JSON Parser.
@@ -79,6 +80,17 @@ object JsonParserSpec extends Specification with JValueGen with ScalaCheck {
       val json = JsonParser.parse(new StingyReader(""" ["hello"] """))
       json must_== JArray(JString("hello") :: Nil)
     }
+  }
+
+  "A JValue can be converted to a JsonNode." in {
+    val jv = parse(""" { "numbers" : [1, 2], "foo": "bar" } """)
+    println(asJsonNode(jv))
+    parse(asJsonNode(jv).toString) == jv
+  }
+
+  "A JsonNode can be converted to a JValue." in {
+    val jv = parse(""" { "numbers" : [1, 2], "foo": "bar" } """)
+    fromJsonNode(asJsonNode(jv)) == jv
   }
 
   implicit def arbJValue: Arbitrary[JValue] = Arbitrary(genObject)
