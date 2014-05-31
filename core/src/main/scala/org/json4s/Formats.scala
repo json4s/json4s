@@ -43,6 +43,7 @@ trait Formats { self: Formats =>
   def dateFormat: DateFormat
   def typeHints: TypeHints = NoTypeHints
   def customSerializers: List[Serializer[_]] = Nil
+  def customKeySerializers: List[KeySerializer[_]] = Nil
   def fieldSerializers: List[(Class[_], FieldSerializer[_])] = Nil
   def wantsBigDecimal: Boolean = false
   def primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
@@ -64,6 +65,7 @@ trait Formats { self: Formats =>
     override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
     override val typeHints: TypeHints = self.typeHints
     override val customSerializers: List[Serializer[_]] = self.customSerializers
+    override val customKeySerializers: List[KeySerializer[_]] = self.customKeySerializers
     override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
     override val wantsBigDecimal: Boolean = true
     override val primitives: Set[Type] = self.primitives
@@ -76,6 +78,7 @@ trait Formats { self: Formats =>
     override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
     override val typeHints: TypeHints = self.typeHints
     override val customSerializers: List[Serializer[_]] = self.customSerializers
+    override val customKeySerializers: List[KeySerializer[_]] = self.customKeySerializers
     override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
     override val wantsBigDecimal: Boolean = false
     override val primitives: Set[Type] = self.primitives
@@ -89,6 +92,7 @@ trait Formats { self: Formats =>
       override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
       override val typeHints: TypeHints = self.typeHints
       override val customSerializers: List[Serializer[_]] = self.customSerializers
+      override val customKeySerializers: List[KeySerializer[_]] = self.customKeySerializers
       override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
       override val wantsBigDecimal: Boolean = self.wantsBigDecimal
       override val primitives: Set[Type] = self.primitives
@@ -105,6 +109,7 @@ trait Formats { self: Formats =>
     override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
     override val typeHints: TypeHints = self.typeHints + extraHints
     override val customSerializers: List[Serializer[_]] = self.customSerializers
+    override val customKeySerializers: List[KeySerializer[_]] = self.customKeySerializers
     override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
     override val wantsBigDecimal: Boolean = self.wantsBigDecimal
     override val primitives: Set[Type] = self.primitives
@@ -127,10 +132,32 @@ trait Formats { self: Formats =>
   }
 
   /**
+   * Adds the specified custom key serializer to this formats.
+   */
+  def + (newSerializer: KeySerializer[_]): Formats = new Formats {
+    val dateFormat: DateFormat = self.dateFormat
+    override val typeHintFieldName: String = self.typeHintFieldName
+    override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
+    override val typeHints: TypeHints = self.typeHints
+    override val customSerializers: List[Serializer[_]] = self.customSerializers
+    override val customKeySerializers: List[KeySerializer[_]] = newSerializer :: self.customKeySerializers
+    override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
+    override val wantsBigDecimal: Boolean = self.wantsBigDecimal
+    override val primitives: Set[Type] = self.primitives
+    override val companions: List[(Class[_], AnyRef)] = self.companions
+  }
+
+  /**
    * Adds the specified custom serializers to this formats.
    */
   def ++ (newSerializers: Traversable[Serializer[_]]): Formats =
     newSerializers.foldLeft(this)(_ + _)
+
+  /**
+   * Adds the specified custom serializers to this formats.
+   */
+  def addKeySerializers (newKeySerializers: Traversable[KeySerializer[_]]): Formats =
+    newKeySerializers.foldLeft(this)(_ + _)
 
   /**
    * Adds a field serializer for a given type to this formats.
@@ -141,6 +168,7 @@ trait Formats { self: Formats =>
     override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
     override val typeHints: TypeHints = self.typeHints
     override val customSerializers: List[Serializer[_]] = self.customSerializers
+    override val customKeySerializers: List[KeySerializer[_]] = self.customKeySerializers
     override val fieldSerializers: List[(Class[_], FieldSerializer[_])] =
       (newSerializer.mf.erasure -> newSerializer) :: self.fieldSerializers
     override val wantsBigDecimal: Boolean = self.wantsBigDecimal
@@ -167,11 +195,26 @@ trait Formats { self: Formats =>
     customSerializers.foldLeft(Map(): PartialFunction[(TypeInfo, JValue), Any]) { (acc, x) =>
       acc.orElse(x.deserialize)
     }
+
+  def customKeySerializer(implicit format: Formats) =
+    customKeySerializers.foldLeft(Map(): PartialFunction[Any, String]) { (acc, x) =>
+      acc.orElse(x.serialize)
+    }
+
+  def customKeyDeserializer(implicit format: Formats) =
+    customKeySerializers.foldLeft(Map(): PartialFunction[(TypeInfo, String), Any]) { (acc, x) =>
+      acc.orElse(x.deserialize)
+    }
 }
 
   trait Serializer[A] {
     def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), A]
     def serialize(implicit format: Formats): PartialFunction[Any, JValue]
+  }
+
+  trait KeySerializer[A] {
+    def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, String), A]
+    def serialize(implicit format: Formats): PartialFunction[Any, String]
   }
 
   /** Type hints can be used to alter the default conversion rules when converting
@@ -311,6 +354,7 @@ trait Formats { self: Formats =>
     override val parameterNameReader: reflect.ParameterNameReader = reflect.ParanamerReader
     override val typeHints: TypeHints = NoTypeHints
     override val customSerializers: List[Serializer[_]] = Nil
+    override val customKeySerializers: List[KeySerializer[_]] = Nil
     override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = Nil
     override val wantsBigDecimal: Boolean = false
     override val primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
@@ -347,6 +391,20 @@ trait Formats { self: Formats =>
 
   class CustomSerializer[A: Manifest](
     ser: Formats => (PartialFunction[JValue, A], PartialFunction[Any, JValue])) extends Serializer[A] {
+
+    val Class = implicitly[Manifest[A]].erasure
+
+    def deserialize(implicit format: Formats) = {
+      case (TypeInfo(Class, _), json) =>
+        if (ser(format)._1.isDefinedAt(json)) ser(format)._1(json)
+        else throw new MappingException("Can't convert " + json + " to " + Class)
+    }
+
+    def serialize(implicit format: Formats) = ser(format)._2
+  }
+
+  class CustomKeySerializer[A: Manifest](
+    ser: Formats => (PartialFunction[String, A], PartialFunction[Any, String])) extends KeySerializer[A] {
 
     val Class = implicitly[Manifest[A]].erasure
 
