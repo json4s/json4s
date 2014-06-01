@@ -3,7 +3,7 @@ package org.json4s
 import scala.reflect.Manifest
 
 trait Serialization {
-  import java.io.{Reader, StringWriter, Writer}
+  import java.io.{Reader, Writer}
   /** Serialize to String.
    */
   def write[A <: AnyRef](a: A)(implicit formats: Formats): String

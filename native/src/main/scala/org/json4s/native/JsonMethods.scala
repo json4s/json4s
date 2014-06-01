@@ -25,22 +25,23 @@ trait JsonMethods extends org.json4s.JsonMethods[Document] {
    * @see Printer#compact
    * @see Printer#pretty
    */
-  def render(value: JValue): Document = value match {
-    case null          => text("null")
-    case JBool(true)   => text("true")
-    case JBool(false)  => text("false")
-    case JDouble(n)    => text(n.toString)
-    case JDecimal(n)   => text(n.toString)
-    case JInt(n)       => text(n.toString)
-    case JNull         => text("null")
-    case JNothing      => sys.error("can't render 'nothing'")
-    case JString(null) => text("null")
-    case JString(s)    => text("\""+ParserUtil.quote(s)+"\"")
-    case JArray(arr)   => text("[") :: series(trimArr(arr).map(render)) :: text("]")
-    case JObject(obj)  =>
-      val nested = break :: fields(trimObj(obj).map({case (n,v) => text("\""+ParserUtil.quote(n)+"\":") :: render(v)}))
-      text("{") :: nest(2, nested) :: break :: text("}")
-  }
+  def render(value: JValue)(implicit formats: Formats = DefaultFormats): Document =
+    formats.emptyValueStrategy.replaceEmpty(value) match {
+      case null          => text("null")
+      case JBool(true)   => text("true")
+      case JBool(false)  => text("false")
+      case JDouble(n)    => text(n.toString)
+      case JDecimal(n)   => text(n.toString)
+      case JInt(n)       => text(n.toString)
+      case JNull         => text("null")
+      case JNothing      => sys.error("can't render 'nothing'")
+      case JString(null) => text("null")
+      case JString(s)    => text("\""+ParserUtil.quote(s)+"\"")
+      case JArray(arr)   => text("[") :: series(trimArr(arr).map(render)) :: text("]")
+      case JObject(obj)  =>
+        val nested = break :: fields(trimObj(obj).map({case (n,v) => text("\""+ParserUtil.quote(n)+"\":") :: render(v)}))
+        text("{") :: nest(2, nested) :: break :: text("}")
+    }
 
   private def trimArr(xs: List[JValue]) = xs.filter(_ != JNothing)
   private def trimObj(xs: List[JField]) = xs.filter(_._2 != JNothing)

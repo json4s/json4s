@@ -14,7 +14,7 @@ trait JsonMethods[T] {
   def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue
   def parseOpt(in: JsonInput, useBigDecimalForDouble: Boolean = false): Option[JValue]
 
-  def render(value: JValue): T
+  def render(value: JValue)(implicit formats: Formats = DefaultFormats): T
   def compact(d: T): String
   def pretty(d: T): String
 }
