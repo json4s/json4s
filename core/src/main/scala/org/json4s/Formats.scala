@@ -19,11 +19,9 @@ package org.json4s
 
 import java.util.{Date, TimeZone}
 import reflect.Reflector
-import java.util
-import scala.collection.JavaConverters._
-import scala.util.DynamicVariable
 import annotation.implicitNotFound
 import java.lang.reflect.Type
+import org.json4s.prefs.EmptyValueStrategy
 
 object Formats {
   def read[T](json: JValue)(implicit reader: Reader[T]): T = reader.read(json)
@@ -47,7 +45,7 @@ trait Formats { self: Formats =>
   def wantsBigDecimal: Boolean = false
   def primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
   def companions: List[(Class[_], AnyRef)] = Nil
-  def strict: Boolean = false 
+  def strict: Boolean = false
 
   /**
    * The name of the field in JSON where type hints are added (jsonClass by default)
@@ -59,102 +57,67 @@ trait Formats { self: Formats =>
    */
   def parameterNameReader: reflect.ParameterNameReader = reflect.ParanamerReader
 
-  def withBigDecimal: Formats = new Formats {
-    val dateFormat: DateFormat = self.dateFormat
-    override val typeHintFieldName: String = self.typeHintFieldName
-    override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
-    override val typeHints: TypeHints = self.typeHints
-    override val customSerializers: List[Serializer[_]] = self.customSerializers
-    override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
-    override val wantsBigDecimal: Boolean = true
-    override val primitives: Set[Type] = self.primitives
-    override val companions: List[(Class[_], AnyRef)] = self.companions
-    override val strict: Boolean = self.strict
-  }
+  def emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
 
-  def withDouble: Formats = new Formats {
-    val dateFormat: DateFormat = self.dateFormat
-    override val typeHintFieldName: String = self.typeHintFieldName
-    override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
-    override val typeHints: TypeHints = self.typeHints
-    override val customSerializers: List[Serializer[_]] = self.customSerializers
-    override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
-    override val wantsBigDecimal: Boolean = false
-    override val primitives: Set[Type] = self.primitives
-    override val companions: List[(Class[_], AnyRef)] = self.companions
-    override val strict: Boolean = self.strict
-  }
-
-  def withCompanions(comps: (Class[_], AnyRef)*): Formats = {
+  private def copy(
+                    wDateFormat: DateFormat = self.dateFormat,
+                    wTypeHintFieldName: String = self.typeHintFieldName,
+                    wParameterNameReader: reflect.ParameterNameReader = self.parameterNameReader,
+                    wTypeHints: TypeHints = self.typeHints,
+                    wCustomSerializers: List[Serializer[_]] = self.customSerializers,
+                    wFieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers,
+                    wWantsBigDecimal: Boolean = self.wantsBigDecimal,
+                    withPrimitives: Set[Type] = self.primitives,
+                    wCompanions: List[(Class[_], AnyRef)] = self.companions,
+                    wStrict: Boolean = self.strict,
+                    wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy): Formats =
     new Formats {
-      val dateFormat: DateFormat = self.dateFormat
-      override val typeHintFieldName: String = self.typeHintFieldName
-      override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
-      override val typeHints: TypeHints = self.typeHints
-      override val customSerializers: List[Serializer[_]] = self.customSerializers
-      override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
-      override val wantsBigDecimal: Boolean = self.wantsBigDecimal
-      override val primitives: Set[Type] = self.primitives
-      override val companions: List[(Class[_], AnyRef)] = comps.toList ::: self.companions
-      override val strict: Boolean = self.strict
+      def dateFormat: DateFormat = wDateFormat
+      override def typeHintFieldName: String = wTypeHintFieldName
+      override def parameterNameReader: reflect.ParameterNameReader = wParameterNameReader
+      override def typeHints: TypeHints = wTypeHints
+      override def customSerializers: List[Serializer[_]] = wCustomSerializers
+      override def fieldSerializers: List[(Class[_], FieldSerializer[_])] = wFieldSerializers
+      override def wantsBigDecimal: Boolean = wWantsBigDecimal
+      override def primitives: Set[Type] = withPrimitives
+      override def companions: List[(Class[_], AnyRef)] = wCompanions
+      override def strict: Boolean = wStrict
+      override def emptyValueStrategy: EmptyValueStrategy = wEmptyValueStrategy
     }
-  }
+
+  def withBigDecimal: Formats = copy(wWantsBigDecimal = true)
+
+  def withDouble: Formats = copy(wWantsBigDecimal = false)
+
+  def withCompanions(comps: (Class[_], AnyRef)*): Formats = copy(wCompanions = comps.toList ::: self.companions)
+
+  def preservingEmptyValues = withEmptyValueStrategy(EmptyValueStrategy.preserve)
+
+  def skippingEmptyValues = withEmptyValueStrategy(EmptyValueStrategy.skip)
+
+  def withEmptyValueStrategy(strategy: EmptyValueStrategy): Formats = copy(wEmptyValueStrategy = strategy)
 
   /**
    * Adds the specified type hints to this formats.
    */
-  def + (extraHints: TypeHints): Formats = new Formats {
-    val dateFormat: DateFormat = self.dateFormat
-    override val typeHintFieldName: String = self.typeHintFieldName
-    override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
-    override val typeHints: TypeHints = self.typeHints + extraHints
-    override val customSerializers: List[Serializer[_]] = self.customSerializers
-    override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
-    override val wantsBigDecimal: Boolean = self.wantsBigDecimal
-    override val primitives: Set[Type] = self.primitives
-    override val companions: List[(Class[_], AnyRef)] = self.companions
-    override val strict: Boolean = self.strict
-
-  }
+  def + (extraHints: TypeHints): Formats = copy(wTypeHints = self.typeHints + extraHints)
 
   /**
    * Adds the specified custom serializer to this formats.
    */
-  def + (newSerializer: Serializer[_]): Formats = new Formats {
-    val dateFormat: DateFormat = self.dateFormat
-    override val typeHintFieldName: String = self.typeHintFieldName
-    override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
-    override val typeHints: TypeHints = self.typeHints
-    override val customSerializers: List[Serializer[_]] = newSerializer :: self.customSerializers
-    override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
-    override val wantsBigDecimal: Boolean = self.wantsBigDecimal
-    override val primitives: Set[Type] = self.primitives
-    override val companions: List[(Class[_], AnyRef)] = self.companions
-    override val strict: Boolean = self.strict
-  }
+  def + (newSerializer: Serializer[_]): Formats = copy(wCustomSerializers = newSerializer :: self.customSerializers)
 
   /**
    * Adds the specified custom serializers to this formats.
    */
   def ++ (newSerializers: Traversable[Serializer[_]]): Formats =
-    newSerializers.foldLeft(this)(_ + _)
+    copy(wCustomSerializers = newSerializers.foldRight(self.customSerializers)(_ :: _))
 
   /**
    * Adds a field serializer for a given type to this formats.
    */
-  def + [A](newSerializer: FieldSerializer[A]): Formats = new Formats {
-    val dateFormat: DateFormat = self.dateFormat
-    override val typeHintFieldName: String = self.typeHintFieldName
-    override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
-    override val typeHints: TypeHints = self.typeHints
-    override val customSerializers: List[Serializer[_]] = self.customSerializers
-    override val fieldSerializers: List[(Class[_], FieldSerializer[_])] =
-      (newSerializer.mf.erasure -> newSerializer) :: self.fieldSerializers
-    override val wantsBigDecimal: Boolean = self.wantsBigDecimal
-    override val primitives: Set[Type] = self.primitives
-    override val companions: List[(Class[_], AnyRef)] = self.companions
-    override val strict: Boolean = self.strict
-  }
+  def + [A](newSerializer: FieldSerializer[A]): Formats =
+    copy(wFieldSerializers = (newSerializer.mf.erasure -> newSerializer) :: self.fieldSerializers)
 
   private[json4s] def fieldSerializer(clazz: Class[_]): Option[FieldSerializer[_]] = {
     import ClassDelta._
@@ -324,6 +287,7 @@ trait Formats { self: Formats =>
     override val primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
     override val companions: List[(Class[_], AnyRef)] = Nil
     override val strict: Boolean = false
+    override val emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
 
     val dateFormat: DateFormat = new DateFormat {
       def parse(s: String) = try {

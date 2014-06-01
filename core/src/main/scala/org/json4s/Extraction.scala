@@ -77,11 +77,10 @@ object Extraction {
     def prependTypeHint(clazz: Class[_], o: JObject) =
       JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
 
-    def addField(name: String, v: Any, obj: JsonWriter[T]) =
-      if (v != None) {
-        val f = obj.startField(name)
-        internalDecomposeWithBuilder(v, f)
-      }
+    def addField(name: String, v: Any, obj: JsonWriter[T]) = v match {
+      case None => formats.emptyValueStrategy.noneValReplacement map (internalDecomposeWithBuilder(_, obj.startField(name)))
+      case oth => internalDecomposeWithBuilder(v, obj.startField(name))
+    }
 
     val serializer = formats.typeHints.serialize
     val any = a.asInstanceOf[AnyRef]
@@ -432,11 +431,11 @@ object Extraction {
           if (descr.isOptional) { if (x == null) defv(None) else x }
           else if (x == null) {
             if(!default.isDefined && descr.argType <:< ScalaType(manifest[AnyVal])) {
-              throw new MappingException("Null invalid value for a sub-type of AnyVal") 
+              throw new MappingException("Null invalid value for a sub-type of AnyVal")
             } else {
               defv(x)
             }
-          } 
+          }
           else x
         } catch {
           case e @ MappingException(msg, _) =>

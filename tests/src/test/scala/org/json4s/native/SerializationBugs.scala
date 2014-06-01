@@ -140,56 +140,6 @@ object SerializationBugs extends Specification {
     read[MapHolder](ser) must_== MapHolder(Map("hello" -> SingleValue(2.0)))
   }
 
-  "Serialization of case class with many Option[T] fields" should {
-
-    "produce valid JSON object with all fields undefined (set to None)" in {
-      val optFields = OptionalFields(None, None, None, None)
-      val str = native.Serialization.write(optFields)
-      str must_== "{}"
-    }
-
-    "produce valid JSON object with one string field defined" in {
-      val optFields = OptionalFields(Some("hello"), None, None, None)
-      val str = native.Serialization.write(optFields)
-      str must_== """{"optString":"hello"}"""
-    }
-
-    "produce valid JSON object with two fields defined #1" in {
-      val optFields = OptionalFields(Some("hello"), None, None, Some(OptionalFields(None, None, None, None)))
-      val str = native.Serialization.write(optFields)
-      str must_== """{"optString":"hello","optObj":{}}"""
-    }
-
-    "produce valid JSON object with two fields defined #2" in {
-      val optFields = OptionalFields(None, None, Some(1.0), Some(OptionalFields(None, None, None, None)))
-      val str = native.Serialization.write(optFields)
-      str must_== """{"optDouble":1.0,"optObj":{}}"""
-    }
-
-    "produce valid JSON object with all fields defined" in {
-      val optFields = OptionalFields(Some("hello"), Some(42), Some(1.0), Some(OptionalFields(None, None, None, None)))
-      val str = native.Serialization.write(optFields)
-      str must_== """{"optString":"hello","optInt":42,"optDouble":1.0,"optObj":{}}"""
-    }
-
-    "produce valid JSON object with nested JSON object" in {
-      val optFields = OptionalFields(None, None, None,
-        Some(OptionalFields(None, None, None, None)))
-      val str = native.Serialization.write(optFields)
-      str must_== """{"optObj":{}}"""
-    }
-
-    "produce valid JSON object with deeply nested JSON objects" in {
-      val optFields = OptionalFields(None, None, None,
-        Some(OptionalFields(None, None, None,
-          Some(OptionalFields(None, None, None,
-            Some(OptionalFields(None, None, None,
-              Some(OptionalFields(None, None, None, None)))))))))
-      val str = native.Serialization.write(optFields)
-      str must_== """{"optObj":{"optObj":{"optObj":{"optObj":{}}}}}"""
-    }
-  }
-
   "Escapes control characters" in {
     val ser = native.Serialization.write("\u0000\u001f")
     ser must_== "\"\\u0000\\u001f\""
@@ -239,8 +189,6 @@ case class SingleValue[A](value: A) extends SingleOrVector[A]
 case class VectorValue[A](value: IndexedSeq[A]) extends SingleOrVector[A]
 
 case class MapHolder(a: Map[String, SingleOrVector[Double]])
-
-case class OptionalFields(optString: Option[String], optInt: Option[Int], optDouble: Option[Double], optObj: Option[OptionalFields])
 
 object Zot {
   object Bar {

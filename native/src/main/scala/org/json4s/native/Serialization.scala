@@ -18,7 +18,6 @@ package org.json4s
 package native
 
 import scala.reflect.Manifest
-import java.io.BufferedWriter
 
 /** Functions to serialize and deserialize a case class.
  * Custom serializer can be inserted if a class is not a case class.
