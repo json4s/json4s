@@ -6,28 +6,32 @@ import com.fasterxml.jackson.core.JsonGenerator
 
 class JValueSerializer extends JsonSerializer[JValue]{
   def serialize(value: JValue, json: JsonGenerator, provider: SerializerProvider) {
-    value match {
-      case JInt(v) => json.writeNumber(v.bigInteger)
-      case JDouble(v) => json.writeNumber(v)
-      case JDecimal(v) => json.writeNumber(v.bigDecimal)
-      case JString(v) => json.writeString(v)
-      case JBool(v) => json.writeBoolean(v)
-      case JArray(elements) =>
-        json.writeStartArray()
-        elements filterNot (_ == JNothing) foreach (x => serialize(x, json, provider))
-        json.writeEndArray()
+    if (value == null) {
+      json.writeNull()
+    } else {
+      value match {
+        case JInt(v) => json.writeNumber(v.bigInteger)
+        case JDouble(v) => json.writeNumber(v)
+        case JDecimal(v) => json.writeNumber(v.bigDecimal)
+        case JString(v) => json.writeString(v)
+        case JBool(v) => json.writeBoolean(v)
+        case JArray(elements) =>
+          json.writeStartArray()
+          elements filterNot (_ == JNothing) foreach (x => serialize(x, json, provider))
+          json.writeEndArray()
 
-      case JObject(fields) => {
-        json.writeStartObject()
-        fields filterNot (_._2 == JNothing) foreach {
-          case (n, v) =>
-            json.writeFieldName(n)
-            serialize(v, json, provider)
+        case JObject(fields) => {
+          json.writeStartObject()
+          fields filterNot (_._2 == JNothing) foreach {
+            case (n, v) =>
+              json.writeFieldName(n)
+              serialize(v, json, provider)
+          }
+          json.writeEndObject()
         }
-        json.writeEndObject()
+        case JNull => json.writeNull()
+        case JNothing => ()
       }
-      case JNull => json.writeNull()
-      case JNothing => ()
     }
   }
 
