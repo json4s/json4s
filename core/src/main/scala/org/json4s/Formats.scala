@@ -113,18 +113,8 @@ trait Formats { self: Formats =>
   /**
    * Adds the specified custom key serializer to this formats.
    */
-  def + (newSerializer: KeySerializer[_]): Formats = new Formats {
-    val dateFormat: DateFormat = self.dateFormat
-    override val typeHintFieldName: String = self.typeHintFieldName
-    override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
-    override val typeHints: TypeHints = self.typeHints
-    override val customSerializers: List[Serializer[_]] = self.customSerializers
-    override val customKeySerializers: List[KeySerializer[_]] = newSerializer :: self.customKeySerializers
-    override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
-    override val wantsBigDecimal: Boolean = self.wantsBigDecimal
-    override val primitives: Set[Type] = self.primitives
-    override val companions: List[(Class[_], AnyRef)] = self.companions
-  }
+  def + (newSerializer: KeySerializer[_]): Formats =
+    copy(wCustomKeySerializers = newSerializer :: self.customKeySerializers)
 
   /**
    * Adds the specified custom serializers to this formats.
