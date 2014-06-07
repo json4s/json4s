@@ -131,6 +131,23 @@ object Extraction {
           iter.next() match {
             case (k: String, v) => addField(k, v, obj)
             case (k: Symbol, v) => addField(k.name, v, obj)
+            case (k: Int, v) => addField(k.toString, v, obj)
+            case (k: Long, v) => addField(k.toString, v, obj)
+            case (k: Date, v) => addField(formats.dateFormat.format(k), v, obj)
+            case (k: JavaInteger, v) => addField(k.toString, v, obj)
+            case (k: BigInt, v) => addField(k.toString, v, obj)
+            case (k: JavaLong, v) => addField(k.toString, v, obj)
+            case (k: Short, v) => addField(k.toString, v, obj)
+            case (k: JavaShort, v) => addField(k.toString, v, obj)
+            case (k, v) => {
+              val customKeySerializer = formats.customKeySerializer(formats)
+              if(customKeySerializer.isDefinedAt(k)) {
+                addField(customKeySerializer(k), v, obj)
+              } else {
+                fail("Do not know how to serialize key of type " + k.getClass + ". " +
+                  "Consider implementing a CustomKeySerializer.")
+              }
+            }
           }
         }
         obj.endObject()
@@ -310,9 +327,12 @@ object Extraction {
     } else if (scalaType.isOption) {
       customOrElse(scalaType, json)(_.toOption flatMap (j => Option(extract(j, scalaType.typeArgs.head))))
     } else if (scalaType.isMap) {
-      val ta = scalaType.typeArgs(1)
       json match {
-        case JObject(xs) => Map(xs.map(x => (x._1, extract(x._2, ta))): _*)
+        case JObject(xs) => {
+          val kta = scalaType.typeArgs(0)
+          val ta = scalaType.typeArgs(1)
+          Map(xs.map(x => (convert(x._1, kta, formats), extract(x._2, ta))): _*)
+        }
         case x => fail("Expected object but got " + x)
       }
     } else if (scalaType.isCollection) {
@@ -461,10 +481,15 @@ object Extraction {
 
       val args = constructor.params.map(a => buildCtorArg(deserializedJson \ a.name, a))
       try {
-        if (jconstructor.getDeclaringClass == classOf[java.lang.Object]) fail("No information known about type")
-
-        val instance = jconstructor.newInstance(args.map(_.asInstanceOf[AnyRef]).toArray: _*)
-        setFields(instance.asInstanceOf[AnyRef])
+        if (jconstructor.getDeclaringClass == classOf[java.lang.Object]) {
+          deserializedJson match {
+            case JObject(TypeHint(t, fs)) => mkWithTypeHint(t: String, fs: List[JField], descr.erasure)
+            case v: JValue => v.values
+          }
+        } else {
+          val instance = jconstructor.newInstance(args.map(_.asInstanceOf[AnyRef]).toArray: _*)
+          setFields(instance.asInstanceOf[AnyRef])
+        }
       } catch {
         case e @ (_:IllegalArgumentException | _:InstantiationException) =>
           fail("Parsed JSON values do not match with class constructor\nargs=" +
@@ -497,6 +522,31 @@ object Extraction {
     if (custom.isDefinedAt(targetType, json)) {
       custom(targetType, json)
     } else thunk(json)
+  }
+
+  private[this] def convert(key: String, target: ScalaType, formats: Formats): Any = {
+    val targetType = target.erasure
+    targetType match {
+      case tt if tt == classOf[String] => key
+      case tt if tt == classOf[Symbol] => Symbol(key)
+      case tt if tt == classOf[Int] => key.toInt
+      case tt if tt == classOf[JavaInteger] => new JavaInteger(key.toInt)
+      case tt if tt == classOf[BigInt] => key.toInt
+      case tt if tt == classOf[Long] => key.toLong
+      case tt if tt == classOf[JavaLong] => new JavaLong(key.toLong)
+      case tt if tt == classOf[Short] => key.toShort
+      case tt if tt == classOf[JavaShort] => new JavaShort(key.toShort)
+      case tt if tt == classOf[Date] => formatDate(key, formats)
+      case tt if tt == classOf[Timestamp] => formatTimestamp(key, formats)
+      case _ =>
+        val deserializer = formats.customKeyDeserializer(formats)
+        val typeInfo = TypeInfo(targetType, None)
+        if(deserializer.isDefinedAt((typeInfo, key))) {
+          deserializer((typeInfo, key))
+        } else {
+          fail("Do not know how to deserialize key of type " + targetType + ". Consider implementing a CustomKeyDeserializer.")
+        }
+    }
   }
 
   private[this] def convert(json: JValue, target: ScalaType, formats: Formats, default: Option[() => Any]): Any = {
@@ -541,8 +591,8 @@ object Extraction {
       case JDecimal(x) if (targetType == classOf[Number]) => x
       case JString(s) if (targetType == classOf[String]) => s
       case JString(s) if (targetType == classOf[Symbol]) => Symbol(s)
-      case JString(s) if (targetType == classOf[Date]) => formats.dateFormat.parse(s).getOrElse(fail("Invalid date '" + s + "'"))
-      case JString(s) if (targetType == classOf[Timestamp]) => new Timestamp(formats.dateFormat.parse(s).getOrElse(fail("Invalid date '" + s + "'")).getTime)
+      case JString(s) if (targetType == classOf[Date]) => formatDate(s, formats)
+      case JString(s) if (targetType == classOf[Timestamp]) => formatTimestamp(s, formats)
       case JBool(x) if (targetType == classOf[Boolean]) => x
       case JBool(x) if (targetType == classOf[JavaBoolean]) => new JavaBoolean(x)
       case j: JValue if (targetType == classOf[JValue]) => j
@@ -559,6 +609,11 @@ object Extraction {
     }
   }
 
+  private[this] def formatTimestamp(s: String, formats: Formats): Timestamp = {
+    new Timestamp(formats.dateFormat.parse(s).getOrElse(fail("Invalid date '" + s + "'")).getTime)
+  }
 
-
+  private[this] def formatDate(s: String, formats: Formats): Date = {
+    formats.dateFormat.parse(s).getOrElse(fail("Invalid date '" + s + "'"))
+  }
 }

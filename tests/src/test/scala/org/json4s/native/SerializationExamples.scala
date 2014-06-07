@@ -138,6 +138,36 @@ object SerializationExamples extends Specification {
     read[ProperType](ser) must_== p
   }
 
+  "Generic Map with simple values example" in {
+    val pw = PlayerWithGenericMap("zortan", Map("1" -> "asd", "a" -> 3))
+    val ser = swrite(pw)
+    ser must_== """{"name":"zortan","infomap":{"1":"asd","a":3}}"""
+    read[PlayerWithGenericMap](ser) must_== pw
+  }
+
+  "Generic Map with case class and type hint example" in {
+    implicit val formats = native.Serialization.formats(ShortTypeHints(List(classOf[Player])))
+    val pw = PlayerWithGenericMap("zortan", Map("1" -> "asd", "a" -> 3, "friend" -> Player("joe")))
+    val ser = swrite(pw)
+    ser must_== """{"name":"zortan","infomap":{"1":"asd","a":3,"friend":{"jsonClass":"Player","name":"joe"}}}"""
+    read[PlayerWithGenericMap](ser) must_== pw
+  }
+
+  "Generic List with simple values example" in {
+    val pw = PlayerWithGenericList("zortan", List("1", 3))
+    val ser = swrite(pw)
+    ser must_== """{"name":"zortan","infolist":["1",3]}"""
+    read[PlayerWithGenericList](ser) must_== pw
+  }
+
+  "Generic List with objects and hints example" in {
+    implicit val formats = native.Serialization.formats(ShortTypeHints(List(classOf[Player])))
+    val pw = PlayerWithGenericList("zortan", List("1", 3, Player("joe")))
+    val ser = swrite(pw)
+    ser must_== """{"name":"zortan","infolist":["1",3,{"jsonClass":"Player","name":"joe"}]}"""
+    read[PlayerWithGenericList](ser) must_== pw
+  }
+
 
   case class Ints(x: List[List[Int]])
 
@@ -432,3 +462,6 @@ case class PlayerWithBird(name: String, bird: Bird = Chicken(3))
 case class PlayerWithList(name: String, badges: List[String] = List("intro", "tutorial"))
 case class MeetingWithDefault(place: String, time: DateTime = new DateTime(7777L))
 case class TimesWithDefault(times: List[DateTime] = List(new DateTime(8888L)))
+
+case class PlayerWithGenericMap(name: String, infomap: Map[String, Any])
+case class PlayerWithGenericList(name: String, infolist: List[Any])
