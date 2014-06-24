@@ -48,7 +48,9 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
 
     "DateTime and DateMidnight use configured date format" in {
       implicit val formats = new DefaultFormats {
-        override def dateFormatter = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'")
+        override def dateFormatter = {
+          new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'")
+        }
       } ++ JodaTimeSerializers.all
 
       val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0), new DateMidnight(2011, 1, 16))

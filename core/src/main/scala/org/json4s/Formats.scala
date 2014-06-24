@@ -294,8 +294,17 @@ trait Formats { self: Formats =>
   /** Default date format is UTC time.
    */
   object DefaultFormats extends DefaultFormats {
-    val losslessDate = new ThreadLocal(new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"))
     val UTC = TimeZone.getTimeZone("UTC")
+
+    val losslessDate = {
+      def createSdf = {
+        val f = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+        f.setTimeZone(UTC)
+        f
+      }
+      new ThreadLocal(createSdf)
+    }
+
 
   }
 
@@ -332,7 +341,11 @@ trait Formats { self: Formats =>
       private[this] def formatter = df()
     }
 
-    protected def dateFormatter: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+    protected def dateFormatter: SimpleDateFormat = {
+      val f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+      f.setTimeZone(DefaultFormats.UTC)
+      f
+    }
 
     /** Lossless date format includes milliseconds too.
      */
