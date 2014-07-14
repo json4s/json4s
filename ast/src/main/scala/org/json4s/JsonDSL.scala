@@ -92,10 +92,15 @@ trait JsonDSL extends Implicits {
       val l: JValue = left._2
       JObject(JField(left._1, l) :: right.obj)
     }
+    def ~~[B <% JValue](right: (String, B)) = ~(right)
+    def ~~(right: JObject) = ~(right)
+
   }
 
   class JsonListAssoc(left: List[JField]) {
     def ~(right: (String, JValue)) = JObject(left ::: List(JField(right._1, right._2)))
     def ~(right: JObject) = JObject(left ::: right.obj)
+    def ~~(right: (String, JValue)) = ~(right)
+    def ~~(right: JObject) = ~(right)
   }
 }
