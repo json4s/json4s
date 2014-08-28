@@ -1,45 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Json4s by json4s</title>
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/main.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
     <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
+    <title>Json4s by json4s</title>
   </head>
+
   <body>
+    <div id="container">
+      <div class="inner">
 
-      <header>
-        <h1>Json4s</h1>
-        <p>One AST to rule them all</p>
-      </header>
+        <header>
+          <h1>Json4s</h1>
+          <h2>One AST to rule them all</h2>
+        </header>
 
-      <div id="banner">
-        <span id="logo"></span>
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/json4s/json4s/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/json4s/json4s/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/json4s/json4s" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
 
-        <a href="https://github.com/json4s/json4s" class="button fork"><strong>View On GitHub</strong></a>
-        <div class="downloads">
-          <span>Downloads:</span>
-          <ul>
-            <li><a href="https://github.com/json4s/json4s/zipball/master" class="button">ZIP</a></li>
-            <li><a href="https://github.com/json4s/json4s/tarball/master" class="button">TAR</a></li>
-          </ul>
-        </div>
-      </div><!-- end banner -->
+        <hr>
 
-    <div class="wrapper">
-      <nav>
-        <ul></ul>
-      </nav>
-      <section>
-        <h1>
+        <section id="main_content">
+          <h1>
 <a name="json4s-" class="anchor" href="#json4s-"><span class="octicon octicon-link"></span></a>JSON4S <a href="http://jenkins.backchat.io/job/json4s/"><img src="http://jenkins.backchat.io/job/json4s/badge/icon" alt="Build Status"></a>
 </h1>
 
@@ -138,12 +130,12 @@ Note, replace XXX with correct Json4s version.</p>
 
 <p>For the native support add the following dependency to your project description:</p>
 
-<pre><code>val json4sNative = "org.json4s" %% "json4s-native" % "3.2.9"
+<pre><code>val json4sNative = "org.json4s" %% "json4s-native" % "3.2.10"
 </code></pre>
 
 <p>For the Jackson support add the following dependency to your project description:</p>
 
-<pre><code>val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.9"
+<pre><code>val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.10"
 </code></pre>
 
 <h3>
@@ -154,7 +146,7 @@ Note, replace XXX with correct Json4s version.</p>
 <pre><code>&lt;dependency&gt;
   &lt;groupId&gt;org.json4s&lt;/groupId&gt;
   &lt;artifactId&gt;json4s-native_${scala.version}&lt;/artifactId&gt;
-  &lt;version&gt;3.2.9&lt;/version&gt;
+  &lt;version&gt;3.2.10&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -163,7 +155,7 @@ Note, replace XXX with correct Json4s version.</p>
 <pre><code>&lt;dependency&gt;
   &lt;groupId&gt;org.json4s&lt;/groupId&gt;
   &lt;artifactId&gt;json4s-jackson_${scala.version}&lt;/artifactId&gt;
-  &lt;version&gt;3.2.9&lt;/version&gt;
+  &lt;version&gt;3.2.10&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -173,8 +165,8 @@ Note, replace XXX with correct Json4s version.</p>
 <p>Download following jars:</p>
 
 <ul>
-<li><a href="http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.9/json4s-core_2.9.3-3.2.9.jar">http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.9/json4s-core_2.9.3-3.2.9.jar</a></li>
-<li><a href="http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.9/json4s-native_2.9.3-3.2.9.jar">http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.9/json4s-native_2.9.3-3.2.9.jar</a></li>
+<li><a href="http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.10/json4s-core_2.9.3-3.2.10.jar">http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.10/json4s-core_2.9.3-3.2.10.jar</a></li>
+<li><a href="http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.10/json4s-native_2.9.3-3.2.10.jar">http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.10/json4s-native_2.9.3-3.2.10.jar</a></li>
 <li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.6/paranamer-2.5.6.jar">http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.6/paranamer-2.5.6.jar</a></li>
 <li>scalap (Only for Scala-2.9 compatible versions)</li>
 </ul><h2>
@@ -996,13 +988,15 @@ with scalac and import those to REPL.</p>
 <li><p>The original idea for DSL syntax was taken from Lift mailing list (<a href="http://markmail.org/message/lniven2hn22vhupu">by Marius</a>).</p></li>
 <li><p>The idea for AST and rendering was taken from <a href="http://book.realworldhaskell.org/read/writing-a-library-working-with-json-data.html">Real World Haskell book</a>.</p></li>
 </ul>
-      </section>
-      <footer>
-        <p>Project maintained by <a href="https://github.com/json4s">json4s</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></small></p>
-      </footer>
+        </section>
+
+        <footer>
+          Json4s is maintained by <a href="https://github.com/json4s">json4s</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-    
   </body>
 </html>
