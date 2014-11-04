@@ -21,8 +21,10 @@ import java.math.{BigDecimal => JavaBigDecimal}
 import java.util.Date
 import java.sql.Timestamp
 import reflect._
+import scala.util.{Try, Failure, Success}
 import scala.reflect.Manifest
 import scala.collection.JavaConverters._
+import scala.Option
 
 
 
@@ -320,6 +322,12 @@ object Extraction {
     }
   }
 
+  private def throwOptionParseErrors[A](t: Try[A]): Option[A] = t match {
+    case Success(v) => Some(v)
+    case Failure(e: MappingException) => throw e
+    case Failure(e: Exception) => throw new MappingException("unknown error", e)
+  }
+
   def extract(json: JValue, scalaType: ScalaType)(implicit formats: Formats): Any = {
     if (scalaType.isEither) {
       import scala.util.control.Exception.allCatch
@@ -329,7 +337,15 @@ object Extraction {
         Right(extract(json, scalaType.typeArgs(1)))
       })).getOrElse(fail("Expected value but got " + json))
     } else if (scalaType.isOption) {
-      customOrElse(scalaType, json)(_.toOption flatMap (j => Option(extract(j, scalaType.typeArgs.head))))
+      val res = Try(customOrElse(scalaType, json){jval: JValue => extract(jval, scalaType.typeArgs.head)})
+      if (formats.noneForInvalidOptions) {
+        if (json == JNothing || json == JNull)
+          None
+        else
+          res.toOption
+      } else {
+        throwOptionParseErrors(res)
+      }
     } else if (scalaType.isMap) {
       json match {
         case JObject(xs) => {
@@ -457,7 +473,7 @@ object Extraction {
           else x
         } catch {
           case e @ MappingException(msg, _) =>
-            if (descr.isOptional) defv(None) else fail("No usable value for " + descr.name + "\n" + msg, e)
+            if (descr.isOptional && formats.noneForInvalidOptions) defv(None) else fail("No usable value for " + descr.name + "\n" + msg, e)
         }
       }
     }

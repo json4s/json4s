@@ -48,6 +48,7 @@ trait Formats { self: Formats =>
   def wantsBigDecimal: Boolean = false
   def primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
   def companions: List[(Class[_], AnyRef)] = Nil
+  def noneForInvalidOptions: Boolean = true
 
   /**
    * The name of the field in JSON where type hints are added (jsonClass by default)
@@ -70,6 +71,7 @@ trait Formats { self: Formats =>
     override val wantsBigDecimal: Boolean = true
     override val primitives: Set[Type] = self.primitives
     override val companions: List[(Class[_], AnyRef)] = self.companions
+    override val noneForInvalidOptions: Boolean = self.noneForInvalidOptions
   }
 
   def withDouble: Formats = new Formats {
@@ -83,6 +85,7 @@ trait Formats { self: Formats =>
     override val wantsBigDecimal: Boolean = false
     override val primitives: Set[Type] = self.primitives
     override val companions: List[(Class[_], AnyRef)] = self.companions
+    override val noneForInvalidOptions: Boolean = self.noneForInvalidOptions
   }
 
   def withCompanions(comps: (Class[_], AnyRef)*): Formats = {
@@ -97,7 +100,22 @@ trait Formats { self: Formats =>
       override val wantsBigDecimal: Boolean = self.wantsBigDecimal
       override val primitives: Set[Type] = self.primitives
       override val companions: List[(Class[_], AnyRef)] = comps.toList ::: self.companions
+      override val noneForInvalidOptions: Boolean = self.noneForInvalidOptions
     }
+  }
+
+  def withOptionParseExceptionsThrown: Formats = new Formats {
+    val dateFormat: DateFormat = self.dateFormat
+    override val typeHintFieldName: String = self.typeHintFieldName
+    override val parameterNameReader: reflect.ParameterNameReader = self.parameterNameReader
+    override val typeHints: TypeHints = self.typeHints
+    override val customSerializers: List[Serializer[_]] = self.customSerializers
+    override val customKeySerializers: List[KeySerializer[_]] = self.customKeySerializers
+    override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
+    override val wantsBigDecimal: Boolean = self.wantsBigDecimal
+    override val primitives: Set[Type] = self.primitives
+    override val companions: List[(Class[_], AnyRef)] = self.companions
+    override val noneForInvalidOptions: Boolean = false
   }
 
   /**
@@ -114,6 +132,7 @@ trait Formats { self: Formats =>
     override val wantsBigDecimal: Boolean = self.wantsBigDecimal
     override val primitives: Set[Type] = self.primitives
     override val companions: List[(Class[_], AnyRef)] = self.companions
+    override val noneForInvalidOptions: Boolean = self.noneForInvalidOptions
   }
 
   /**
@@ -129,6 +148,7 @@ trait Formats { self: Formats =>
     override val wantsBigDecimal: Boolean = self.wantsBigDecimal
     override val primitives: Set[Type] = self.primitives
     override val companions: List[(Class[_], AnyRef)] = self.companions
+    override val noneForInvalidOptions: Boolean = self.noneForInvalidOptions
   }
 
   /**
@@ -145,6 +165,7 @@ trait Formats { self: Formats =>
     override val wantsBigDecimal: Boolean = self.wantsBigDecimal
     override val primitives: Set[Type] = self.primitives
     override val companions: List[(Class[_], AnyRef)] = self.companions
+    override val noneForInvalidOptions: Boolean = self.noneForInvalidOptions
   }
 
   /**
@@ -174,6 +195,7 @@ trait Formats { self: Formats =>
     override val wantsBigDecimal: Boolean = self.wantsBigDecimal
     override val primitives: Set[Type] = self.primitives
     override val companions: List[(Class[_], AnyRef)] = self.companions
+    override val noneForInvalidOptions: Boolean = self.noneForInvalidOptions
   }
 
   private[json4s] def fieldSerializer(clazz: Class[_]): Option[FieldSerializer[_]] = {
@@ -359,6 +381,7 @@ trait Formats { self: Formats =>
     override val wantsBigDecimal: Boolean = false
     override val primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
     override val companions: List[(Class[_], AnyRef)] = Nil
+    override val noneForInvalidOptions: Boolean = true
 
     val dateFormat: DateFormat = new DateFormat {
       def parse(s: String) = try {
