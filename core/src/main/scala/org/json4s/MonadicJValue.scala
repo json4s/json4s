@@ -144,7 +144,7 @@ class MonadicJValue(jv: JValue) {
    * to each field in JSON.
    * <p>
    * Example:<pre>
-   * JObject(("age", JInt(10)) :: Nil) map {
+   * JObject(("age", JInt(10)) :: Nil) mapField {
    *   case ("age", JInt(x)) => ("age", JInt(x+1))
    *   case x => x
    * }
