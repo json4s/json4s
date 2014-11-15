@@ -206,7 +206,11 @@ case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaT
         if (x.isOptional) n+1 else n
       })
     def score(args: List[ConstructorParamDescriptor]) =
-      args.foldLeft(0)((s, arg) => if (names.contains(arg.name)) s+1 else -100)
+      args.foldLeft(0)((s, arg) =>
+        if (names.contains(arg.name)) s+1
+        else if (arg.isOptional) s
+        else -100
+      )
 
     if (constructors.isEmpty) None
     else {
@@ -235,4 +239,3 @@ case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaT
 }
 
 case class PrimitiveDescriptor(erasure: ScalaType, default: Option[() => Any] = None) extends ObjectDescriptor
-
