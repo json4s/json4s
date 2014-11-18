@@ -47,6 +47,7 @@ trait Formats { self: Formats =>
   def primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
   def companions: List[(Class[_], AnyRef)] = Nil
   def strict: Boolean = false
+  def allowNull: Boolean = true
 
   /**
    * The name of the field in JSON where type hints are added (jsonClass by default)
@@ -328,6 +329,7 @@ trait Formats { self: Formats =>
     override val companions: List[(Class[_], AnyRef)] = Nil
     override val strict: Boolean = false
     override val emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
+    override val allowNull: Boolean = true
 
     val dateFormat: DateFormat = new DateFormat {
       def parse(s: String) = try {

@@ -229,6 +229,13 @@ abstract class ExtractionExamples[T](mod: String) extends Specification with Jso
     "Complex nested non-polymorphic collections extraction example" in {
       parse("""{"a":[{"b":"c"}]}""").extract[Map[String, List[Map[String, String]]]] must_== Map("a" -> List(Map("b" -> "c")))
     }
+
+    "Disallow null values in extraction" in {
+      val notNullFormats = new DefaultFormats {
+        override val allowNull = false
+      }
+      parse("""{"name":"foobar","address":null}""").extract[SimplePerson](notNullFormats, Manifest.classType(classOf[SimplePerson])) must throwA(MappingException("No usable value for address\nDid not find value which can be converted into org.json4s.Address", null))
+    }
   }
 
   val testJson =
