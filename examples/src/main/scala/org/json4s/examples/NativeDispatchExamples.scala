@@ -1,7 +1,7 @@
 package org.json4s
 package examples
 
-import dispatch._
+import dispatch._, Defaults._
 import com.ning.http.client.Response
 
 
@@ -26,18 +26,26 @@ object DispatchExamples extends App with native.JsonMethods {
     }
   }
 
-  val listing = Http(url("http://petstore.swagger.wordnik.com/api/resources.json") OK read.ApiListing)()
-  println("The listing: ")
-  println(listing)
-  println("The json for the listing")
-  println(jackson.Serialization.writePretty(listing))
+  val f = for {
+    listing <- Http(url("http://petstore.swagger.wordnik.com/api/api-docs") OK read.ApiListing)
+    api <- Http(url("http://petstore.swagger.wordnik.com/api/api-docs/pet") OK read.Api)
+  } yield {
+    println("The listing: ")
+    println(listing)
+    println("The json for the listing")
+    println(jackson.Serialization.writePretty(listing))
 
+    println("The api: ")
+    println(api)
+    println("The json for the api")
+    println(jackson.Serialization.writePretty(api))
+  }
 
-  val api = Http(url("http://petstore.swagger.wordnik.com/api/pet.json") OK read.Api)()
-  println("The api: ")
-  println(api)
-  println("The json for the api")
-  println(jackson.Serialization.writePretty(api))
+  f onFailure { case r =>
+    println(r)
+  }
 
-  Http.shutdown()
+  f onComplete { r =>
+    Http.shutdown()
+  }
 }
