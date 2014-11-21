@@ -16,6 +16,7 @@
 
 package org.json4s
 
+import java.math.BigDecimal
 import java.util.Date
 import org.specs2.mutable.Specification
 import java.text.SimpleDateFormat
@@ -87,6 +88,12 @@ abstract class ExtractionExamples[T](mod: String) extends Specification with Jso
     "Primitive extraction example" in {
       val json = parse(primitives)
       json.extract[Primitives] must_== Primitives(124, 123L, 126.5, 127.5.floatValue, "128", 'symb, 125, 129.byteValue, true)
+    }
+
+    "BigDecimals extraction example" in {
+      val json = parse(bigdecimals)
+      json.extract[BigDecimalsScala] must_== BigDecimalsScala(scala.math.BigDecimal(100000000000L),
+                                                              scala.math.BigDecimal(200000000000L))
     }
 
     "Null extraction example" in {
@@ -309,6 +316,14 @@ abstract class ExtractionExamples[T](mod: String) extends Specification with Jso
 }
 """
 
+  val bigdecimals =
+    """
+{
+  "bds": 100000000000,
+  "bdj": 200000000000
+}
+    """
+
   val multiDimensionalArrays =
 """
 {
@@ -352,6 +367,9 @@ case class PersonWithAddresses(name: String, addresses: Map[String, Address])
 case class Name(name: String)
 
 case class Primitives(i: Int, l: Long, d: Double, f: Float, s: String, sym: Symbol, sh: Short, b: Byte, bool: Boolean)
+
+case class BigDecimals(bds: scala.math.BigDecimal, bdj:java.math.BigDecimal)
+case class BigDecimalsScala(bds: scala.math.BigDecimal, bdj:scala.math.BigDecimal)
 
 case class OChild(name: Option[String], age: Int, mother: Option[Parent], father: Option[Parent])
 case class Parent(name: String)
