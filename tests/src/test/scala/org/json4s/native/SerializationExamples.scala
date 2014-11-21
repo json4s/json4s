@@ -43,6 +43,13 @@ object SerializationExamples extends Specification {
     read[Primitives](ser) must_== primitives
   }
 
+
+  "BigDecimals serialization example" in {
+    val bigdecimals = BigDecimals(BigDecimal(100000000000L),new java.math.BigDecimal(200000000000L))
+    val ser = swrite(bigdecimals)
+    read[BigDecimalsScala](ser) must_== BigDecimalsScala(BigDecimal(100000000000L),BigDecimal(200000000000L))
+  }
+
   "Multidimensional list example" in {
     val ints = Ints(List(List(1, 2), List(3), List(4, 5)))
     val ser = swrite(ints)
