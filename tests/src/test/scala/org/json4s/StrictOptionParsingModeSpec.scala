@@ -3,12 +3,12 @@ package org.json4s
 import org.specs2.mutable.Specification
 import text.Document
 
-object NativeStrictModeSpec extends StrictModeSpec[Document]("Native") with native.JsonMethods
-object JacksonStrictModeSpec extends StrictModeSpec[JValue]("Jackson") with jackson.JsonMethods
+object NativeStrictOptionParsingModeSpec$ extends StrictOptionParsingModeSpec[Document]("Native") with native.JsonMethods
+object JacksonStrictOptionParsingModeSpec$ extends StrictOptionParsingModeSpec[JValue]("Jackson") with jackson.JsonMethods
 
-abstract class StrictModeSpec[T](mod: String) extends Specification with JsonMethods[T] {
+abstract class StrictOptionParsingModeSpec[T](mod: String) extends Specification with JsonMethods[T] {
   
-  implicit lazy val formats = new DefaultFormats { override val strict = true }
+  implicit lazy val formats = new DefaultFormats { override val strictOptionParsing = true }
   
   val doubleForIntJson  = """{ "someDouble": 10.0, "someString": "abc", "someInt": 10.0, "someMap": {}, "someBoolean": true }"""
   val booleanForIntJson = """{ "someDouble": 10.0, "someString": "abc", "someInt": true, "someMap": {}, "someBoolean": true }"""
