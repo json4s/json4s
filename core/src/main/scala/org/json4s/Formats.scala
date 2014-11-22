@@ -46,8 +46,8 @@ trait Formats { self: Formats =>
   def wantsBigDecimal: Boolean = false
   def primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
   def companions: List[(Class[_], AnyRef)] = Nil
-  def strict: Boolean = false
   def allowNull: Boolean = true
+  def strictOptionParsing: Boolean = false
 
   /**
    * The name of the field in JSON where type hints are added (jsonClass by default)
@@ -72,7 +72,7 @@ trait Formats { self: Formats =>
                     wWantsBigDecimal: Boolean = self.wantsBigDecimal,
                     withPrimitives: Set[Type] = self.primitives,
                     wCompanions: List[(Class[_], AnyRef)] = self.companions,
-                    wStrict: Boolean = self.strict,
+                    wStrict: Boolean = self.strictOptionParsing,
                     wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy): Formats =
     new Formats {
       def dateFormat: DateFormat = wDateFormat
@@ -85,7 +85,7 @@ trait Formats { self: Formats =>
       override def wantsBigDecimal: Boolean = wWantsBigDecimal
       override def primitives: Set[Type] = withPrimitives
       override def companions: List[(Class[_], AnyRef)] = wCompanions
-      override def strict: Boolean = wStrict
+      override def strictOptionParsing: Boolean = wStrict
       override def emptyValueStrategy: EmptyValueStrategy = wEmptyValueStrategy
     }
 
@@ -327,7 +327,7 @@ trait Formats { self: Formats =>
     override val wantsBigDecimal: Boolean = false
     override val primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
     override val companions: List[(Class[_], AnyRef)] = Nil
-    override val strict: Boolean = false
+    override val strictOptionParsing: Boolean = false
     override val emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
     override val allowNull: Boolean = true
 
