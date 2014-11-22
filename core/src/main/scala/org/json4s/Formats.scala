@@ -46,6 +46,7 @@ trait Formats { self: Formats =>
   def wantsBigDecimal: Boolean = false
   def primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
   def companions: List[(Class[_], AnyRef)] = Nil
+  def allowNull: Boolean = true
   def strictOptionParsing: Boolean = false
 
   /**
@@ -328,6 +329,7 @@ trait Formats { self: Formats =>
     override val companions: List[(Class[_], AnyRef)] = Nil
     override val strictOptionParsing: Boolean = false
     override val emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
+    override val allowNull: Boolean = true
 
     val dateFormat: DateFormat = new DateFormat {
       def parse(s: String) = try {
