@@ -1,7 +1,7 @@
 package org.json4s
 package reflect
 
-import scala.tools.scalap.scalax.rules.scalasig._
+import org.json4s.scalap.scalasig._
 import annotation.tailrec
 
 object ScalaSigReader {

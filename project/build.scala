@@ -68,7 +68,7 @@ object build extends Build {
     id = "json4s",
     base = file("."),
     settings = json4sSettings
-  ) aggregate(core, native, json4sExt, jacksonSupport, scalazExt, json4sTests, mongo, ast)
+  ) aggregate(core, native, json4sExt, jacksonSupport, scalazExt, json4sTests, mongo, ast, scalap)
 
   lazy val ast = Project(
     id = "json4s-ast",
@@ -80,18 +80,23 @@ object build extends Build {
     )
   )
 
+  lazy val scalap = Project(
+    id = "json4s-scalap",
+    base = file("scalap"),
+    settings = json4sSettings
+  )
+
   lazy val core = Project(
     id = "json4s-core",
     base = file("core"),
     settings = json4sSettings ++ Seq(
-      libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv)) },
+      libraryDependencies <++= scalaVersion { sv => Seq(paranamer) ++ scalaXml(sv) },
       initialCommands in (Test, console) := """
           |import org.json4s._
           |import reflect._
-          |import scala.tools.scalap.scalax.rules.scalasig._
         """.stripMargin
     )
-  ) dependsOn(ast % "compile;test->test")
+  ) dependsOn(ast % "compile;test->test", scalap)
 
   lazy val native = Project(
     id = "json4s-native",
@@ -169,7 +174,6 @@ object build extends Build {
         """
           |import org.json4s._
           |import reflect._
-          |import scala.tools.scalap.scalax.rules.scalasig._
         """.stripMargin
     )
   ) dependsOn(core, native, json4sExt, scalazExt, jacksonSupport, mongo)
