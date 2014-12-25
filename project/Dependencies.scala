@@ -28,15 +28,18 @@ object Dependencies {
 
   val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.6"
 
-  lazy val scalap: ModuleMap      = "org.scala-lang"             % "scalap"             % _
-
   val commonsCodec = "commons-codec"              % "commons-codec"      % "1.9"
 
   val mockito = "org.mockito"                 % "mockito-all"              % "1.9.5"      % "test"
 
   val liftCommon = "net.liftweb" %% "lift-common" % "2.5.1" cross crossMapped("2.9.3" -> "2.9.2")
 
-
+  def scalaXml(scalaVersion: String) = {
+    if(scalaVersion.startsWith("2.11"))
+      Seq("org.scala-lang.modules" %% "scala-xml" % "1.0.3")
+    else
+      Nil
+  }
 
 //  val scalaj_collection = "org.scalaj" %% "scalaj-collection" % "1.2" cross CVMappingAll
 }
