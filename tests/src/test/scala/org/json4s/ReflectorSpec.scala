@@ -4,7 +4,7 @@ import org.specs2.mutable.Specification
 import java.util.Date
 import reflect._
 import java.sql.Timestamp
-import tools.scalap.scalax.rules.scalasig.ClassSymbol
+import org.json4s.scalap.scalasig.ClassSymbol
 
 case class RRSimple(id: Int, name: String, items: List[String], createdAt: Date)
 case class RRSimpleJoda(id: Int, name: String, items: List[String], createdAt: DateTime)
