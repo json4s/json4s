@@ -51,7 +51,7 @@ object build extends Build {
     )}
   )
 
-  val json4sSettings = Defaults.defaultSettings ++ mavenCentralFrouFrou ++ Seq(
+  val json4sSettings = mavenCentralFrouFrou ++ Seq(
     organization := "org.json4s",
     scalaVersion := "2.10.0",
     crossScalaVersions := Seq("2.10.0", "2.11.0"),
@@ -200,6 +200,7 @@ object build extends Build {
 
 }
 
+// TODO: fix some deprecation warnings
 // taken from https://github.com/dcsobral/scala-foreach-benchmark
 class MyRunner(subproject: String, config: ForkScalaRun) extends sbt.ScalaRun {
   def run(mainClass: String, classpath: Seq[File], options: Seq[String], log: Logger): Option[String] = {
@@ -227,4 +228,3 @@ class MyRunner(subproject: String, config: ForkScalaRun) extends sbt.ScalaRun {
     else Some("Nonzero exit code returned from " + label + ": " + exitCode)
   }
 }
-
