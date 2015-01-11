@@ -1,4 +1,4 @@
-# JSON4S [![Build Status](http://jenkins.backchat.io/job/json4s/badge/icon)](http://jenkins.backchat.io/job/json4s/)
+# JSON4S [![Build Status](https://travis-ci.org/json4s/json4s.svg?branch=3.3)](https://travis-ci.org/json4s/json4s)
 
 At this moment there are at least 6 json libraries for scala, not counting the java json libraries.
 All these libraries have a very similar AST. This project aims to provide a single AST to be used by other scala
@@ -70,7 +70,7 @@ All features are implemented in terms of above AST. Functions are used to transf
 the AST itself, or to transform the AST between different formats. Common transformations
 are summarized in a following picture.
 
-![Json AST](https://raw.github.com/json4s/json4s/master/core/json.png)
+![Json AST](https://raw.github.com/json4s/json4s/3.3/core/json.png)
 
 Summary of the features:
 
@@ -123,23 +123,23 @@ For the jackson support add the following dependency to your pom:
 
 Download following jars:
 
-* http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.11/json4s-core_2.9.3-3.2.11.jar
-* http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.11/json4s-native_2.9.3-3.2.11.jar
+* http://repo1.maven.org/maven2/org/json4s/json4s-core_2.11/3.2.11/json4s-core_2.11-3.2.11.jar
+* http://repo1.maven.org/maven2/org/json4s/json4s-native_2.11/3.2.11/json4s-native_2.11-3.2.11.jar
 * http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.6/paranamer-2.5.6.jar
-* scalap (Only for Scala-2.9 compatible versions)
+* scalap (Only for Scala 2.10, 2.11 compatible versions)
 
 Extras
 ------
 
-* [ext](https://github.com/json4s/json4s/tree/master/ext)
+* [ext](https://github.com/json4s/json4s/tree/3.3/ext)
 
 Support for Enum, Joda-Time, ...
 
-* [scalaz](https://github.com/json4s/json4s/tree/master/scalaz)
+* [scalaz](https://github.com/json4s/json4s/tree/3.3/scalaz)
 
 Applicative style parsing with Scalaz
 
-* [native-lift](https://github.com/json4s/json4s/tree/master/native-lift)
+* [native-lift](https://github.com/json4s/json4s/tree/3.3/native-lift)
 
 Support for Box
 
@@ -338,7 +338,7 @@ Merging & Diffing
 -----------------
 
 Two JSONs can be merged and diffed with each other.
-Please see more examples in [MergeExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/MergeExamples.scala) and [DiffExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/DiffExamples.scala).
+Please see more examples in [MergeExamples.scala](https://github.com/json4s/json4s/blob/3.3/tests/src/test/scala/org/json4s/MergeExamples.scala) and [DiffExamples.scala](https://github.com/json4s/json4s/blob/3.3/tests/src/test/scala/org/json4s/DiffExamples.scala).
 
     scala> import org.json4s._
 
@@ -396,7 +396,7 @@ Querying JSON
 ------------
 
 JSON values can be extracted using for-comprehensions.
-Please see more examples in [JsonQueryExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/JsonQueryExamples.scala).
+Please see more examples in [JsonQueryExamples.scala](https://github.com/json4s/json4s/blob/3.3/tests/src/test/scala/org/json4s/JsonQueryExamples.scala).
 
     scala> import org.json4s._
     scala> import org.json4s.native.JsonMethods._
@@ -550,7 +550,7 @@ Extracting values
 Case classes can be used to extract values from parsed JSON. Non-existing values
 can be extracted into scala.Option and strings can be automatically converted into
 java.util.Dates.
-Please see more examples in [ExtractionExampleSpec.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/ExtractionExamplesSpec.scala).
+Please see more examples in [ExtractionExampleSpec.scala](https://github.com/json4s/json4s/blob/3.3/tests/src/test/scala/org/json4s/ExtractionExamplesSpec.scala).
 
     scala> import org.json4s._
     scala> import org.json4s.jackson.JsonMethods._
@@ -583,7 +583,7 @@ Please see more examples in [ExtractionExampleSpec.scala](https://github.com/jso
 
 By default the constructor parameter names must match json field names. However, sometimes json
 field names contain characters which are not allowed characters in Scala identifiers. There's two
-solutions for this (see [LottoExample.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/LottoExample.scala) for bigger example).
+solutions for this (see [LottoExample.scala](https://github.com/json4s/json4s/blob/3.3/tests/src/test/scala/org/json4s/LottoExample.scala) for bigger example).
 
 Use back ticks.
 
@@ -648,7 +648,7 @@ Serialization
 =============
 
 Case classes can be serialized and deserialized.
-Please see other examples in [SerializationExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/native/SerializationExamples.scala).
+Please see other examples in [SerializationExamples.scala](https://github.com/json4s/json4s/blob/3.3/tests/src/test/scala/org/json4s/native/SerializationExamples.scala).
 
     scala> import org.json4s._
     scala> import org.json4s.native.Serialization
@@ -801,7 +801,7 @@ XML support
 ===========
 
 JSON structure can be converted to XML node and vice versa.
-Please see more examples in [XmlExamples.scala](https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/XmlExamples.scala).
+Please see more examples in [XmlExamples.scala](https://github.com/json4s/json4s/blob/3.3/tests/src/test/scala/org/json4s/XmlExamples.scala).
 
     scala> import org.json4s.Xml.{toJson, toXml}
     scala> val xml =
