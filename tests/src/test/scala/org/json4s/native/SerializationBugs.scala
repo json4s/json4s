@@ -142,7 +142,9 @@ object SerializationBugs extends Specification {
 
   "Escapes control characters" in {
     val ser = native.Serialization.write("\u0000\u001f")
-    ser must_== "\"\\u0000\\u001f\""
+    // #179 changed the behaviro (https://github.com/json4s/json4s/pull/179)
+    //ser must_== "\"\\u0000\\u001f\""
+    ser must_== "\"\u0000\u001f\""
   }
 
   "classes in deeply nested objects can be serialized" in {
