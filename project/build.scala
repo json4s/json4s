@@ -1,10 +1,8 @@
 import sbt._
 import Keys._
 import xml.Group
-//import sbtscalashim.Plugin._
 import sbtbuildinfo.Plugin._
 import com.typesafe.sbt.SbtStartScript
-
 
 object build extends Build {
   import Dependencies._
@@ -110,7 +108,7 @@ object build extends Build {
     settings = json4sSettings ++ Seq(libraryDependencies ++= jodaTime)
   ) dependsOn(native % "provided->compile;test->test")
 
-//
+  // TODO: remove this?
 //  lazy val nativeLift = Project(
 //    id = "json4s-native-lift",
 //    base = file("native-lift"),
@@ -122,12 +120,6 @@ object build extends Build {
     base = file("jackson"),
     settings = json4sSettings ++ Seq(libraryDependencies ++= jackson)
   ) dependsOn(core % "compile;test->test")
-//
-//  lazy val playSupport = Project(
-//    id = "json4s-play",
-//    base = file("play"),
-//    settings = json4sSettings ++ Seq(libraryDependencies ++= jackson)
-//  ) dependsOn(core % "compile;test->test")
 
   lazy val examples = Project(
      id = "json4s-examples",
@@ -143,13 +135,6 @@ object build extends Build {
     json4sExt,
     mongo)
 
-//
-//  lazy val jacksonExt = Project(
-//    id = "json4s-jackson-ext",
-//    base = file("jackson-ext"),
-//    settings = json4sSettings ++ Seq(libraryDependencies ++= jodaTime)
-//  ) dependsOn(jacksonSupport % "compile;test->test")
-//
   lazy val scalazExt = Project(
     id = "json4s-scalaz",
     base = file("scalaz"),
@@ -161,7 +146,7 @@ object build extends Build {
      base = file("mongo"),
      settings = json4sSettings ++ Seq(
        libraryDependencies ++= Seq(
-         "org.mongodb" % "mongo-java-driver" % "2.11.4"
+         "org.mongodb" % "mongo-java-driver" % "2.12.4"
       )
   )) dependsOn(core % "compile;test->test")
 
