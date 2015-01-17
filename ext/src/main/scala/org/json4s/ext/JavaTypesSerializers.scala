@@ -18,7 +18,6 @@ package org.json4s
 package ext
 
 import java.util.UUID
-import JsonDSL._
 
 object JavaTypesSerializers {
 	val all = List(UUIDSerializer)

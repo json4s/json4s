@@ -21,9 +21,7 @@ import _root_.scalaz._
 import std.list._
 import std.option._
 import syntax.validation._
-import syntax.std.option._
 import syntax.traverse._
-import syntax.std.list._
 import scala.collection.breakOut
 
 trait Base { this: Types =>

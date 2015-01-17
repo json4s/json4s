@@ -1,6 +1,5 @@
 package org.json4s
 
-import JsonAST._
 import scala.language.dynamics
 
 class DynamicJValue(val raw: JValue) extends Dynamic {

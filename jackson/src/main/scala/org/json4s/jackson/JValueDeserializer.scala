@@ -2,7 +2,7 @@ package org.json4s.jackson
 
 import com.fasterxml.jackson.databind.`type`.TypeFactory
 import com.fasterxml.jackson.databind.{DeserializationFeature, DeserializationContext, JsonDeserializer}
-import com.fasterxml.jackson.core.{FormatSchema, JsonToken, JsonParser}
+import com.fasterxml.jackson.core.{JsonToken, JsonParser}
 import collection.mutable
 import org.json4s._
 

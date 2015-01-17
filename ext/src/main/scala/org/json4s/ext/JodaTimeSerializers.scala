@@ -18,7 +18,6 @@ package org.json4s
 package ext
 
 import org.joda.time._
-import JsonDSL._
 
 
 
