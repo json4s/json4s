@@ -1,7 +1,14 @@
 language: scala
 scala:
   - 2.10.4
-  - 2.11.4
+  - 2.11.5
 sudo: false
-script: sbt test
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot/scala-$TRAVIS_SCALA_VERSION
+script:
+  - sbt test
+  - find $HOME/.sbt -name "*.lock" | xargs rm
+  - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 
