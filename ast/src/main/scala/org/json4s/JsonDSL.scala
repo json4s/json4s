@@ -41,6 +41,7 @@ trait DoubleMode { self: Implicits ⇒
 }
 object DoubleMode extends Implicits with DoubleMode
 trait Implicits {
+  implicit def short2jvalue(x: Short): JValue = JInt(x)
   implicit def int2jvalue(x: Int): JValue = JInt(x)
   implicit def long2jvalue(x: Long): JValue = JInt(x)
   implicit def bigint2jvalue(x: BigInt): JValue = JInt(x)
