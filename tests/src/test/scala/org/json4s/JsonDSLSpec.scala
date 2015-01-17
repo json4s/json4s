@@ -25,6 +25,13 @@ object JsonDSLSpec extends Specification with JValueGen with ScalaCheck {
         (("intValue" -> intValue) ~ ("strValue" -> strValue)) must_== JObject(("intValue", JString(intValue.toString)), ("strValue", JString(strValue)))
       prop(buildProp)
     }
+
+    "short to jvalue" in {
+      import JsonDSL._
+      val buildProp = (shortValue: Short) =>
+        (("shortValue" -> shortValue) ~ ("dummy", "dummy")) must_== JObject(("shortValue", JInt(shortValue)), ("dummy", JString("dummy")))
+      prop(buildProp)
+    }
   }
 
 }
