@@ -8,7 +8,7 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot/scala-$TRAVIS_SCALA_VERSION
 script:
-  - sbt test
+  - sbt ++$TRAVIS_SCALA_VERSION test
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 
