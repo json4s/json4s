@@ -27,7 +27,6 @@ object Meta {
   * For converting scala objects into DBObject values
   */
   object Reflection {
-    import java.lang.reflect._
     import com.mongodb.{BasicDBObject, DBRef}
 
     /*
