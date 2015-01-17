@@ -133,7 +133,7 @@ trait Formats { self: Formats =>
    * Adds a field serializer for a given type to this formats.
    */
   def + [A](newSerializer: FieldSerializer[A]): Formats =
-    copy(wFieldSerializers = (newSerializer.mf.erasure -> newSerializer) :: self.fieldSerializers)
+    copy(wFieldSerializers = (newSerializer.mf.runtimeClass -> newSerializer) :: self.fieldSerializers)
 
   private[json4s] def fieldSerializer(clazz: Class[_]): Option[FieldSerializer[_]] = {
     import ClassDelta._
@@ -367,7 +367,7 @@ trait Formats { self: Formats =>
   class CustomSerializer[A: Manifest](
     ser: Formats => (PartialFunction[JValue, A], PartialFunction[Any, JValue])) extends Serializer[A] {
 
-    val Class = implicitly[Manifest[A]].erasure
+    val Class = implicitly[Manifest[A]].runtimeClass
 
     def deserialize(implicit format: Formats) = {
       case (TypeInfo(Class, _), json) =>
@@ -381,7 +381,7 @@ trait Formats { self: Formats =>
   class CustomKeySerializer[A: Manifest](
     ser: Formats => (PartialFunction[String, A], PartialFunction[Any, String])) extends KeySerializer[A] {
 
-    val Class = implicitly[Manifest[A]].erasure
+    val Class = implicitly[Manifest[A]].runtimeClass
 
     def deserialize(implicit format: Formats) = {
       case (TypeInfo(Class, _), json) =>

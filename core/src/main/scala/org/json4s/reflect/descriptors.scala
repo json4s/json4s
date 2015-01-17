@@ -11,23 +11,23 @@ object ScalaType {
 
   def apply[T](mf: Manifest[T]): ScalaType = {
     /* optimization */
-    if (mf.erasure == classOf[Int] || mf.erasure == classOf[java.lang.Integer]) ScalaType.IntType
-    else if (mf.erasure == classOf[Long] || mf.erasure == classOf[java.lang.Long]) ScalaType.LongType
-    else if (mf.erasure == classOf[Byte] || mf.erasure == classOf[java.lang.Byte]) ScalaType.ByteType
-    else if (mf.erasure == classOf[Short] || mf.erasure == classOf[java.lang.Short]) ScalaType.ShortType
-    else if (mf.erasure == classOf[Float] || mf.erasure == classOf[java.lang.Float]) ScalaType.FloatType
-    else if (mf.erasure == classOf[Double] || mf.erasure == classOf[java.lang.Double]) ScalaType.DoubleType
-    else if (mf.erasure == classOf[BigInt] || mf.erasure == classOf[java.math.BigInteger]) ScalaType.BigIntType
-    else if (mf.erasure == classOf[BigDecimal] || mf.erasure == classOf[java.math.BigDecimal]) ScalaType.BigDecimalType
-    else if (mf.erasure == classOf[Boolean] || mf.erasure == classOf[java.lang.Boolean]) ScalaType.BooleanType
-    else if (mf.erasure == classOf[String] || mf.erasure == classOf[java.lang.String]) ScalaType.StringType
-    else if (mf.erasure == classOf[java.util.Date]) ScalaType.DateType
-    else if (mf.erasure == classOf[java.sql.Timestamp]) ScalaType.TimestampType
-    else if (mf.erasure == classOf[Symbol]) ScalaType.SymbolType
-    else if (mf.erasure == classOf[Number]) ScalaType.NumberType
-    else if (mf.erasure == classOf[JObject]) ScalaType.JObjectType
-    else if (mf.erasure == classOf[JArray]) ScalaType.JArrayType
-    else if (mf.erasure == classOf[JValue]) ScalaType.JValueType
+    if (mf.runtimeClass == classOf[Int] || mf.runtimeClass == classOf[java.lang.Integer]) ScalaType.IntType
+    else if (mf.runtimeClass == classOf[Long] || mf.runtimeClass == classOf[java.lang.Long]) ScalaType.LongType
+    else if (mf.runtimeClass == classOf[Byte] || mf.runtimeClass == classOf[java.lang.Byte]) ScalaType.ByteType
+    else if (mf.runtimeClass == classOf[Short] || mf.runtimeClass == classOf[java.lang.Short]) ScalaType.ShortType
+    else if (mf.runtimeClass == classOf[Float] || mf.runtimeClass == classOf[java.lang.Float]) ScalaType.FloatType
+    else if (mf.runtimeClass == classOf[Double] || mf.runtimeClass == classOf[java.lang.Double]) ScalaType.DoubleType
+    else if (mf.runtimeClass == classOf[BigInt] || mf.runtimeClass == classOf[java.math.BigInteger]) ScalaType.BigIntType
+    else if (mf.runtimeClass == classOf[BigDecimal] || mf.runtimeClass == classOf[java.math.BigDecimal]) ScalaType.BigDecimalType
+    else if (mf.runtimeClass == classOf[Boolean] || mf.runtimeClass == classOf[java.lang.Boolean]) ScalaType.BooleanType
+    else if (mf.runtimeClass == classOf[String] || mf.runtimeClass == classOf[java.lang.String]) ScalaType.StringType
+    else if (mf.runtimeClass == classOf[java.util.Date]) ScalaType.DateType
+    else if (mf.runtimeClass == classOf[java.sql.Timestamp]) ScalaType.TimestampType
+    else if (mf.runtimeClass == classOf[Symbol]) ScalaType.SymbolType
+    else if (mf.runtimeClass == classOf[Number]) ScalaType.NumberType
+    else if (mf.runtimeClass == classOf[JObject]) ScalaType.JObjectType
+    else if (mf.runtimeClass == classOf[JArray]) ScalaType.JArrayType
+    else if (mf.runtimeClass == classOf[JValue]) ScalaType.JValueType
     /* end optimization */
     else {
       if (mf.typeArguments.isEmpty) types(mf, new ScalaType(_))
@@ -89,7 +89,7 @@ object ScalaType {
 class ScalaType(private val manifest: Manifest[_]) extends Equals {
 
   import ScalaType.{ types, CopiedScalaType }
-  val erasure: Class[_] = manifest.erasure
+  val erasure: Class[_] = manifest.runtimeClass
 
   val typeArgs: Seq[ScalaType] = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
     if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil

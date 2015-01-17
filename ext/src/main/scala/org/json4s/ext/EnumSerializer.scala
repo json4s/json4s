@@ -17,7 +17,9 @@
 package org.json4s
 package ext
 
-class EnumSerializer[E <: Enumeration: ClassManifest](enum: E)
+import scala.reflect.ClassTag
+
+class EnumSerializer[E <: Enumeration: ClassTag](enum: E)
   extends Serializer[E#Value] {
   import JsonDSL._
 
@@ -41,7 +43,7 @@ class EnumSerializer[E <: Enumeration: ClassManifest](enum: E)
   }
 }
 
-class EnumNameSerializer[E <: Enumeration: ClassManifest](enum: E)
+class EnumNameSerializer[E <: Enumeration: ClassTag](enum: E)
   extends Serializer[E#Value] {
   import JsonDSL._
 
