@@ -148,7 +148,7 @@ object build extends Build {
   lazy val scalazExt = Project(
     id = "json4s-scalaz",
     base = file("scalaz"),
-    settings = json4sSettings ++ Seq(libraryDependencies <+= scalaVersion(scalaz_core))
+    settings = json4sSettings ++ Seq(libraryDependencies += scalaz_core)
   ) dependsOn(core % "compile;test->test", native % "provided->compile", jacksonSupport % "provided->compile")
 
   lazy val mongo = Project(
@@ -165,7 +165,7 @@ object build extends Build {
     id = "json4s-tests",
     base = file("tests"),
     settings = json4sSettings ++ Seq(
-      libraryDependencies <++= scalaVersion { sv => Seq(specs(sv), scalacheck, mockito) },
+      libraryDependencies ++= Seq(specs, scalacheck, mockito),
       initialCommands in (Test, console) :=
         """
           |import org.json4s._
