@@ -23,7 +23,7 @@ import Arbitrary.arbitrary
 trait JValueGen {
   def genJValue: Gen[JValue] = frequency((5, genSimple), (1, wrap(genArray)), (1, wrap(genObject)))
   def genSimple: Gen[JValue] = oneOf(
-    value(JNull),
+    const(JNull),
     arbitrary[Int].map(JInt(_)),
     arbitrary[Double].map(JDouble(_)),
     arbitrary[Boolean].map(JBool(_)),
@@ -59,6 +59,6 @@ trait NodeGen {
     value <- arbitrary[String]
   } yield new XmlElem(name, value)
 
-  def genName = frequency((2, identifier), (1, value("const")))
+  def genName = frequency((2, identifier), (1, const("const")))
   private def children = choose(1, 3).sample.get
 }

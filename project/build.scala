@@ -154,7 +154,7 @@ object build extends Build {
     id = "json4s-tests",
     base = file("tests"),
     settings = json4sSettings ++ Seq(
-      libraryDependencies ++= Seq(specs, scalacheck, mockito),
+      libraryDependencies ++= Seq(specs, mockito),
       initialCommands in (Test, console) :=
         """
           |import org.json4s._
