@@ -29,20 +29,20 @@ object JsonDSLSpec extends Specification with JValueGen with ScalaCheck {
     "short, byte and char to jvalue" in {
       import JsonDSL._
       val buildProp = (shortValue: Short, byteValue: Byte, charValue: Char) => {
-        val dsl = (("shortValue" -> shortValue) ~
+        val dslValue = (("shortValue" -> shortValue) ~
           ("byteValue" -> byteValue) ~
           ("charValue" -> charValue) ~
           ("shortArray" -> List[Short](shortValue)) ~
           ("byteArray" -> List[Byte](byteValue)) ~
           ("charArray" -> List[Char](charValue)))
-        val correct = JObject(
+        val expected = JObject(
           ("shortValue", JInt(shortValue)),
           ("byteValue", JInt(byteValue)),
           ("charValue", JInt(charValue)),
           ("shortArray", JArray(List(JInt(shortValue)))),
           ("byteArray", JArray(List(JInt(byteValue)))),
           ("charArray", JArray(List(JInt(charValue)))))
-        dsl must_== correct
+        dslValue must_== expected
       }
       prop(buildProp)
     }
