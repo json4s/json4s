@@ -62,11 +62,17 @@ object build extends Build {
     crossVersion := CrossVersion.binary
   )
 
+  val noPublish = Seq(
+    publishArtifact := false,
+    publish := {},
+    publishLocal := {}
+  )
+
   lazy val root = Project(
     id = "json4s",
     base = file("."),
-    settings = json4sSettings
-  ) aggregate(core, native, json4sExt, jacksonSupport, scalazExt, json4sTests, mongo, ast, scalap)
+    settings = json4sSettings ++ noPublish
+  ) aggregate(core, native, json4sExt, jacksonSupport, scalazExt, json4sTests, mongo, ast, scalap, examples, benchmark)
 
   lazy val ast = Project(
     id = "json4s-ast",
@@ -127,7 +133,7 @@ object build extends Build {
      settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
        libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.11.0",
        libraryDependencies += jacksonScala
-     )
+     ) ++ noPublish
   ) dependsOn(
     core % "compile;test->test",
     native % "compile;test->test",
@@ -179,7 +185,7 @@ object build extends Build {
           new MyRunner(tp.id, ForkOptions(javaHome = javaHomeDir, connectInput = connectIn, outputStrategy = strategy,
             runJVMOptions = options, workingDirectory = Some(base)) )
       }
-    )
+    ) ++ noPublish
   ) dependsOn(core, native, jacksonSupport, json4sExt, mongo)
 
 
