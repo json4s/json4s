@@ -11,7 +11,7 @@ object Dependencies {
     // TODO 2.5 has breaking API changes
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.3.4"
   )
-  lazy val jacksonScala = "com.fasterxml.jackson.module" %  "jackson-module-scala" % "2.3.1" 
+  lazy val jacksonScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.4.4"
   lazy val liftCommon   = "net.liftweb"                  %% "lift-common"          % "2.5.1" 
   lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.1.0"
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.7"
