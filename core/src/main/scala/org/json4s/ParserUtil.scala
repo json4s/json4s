@@ -25,17 +25,19 @@ object ParserUtil {
     var i = 0
     val l = s.length
     while(i < l) {
-      val c = s(i)
-      if (c == '"') appender.append("\\\"")
-      else if (c == '\\') appender.append("\\\\")
-      else if (c == '\b') appender.append("\\b")
-      else if (c == '\f') appender.append("\\f")
-      else if (c == '\n') appender.append("\\n")
-      else if (c == '\r') appender.append("\\r")
-      else if (c == '\t') appender.append("\\t")
-      else if (!AsciiEncoder.canEncode(c))
-        appender.append("\\u%04x".format(c: Int))
-      else appender.append(c.toString)
+      (s(i): @annotation.switch) match {
+        case '"'  => appender.append("\\\"")
+        case '\\' => appender.append("\\\\")
+        case '\b' => appender.append("\\b")
+        case '\f' => appender.append("\\f")
+        case '\n' => appender.append("\\n")
+        case '\r' => appender.append("\\r")
+        case '\t' => appender.append("\\t")
+        case c =>
+          if (!AsciiEncoder.canEncode(c))
+            appender.append("\\u%04x".format(c: Int))
+          else appender.append(c.toString)
+      }
       i += 1
     }
     appender.subj
