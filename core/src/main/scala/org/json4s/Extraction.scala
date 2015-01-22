@@ -286,10 +286,8 @@ object Extraction {
     }
 
     def submap(prefix: String): Map[String, String] =
-      Map(
-        map.filter(t => t._1.startsWith(prefix)).map(
-          t => (t._1.substring(prefix.length), t._2)
-        ).toList.toArray: _*
+      map.withFilter(t => t._1.startsWith(prefix)).map(
+        t => (t._1.substring(prefix.length), t._2)
       )
 
     val ArrayProp = new Regex("""^(\.([^\.\[]+))\[(\d+)\].*$""")
