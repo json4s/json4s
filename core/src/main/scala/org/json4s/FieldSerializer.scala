@@ -12,10 +12,13 @@ package org.json4s
  *   renameFrom("animalname", "name")
  * )
  * </pre>
+ *
+ * The third optional parameter "includeLazyVal" determines if serializer will serialize/deserialize lazy val fields or not.
  */
 case class FieldSerializer[A](
   serializer:   PartialFunction[(String, Any), Option[(String, Any)]] = Map(),
-  deserializer: PartialFunction[JField, JField] = Map()
+  deserializer: PartialFunction[JField, JField] = Map(),
+  includeLazyVal: Boolean = false
 )(implicit val mf: Manifest[A])
 
 object FieldSerializer {
