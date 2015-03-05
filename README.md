@@ -443,7 +443,7 @@ Json AST can be queried using XPath like functions. Following REPL session shows
         "age": 35,
         "spouse": {
           "person": {
-            "name": "Marilyn"
+            "name": "Marilyn",
             "age": 33
           }
         }
