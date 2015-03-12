@@ -41,7 +41,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
     "Serialize joda time types" in {
       val x = JodaTypes(new Duration(10*1000), new Instant(System.currentTimeMillis),
                         new DateTime, new DateMidnight, new Interval(1000, 50000),
-                        new LocalDate(2011, 1, 16), new LocalTime(16, 52, 10), Period.weeks(3))
+                        new LocalDate(2011, 1, 16), new LocalTime(16, 52, 10), new LocalDateTime(), Period.weeks(3))
       val ser = s.write(x)
       s.read[JodaTypes](ser) must_== x
     }
@@ -53,13 +53,13 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
         }
       } ++ JodaTimeSerializers.all
 
-      val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0), new DateMidnight(2011, 1, 16))
+      val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0), new DateMidnight(2011, 1, 16), new LocalDateTime(2015, 3, 12, 11, 55, 0, 0))
       val ser = s.write(x)
-      ser must_== """{"dt":"2011-01-16 10:32:00Z","dm":"2011-01-16 00:00:00Z"}"""
+      ser must_== """{"dt":"2011-01-16 10:32:00Z","dm":"2011-01-16 00:00:00Z","ldt":"2015-03-12 11:55:00Z"}"""
     }
 
     "null is serialized as JSON null" in {
-      val x = JodaTypes(null, null, null, null, null, null, null, null)
+      val x = JodaTypes(null, null, null, null, null, null, null, null, null)
       val ser = s.write(x)
       s.read[JodaTypes](ser) must_== x
     }
@@ -68,6 +68,6 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
 
 case class JodaTypes(duration: Duration, instant: Instant, dateTime: DateTime,
                      dateMidnight: DateMidnight, interval: Interval, localDate: LocalDate,
-                     localTime: LocalTime, period: Period)
+                     localTime: LocalTime, localDateTime: LocalDateTime, period: Period)
 
-case class Dates(dt: DateTime, dm: DateMidnight)
+case class Dates(dt: DateTime, dm: DateMidnight, ldt: LocalDateTime)
