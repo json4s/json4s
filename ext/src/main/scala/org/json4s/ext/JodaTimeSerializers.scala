@@ -24,7 +24,7 @@ import org.joda.time._
 object JodaTimeSerializers {
   def all = List(DurationSerializer, InstantSerializer, DateTimeSerializer,
                  DateMidnightSerializer, IntervalSerializer(), LocalDateSerializer(),
-                 LocalTimeSerializer(), PeriodSerializer)
+                 LocalTimeSerializer(), LocalDateTimeSerializer, PeriodSerializer)
 }
 
 case object PeriodSerializer extends CustomSerializer[Period](format => (
@@ -79,6 +79,16 @@ case object DateMidnightSerializer extends CustomSerializer[DateMidnight](format
   },
   {
     case d: DateMidnight => JString(format.dateFormat.format(d.toDate))
+  }
+))
+
+case object LocalDateTimeSerializer extends CustomSerializer[LocalDateTime](format => (
+  {
+    case JString(s) => new LocalDateTime(DateParser.parse(s, format))
+    case JNull => null
+  },
+  {
+    case d: LocalDateTime => JString(format.dateFormat.format(d.toDate))
   }
 ))
 
