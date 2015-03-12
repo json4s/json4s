@@ -139,4 +139,3 @@ case class ClassSerializer[A : Manifest, B : Manifest](t: ClassType[A, B]) exten
     case a: A if a.asInstanceOf[AnyRef].getClass == Class => Extraction.decompose(t.wrap(a))
   }
 }
-
