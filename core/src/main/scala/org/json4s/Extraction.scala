@@ -68,6 +68,30 @@ object Extraction {
     builder.result
   }
 
+  /** Load lazy val value
+    *
+    * This is a fix for failed lazy val serialization from FieldSerializer (see org.json4s.native.LazyValBugs test).
+    *
+    * We do this by finding the hidden lazy method which will have same name as the lazy val name
+    * but with suffix "$lzycompute" (for scala v2.10+), then invoke the method if found, and return the value.
+    *
+    * The "$lzycompute" method naming could be changed in future so this method must be adjusted if that happens.
+    *
+    * @param a Object to be serialized
+    * @param name Field name to be checked
+    * @param defaultValue Default value if lazy method is not found
+    * @return Value of invoked lazy method if found, else return the default value
+    */
+  def loadLazyValValue(a: Any, name: String, defaultValue: Any) = {
+    try {
+      val method = a.getClass.getDeclaredMethod(name + "$lzycompute")
+      method.setAccessible(true)
+      method.invoke(a)
+    } catch {
+      case e: Exception => defaultValue
+    }
+  }
+
   /** Decompose a case class into JSON.
    *
    * This is broken out to avoid calling builder.result when we return from recusion
@@ -102,10 +126,12 @@ object Extraction {
         val fieldVal = prop.get(any)
         val n = prop.name
         if (fs.isDefined) {
-          val ff = (fs.get.serializer orElse Map((n, fieldVal) -> Some((n, fieldVal))))((n, fieldVal))
+          val fieldSerializer = fs.get
+          val ff = (fieldSerializer.serializer orElse Map((n, fieldVal) -> Some((n, fieldVal))))((n, fieldVal))
           if (ff.isDefined) {
             val Some((nn, vv)) = ff
-            addField(nn, vv, obj)
+            val vvv = if (fieldSerializer.includeLazyVal) loadLazyValValue(a, nn, vv) else vv
+            addField(nn, vvv, obj)
           }
         } else if (ctorParams contains prop.name) addField(n, fieldVal, obj)
       }
@@ -432,7 +458,11 @@ object Extraction {
 
           fieldsToSet foreach { prop =>
             jsonSerializers get prop.name foreach { case (_, v) =>
-              prop.set(a, extract(v, prop.returnType))
+              val vv = extract(v, prop.returnType)
+              // If includeLazyVal is set, try to find and initialize lazy val.
+              // This is to prevent the extracted value to be overwritten by the lazy val initialization.
+              if (serializer.includeLazyVal) loadLazyValValue(a, prop.name, vv) else ()
+              prop.set(a, vv)
             }
           }
         }
