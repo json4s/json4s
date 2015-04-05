@@ -227,6 +227,7 @@ object Extraction {
     case x: java.lang.Byte => builder.byte(x.byteValue())
     case x: java.lang.Boolean => builder.boolean(x.booleanValue())
     case x: java.lang.Short => builder.short(x.shortValue())
+    case x: java.math.BigDecimal => builder.bigDecimal(x)
     case x: Date => builder.string(formats.dateFormat.format(x))
     case x: Symbol => builder.string(x.name)
     case _ => sys.error("not a primitive " + a.asInstanceOf[AnyRef].getClass)
