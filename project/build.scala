@@ -45,16 +45,21 @@ object build extends Build {
           <name>Ivan Porto Carrero</name>
           <url>http://flanders.co.nz/</url>
         </developer>
+        <developer>
+          <id>seratch</id>
+          <name>Kazuhiro Sera</name>
+          <url>http://git.io/sera</url>
+        </developer>
       </developers>
     )}
   )
 
   val json4sSettings = mavenCentralFrouFrou ++ Seq(
     organization := "org.json4s",
-    scalaVersion := "2.11.5",
-    crossScalaVersions := Seq("2.10.4", "2.11.5"),
+    scalaVersion := "2.11.6",
+    crossScalaVersions := Seq("2.10.5", "2.11.6"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-Yinline-warnings", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:reflectiveCalls", "-language:postfixOps"),
-    version := "3.3.0-SNAPSHOT",
+    version := "3.3.0.RC1",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     publishSetting,
@@ -131,7 +136,7 @@ object build extends Build {
      id = "json4s-examples",
      base = file("examples"),
      settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
-       libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.11.0",
+       libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.11.2",
        libraryDependencies += jacksonScala
      ) ++ noPublish
   ) dependsOn(
@@ -152,7 +157,7 @@ object build extends Build {
      base = file("mongo"),
      settings = json4sSettings ++ Seq(
        libraryDependencies ++= Seq(
-         "org.mongodb" % "mongo-java-driver" % "2.12.4"
+         "org.mongodb" % "mongo-java-driver" % "2.13.0"
       )
   )) dependsOn(core % "compile;test->test")
 
@@ -175,9 +180,9 @@ object build extends Build {
     settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
       cancelable := true,
       libraryDependencies ++= Seq(
-        "com.google.code.java-allocation-instrumenter" % "java-allocation-instrumenter" % "2.0",
+        "com.google.code.java-allocation-instrumenter" % "java-allocation-instrumenter" % "2.1",
         "com.google.caliper" % "caliper" % "0.5-rc1",
-        "com.google.code.gson" % "gson" % "1.7.1"
+        "com.google.code.gson" % "gson" % "1.7.2"
       ),
       libraryDependencies += jacksonScala,
       runner in Compile in run <<= (thisProject, taskTemporaryDirectory, scalaInstance, baseDirectory, javaOptions, outputStrategy, javaHome, connectInput) map {
