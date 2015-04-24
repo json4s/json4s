@@ -67,25 +67,25 @@ object JsonDSL extends JsonDSL with DoubleMode {
 }
 trait JsonDSL extends Implicits {
 
-  implicit def seq2jvalue[A <% JValue](s: Traversable[A]) =
+  implicit def seq2jvalue[A](s: Traversable[A])(implicit ev: A => JValue) =
     JArray(s.toList.map { a ⇒ val v: JValue = a; v })
 
-  implicit def map2jvalue[A <% JValue](m: Map[String, A]) =
+  implicit def map2jvalue[A](m: Map[String, A])(implicit ev: A => JValue) =
     JObject(m.toList.map { case (k, v) ⇒ JField(k, v) })
 
-  implicit def option2jvalue[A <% JValue](opt: Option[A]): JValue = opt match {
+  implicit def option2jvalue[A](opt: Option[A])(implicit ev: A => JValue): JValue = opt match {
     case Some(x) ⇒ x
     case None ⇒ JNothing
   }
 
-  implicit def symbol2jvalue(x: Symbol) = JString(x.name)
-  implicit def pair2jvalue[A <% JValue](t: (String, A)) = JObject(List(JField(t._1, t._2)))
-  implicit def list2jvalue(l: List[JField]) = JObject(l)
-  implicit def jobject2assoc(o: JObject) = new JsonListAssoc(o.obj)
-  implicit def pair2Assoc[A <% JValue](t: (String, A)) = new JsonAssoc(t)
+  implicit def symbol2jvalue(x: Symbol): JString = JString(x.name)
+  implicit def pair2jvalue[A](t: (String, A))(implicit ev: A => JValue) = JObject(List(JField(t._1, t._2)))
+  implicit def list2jvalue(l: List[JField]): JObject = JObject(l)
+  implicit def jobject2assoc(o: JObject): JsonListAssoc = new JsonListAssoc(o.obj)
+  implicit def pair2Assoc[A](t: (String, A))(implicit ev: A => JValue) = new JsonAssoc(t)
 
-  class JsonAssoc[A <% JValue](left: (String, A)) {
-    def ~[B <% JValue](right: (String, B)) = {
+  class JsonAssoc[A](left: (String, A))(implicit ev: A => JValue) {
+    def ~[B](right: (String, B))(implicit ev: B => JValue) = {
       val l: JValue = left._2
       val r: JValue = right._2
       JObject(JField(left._1, l) :: JField(right._1, r) :: Nil)
@@ -95,7 +95,7 @@ trait JsonDSL extends Implicits {
       val l: JValue = left._2
       JObject(JField(left._1, l) :: right.obj)
     }
-    def ~~[B <% JValue](right: (String, B)) = this.~(right)
+    def ~~[B](right: (String, B))(implicit ev: B => JValue) = this.~(right)
     def ~~(right: JObject) = this.~(right)
 
   }
