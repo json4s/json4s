@@ -207,6 +207,7 @@ object ParserUtil {
 
   private val BrokenDouble = BigDecimal("2.2250738585072012e-308")
   private[json4s] def parseDouble(s: String) = {
+    if (s.length > 1024) throw new ParseException(s"number longer than 1024: $s", null)
     val d = BigDecimal(s)
     if (d == BrokenDouble) sys.error("Error parsing 2.2250738585072012e-308")
     else d.doubleValue
