@@ -261,7 +261,7 @@ object DataType {
   }
 
   def apply(name: String) = new DataType(name)
-  def apply[T](implicit mf: Manifest[T]) = new DataType(mf.erasure.getSimpleName)
+  def apply[T](implicit mf: Manifest[T]) = new DataType(mf.runtimeClass.getSimpleName)
 }
 
 trait AllowableValues
