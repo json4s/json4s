@@ -581,6 +581,13 @@ Please see more examples in [ExtractionExampleSpec.scala](https://github.com/jso
     scala> json.extract[Person]
     res0: Person = Person(joe,Address(Bulevard,Helsinki),List(Child(Mary,5,Some(Sat Sep 04 18:06:22 EEST 2004)), Child(Mazy,3,None)))
 
+    scala> val addressJson = json  \ "address"  // Extract address object
+    scala> val addressObj = addressJson.extract[Address]
+    res1: addressObj: Address = Address(Bulevard,Helsinki)
+
+    scala> (json \ "children").extract[List[Child]]  // Extract list of objects
+    res2: List[Child] = List(Child(Mary,5,Some(Sat Sep 04 23:36:22 IST 2004)), Child(Mazy,3,None))
+
 By default the constructor parameter names must match json field names. However, sometimes json
 field names contain characters which are not allowed characters in Scala identifiers. There's two
 solutions for this (see [LottoExample.scala](https://github.com/json4s/json4s/blob/3.3/tests/src/test/scala/org/json4s/LottoExample.scala) for bigger example).
