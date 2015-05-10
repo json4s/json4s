@@ -20,8 +20,10 @@ object Dependencies {
   lazy val mockito      = "org.mockito"                  %  "mockito-all"          % "1.10.19"   % "test"
 
   def scalaXml(scalaVersion: String) = {
-    if (scalaVersion.startsWith("2.11")) Seq("org.scala-lang.modules" %% "scala-xml" % "1.0.3")
-    else Nil
+    PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion)){
+      case Some((2, scalaMajor)) if scalaMajor >= 11 =>
+        Seq("org.scala-lang.modules" %% "scala-xml" % "1.0.3")
+    }.toList.flatten
   }
 
 }
