@@ -72,6 +72,8 @@ case object DateTimeSerializer extends CustomSerializer[DateTime](format => (
   }
 ))
 
+// see: http://www.joda.org/joda-time/apidocs/org/joda/time/DateMidnight.html
+@deprecated("The time of midnight does not exist in some time zones where the daylight saving time forward shift skips the midnight hour. Use LocalDate to represent a date without a time zone. Or use DateTime to represent a full date and time, perhaps using DateTime.withTimeAtStartOfDay() to get an instant at the start of a day. (http://www.joda.org/joda-time/apidocs/org/joda/time/DateMidnight.html)", since = "3.3.0")
 case object DateMidnightSerializer extends CustomSerializer[DateMidnight](format => (
   {
     case JString(s) => new DateMidnight(DateParser.parse(s, format))
