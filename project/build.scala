@@ -23,13 +23,6 @@ object build extends Build {
       )
   }
 
-  val publishSetting = publishTo <<= (version) { version: String =>
-    if (version.trim.endsWith("SNAPSHOT"))
-      Some(Opts.resolver.sonatypeSnapshots)
-    else
-      Some(Opts.resolver.sonatypeStaging)
-  }
-
   val mavenCentralFrouFrou = Seq(
     homepage := Some(new URL("https://github.com/json4s/json4s")),
     startYear := Some(2009),
@@ -59,10 +52,9 @@ object build extends Build {
     scalaVersion := "2.11.6",
     crossScalaVersions := Seq("2.10.5", "2.11.6"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-Yinline-warnings", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:reflectiveCalls", "-language:postfixOps"),
-    version := "3.3.0-SNAPSHOT",
+    version := "3.3.0.RC2",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
-    publishSetting,
     resolvers ++= Seq(Opts.resolver.sonatypeSnapshots, Opts.resolver.sonatypeReleases),
     crossVersion := CrossVersion.binary
   )
