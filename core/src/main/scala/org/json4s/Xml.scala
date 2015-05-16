@@ -186,7 +186,7 @@ object Xml {
     }
   }
 
-  private[json4s] class XmlNode(name: String, children: Seq[Node]) extends Elem(null, name, xml.Null, TopScope, children :_*)
+  private[json4s] class XmlNode(name: String, children: Seq[Node]) extends Elem(null, name, xml.Null, TopScope, children.isEmpty, children :_*)
 
-  private[json4s] class XmlElem(name: String, value: String) extends Elem(null, name, xml.Null, TopScope, Text(value))
+  private[json4s] class XmlElem(name: String, value: String) extends Elem(null, name, xml.Null, TopScope, false, Text(value))
 }

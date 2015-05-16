@@ -129,7 +129,7 @@ object JsonParser {
     def closeBlock(v: Any) {
       @inline def toJValue(x: Any) = x match {
         case json: JValue => json
-        case _ => p.fail(s"unexpected field $x")
+        case scala.util.control.NonFatal(_) => p.fail(s"unexpected field $x")
       }
 
       vals.peekOption match {
@@ -214,7 +214,7 @@ object JsonParser {
           ParserUtil.unquote(buf)
         } catch {
           case p: ParseException => throw p
-          case _ => fail("unexpected string end")
+          case scala.util.control.NonFatal(_) => fail("unexpected string end")
         }
 
       def parseValue(first: Char) = {

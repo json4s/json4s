@@ -99,7 +99,7 @@ object Api {
       def parse(s: String) = try {
         Option(Iso8601Date.parseDateTime(s).toDate)
       } catch {
-        case _ ⇒ None
+        case scala.util.control.NonFatal(_) ⇒ None
       }
     }
   } ++ Seq(

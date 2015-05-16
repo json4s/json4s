@@ -17,8 +17,9 @@ object MongoExamples extends App with jackson.JsonMethods {
   }
 
 
-  val mongo = com.mongodb.Mongo.connect(new DBAddress("127.0.0.1", "json4s_examples"))
-  val coll = mongo.getCollection("swagger_data")
+  val mongo = new MongoClient("127.0.0.1")
+  val db = mongo.getDB("json4s_examples")
+  val coll = db.getCollection("swagger_data")
 
   val f = for {
     listing <- Http(url("http://petstore.swagger.wordnik.com/api/api-docs") OK read.Json)
