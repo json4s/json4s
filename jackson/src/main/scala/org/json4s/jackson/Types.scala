@@ -17,9 +17,11 @@ private[jackson] object Types {
     if (manifest.runtimeClass.isArray) {
       ArrayType.construct(factory.constructType(manifest.runtimeClass.getComponentType), null, null)
     } else {
-      factory.constructParametricType(
-        manifest.runtimeClass,
-        manifest.typeArguments.map {m => build(factory, m)}.toArray: _*)
+      val clazz = manifest.runtimeClass
+      factory.constructParametrizedType(
+        clazz,
+        clazz,
+        manifest.typeArguments.map (m => build(factory, m)): _*)
     }
   }
 }

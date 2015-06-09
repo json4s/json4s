@@ -1,7 +1,7 @@
 package org.json4s
 package jackson
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.{ObjectWriter, ObjectMapper}
 import java.io.{Writer => JWriter}
 
 object Json {
@@ -19,10 +19,10 @@ class Json(fmts: Formats, mapper: ObjectMapper = JsonMethods.mapper) extends Jso
   }
 
   def writePretty[A <: AnyRef](a: A): String =
-    mapper.writerWithDefaultPrettyPrinter.writeValueAsString(decompose(a))
+    mapper.writerWithDefaultPrettyPrinter[ObjectWriter].writeValueAsString(decompose(a))
 
   def writePretty[A <: AnyRef, W <: JWriter](a: A, out: W): W = {
-    mapper.writerWithDefaultPrettyPrinter.writeValue(out, decompose(a))
+    mapper.writerWithDefaultPrettyPrinter[ObjectWriter].writeValue(out, decompose(a))
     out
   }
 

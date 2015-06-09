@@ -1,6 +1,8 @@
 package org.json4s
 package jackson
 
+import com.fasterxml.jackson.databind.ObjectWriter
+
 import scala.reflect.Manifest
 import java.io.OutputStream
 
@@ -35,12 +37,12 @@ object Serialization extends Serialization {
   /** Serialize to String (pretty format).
    */
   def writePretty[A <: AnyRef](a: A)(implicit formats: Formats): String =
-    JsonMethods.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(Extraction.decompose(a)(formats))
+    JsonMethods.mapper.writerWithDefaultPrettyPrinter[ObjectWriter].writeValueAsString(Extraction.decompose(a)(formats))
 
   /** Serialize to Writer (pretty format).
    */
   def writePretty[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
-    JsonMethods.mapper.writerWithDefaultPrettyPrinter.writeValue(out, Extraction.decompose(a)(formats))
+    JsonMethods.mapper.writerWithDefaultPrettyPrinter[ObjectWriter].writeValue(out, Extraction.decompose(a)(formats))
     out
   }
 
