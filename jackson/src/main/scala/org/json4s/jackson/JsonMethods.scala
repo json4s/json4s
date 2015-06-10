@@ -1,7 +1,7 @@
 package org.json4s
 package jackson
 
-import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper, DeserializationFeature}
+import com.fasterxml.jackson.databind.{ObjectWriter, JsonNode, ObjectMapper, DeserializationFeature}
 import util.control.Exception.allCatch
 
 trait JsonMethods extends org.json4s.JsonMethods[JValue] {
@@ -34,7 +34,7 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
   def compact(d: JValue): String = mapper.writeValueAsString(d)
 
   def pretty(d: JValue): String = {
-    val writer = mapper.writerWithDefaultPrettyPrinter()
+    val writer = mapper.writerWithDefaultPrettyPrinter[ObjectWriter]()
     writer.writeValueAsString(d)
   }
 

@@ -8,10 +8,9 @@ object Dependencies {
     "org.joda"  % "joda-convert" % "1.7"
   )
   lazy val jackson      = Seq(
-    // TODO 2.5 has breaking API changes
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.3.5"
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.5.3"
   )
-  lazy val jacksonScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.4.5"
+  lazy val jacksonScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.5.2"
   lazy val liftCommon   = "net.liftweb"                  %% "lift-common"          % "2.5.1"
   lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.1.1"
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.7"
