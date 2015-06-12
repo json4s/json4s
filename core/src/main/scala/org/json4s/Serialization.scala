@@ -27,7 +27,11 @@ trait Serialization {
 
   /** Deserialize from a String.
    */
-  def read[A](json: String)(implicit formats: Formats, mf: Manifest[A]): A
+  def read[A](json: String)(implicit formats: Formats, mf: Manifest[A]): A = read(StringInput(json))
+
+  /** Deserialize from an JsonInput
+   */
+  def read[A](json: JsonInput)(implicit formats: Formats, mf: Manifest[A]): A
 
   /** Deserialize from a Reader.
    */
