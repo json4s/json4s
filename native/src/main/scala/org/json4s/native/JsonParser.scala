@@ -42,6 +42,15 @@ object JsonParser {
   case object OpenArr extends Token
   case object CloseArr extends Token
 
+  def parse(in: JsonInput, useBigDecimalForDouble: Boolean): JValue = {
+    in match {
+      case StringInput(s) => parse(s, useBigDecimalForDouble)
+      case ReaderInput(rdr) => parse(rdr, useBigDecimalForDouble)
+      case StreamInput(stream) => parse(new InputStreamReader(stream, "UTF-8"), useBigDecimalForDouble)
+      case FileInput(file) => parse(new FileReader(file), useBigDecimalForDouble)
+    }
+  }
+
   /** Return parsed JSON.
    * @throws ParseException is thrown if parsing fails
    */

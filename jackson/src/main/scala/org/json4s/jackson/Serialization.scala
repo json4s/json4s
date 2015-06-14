@@ -46,9 +46,9 @@ object Serialization extends Serialization {
     out
   }
 
-  /** Deserialize from a String.
-   */
-  def read[A](json: String)(implicit formats: Formats, mf: Manifest[A]): A =
+  /** Deserialize from an JsonInput
+    */
+  def read[A](json: JsonInput)(implicit formats: Formats, mf: Manifest[A]): A =
     JsonMethods.parse(json, formats.wantsBigDecimal).extract(formats, mf)
 
   @deprecated("You can use formats now to indicate you want to use decimals instead of doubles", "3.2.0")
