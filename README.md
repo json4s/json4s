@@ -41,7 +41,7 @@ If you want to change that:
 
 ```scala
 import com.fasterxml.jackson.databind.SerializationFeature
-org.json4s.jackson.JsonMethods.configure(SerializationFeature.CLOSE_CLOSEABLE, false)
+org.json4s.jackson.JsonMethods.mapper.configure(SerializationFeature.CLOSE_CLOSEABLE, false)
 ```
 
 ## Guide
