@@ -1,8 +1,9 @@
 package org.json4s
 package jackson
 
-import com.fasterxml.jackson.databind.{ObjectWriter, JsonNode, ObjectMapper, DeserializationFeature}
-import util.control.Exception.allCatch
+import com.fasterxml.jackson.databind._
+import com.fasterxml.jackson.databind.DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS
+import scala.util.control.Exception.allCatch
 
 trait JsonMethods extends org.json4s.JsonMethods[JValue] {
 
@@ -14,13 +15,15 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
   def mapper = _defaultMapper
 
   def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue = {
-    // What about side effects?
-    mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, useBigDecimalForDouble)
+    val reader = if (useBigDecimalForDouble)
+      mapper.reader[ObjectReader](classOf[JValue]) `with` USE_BIG_DECIMAL_FOR_FLOATS
+    else mapper.reader[ObjectReader](classOf[JValue])
+
     in match {
-	    case StringInput(s) => mapper.readValue(s, classOf[JValue])
-	    case ReaderInput(rdr) => mapper.readValue(rdr, classOf[JValue])
-	    case StreamInput(stream) => mapper.readValue(stream, classOf[JValue])
-	    case FileInput(file) => mapper.readValue(file, classOf[JValue])
+	    case StringInput(s) => reader.readValue(s)
+	    case ReaderInput(rdr) => reader.readValue(rdr)
+	    case StreamInput(stream) => reader.readValue(stream)
+	    case FileInput(file) => reader.readValue(file)
 	  }
   }
 
