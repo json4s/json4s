@@ -18,8 +18,8 @@ class JValueDeserializer(factory: TypeFactory, klass: Class[_]) extends JsonDese
         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) JDecimal(BigDecimal(jp.getDecimalValue))
         else JDouble(jp.getDoubleValue)
       case JsonToken.VALUE_STRING => JString(jp.getText)
-      case JsonToken.VALUE_TRUE => JBool(true)
-      case JsonToken.VALUE_FALSE => JBool(false)
+      case JsonToken.VALUE_TRUE => JBool.True
+      case JsonToken.VALUE_FALSE => JBool.False
 
       case JsonToken.START_ARRAY =>
         val values = new mutable.MutableList[JValue]()

@@ -198,6 +198,10 @@ object JsonAST {
     type Values = Boolean
     def values = value
   }
+  object JBool {
+    val True = JBool(true)
+    val False = JBool(false)
+  }
 
   case class JObject(obj: List[JField]) extends JValue {
     type Values = Map[String, Any]
