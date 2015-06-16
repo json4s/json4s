@@ -15,7 +15,9 @@ class JValueDeserializer(factory: TypeFactory, klass: Class[_]) extends JsonDese
 
     val value = (jp.getCurrentToken.id(): @switch) match {
       case JsonTokenId.ID_NULL => JNull
-      case JsonTokenId.ID_NUMBER_INT => JInt(BigInt(jp.getText))
+      case JsonTokenId.ID_NUMBER_INT =>
+        if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) JInt(BigInt(jp.getText))
+        else JLong(jp.getLongValue)
       case JsonTokenId.ID_NUMBER_FLOAT =>
         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) JDecimal(BigDecimal(jp.getDecimalValue))
         else JDouble(jp.getDoubleValue)

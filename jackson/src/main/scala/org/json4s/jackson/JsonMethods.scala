@@ -2,7 +2,7 @@ package org.json4s
 package jackson
 
 import com.fasterxml.jackson.databind._
-import com.fasterxml.jackson.databind.DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS
+import com.fasterxml.jackson.databind.DeserializationFeature.{USE_BIG_DECIMAL_FOR_FLOATS, USE_BIG_INTEGER_FOR_INTS}
 import scala.util.control.Exception.allCatch
 
 trait JsonMethods extends org.json4s.JsonMethods[JValue] {
@@ -10,14 +10,16 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
   private[this] lazy val _defaultMapper = {
     val m = new ObjectMapper()
     m.registerModule(new Json4sScalaModule)
+    // for backwards compatibility
+    m.configure(USE_BIG_INTEGER_FOR_INTS, true)
     m
   }
   def mapper = _defaultMapper
 
-  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue = {
-    val reader = if (useBigDecimalForDouble)
-      mapper.reader[ObjectReader](classOf[JValue]) `with` USE_BIG_DECIMAL_FOR_FLOATS
-    else mapper.reader[ObjectReader](classOf[JValue])
+  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): JValue = {
+    var reader = mapper.reader[ObjectReader](classOf[JValue])
+    if (useBigDecimalForDouble) reader = reader `with` USE_BIG_DECIMAL_FOR_FLOATS
+    if (useBigIntForLong) reader = reader `with` USE_BIG_INTEGER_FOR_INTS
 
     in match {
 	    case StringInput(s) => reader.readValue(s)
@@ -27,8 +29,8 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
 	  }
   }
 
-  def parseOpt(in: JsonInput, useBigDecimalForDouble: Boolean = false): Option[JValue] =  allCatch opt {
-    parse(in, useBigDecimalForDouble)
+  def parseOpt(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): Option[JValue] = allCatch opt {
+    parse(in, useBigDecimalForDouble, useBigIntForLong)
   }
 
   def render(value: JValue)(implicit formats: Formats = DefaultFormats): JValue =

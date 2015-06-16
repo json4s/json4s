@@ -190,6 +190,10 @@ object JsonAST {
     type Values = BigDecimal
     def values = num
   }
+  case class JLong(num: Long) extends JValue with JNumber {
+    type Values = Long
+    def values = num
+  }
   case class JInt(num: BigInt) extends JValue with JNumber {
     type Values = BigInt
     def values = num

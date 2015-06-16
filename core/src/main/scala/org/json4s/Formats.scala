@@ -43,6 +43,7 @@ trait Formats { self: Formats =>
   def customSerializers: List[Serializer[_]] = Nil
   def customKeySerializers: List[KeySerializer[_]] = Nil
   def fieldSerializers: List[(Class[_], FieldSerializer[_])] = Nil
+  def wantsBigInt: Boolean = true
   def wantsBigDecimal: Boolean = false
   def primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
   def companions: List[(Class[_], AnyRef)] = Nil
@@ -69,6 +70,7 @@ trait Formats { self: Formats =>
                     wCustomSerializers: List[Serializer[_]] = self.customSerializers,
                     wCustomKeySerializers: List[KeySerializer[_]] = self.customKeySerializers,
                     wFieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers,
+                    wWantsBigInt: Boolean = self.wantsBigInt,
                     wWantsBigDecimal: Boolean = self.wantsBigDecimal,
                     withPrimitives: Set[Type] = self.primitives,
                     wCompanions: List[(Class[_], AnyRef)] = self.companions,
@@ -82,12 +84,17 @@ trait Formats { self: Formats =>
       override def customSerializers: List[Serializer[_]] = wCustomSerializers
       override val customKeySerializers: List[KeySerializer[_]] = wCustomKeySerializers
       override def fieldSerializers: List[(Class[_], FieldSerializer[_])] = wFieldSerializers
+      override def wantsBigInt: Boolean = wWantsBigInt
       override def wantsBigDecimal: Boolean = wWantsBigDecimal
       override def primitives: Set[Type] = withPrimitives
       override def companions: List[(Class[_], AnyRef)] = wCompanions
       override def strictOptionParsing: Boolean = wStrict
       override def emptyValueStrategy: EmptyValueStrategy = wEmptyValueStrategy
     }
+
+  def withBigInt: Formats = copy(wWantsBigInt = true)
+
+  def withLong: Formats = copy(wWantsBigInt = false)
 
   def withBigDecimal: Formats = copy(wWantsBigDecimal = true)
 
@@ -324,6 +331,7 @@ trait Formats { self: Formats =>
     override val customSerializers: List[Serializer[_]] = Nil
     override val customKeySerializers: List[KeySerializer[_]] = Nil
     override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = Nil
+    override val wantsBigInt: Boolean = true
     override val wantsBigDecimal: Boolean = false
     override val primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
     override val companions: List[(Class[_], AnyRef)] = Nil

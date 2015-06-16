@@ -68,7 +68,7 @@ object Serialization extends Serialization  {
   /** Deserialize from a String.
    */
   def read[A](json: JsonInput)(implicit formats: Formats, mf: Manifest[A]): A = {
-    JsonParser.parse(json, formats.wantsBigDecimal).extract(formats, mf)
+    JsonParser.parse(json, formats.wantsBigDecimal, formats.wantsBigInt).extract(formats, mf)
   }
 
   @deprecated("You can use formats now to indicate you want to use decimals instead of doubles", "3.2.0")
@@ -84,7 +84,10 @@ object Serialization extends Serialization  {
   /** Deserialize from a Reader.
    */
   def read[A](in: Reader)(implicit formats: Formats, mf: Manifest[A]): A = {
-    JsonParser.parse(in, formats.wantsBigDecimal).extract(formats, mf)
+    JsonParser.parse(in,
+      closeAutomatically = true,
+      useBigDecimalForDouble = formats.wantsBigDecimal,
+      useBigIntForLong = formats.wantsBigInt).extract(formats, mf)
   }
 
 }

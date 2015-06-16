@@ -171,6 +171,7 @@ object Xml {
     def toXml(name: String, json: JValue): NodeSeq = json match {
       case JObject(fields) => new XmlNode(name, fields flatMap { case (n, v) => toXml(n, v) })
       case JArray(xs) => xs flatMap { v => toXml(name, v) }
+      case JLong(x) => new XmlElem(name, x.toString)
       case JInt(x) => new XmlElem(name, x.toString)
       case JDouble(x) => new XmlElem(name, x.toString)
       case JDecimal(x) => new XmlElem(name, x.toString)
