@@ -2,26 +2,28 @@ package org.json4s.jackson
 
 import com.fasterxml.jackson.databind.`type`.TypeFactory
 import com.fasterxml.jackson.databind.{DeserializationFeature, DeserializationContext, JsonDeserializer}
-import com.fasterxml.jackson.core.{JsonToken, JsonParser}
+import com.fasterxml.jackson.core.{JsonTokenId, JsonToken, JsonParser}
 import collection.mutable
 import org.json4s._
+
+import scala.annotation.switch
 
 class JValueDeserializer(factory: TypeFactory, klass: Class[_]) extends JsonDeserializer[Object] {
   def deserialize(jp: JsonParser, ctxt: DeserializationContext): Object = {
 
     if (jp.getCurrentToken == null) jp.nextToken()
 
-    val value = jp.getCurrentToken match {
-      case JsonToken.VALUE_NULL => JNull
-      case JsonToken.VALUE_NUMBER_INT => JInt(BigInt(jp.getText))
-      case JsonToken.VALUE_NUMBER_FLOAT =>
+    val value = (jp.getCurrentToken.id(): @switch) match {
+      case JsonTokenId.ID_NULL => JNull
+      case JsonTokenId.ID_NUMBER_INT => JInt(BigInt(jp.getText))
+      case JsonTokenId.ID_NUMBER_FLOAT =>
         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) JDecimal(BigDecimal(jp.getDecimalValue))
         else JDouble(jp.getDoubleValue)
-      case JsonToken.VALUE_STRING => JString(jp.getText)
-      case JsonToken.VALUE_TRUE => JBool(true)
-      case JsonToken.VALUE_FALSE => JBool(false)
+      case JsonTokenId.ID_STRING => JString(jp.getText)
+      case JsonTokenId.ID_TRUE => JBool(true)
+      case JsonTokenId.ID_FALSE => JBool(false)
 
-      case JsonToken.START_ARRAY =>
+      case JsonTokenId.ID_START_ARRAY =>
         val values = new mutable.MutableList[JValue]()
         jp.nextToken()
         while(jp.getCurrentToken != JsonToken.END_ARRAY) {
@@ -30,13 +32,13 @@ class JValueDeserializer(factory: TypeFactory, klass: Class[_]) extends JsonDese
         }
         JArray(values.toList)
 
-      case JsonToken.START_OBJECT =>
+      case JsonTokenId.ID_START_OBJECT =>
         jp.nextToken()
         deserialize(jp, ctxt)
 
-      case JsonToken.FIELD_NAME | JsonToken.END_OBJECT =>
+      case JsonTokenId.ID_FIELD_NAME | JsonTokenId.ID_END_OBJECT =>
         val fields = new mutable.MutableList[JField]
-        while (jp.getCurrentToken != JsonToken.END_OBJECT) {
+        while (jp.getCurrentToken.id() != JsonTokenId.ID_END_OBJECT) {
           val name = jp.getCurrentName
           jp.nextToken()
           fields += JField(name, deserialize(jp, ctxt).asInstanceOf[JValue])
