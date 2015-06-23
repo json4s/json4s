@@ -26,7 +26,7 @@ object build extends Build {
   val mavenCentralFrouFrou = Seq(
     homepage := Some(new URL("https://github.com/json4s/json4s")),
     startYear := Some(2009),
-    licenses := Seq(("ASL", new URL("http://github.com/json4s/json4s/raw/HEAD/LICENSE"))),
+    licenses := Seq(("Apache License, Version 2.0", new URL("http://www.apache.org/licenses/LICENSE-2.0"))),
     pomExtra <<= (pomExtra, name, description) {(pom, name, desc) => pom ++ Group(
       <scm>
         <url>http://github.com/json4s/json4s</url>
