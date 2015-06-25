@@ -11,8 +11,8 @@ case class FileInput(file: File) extends JsonInput
 
 trait JsonMethods[T] {
 
-  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue
-  def parseOpt(in: JsonInput, useBigDecimalForDouble: Boolean = false): Option[JValue]
+  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): JValue
+  def parseOpt(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): Option[JValue]
 
   def render(value: JValue)(implicit formats: Formats = DefaultFormats): T
   def compact(d: T): String

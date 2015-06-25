@@ -7,14 +7,14 @@ import io.Source
 
 trait JsonMethods extends org.json4s.JsonMethods[Document] {
 
-  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue = in match {
+  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): JValue = in match {
     case StringInput(s) => JsonParser.parse(s, useBigDecimalForDouble)
     case ReaderInput(rdr) => JsonParser.parse(rdr, useBigDecimalForDouble)
     case StreamInput(stream) => JsonParser.parse(Source.fromInputStream(stream).bufferedReader(), useBigDecimalForDouble)
     case FileInput(file) => JsonParser.parse(Source.fromFile(file).bufferedReader(), useBigDecimalForDouble)
   }
 
-  def parseOpt(in: JsonInput, useBigDecimalForDouble: Boolean = false): Option[JValue] = in match {
+  def parseOpt(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): Option[JValue] = in match {
     case StringInput(s) => JsonParser.parseOpt(s, useBigDecimalForDouble)
     case ReaderInput(rdr) => JsonParser.parseOpt(rdr, useBigDecimalForDouble)
     case StreamInput(stream) => JsonParser.parseOpt(Source.fromInputStream(stream).bufferedReader(), useBigDecimalForDouble)
@@ -32,6 +32,7 @@ trait JsonMethods extends org.json4s.JsonMethods[Document] {
       case JBool(false)  => text("false")
       case JDouble(n)    => text(n.toString)
       case JDecimal(n)   => text(n.toString)
+      case JLong(n)      => text(n.toString)
       case JInt(n)       => text(n.toString)
       case JNull         => text("null")
       case JNothing      => sys.error("can't render 'nothing'")
@@ -49,7 +50,7 @@ trait JsonMethods extends org.json4s.JsonMethods[Document] {
   private def fields(docs: List[Document]) = punctuate(text(",") :: break, docs)
 
   private def punctuate(p: Document, docs: List[Document]): Document =
-    if (docs.length == 0) empty
+    if (docs.isEmpty) empty
     else docs.reduceLeft((d1, d2) => d1 :: p :: d2)
 
 

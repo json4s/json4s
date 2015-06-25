@@ -271,6 +271,7 @@ object Extraction {
         case JString(s)          => Map(path -> ("\"" + ParserUtil.quote(s) + "\""))
         case JDouble(num)        => Map(path -> num.toString)
         case JDecimal(num)       => Map(path -> num.toString)
+        case JLong(num)          => Map(path -> num.toString)
         case JInt(num)           => Map(path -> num.toString)
         case JBool(value)        => Map(path -> value.toString)
 //        case JField(name, value) => flatten0(path + escapePath(name), value)
@@ -292,7 +293,7 @@ object Extraction {
 
   /** Unflattens a key/value map to a JSON object.
    */
-  def unflatten(map: Map[String, String], useBigDecimalForDouble: Boolean = false): JValue = {
+  def unflatten(map: Map[String, String], useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): JValue = {
     import scala.util.matching.Regex
 
     def extractValue(value: String): JValue = value.toLowerCase match {
@@ -303,8 +304,10 @@ object Extraction {
       case "[]"    => JArray(Nil)
       case x @ _   =>
         if (value.charAt(0).isDigit) {
-          if (value.indexOf('.') == -1) JInt(BigInt(value))
-          else {
+          if (value.indexOf('.') == -1) {
+            if (useBigIntForLong) JInt(BigInt(value))
+            else JLong(value.toLong)
+          } else {
             if (!useBigDecimalForDouble) JDouble(ParserUtil.parseDouble(value))
             else JDecimal(BigDecimal(value))
           }
@@ -600,6 +603,23 @@ object Extraction {
       case JInt(x) if (targetType == classOf[Number]) => x.longValue
       case JInt(x) if (targetType == classOf[BigDecimal]) => BigDecimal(x)
       case JInt(x) if (targetType == classOf[JavaBigDecimal]) => BigDecimal(x).bigDecimal
+      case JLong(x) if (targetType == classOf[Int]) => x.intValue
+      case JLong(x) if (targetType == classOf[JavaInteger]) => new JavaInteger(x.intValue)
+      case JLong(x) if (targetType == classOf[BigInt]) => x
+      case JLong(x) if (targetType == classOf[Long]) => x.longValue
+      case JLong(x) if (targetType == classOf[JavaLong]) => new JavaLong(x.longValue)
+      case JLong(x) if (targetType == classOf[Double]) => x.doubleValue
+      case JLong(x) if (targetType == classOf[JavaDouble]) => new JavaDouble(x.doubleValue)
+      case JLong(x) if (targetType == classOf[Float]) => x.floatValue
+      case JLong(x) if (targetType == classOf[JavaFloat]) => new JavaFloat(x.floatValue)
+      case JLong(x) if (targetType == classOf[Short]) => x.shortValue
+      case JLong(x) if (targetType == classOf[JavaShort]) => new JavaShort(x.shortValue)
+      case JLong(x) if (targetType == classOf[Byte]) => x.byteValue
+      case JLong(x) if (targetType == classOf[JavaByte]) => new JavaByte(x.byteValue)
+      case JLong(x) if (targetType == classOf[String]) => x.toString
+      case JLong(x) if (targetType == classOf[Number]) => x.longValue
+      case JLong(x) if (targetType == classOf[BigDecimal]) => BigDecimal(x)
+      case JLong(x) if (targetType == classOf[JavaBigDecimal]) => BigDecimal(x).bigDecimal
       case JDouble(x) if (targetType == classOf[Double]) => x
       case JDouble(x) if (targetType == classOf[JavaDouble]) => new JavaDouble(x)
       case JDouble(x) if (targetType == classOf[Float]) => x.floatValue

@@ -59,10 +59,29 @@ object JsonParserSpec extends Specification with JValueGen with ScalaCheck {
       JsonParser.parse("[-1.40737488355328E15]", useBigDecimalForDouble = true) must_== JArray(JDecimal(bd) :: Nil)
     }
 
-
     "parse -1.40737488355328E-15 as bigdecimal" in {
       val bd = BigDecimal("-1.40737488355328E-15")
       JsonParser.parse("[-1.40737488355328E-15]", useBigDecimalForDouble = true) must_== JArray(JDecimal(bd) :: Nil)
+    }
+
+    "parse 9223372036854775808 as bigint" in {
+      val bi = BigInt("9223372036854775808")
+      JsonParser.parse("[9223372036854775808]", useBigDecimalForDouble = true, useBigIntForLong = true) must_== JArray(JInt(bi) :: Nil)
+    }
+
+    "parse -9223372036854775809 as bigint" in {
+      val bi = BigInt("-9223372036854775809")
+      JsonParser.parse("[-9223372036854775809]", useBigDecimalForDouble = true, useBigIntForLong = true) must_== JArray(JInt(bi) :: Nil)
+    }
+
+    "parse 9223372036854775807 as long" in {
+      val l = Long.MaxValue
+      JsonParser.parse("[9223372036854775807]", useBigDecimalForDouble = true, useBigIntForLong = false) must_== JArray(JLong(l) :: Nil)
+    }
+
+    "parse -9223372036854775808 as long" in {
+      val l = Long.MinValue
+      JsonParser.parse("[-9223372036854775808]", useBigDecimalForDouble = true, useBigIntForLong = false) must_== JArray(JLong(l) :: Nil)
     }
 
     "The EOF has reached when the Reader returns EOF" in {
