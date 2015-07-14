@@ -47,7 +47,7 @@ to
 Example which adds a new type class instance
 --------------------------------------------
 
-    scala> implicit def addrJSONR: JSONR[Address] = Address.applyJSON(field("street"), field("zip"))
+    scala> implicit def addrJSONR: JSONR[Address] = Address.applyJSON(field[String]("street"), field[String]("zip"))
 
     scala> val p = JsonParser.parse(""" {"name":"joe","age":34,"address":{"street": "Manhattan 2", "zip": "00223" }} """)
     scala> Person.applyJSON(field("name"), field("age"), field("address"))(p)
