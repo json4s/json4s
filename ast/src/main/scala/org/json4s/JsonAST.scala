@@ -84,7 +84,7 @@ object JsonAST {
   /**
    * Data type for JSON AST.
    */
-  sealed abstract class JValue extends Diff.Diffable {
+  sealed abstract class JValue extends Diff.Diffable with Product with Serializable {
     type Values
 
 

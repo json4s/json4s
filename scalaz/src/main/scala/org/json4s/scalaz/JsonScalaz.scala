@@ -25,7 +25,7 @@ import syntax.validation._
 trait Types {
   type Result[+A] = ValidationNel[Error, A]
 
-  sealed trait Error
+  sealed abstract class Error extends Product with Serializable
   case class UnexpectedJSONError(was: JValue, expected: Class[_ <: JValue]) extends Error
   case class NoSuchFieldError(name: String, json: JValue) extends Error
   case class UncategorizedError(key: String, desc: String, args: List[Any]) extends Error

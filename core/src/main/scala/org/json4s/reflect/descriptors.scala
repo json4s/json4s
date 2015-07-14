@@ -4,7 +4,7 @@ package reflect
 import java.lang.reflect.{Constructor => JConstructor, Type, Field, TypeVariable}
 import scala._
 
-sealed trait Descriptor
+sealed abstract class Descriptor extends Product with Serializable
 object ScalaType {
 
   private val types = new Memo[Manifest[_], ScalaType]
@@ -196,7 +196,7 @@ case class ConstructorParamDescriptor(name: String, mangledName: String, argInde
 case class ConstructorDescriptor(params: Seq[ConstructorParamDescriptor], constructor: java.lang.reflect.Constructor[_], isPrimary: Boolean) extends Descriptor
 case class SingletonDescriptor(simpleName: String, fullName: String, erasure: ScalaType, instance: AnyRef, properties: Seq[PropertyDescriptor]) extends Descriptor
 
-sealed trait ObjectDescriptor extends Descriptor
+sealed abstract class ObjectDescriptor extends Descriptor
 case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaType, companion: Option[SingletonDescriptor], constructors: Seq[ConstructorDescriptor], properties: Seq[PropertyDescriptor]) extends ObjectDescriptor {
 
   def bestMatching(argNames: List[String]): Option[ConstructorDescriptor] = {

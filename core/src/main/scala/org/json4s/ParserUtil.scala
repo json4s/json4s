@@ -8,7 +8,7 @@ object ParserUtil {
   private val EOF = (-1).asInstanceOf[Char]
   private val AsciiEncoder = Charset.forName("US-ASCII").newEncoder();
 
-  private[this] trait StringAppender[T] {
+  private[this] sealed abstract class StringAppender[T] {
     def append(s: String): T
     def subj: T
   }
@@ -198,7 +198,7 @@ object ParserUtil {
     }
   }
 
-  sealed trait Segment {
+  sealed abstract class Segment extends Product with Serializable {
     val seg: Array[Char]
   }
   case class RecycledSegment(seg: Array[Char]) extends Segment
