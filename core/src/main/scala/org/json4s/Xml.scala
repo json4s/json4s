@@ -96,7 +96,7 @@ object Xml {
     def nameOf(n: Node) = (if (n.prefix ne null) n.prefix + ":" else "") + n.label
     def buildAttrs(n: Node) = n.attributes.map((a: MetaData) => (a.key, XValue(a.value.text))).toList
 
-    sealed trait XElem
+    sealed abstract class XElem extends Product with Serializable
     case class XValue(value: String) extends XElem
     case class XLeaf(value: (String, XElem), attrs: List[(String, XValue)]) extends XElem
     case class XNode(fields: List[(String, XElem)]) extends XElem

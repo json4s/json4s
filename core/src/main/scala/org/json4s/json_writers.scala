@@ -223,7 +223,7 @@ private final class JDecimalJArrayJsonWriter(parent: JsonWriter[JValue]) extends
 
   def result: JValue = JArray(nodes.toList)
 }
-private sealed trait JValueJsonWriter extends JsonWriter[JValue] {
+private sealed abstract class JValueJsonWriter extends JsonWriter[JValue] {
   
   def addNode(node: JValue): JsonWriter[JValue]
   
@@ -257,7 +257,7 @@ private sealed trait JValueJsonWriter extends JsonWriter[JValue] {
   def addJValue(jv: JValue): JsonWriter[JValue] = addNode(jv)
   
 }
-private sealed trait JDoubleAstJsonWriter extends JValueJsonWriter {
+private sealed abstract class JDoubleAstJsonWriter extends JValueJsonWriter {
   def startArray(): JsonWriter[JValue] = {
     new JDoubleJArrayJsonWriter(this)
   }
@@ -274,7 +274,7 @@ private sealed trait JDoubleAstJsonWriter extends JValueJsonWriter {
   def bigDecimal(value: BigDecimal): JsonWriter[JValue] = addNode(JDouble(value.doubleValue()))
 }
 
-private sealed trait JDecimalAstJsonWriter extends JValueJsonWriter {
+private sealed abstract class JDecimalAstJsonWriter extends JValueJsonWriter {
   def startArray(): JsonWriter[JValue] = {
     new JDecimalJArrayJsonWriter(this)
   }
@@ -468,7 +468,7 @@ private final class RootStreamingJsonWriter[T <: JWriter](protected[this] val no
 
   def result: T = nodes
 }
-private sealed trait StreamingJsonWriter[T <: JWriter] extends JsonWriter[T] {
+private sealed abstract class StreamingJsonWriter[T <: JWriter] extends JsonWriter[T] {
 
   protected[this] def level: Int
   protected[this] def spaces: Int
