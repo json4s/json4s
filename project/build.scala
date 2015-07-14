@@ -49,8 +49,8 @@ object build extends Build {
 
   val json4sSettings = mavenCentralFrouFrou ++ Seq(
     organization := "org.json4s",
-    scalaVersion := "2.11.6",
-    crossScalaVersions := Seq("2.10.5", "2.11.6"),
+    scalaVersion := "2.11.7",
+    crossScalaVersions := Seq("2.10.5", "2.11.7"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-Yinline-warnings", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
     version := "3.3.0-SNAPSHOT",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
@@ -128,7 +128,7 @@ object build extends Build {
      id = "json4s-examples",
      base = file("examples"),
      settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
-       libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.11.2",
+       libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.11.3",
        libraryDependencies += jacksonScala
      ) ++ noPublish
   ) dependsOn(
@@ -149,7 +149,7 @@ object build extends Build {
      base = file("mongo"),
      settings = json4sSettings ++ Seq(
        libraryDependencies ++= Seq(
-         "org.mongodb" % "mongo-java-driver" % "2.13.0"
+         "org.mongodb" % "mongo-java-driver" % "2.13.2"
       )
   )) dependsOn(core % "compile;test->test")
 
