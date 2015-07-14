@@ -52,7 +52,7 @@ object build extends Build {
     scalaVersion := "2.11.7",
     crossScalaVersions := Seq("2.10.5", "2.11.7"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-Yinline-warnings", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
-    version := "3.3.0-SNAPSHOT",
+    version := "3.3.0.RC3",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     resolvers ++= Seq(Opts.resolver.sonatypeSnapshots, Opts.resolver.sonatypeReleases),
