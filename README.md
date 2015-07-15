@@ -1,5 +1,7 @@
 # JSON4S [![Build Status](https://travis-ci.org/json4s/json4s.svg?branch=3.3)](https://travis-ci.org/json4s/json4s)
 
+[![Join the chat at https://gitter.im/json4s/json4s](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/json4s/json4s?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 At this moment there are at least 6 json libraries for scala, not counting the java json libraries.
 All these libraries have a very similar AST. This project aims to provide a single AST to be used by other scala
 json libraries.
