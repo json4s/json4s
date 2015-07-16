@@ -648,6 +648,20 @@ scala> json transformField {
        }
 ```
 
+If the json field names are snake case (i.e.: separated_by_underscores), but the case class uses camel case (i.e.: firstLetterLowercaseAndNextWordsCapitalized), you can convert the keys during the extraction using `camelizeKeys`:
+
+```scala
+scala> import org.json4s._
+scala> import org.json4s.native.JsonMethods._
+scala> implicit val formats = DefaultFormats
+scala> val json = parse("""{"first_name":"Mary"}""")
+scala> case class Person(firstName: String)
+
+scala> json.camelizeKeys.extract[Person]
+res0: Person = Person(Mazy)
+```
+See the "Serialization" section below for details on converting a class with camel case fields into json with snake case keys.
+
 Extraction function tries to find the best matching constructor when case class has auxiliary constructors. For instance extracting from JSON {"price":350} into the following case class will use the auxiliary constructor instead of the primary constructor.
 
 ```scala
@@ -745,6 +759,16 @@ Serialization supports:
 * Recursive types
 * Serialization of fields of a class (see below)
 * Custom serializer functions for types which are not supported (see below)
+ 
+If the class contains camel case fields (i.e: firstLetterLowercaseAndNextWordsCapitalized) but you want to produce a json string with snake casing (i.e.: separated_by_underscores), you can use the `snakizeKeys` method:
+
+```scala
+scala> val ser = write(Person("Mary"))
+ser: String = {"firstName":"Mary"}
+
+scala> compact(render(parse(ser).snakizeKeys))
+res0: String = {"first_name":"Mary"}
+``` 
 
 Serializing polymorphic Lists
 -----------------------------
