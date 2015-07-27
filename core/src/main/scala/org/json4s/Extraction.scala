@@ -376,6 +376,11 @@ object Extraction {
     } else {
       Reflector.describe(scalaType) match {
         case PrimitiveDescriptor(tpe, default) => convert(json, tpe, formats, default) //customOrElse(tpe, json)(convert(_, tpe, formats, default))
+        case o : ClassDescriptor if o.erasure.isSingleton =>
+          if (json==JObject(List.empty))
+            o.erasure.singletonInstance.getOrElse(sys.error(s"Not a case object: ${o.erasure}"))
+          else
+            sys.error(s"Expected empty parameter list for singleton instance, got ${json} instead")
         case c: ClassDescriptor => new ClassInstanceBuilder(json, c).result
       }
     }

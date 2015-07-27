@@ -17,21 +17,23 @@
 package org.json4s
 
 import java.util.Date
+import org.json4s
+
 import org.specs2.mutable.Specification
-import java.text.SimpleDateFormat
 import text.Document
-import scala.None
 
-object NativeExtractionExamples extends ExtractionExamples[Document]("Native") with native.JsonMethods
-object JacksonExtractionExamples extends ExtractionExamples[JValue]("Jackson") with jackson.JsonMethods
+object NativeExtractionExamples extends ExtractionExamples[Document]("Native", native.Serialization) with native.JsonMethods
+object JacksonExtractionExamples extends ExtractionExamples[JValue]("Jackson", jackson.Serialization) with jackson.JsonMethods
 
-abstract class ExtractionExamples[T](mod: String) extends Specification with JsonMethods[T] {
+abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) extends Specification with JsonMethods[T] {
 
   implicit lazy val formats = DefaultFormats
 
   val notNullFormats = new DefaultFormats {
     override val allowNull = false
   }
+
+  def treeFormats[T] = ser.formats(ShortTypeHints(List(classOf[Node[T]], classOf[Leaf[T]], EmptyLeaf.getClass)))
 
   (mod+" Extraction Examples Specification") should {
     "Extraction example" in {
@@ -248,6 +250,13 @@ abstract class ExtractionExamples[T](mod: String) extends Specification with Jso
       parse("""{"name":null,"age":22}""").extract[OChild](notNullFormats, Manifest.classType(classOf[OChild])) must_== new OChild(None, 22, None, None)
     }
 
+    "simple case objects should be sucessfully extracted as a singleton instance" in {
+      parse(emptyTree).extract[LeafTree[Int]](treeFormats, Manifest.classType(classOf[LeafTree[Int]])) must_== LeafTree.empty
+    }
+
+    "case objects in a complex structure should be sucessfully extracted as a singleton instance" in {
+      parse(tree).extract[LeafTree[Int]](treeFormats[Int], Manifest.classType(classOf[LeafTree[Int]])) must_== Node(List[LeafTree[Int]](EmptyLeaf, Node(List.empty), Leaf(1), Leaf(2)))
+    }
   }
 
   val testJson =
@@ -349,6 +358,37 @@ abstract class ExtractionExamples[T](mod: String) extends Specification with Jso
 }
 """
 
+  val emptyTree =
+    """
+      |{
+      |  "jsonClass":"EmptyLeaf$"
+      |}
+    """.stripMargin
+
+  val tree =
+    """
+      |{
+      |  "jsonClass":"Node",
+      |  "children":[
+      |    {
+      |      "jsonClass":"EmptyLeaf$"
+      |    },
+      |    {
+      |      "jsonClass":"Node",
+      |      "children":[]
+      |    },
+      |    {
+      |      "jsonClass":"Leaf",
+      |      "value":1
+      |    },
+      |    {
+      |      "jsonClass":"Leaf",
+      |      "value":2
+      |    }
+      |  ]
+      |}
+    """.stripMargin
+
   def date(s: String) = DefaultFormats.dateFormat.parse(s).get
 }
 
@@ -382,4 +422,13 @@ case class MultipleConstructors(name: String, age: Int, size: Option[String]) {
 }
 
 case class ClassWithJSON(name: String, message: JValue)
+
+sealed trait LeafTree[+T]
+object LeafTree {
+  def empty[T] : LeafTree[T] = EmptyLeaf
+}
+
+case class Node[T](children : List[LeafTree[T]]) extends LeafTree[T]
+case class Leaf[T](value : T) extends LeafTree[T]
+case object EmptyLeaf extends LeafTree[Nothing]
 
