@@ -376,7 +376,7 @@ scala> import org.json4s.jackson.JsonMethods._
 scala> val lotto1 = parse("""{
          "lotto":{
            "lotto-id":5,
-           "winning-numbers":[2,45,34,23,7,5,3]
+           "winning-numbers":[2,45,34,23,7,5,3],
            "winners":[{
              "winner-id":23,
              "numbers":[2,45,34,23,3,5]
@@ -521,7 +521,7 @@ scala> compact(render(json \\ "name"))
 res2: String = {"name":"Joe","name":"Marilyn"}
 
 scala> compact(render((json removeField { _ == JField("name", JString("Marilyn")) }) \\ "name"))
-res3: String = {"name":"Joe"}
+res3: String = "Joe"
 
 scala> compact(render(json \ "person" \ "name"))
 res4: String = "Joe"
@@ -624,8 +624,8 @@ scala> json.extract[Person]
 res0: Person = Person(joe,Address(Bulevard,Helsinki),List(Child(Mary,5,Some(Sat Sep 04 18:06:22 EEST 2004)), Child(Mazy,3,None)))
 
 scala> val addressJson = json  \ "address"  // Extract address object
-scala> val addressObj = addressJson.extract[Address]
-res1: addressObj: Address = Address(Bulevard,Helsinki)
+scala> addressJson.extract[Address]
+res1: Address = Address(Bulevard,Helsinki)
 
 scala> (json \ "children").extract[List[Child]]  // Extract list of objects
 res2: List[Child] = List(Child(Mary,5,Some(Sat Sep 04 23:36:22 IST 2004)), Child(Mazy,3,None))
@@ -898,7 +898,8 @@ scala> val xml =
 
 scala> val json = toJson(xml)
 scala> pretty(render(json))
-res3: {
+res3: String =
+{
   "users":{
     "user":[{
       "id":"1",
@@ -924,7 +925,7 @@ Other direction is supported too. Converting JSON to XML:
 
 ```scala
 scala> toXml(json)
-res5: scala.xml.NodeSeq = <users><user><id>1</id><name>Harry</name></user><user><id>2</id><name>David</name></user></users>
+res5: scala.xml.NodeSeq = NodeSeq(<users><user><id>1</id><name>Harry</name></user><user><id>2</id><name>David</name></user></users>)
 ```
 
 Low level pull parser API
