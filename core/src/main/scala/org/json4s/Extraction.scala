@@ -94,7 +94,7 @@ object Extraction {
 
   /** Decompose a case class into JSON.
    *
-   * This is broken out to avoid calling builder.result when we return from recusion
+   * This is broken out to avoid calling builder.result when we return from recursion
    */
   def internalDecomposeWithBuilder[T](a: Any, builder: JsonWriter[T])(implicit formats: Formats):Unit = {
     val current = builder
