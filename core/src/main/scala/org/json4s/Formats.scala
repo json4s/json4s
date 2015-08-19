@@ -37,7 +37,7 @@ object Formats {
 @implicitNotFound(
   "No org.json4s.Formats found. Try to bring an instance of org.json4s.Formats in scope or use the org.json4s.DefaultFormats."
 )
-trait Formats { self: Formats =>
+trait Formats extends Serializable { self: Formats =>
   def dateFormat: DateFormat
   def typeHints: TypeHints = NoTypeHints
   def customSerializers: List[Serializer[_]] = Nil
