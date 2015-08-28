@@ -1,7 +1,7 @@
 package org.json4s
 
 import com.thoughtworks.paranamer.{BytecodeReadingParanamer, CachingParanamer}
-import java.lang.reflect.{Constructor, ParameterizedType, Type}
+import java.lang.reflect.{Executable, Constructor, ParameterizedType, Type}
 import java.util.concurrent.ConcurrentHashMap
 import java.util.Date
 import java.sql.Timestamp
@@ -60,7 +60,7 @@ package object reflect {
   }
 
   trait ParameterNameReader {
-    def lookupParameterNames(constructor: Constructor[_]): Seq[String]
+    def lookupParameterNames(constructor: Executable): Seq[String]
   }
 
   trait ReflectorDescribable[T] {
@@ -88,7 +88,7 @@ package object reflect {
   }
 
   object ParanamerReader extends ParameterNameReader {
-    def lookupParameterNames(constructor: Constructor[_]): Seq[String] =
+    def lookupParameterNames(constructor: Executable): Seq[String] =
       paranamer.lookupParameterNames(constructor).toSeq
   }
 

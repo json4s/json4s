@@ -1,8 +1,7 @@
 package org.json4s
 package reflect
 
-import java.lang.reflect.{Constructor => JConstructor, Type, Field, TypeVariable}
-import scala._
+import java.lang.reflect.{Field, TypeVariable}
 
 sealed abstract class Descriptor extends Product with Serializable
 object ScalaType {
@@ -103,7 +102,6 @@ class ScalaType(private val manifest: Manifest[_]) extends Equals {
     _typeVars
   }
 
-
   val isArray: Boolean = erasure.isArray
 
   private[this] var _rawFullName: String = null
@@ -193,7 +191,7 @@ case class PropertyDescriptor(name: String, mangledName: String, returnType: Sca
 case class ConstructorParamDescriptor(name: String, mangledName: String, argIndex: Int, argType: ScalaType, defaultValue: Option[() => Any]) extends Descriptor {
   lazy val isOptional = defaultValue.isDefined || argType.isOption
 }
-case class ConstructorDescriptor(params: Seq[ConstructorParamDescriptor], constructor: java.lang.reflect.Constructor[_], isPrimary: Boolean) extends Descriptor
+case class ConstructorDescriptor(params: Seq[ConstructorParamDescriptor], constructor: java.lang.reflect.Executable, isPrimary: Boolean) extends Descriptor
 case class SingletonDescriptor(simpleName: String, fullName: String, erasure: ScalaType, instance: AnyRef, properties: Seq[PropertyDescriptor]) extends Descriptor
 
 sealed abstract class ObjectDescriptor extends Descriptor

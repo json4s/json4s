@@ -31,7 +31,7 @@ abstract class JsonFormatsSpec[T](mod: String) extends Specification with TypeHi
 
     "parameter name reading strategy can be changed" in {
       object TestReader extends ParameterNameReader {
-        def lookupParameterNames(constructor: java.lang.reflect.Constructor[_]) = List("name", "age")
+        def lookupParameterNames(constructor: java.lang.reflect.Executable) = List("name", "age")
       }
       implicit val formats = new DefaultFormats { override val parameterNameReader = TestReader }
       val json = parse("""{"name":"joe","age":35}""")

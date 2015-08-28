@@ -16,6 +16,7 @@
 
 package org.json4s
 
+import java.lang.reflect.{Method, Constructor}
 import java.lang.{Integer => JavaInteger, Long => JavaLong, Short => JavaShort, Byte => JavaByte, Boolean => JavaBoolean, Double => JavaDouble, Float => JavaFloat}
 import java.math.{BigDecimal => JavaBigDecimal}
 import java.util.Date
@@ -519,7 +520,15 @@ object Extraction {
             case v: JValue => v.values
           }
         } else {
-          val instance = jconstructor.newInstance(args.map(_.asInstanceOf[AnyRef]).toArray: _*)
+          val instance = jconstructor match {
+            case c: Constructor[_] => c.newInstance(args.map(_.asInstanceOf[AnyRef]).toArray: _*)
+            case m: Method => {
+              descr.companion match {
+                case Some(cmp) => m.invoke(cmp.instance, args.map(_.asInstanceOf[AnyRef]).toArray: _*)
+                case None => throw new MappingException("Trying to call apply method, but the companion object was not found.")
+              }
+            }
+          }
           setFields(instance.asInstanceOf[AnyRef])
         }
       } catch {
