@@ -1,10 +1,8 @@
 package org.json4s
 
 import com.thoughtworks.paranamer.{BytecodeReadingParanamer, CachingParanamer}
-import java.lang.reflect.{Executable, Constructor, ParameterizedType, Type}
+import java.lang.reflect._
 import java.util.concurrent.ConcurrentHashMap
-import java.util.Date
-import java.sql.Timestamp
 
 package object reflect {
 
@@ -60,7 +58,7 @@ package object reflect {
   }
 
   trait ParameterNameReader {
-    def lookupParameterNames(constructor: Executable): Seq[String]
+    def lookupParameterNames(constructor: reflect.Executable): Seq[String]
   }
 
   trait ReflectorDescribable[T] {
@@ -88,8 +86,8 @@ package object reflect {
   }
 
   object ParanamerReader extends ParameterNameReader {
-    def lookupParameterNames(constructor: Executable): Seq[String] =
-      paranamer.lookupParameterNames(constructor).toSeq
+    def lookupParameterNames(constructor: reflect.Executable): Seq[String] =
+      paranamer.lookupParameterNames(constructor.getAsAccessibleObject).toSeq
   }
 
   def fail(msg: String, cause: Exception = null) = throw new MappingException(msg, cause)

@@ -520,15 +520,7 @@ object Extraction {
             case v: JValue => v.values
           }
         } else {
-          val instance = jconstructor match {
-            case c: Constructor[_] => c.newInstance(args.map(_.asInstanceOf[AnyRef]).toArray: _*)
-            case m: Method => {
-              descr.companion match {
-                case Some(cmp) => m.invoke(cmp.instance, args.map(_.asInstanceOf[AnyRef]).toArray: _*)
-                case None => throw new MappingException("Trying to call apply method, but the companion object was not found.")
-              }
-            }
-          }
+          val instance = jconstructor.invoke(descr.companion, args)
           setFields(instance.asInstanceOf[AnyRef])
         }
       } catch {
