@@ -149,7 +149,7 @@ object build extends Build {
      base = file("mongo"),
      settings = json4sSettings ++ Seq(
        libraryDependencies ++= Seq(
-         "org.mongodb" % "mongo-java-driver" % "2.13.2"
+         "org.mongodb" % "mongo-java-driver" % "3.0.3"
       )
   )) dependsOn(core % "compile;test->test")
 
@@ -172,9 +172,9 @@ object build extends Build {
     settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
       cancelable := true,
       libraryDependencies ++= Seq(
-        "com.google.code.java-allocation-instrumenter" % "java-allocation-instrumenter" % "2.1",
+        "com.google.code.java-allocation-instrumenter" % "java-allocation-instrumenter" % "3.0",
         "com.google.caliper" % "caliper" % "0.5-rc1",
-        "com.google.code.gson" % "gson" % "1.7.2"
+        "com.google.code.gson" % "gson" % "2.3.1"
       ),
       libraryDependencies += jacksonScala,
       runner in Compile in run <<= (thisProject, taskTemporaryDirectory, scalaInstance, baseDirectory, javaOptions, outputStrategy, javaHome, connectInput) map {
