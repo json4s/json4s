@@ -16,6 +16,7 @@
 
 package org.json4s
 
+import java.lang.reflect.{Method, Constructor}
 import java.lang.{Integer => JavaInteger, Long => JavaLong, Short => JavaShort, Byte => JavaByte, Boolean => JavaBoolean, Double => JavaDouble, Float => JavaFloat}
 import java.math.{BigDecimal => JavaBigDecimal}
 import java.util.Date
@@ -519,7 +520,7 @@ object Extraction {
             case v: JValue => v.values
           }
         } else {
-          val instance = jconstructor.newInstance(args.map(_.asInstanceOf[AnyRef]).toArray: _*)
+          val instance = jconstructor.invoke(descr.companion, args)
           setFields(instance.asInstanceOf[AnyRef])
         }
       } catch {

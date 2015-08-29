@@ -1,13 +1,10 @@
 package org.json4s
 package reflect
 
-import java.{util => jutil}
 import java.lang.reflect._
 import scala.util.control.Exception._
 import java.util.Date
 import java.sql.Timestamp
-import collection.mutable.ArrayBuffer
-import annotation.tailrec
 import collection.mutable
 
 object Reflector {
@@ -111,43 +108,69 @@ object Reflector {
 
     def constructorsAndCompanion: Seq[ConstructorDescriptor] = {
       val er = tpe.erasure
-      val ccs = allCatch.withApply(_ => fail("Case classes defined in function bodies are not supported.")) { er.getConstructors }
+      val ccs: Iterable[Executable] = allCatch.withApply(e => fail(e.getMessage + " Case classes defined in function bodies are not supported.")) {
+        er.getConstructors.map(new Executable(_))
+      }
+      val constructorDescriptors = createConstructorDescriptors(ccs)
+      if (constructorDescriptors.isEmpty) {
+        companion = findCompanion(checkCompanionMapping = false)
+        val applyMethods: scala.Array[Method] = companion match {
+          case Some(singletonDescriptor) => {
+            singletonDescriptor.instance.getClass.getMethods.filter { method => method.getName == "apply" && method.getReturnType == er }
+          }
+          case None => scala.Array[Method]()
+        }
+        val applyExecutables = applyMethods.map{ m => new Executable(m) }
+        createConstructorDescriptors(applyExecutables)
+      } else constructorDescriptors
+    }
+
+    def createConstructorDescriptors(ccs: Iterable[Executable]): Seq[ConstructorDescriptor] = {
       Option(ccs).map(_.toSeq).getOrElse(Nil) map { ctor =>
         val ctorParameterNames = if (Modifier.isPublic(ctor.getModifiers) && ctor.getParameterTypes.length > 0)
           allCatch opt { paramNameReader.lookupParameterNames(ctor) } getOrElse Nil
         else
           Nil
         val genParams = Vector(ctor.getGenericParameterTypes: _*)
-        val ctorParams = ctorParameterNames.zipWithIndex map {
-          case (ScalaSigReader.OuterFieldName, index) =>
-//            println("The result type of the $outer param: " + genParams(0))
-            if (tpe.erasure.getDeclaringClass == null) fail("Classes defined in method bodies are not supported.")
-            val mapping = companionMappings.find(_._1 == tpe.erasure).map(_._2)
-            companion = mapping map { o =>
-              val inst = o.getClass.getMethod(tpe.simpleName).invoke(o)
-              val kl = inst.getClass
-              SingletonDescriptor(safeSimpleName(kl), kl.getName, scalaTypeOf(kl), inst, Seq.empty)
+        val ctorParams = ctorParameterNames.zipWithIndex map { paramNameAndIndex =>
+          paramNameAndIndex match {
+            case (ScalaSigReader.OuterFieldName, index) => {
+              //            println("The result type of the $outer param: " + genParams(0))
+              if (tpe.erasure.getDeclaringClass == null) fail("Classes defined in method bodies are not supported.")
+              companion = findCompanion(checkCompanionMapping = true)
+              val default = companionMappings.find(_._1 == tpe.erasure).map(_._2).map(() => _)
+              val tt = scalaTypeOf(tpe.erasure.getDeclaringClass)
+              ConstructorParamDescriptor(ScalaSigReader.OuterFieldName, ScalaSigReader.OuterFieldName, index, tt, default)
             }
-
-            val default = mapping.map(() => _)
-            val tt = scalaTypeOf(tpe.erasure.getDeclaringClass)
-            ConstructorParamDescriptor(ScalaSigReader.OuterFieldName, ScalaSigReader.OuterFieldName, index, tt, default)
-          case (paramName, index) =>
-            if (companion.isEmpty && !triedCompanion) {
-              companion = (ScalaSigReader.companions(tpe.rawFullName) collect {
-                case (kl, Some(cOpt)) => SingletonDescriptor(safeSimpleName(kl), kl.getName, scalaTypeOf(kl), cOpt, Seq.empty)
-              })
-              triedCompanion = true
+            case (paramName, index) => {
+              companion = findCompanion(checkCompanionMapping = false)
+              val decoded = unmangleName(paramName)
+              val default = companion flatMap { comp => defaultValue(comp.erasure.erasure, comp.instance, index) }
+              //println(s"$paramName $index $tpe $ctorParameterNames ${genParams(index)}")
+              val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.toList, genParams(index))
+              ConstructorParamDescriptor(decoded, paramName, index, theType, default)
             }
-            val decoded = unmangleName(paramName)
-            val default = companion flatMap {
-              comp =>
-                defaultValue(comp.erasure.erasure, comp.instance, index)
-            }
-            val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.toList, genParams(index))
-            ConstructorParamDescriptor(decoded, paramName, index, theType, default)
+          }
         }
         ConstructorDescriptor(ctorParams.toSeq, ctor, isPrimary = false)
+      }
+    }
+
+    def findCompanion(checkCompanionMapping: Boolean): Option[SingletonDescriptor] = {
+      if (checkCompanionMapping) {
+        val mapping = companionMappings.find(_._1 == tpe.erasure).map(_._2)
+        mapping map { m =>
+          val inst = m.getClass.getMethod(tpe.simpleName).invoke(m)
+          val kl = inst.getClass
+          SingletonDescriptor(safeSimpleName(kl), kl.getName, scalaTypeOf(kl), inst, Seq.empty)
+        }
+      } else {
+        if (companion.isEmpty && !triedCompanion) {
+          triedCompanion = true
+          ScalaSigReader.companions(tpe.rawFullName) collect {
+            case (kl, Some(cOpt)) => SingletonDescriptor(safeSimpleName(kl), kl.getName, scalaTypeOf(kl), cOpt, Seq.empty)
+          }
+        } else companion
       }
     }
 

@@ -1,5 +1,6 @@
 package org.json4s
 
+import org.json4s.ExtractionBugs.SomeOtherContent.SomeOtherContentClass
 import org.specs2.mutable.Specification
 import reflect.{ClassDescriptor, Reflector}
 import text.Document
@@ -39,7 +40,34 @@ object ExtractionBugs {
   
   case class ABigDecimal(num: BigDecimal)
 
+  trait Content {
+    def id: String
+    def name: String
+  }
 
+  object Content {
+
+    class ContentClass(val id: String, val name: String) extends Content
+
+    def apply(id: String, name: String): Content = {
+      new ContentClass(id, name)
+    }
+  }
+
+  trait SomeOtherContent {
+    def path: String
+    def isFoo: Boolean
+    def content: Content
+  }
+
+  object SomeOtherContent {
+
+    class SomeOtherContentClass(val path: String, val isFoo: Boolean, val content: Content) extends SomeOtherContent
+
+    def apply(path: String, isFoo: Boolean, content: Content): SomeOtherContent = {
+      new SomeOtherContentClass(path, isFoo, content)
+    }
+  }
 
 }
 abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMethods[T] {
@@ -85,6 +113,24 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       parse("""{"nums":[10]}""").extract[HasCompanion] must_== HasCompanion(List(10))
     }
 
+    "Extraction should not fail if using companion objects apply method" in {
+      val content: Content = parse("""{"id":"some-id", "name":"some-name"}""").extract[Content]
+      content must haveClass[Content.ContentClass]
+      content.id must_== "some-id"
+      content.name must_== "some-name"
+    }
+
+    "Extraction should not fail if using companion objects apply method to extract nested json field" in {
+      val json = """{"path":"some-path", "isFoo":false, "content": {"id":"some-id", "name":"some-name"}}"""
+      val someOtherContent: SomeOtherContent = parse(json).extract[SomeOtherContent]
+      someOtherContent must haveClass[SomeOtherContent.SomeOtherContentClass]
+      val content = someOtherContent.content
+      someOtherContent.isFoo must_== false
+      someOtherContent.path must_== "some-path"
+      content.id must_== "some-id"
+      content.name must_== "some-name"
+    }
+
     "Issue 1169" in {
       val json = parse("""{"data":[{"one":1, "two":2}]}""")
       json.extract[Response] must_== Response(List(Map("one" -> 1, "two" -> 2)))
@@ -101,7 +147,7 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       lst.add("two")
       json.extract[util.ArrayList[String]] must_== lst
     }
-    
+
     "Parse 0 as BigDecimal" in {
       val bd = ABigDecimal(BigDecimal("0"))
       parse("""{"num": 0}""", useBigDecimalForDouble = true).extract[ABigDecimal] must_== bd
