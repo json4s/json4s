@@ -23,10 +23,12 @@ import org.specs2.mutable.Specification
 
 object NativeJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Native") {
   val s: Serialization = native.Serialization
+  val m: JsonMethods[_] =  native.JsonMethods
 }
 
 object JacksonJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Jackson") {
   val s: Serialization = jackson.Serialization
+  val m: JsonMethods[_] =  jackson.JsonMethods
 }
 
 /**
@@ -35,6 +37,8 @@ object JacksonJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Jackson") {
 abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
 
   def s: Serialization
+  def m: JsonMethods[_]
+
   implicit lazy val formats = s.formats(NoTypeHints) ++ JodaTimeSerializers.all
 
   (mod + " JodaTimeSerializer Specification") should {
@@ -46,7 +50,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
       s.read[JodaTypes](ser) must_== x
     }
 
-    "DateTime and DateMidnight use configured date format" in {
+    "DateTime and DateMidnight use configured date format 1" in {
       implicit val formats = new DefaultFormats {
         override def dateFormatter = {
           new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'")
@@ -56,6 +60,26 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
       val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0), new DateMidnight(2011, 1, 16))
       val ser = s.write(x)
       ser must_== """{"dt":"2011-01-16 10:32:00Z","dm":"2011-01-16 00:00:00Z"}"""
+
+      (m.parse(ser) \ "dt").extract[DateTime] must_== new DateTime(2011, 1, 16, 10, 32, 0, 0)
+      (m.parse(ser) \ "dm").extract[DateTime] must_== new DateMidnight(2011, 1, 16)
+    }
+
+    "DateTime and DateMidnight use configured date format 2" in {
+      implicit val formats = new DefaultFormats {
+        override def dateFormatter = {
+          // non default format
+          new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ssXXX")
+        }
+      } ++ JodaTimeSerializers.all
+
+      val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0), new DateMidnight(2011, 1, 16))
+      val ser = s.write(x)
+      ser must beMatching(
+        """\{"dt":"2011-01-16 10:32:00[-+]\d{2}:\d{2}","dm":"2011-01-16 00:00:00[-+]\d{2}:\d{2}"\}""")
+
+      (m.parse(ser) \ "dt").extract[DateTime] must_== new DateTime(2011, 1, 16, 10, 32, 0, 0)
+      (m.parse(ser) \ "dm").extract[DateTime] must_== new DateMidnight(2011, 1, 16)
     }
 
     "null is serialized as JSON null" in {
