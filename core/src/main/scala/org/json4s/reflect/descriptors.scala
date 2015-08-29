@@ -8,6 +8,8 @@ object ScalaType {
 
   private val types = new Memo[Manifest[_], ScalaType]
 
+  private val singletonFieldName = "MODULE$"
+
   def apply[T](mf: Manifest[T]): ScalaType = {
     /* optimization */
     if (mf.runtimeClass == classOf[Int] || mf.runtimeClass == classOf[java.lang.Integer]) ScalaType.IntType
@@ -141,6 +143,10 @@ class ScalaType(private val manifest: Manifest[_]) extends Equals {
   def isEither = classOf[Either[_, _]].isAssignableFrom(erasure)
   def <:<(that: ScalaType): Boolean = manifest <:< that.manifest
   def >:>(that: ScalaType): Boolean = manifest >:> that.manifest
+
+  private def singletonField = erasure.getFields.find(_.getName.equals(ScalaType.singletonFieldName))
+  def isSingleton = singletonField.isDefined
+  def singletonInstance = singletonField.map(_.get(null))
 
   override def hashCode(): Int = manifest.##
 
