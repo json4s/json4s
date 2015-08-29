@@ -108,6 +108,8 @@ trait Formats extends Serializable { self: Formats =>
 
   def withEmptyValueStrategy(strategy: EmptyValueStrategy): Formats = copy(wEmptyValueStrategy = strategy)
 
+  def withTypeHintFieldName(name: String): Formats = copy(wTypeHintFieldName = name)
+
   /**
    * Adds the specified type hints to this formats.
    */
