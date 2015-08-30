@@ -157,6 +157,31 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       found must_== Some(JField("name", JString("Joe")))
     }
 
+    "#278 strange behavior of filterField" in {
+      val jString = """{
+  "longt" : "-0.000000",
+  "latt" : "0.00000",
+  "error" : {
+    "description" : "Your request did not produce any results. Check your spelling and try again.",
+    "code" : "008"
+  }
+}"""
+      val jAst = parse(jString)
+      val filtered1: List[(String, JValue)] = jAst.filterField{
+        case JField("longt", _) => false
+        case _ => true
+      }
+      filtered1.exists(_._1 == "longt") must_== false
+      filtered1.exists(_._1 == "error") must_== true
+
+      val filtered2: List[(String, JValue)] = jAst.filterField{
+        case JField("error", _) => false
+        case _ => true
+      }
+      filtered2.exists(_._1 == "longt") must_== true
+      filtered2.exists(_._1 == "error") must_== false
+    }
+
     "Object array example" in {
       val json = parse(objArray)
       compact(render(json \ "children" \ "name")) must_== """["Mary","Mazy"]"""
