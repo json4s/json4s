@@ -257,6 +257,12 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
     "case objects in a complex structure should be sucessfully extracted as a singleton instance" in {
       parse(tree).extract[LeafTree[Int]](treeFormats[Int], Manifest.classType(classOf[LeafTree[Int]])) must_== Node(List[LeafTree[Int]](EmptyLeaf, Node(List.empty), Leaf(1), Leaf(2)))
     }
+
+    "#274 Examples with default value should be parsed" in {
+      val res = WithDefaultValueHolder(Seq(WithDefaultValue("Bob")))
+      parse("""{"values":[{"name":"Bob","gender":"male"}]}""").extract[WithDefaultValueHolder](
+        DefaultFormats, Manifest.classType(classOf[WithDefaultValueHolder])) must_== (res)
+    }
   }
 
   val testJson =
@@ -432,3 +438,5 @@ case class Node[T](children : List[LeafTree[T]]) extends LeafTree[T]
 case class Leaf[T](value : T) extends LeafTree[T]
 case object EmptyLeaf extends LeafTree[Nothing]
 
+case class WithDefaultValueHolder(values: Seq[WithDefaultValue])
+case class WithDefaultValue(name: String, gender: String = "male")
