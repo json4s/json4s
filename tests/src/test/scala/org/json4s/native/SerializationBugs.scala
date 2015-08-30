@@ -156,6 +156,34 @@ object SerializationBugs extends Specification {
     val ser = swrite(mutable.Map("f" -> 1))
     ser must_== """{"f":1}"""
   }
+
+  "PositiveInfinity Float can be serialized" in {
+    val expected = SingleValue(Float.PositiveInfinity)
+    val serialized = native.Serialization.write(expected)
+    val deserialized = read[SingleValue[Float]](serialized)
+    expected.value must_== deserialized.value
+  }
+
+  "NegativeInfinity Float can be serialized" in {
+    val expected = SingleValue(Float.NegativeInfinity)
+    val serialized = native.Serialization.write(expected)
+    val deserialized = read[SingleValue[Float]](serialized)
+    expected.value must_== deserialized.value
+  }
+
+  "PositiveInfinity Double can be serialized" in {
+    val expected = SingleValue(Double.PositiveInfinity)
+    val serialized = native.Serialization.write(expected)
+    val deserialized = read[SingleValue[Double]](serialized)
+    expected.value must_== deserialized.value
+  }
+
+  "NegativeInfinity Double can be serialized" in {
+    val expected = SingleValue(Double.NegativeInfinity)
+    val serialized = native.Serialization.write(expected)
+    val deserialized = read[SingleValue[Double]](serialized)
+    expected.value must_== deserialized.value
+  }
 }
 
 case class Eith(x: Either[String, Int])
@@ -197,4 +225,3 @@ object Zot {
     case class Foo(s: String)
   }
 }
-
