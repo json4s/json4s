@@ -173,6 +173,9 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       }
       filtered1.exists(_._1 == "longt") must_== false
       filtered1.exists(_._1 == "error") must_== true
+      // These assersions fail
+      // filtered1.exists(_._1 == "description") must_== false
+      // filtered1.exists(_._1 == "code") must_== false
 
       val filtered2: List[(String, JValue)] = jAst.filterField{
         case JField("error", _) => false
@@ -180,6 +183,9 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       }
       filtered2.exists(_._1 == "longt") must_== true
       filtered2.exists(_._1 == "error") must_== false
+      // These assersions fail
+      // filtered2.exists(_._1 == "description") must_== false
+      // filtered2.exists(_._1 == "code") must_== false
     }
 
     "Object array example" in {
