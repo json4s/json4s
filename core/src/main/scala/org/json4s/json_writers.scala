@@ -559,7 +559,16 @@ private object StreamingJsonWriter {
   private val posInfinityVal = "1e+500"
   private val negInfiniteVal = "-1e+500"
 
-  private def handleInfinity[T <% Any](value: T{ def isPosInfinity: Boolean; def isNegInfinity: Boolean}): String = {
+  private def handleInfinity(value: Float): String = {
+    if(value.isPosInfinity) {
+      posInfinityVal
+    } else if (value.isNegInfinity){
+      negInfiniteVal
+    } else {
+      value.toString
+    }
+  }
+  private def handleInfinity(value: Double): String = {
     if(value.isPosInfinity) {
       posInfinityVal
     } else if (value.isNegInfinity){
