@@ -93,6 +93,13 @@ object Extraction {
     }
   }
 
+  private[this] lazy val typesHaveNaN: Set[Class[_]] = Set(
+    classOf[Double],
+    classOf[Float],
+    classOf[java.lang.Double],
+    classOf[java.lang.Float]
+  )
+
   /** Decompose a case class into JSON.
    *
    * This is broken out to avoid calling builder.result when we return from recursion
@@ -149,6 +156,8 @@ object Extraction {
         current.addJValue(JNull)
       } else if (classOf[JValue].isAssignableFrom(k)) {
         current.addJValue(any.asInstanceOf[JValue])
+      } else if (typesHaveNaN.contains(any.getClass) && any.toString == "NaN") {
+        current.addJValue(JNull)
       } else if (Reflector.isPrimitive(any.getClass)) {
         writePrimitive(any, current)(formats)
       } else if (classOf[scala.collection.Map[_, _]].isAssignableFrom(k)) {

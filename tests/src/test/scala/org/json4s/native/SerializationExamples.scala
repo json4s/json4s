@@ -168,6 +168,22 @@ object SerializationExamples extends Specification {
     read[PlayerWithGenericList](ser) must_== pw
   }
 
+  // #246 Double.NaN serializes but does not deserialize
+  "NaN Float serializes to null example" in {
+    val expected = SingleValue(Float.NaN)
+    val serialized = native.Serialization.write(expected)
+    serialized must_== """{"value":null}"""
+  }
+  "NaN Double serializes to null example" in {
+    val expected = SingleValue(Double.NaN)
+    val serialized = native.Serialization.write(expected)
+    serialized must_== """{"value":null}"""
+  }
+  "NaN String value won't be null" in {
+    val expected = SingleValue("NaN")
+    val serialized = native.Serialization.write(expected)
+    serialized must_== """{"value":"NaN"}"""
+  }
 
   case class Ints(x: List[List[Int]])
 
