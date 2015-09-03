@@ -24,8 +24,17 @@ object ScalaSigReader {
 
   def readConstructor(argName: String, clazz: ScalaType, typeArgIndexes: List[Int], argNames: List[String]): Class[_] = {
     val cl = findClass(clazz.erasure)
-    val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
-    findArgType(cstr, argNames.indexOf(argName), typeArgIndexes)
+    val cstr = findConstructor(cl, argNames)
+
+    val maybeArgType = cstr map { c =>
+      findArgType(cstr.get, argNames.indexOf(argName), typeArgIndexes)
+    } orElse {
+      val companionClass = findCompanionObject(clazz.erasure)
+      findApply(companionClass, argNames) map { methodSymbol =>
+        findArgType(methodSymbol, argNames.indexOf(argName), typeArgIndexes)
+      }
+    }
+    maybeArgType.getOrElse(fail("Can't find constructor for " + clazz))
   }
 
   def readField(name: String, clazz: Class[_], typeArgIndex: Int): Class[_] = {
@@ -56,6 +65,16 @@ object ScalaSigReader {
     }
   }
 
+  def findCompanionObject(clazz: Class[_]): ClassSymbol = {
+    val sig = findScalaSig(clazz).getOrElse(fail("Can't find ScalaSig for " + clazz))
+    findCompanionObject(sig, clazz).getOrElse(fail("Can't find " + clazz + " from parsed ScalaSig"))
+  }
+
+  def findCompanionObject(sig: ScalaSig, clazz: Class[_]): Option[ClassSymbol] = {
+    val name = safeSimpleName(clazz)
+    sig.symbols.collect { case c: ClassSymbol if c.isModule => c }.find(_.name == name)
+  }
+
   def findConstructor(c: ClassSymbol, argNames: List[String]): Option[MethodSymbol] = {
     val ms = c.children collect {
       case m: MethodSymbol if m.name == "<init>" => m
@@ -63,7 +82,12 @@ object ScalaSigReader {
     ms.find(m => m.children.map(_.name) == argNames)
   }
 
-
+  def findApply(c: ClassSymbol, argNames: List[String]): Option[MethodSymbol] = {
+    val ms = c.children collect {
+      case m: MethodSymbol if m.name == "apply" => m
+    }
+    ms.find(m => m.children.map(_.name) == argNames)
+  }
 
   def findFields(c: ClassSymbol): Seq[MethodSymbol] =
     c.children collect {
