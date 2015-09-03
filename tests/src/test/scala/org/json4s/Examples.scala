@@ -16,6 +16,7 @@
 
 package org.json4s
 
+import org.json4s.prefs.EmptyValueStrategy
 import org.specs2.mutable.Specification
 import text.Document
 
@@ -95,9 +96,9 @@ object Examples {
 
 abstract class Examples[T](mod: String) extends Specification with JsonMethods[T] {
 
-  import JsonAST.concat
   import Examples._
   import JsonDSL._
+
   (mod + " Examples") should {
 
     "Lotto example" in {
@@ -155,37 +156,6 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
         case _ => false
       }
       found must_== Some(JField("name", JString("Joe")))
-    }
-
-    "#278 strange behavior of filterField" in {
-      val jString = """{
-  "longt" : "-0.000000",
-  "latt" : "0.00000",
-  "error" : {
-    "description" : "Your request did not produce any results. Check your spelling and try again.",
-    "code" : "008"
-  }
-}"""
-      val jAst = parse(jString)
-      val filtered1: List[(String, JValue)] = jAst.filterField{
-        case JField("longt", _) => false
-        case _ => true
-      }
-      filtered1.exists(_._1 == "longt") must_== false
-      filtered1.exists(_._1 == "error") must_== true
-      // These assersions fail
-      // filtered1.exists(_._1 == "description") must_== false
-      // filtered1.exists(_._1 == "code") must_== false
-
-      val filtered2: List[(String, JValue)] = jAst.filterField{
-        case JField("error", _) => false
-        case _ => true
-      }
-      filtered2.exists(_._1 == "longt") must_== true
-      filtered2.exists(_._1 == "error") must_== false
-      // These assersions fail
-      // filtered2.exists(_._1 == "description") must_== false
-      // filtered2.exists(_._1 == "code") must_== false
     }
 
     "Object array example" in {
@@ -275,6 +245,53 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       implicit val fmts = DefaultFormats + ShortTypeHints(List[Class[_]](classOf[Dog], classOf[Fish]))
       val json = parse(s"""[{"name":"pluto","${fmts.typeHintFieldName}":"Dog"},{"weight":1.3,"${fmts.typeHintFieldName}":"Fish"}]""")
       Extraction.extract[List[Animal]](json) must_== Dog("pluto") :: Fish(1.3) :: Nil
+    }
+
+    // ------------------------------------------------------------
+    // Working examples for GitHub issues
+    // ------------------------------------------------------------
+
+    "#278 strange behavior of filterField" in {
+      val jString = """{
+  "longt" : "-0.000000",
+  "latt" : "0.00000",
+  "error" : {
+    "description" : "Your request did not produce any results. Check your spelling and try again.",
+    "code" : "008"
+  }
+}"""
+      val jAst = parse(jString)
+      val filtered1: List[(String, JValue)] = jAst.filterField{
+        case JField("longt", _) => false
+        case _ => true
+      }
+      filtered1.exists(_._1 == "longt") must_== false
+      filtered1.exists(_._1 == "error") must_== true
+      // These assertions fail
+      // filtered1.exists(_._1 == "description") must_== false
+      // filtered1.exists(_._1 == "code") must_== false
+
+      val filtered2: List[(String, JValue)] = jAst.filterField{
+        case JField("error", _) => false
+        case _ => true
+      }
+      filtered2.exists(_._1 == "longt") must_== true
+      filtered2.exists(_._1 == "error") must_== false
+      // These assertions fail
+      // filtered2.exists(_._1 == "description") must_== false
+      // filtered2.exists(_._1 == "code") must_== false
+    }
+
+    "#23 Change serialization of Seq[Option[T]] so it doesn't remove elements" in {
+      val a: List[Option[Int]] = List(Some(1), None, None, Some(1))
+      compact(render(a)) must_== "[1,1]"
+
+      // #131 Strategies for empty value treatment
+      // https://github.com/json4s/json4s/pull/131
+      val preserve = new DefaultFormats {
+        override val emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.preserve
+      }
+      compact(render(a)(preserve)) must_== "[1,null,null,1]"
     }
   }
 }
