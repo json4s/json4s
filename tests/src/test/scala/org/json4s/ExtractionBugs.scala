@@ -69,6 +69,21 @@ object ExtractionBugs {
     }
   }
 
+  trait ContentWithOption {
+    def path: Option[String]
+    def age: Option[Long]
+    def content: Content
+  }
+
+  object ContentWithOption {
+
+    class ContentWithOptionClass(val path: Option[String], val age: Option[Long], val content: Content) extends ContentWithOption
+
+    def apply(path: Option[String], age: Option[Long], content: Content): ContentWithOption = {
+      new ContentWithOptionClass(path, age, content)
+    }
+  }
+
 }
 abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMethods[T] {
 
@@ -127,6 +142,28 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       val content = someOtherContent.content
       someOtherContent.isFoo must_== false
       someOtherContent.path must_== "some-path"
+      content.id must_== "some-id"
+      content.name must_== "some-name"
+    }
+
+    "Extraction should not fail if using companion objects apply method with fields with options of primitive types" in {
+      val json = """{"path":"some-path", "age": 5, "content": {"id":"some-id", "name":"some-name"}}"""
+      val contentWithOption: ContentWithOption = parse(json).extract[ContentWithOption]
+      contentWithOption must haveClass[ContentWithOption.ContentWithOptionClass]
+      val content = contentWithOption.content
+      contentWithOption.path must_== Some("some-path")
+      contentWithOption.age must_== Some(5)
+      content.id must_== "some-id"
+      content.name must_== "some-name"
+    }
+
+    "Extraction should not fail if using companion objects apply method with fields with options of primitive types (option field missing)" in {
+      val json = """{"path":"some-path", "content": {"id":"some-id", "name":"some-name"}}"""
+      val contentWithOption: ContentWithOption = parse(json).extract[ContentWithOption]
+      contentWithOption must haveClass[ContentWithOption.ContentWithOptionClass]
+      val content = contentWithOption.content
+      contentWithOption.path must_== Some("some-path")
+      contentWithOption.age must_== None
       content.id must_== "some-id"
       content.name must_== "some-name"
     }
