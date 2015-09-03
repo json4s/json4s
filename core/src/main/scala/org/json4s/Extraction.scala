@@ -309,8 +309,8 @@ object Extraction {
     def extractValue(value: String): JValue = value.toLowerCase match {
       case ""      => JNothing
       case "null"  => JNull
-      case "true"  => JBool(true)
-      case "false" => JBool(false)
+      case "true"  => JBool.True
+      case "false" => JBool.False
       case "[]"    => JArray(Nil)
       case x @ _   =>
         if (value.charAt(0).isDigit) {
