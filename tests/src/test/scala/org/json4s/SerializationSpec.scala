@@ -2,7 +2,10 @@ package org.json4s
 
 import org.specs2.mutable.Specification
 
-case class OptionalFields(optString: Option[String], optInt: Option[Int], optDouble: Option[Double], optObj: Option[OptionalFields])
+private case class OptionalFields(optString: Option[String], optInt: Option[Int], optDouble: Option[Double], optObj: Option[OptionalFields])
+private case class MyId(id: String) extends AnyVal
+private case class MyModel(ids: Seq[MyId])
+private case class AnotherModel(id: MyId)
 
 abstract class SerializationSpec(serialization: Serialization, baseFormats: Formats) extends Specification {
 
@@ -108,6 +111,45 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
                 Some(OptionalFields(None, None, None, None)))))))))
         val str = serialization.write(optFields)
         str must_== """{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":null}}}}}"""
+      }
+
+      "#270 Issue serialising sequences of AnyVal" in {
+        val expected = MyModel(Seq(MyId("alice")))
+        val json = serialization.write(expected)
+        // FIXME: looks invalid JSON string
+        json must_== """{"ids":[{"id":"alice"}]}"""
+        // FIXME: package$MappingException
+        // val actual = Extraction.extract[MyModel](jackson.parseJson(json))
+        // actual must_== expected
+        /*
+        [error] Caused by org.json4s.package$MappingException: Do not know how to convert JObject(List((id,JString(alice)))) into class java.lang.String
+        [error] org.json4s.reflect.package$.fail(package.scala:93)
+        [error] org.json4s.Extraction$.convert(Extraction.scala:676)
+        [error] org.json4s.Extraction$.extract(Extraction.scala:388)
+        */
+      }
+
+//      "#270 with expected json" in {
+//        val expected = MyModel(Seq(MyId("alice")))
+//        val json = """{"ids":["alice"]}"""
+//        val actual = Extraction.extract[MyModel](jackson.parseJson(json))
+//        actual must_== expected
+//        /*
+//[info]   x #270 with expected json
+//[error]      'MyModel(List(alice))' is not equal to 'MyModel(List(MyId(alice)))' (SerializationSpec.scala:153)
+//[info]
+//[error] Expected: ...List([MyId(]al...))[)]
+//[info]
+//[error] Actual:   ...List([]al...))[]
+//      */
+//      }
+
+      "#270 works with single AnyVal" in {
+        val expected = AnotherModel(MyId("alice"))
+        val json = serialization.write(expected)
+        json must_== """{"id":"alice"}"""
+        val actual = Extraction.extract[AnotherModel](jackson.parseJson(json))
+        actual must_== expected
       }
     }
 
