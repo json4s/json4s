@@ -4,6 +4,7 @@ import xml.Group
 import sbtbuildinfo.Plugin._
 import com.typesafe.sbt.SbtStartScript
 import MimaSettings.mimaSettings
+import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifact
 
 object build extends Build {
   import Dependencies._
@@ -61,6 +62,7 @@ object build extends Build {
   ) ++ mimaSettings
 
   val noPublish = Seq(
+    previousArtifact := None,
     publishArtifact := false,
     publish := {},
     publishLocal := {}
@@ -164,7 +166,7 @@ object build extends Build {
           |import org.json4s._
           |import reflect._
         """.stripMargin
-    )
+    ) ++ noPublish
   ) dependsOn(core, native, json4sExt, scalazExt, jacksonSupport, mongo)
 
   lazy val benchmark = Project(
