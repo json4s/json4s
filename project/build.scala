@@ -5,6 +5,7 @@ import sbtbuildinfo.Plugin._
 import com.typesafe.sbt.SbtStartScript
 import MimaSettings.mimaSettings
 import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifact
+import com.typesafe.sbt.JavaVersionCheckPlugin.autoImport._
 
 object build extends Build {
   import Dependencies._
@@ -56,6 +57,7 @@ object build extends Build {
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-Yinline-warnings", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
     version := "3.3.0-SNAPSHOT",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
+    javaVersionPrefix in javaVersionCheck := Some("1.7"),
     manifestSetting,
     resolvers ++= Seq(Opts.resolver.sonatypeSnapshots, Opts.resolver.sonatypeReleases),
     crossVersion := CrossVersion.binary
