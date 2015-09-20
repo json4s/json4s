@@ -90,21 +90,24 @@ Summary of the features:
 Installation
 ============
 
-You can add the json4s as a dependency in following ways.
-Note, replace XXX with correct Json4s version.
+You can add the json4s as a dependency in following ways. Note, replace {latestVersion} with correct Json4s version.
+
+You can find available versions here:
+
+http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.json4s%22
 
 ### SBT users
 
 For the native support add the following dependency to your project description:
 
 ```scala
-val json4sNative = "org.json4s" %% "json4s-native" % "3.2.11"
+val json4sNative = "org.json4s" %% "json4s-native" % "{latestVersion}"
 ```
 
 For the Jackson support add the following dependency to your project description:
 
 ```scala
-val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.11"
+val json4sJackson = "org.json4s" %% "json4s-jackson" % "{latestVersion}"
 ```
 
 ### Maven users
@@ -115,7 +118,7 @@ For the native support add the following dependency to your pom:
 <dependency>
   <groupId>org.json4s</groupId>
   <artifactId>json4s-native_${scala.version}</artifactId>
-  <version>3.2.11</version>
+  <version>{latestVersion}</version>
 </dependency>
 ```
 
@@ -125,7 +128,7 @@ For the jackson support add the following dependency to your pom:
 <dependency>
   <groupId>org.json4s</groupId>
   <artifactId>json4s-jackson_${scala.version}</artifactId>
-  <version>3.2.11</version>
+  <version>{latestVersion}</version>
 </dependency>
 ```
 
@@ -133,8 +136,8 @@ For the jackson support add the following dependency to your pom:
 
 Download following jars:
 
-* http://repo1.maven.org/maven2/org/json4s/json4s-core_2.11/3.2.11/json4s-core_2.11-3.2.11.jar
-* http://repo1.maven.org/maven2/org/json4s/json4s-native_2.11/3.2.11/json4s-native_2.11-3.2.11.jar
+* http://repo1.maven.org/maven2/org/json4s/json4s-core_2.11/{latestVersion}/json4s-core_2.11-{latestVersion}.jar
+* http://repo1.maven.org/maven2/org/json4s/json4s-native_2.11/{latestVersion}/json4s-native_2.11-{latestVersion}.jar
 * http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.6/paranamer-2.5.6.jar
 * scalap (Only for Scala 2.10, 2.11 compatible versions)
 
@@ -159,8 +162,13 @@ Migration from older versions
 3.3.0 ->
 --------
 
+json4s 3.3 basically should be source code compatible with 3.2.x. Since json4s 3.3.0, We've started using [MiMa](https://github.com/typesafehub/migration-manager) for binary compatibility verification not to repeat the bin compatibility issue described [here](https://github.com/json4s/json4s/issues/225).
+
 The behavior of `.toOption` on JValue has changed. Now both `JNothing` and `JNull` return None.
 For the old behavior you can use `toSome` which will only turn a `JNothing` into a None.
+
+All the merged pull requests:
+https://github.com/json4s/json4s/pulls?q=is%3Apr+is%3Aclosed+milestone%3A3.3
 
 3.0.0 ->
 --------
