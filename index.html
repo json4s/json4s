@@ -23,8 +23,8 @@
         </header>
 
         <section id="downloads" class="clearfix">
-          <a href="https://github.com/json4s/json4s/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
-          <a href="https://github.com/json4s/json4s/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/json4s/json4s/zipball/3.3" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/json4s/json4s/tarball/3.3" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
           <a href="https://github.com/json4s/json4s" id="view-on-github" class="button"><span>View on GitHub</span></a>
         </section>
 
@@ -104,7 +104,7 @@ a JSON document as a syntax tree.</p>
 the AST itself, or to transform the AST between different formats. Common transformations
 are summarized in a following picture.</p>
 
-<p><img src="https://raw.github.com/json4s/json4s/master/core/json.png" alt="Json AST"></p>
+<p><img src="https://raw.github.com/json4s/json4s/3.3/core/json.png" alt="Json AST"></p>
 
 <p>Summary of the features:</p>
 
@@ -130,12 +130,12 @@ Note, replace XXX with correct Json4s version.</p>
 
 <p>For the native support add the following dependency to your project description:</p>
 
-<pre><code>val json4sNative = "org.json4s" %% "json4s-native" % "3.2.10"
+<pre><code>val json4sNative = "org.json4s" %% "json4s-native" % "{latestVersion}"
 </code></pre>
 
 <p>For the Jackson support add the following dependency to your project description:</p>
 
-<pre><code>val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.10"
+<pre><code>val json4sJackson = "org.json4s" %% "json4s-jackson" % "{latestVersion}"
 </code></pre>
 
 <h3>
@@ -146,7 +146,7 @@ Note, replace XXX with correct Json4s version.</p>
 <pre><code>&lt;dependency&gt;
   &lt;groupId&gt;org.json4s&lt;/groupId&gt;
   &lt;artifactId&gt;json4s-native_${scala.version}&lt;/artifactId&gt;
-  &lt;version&gt;3.2.10&lt;/version&gt;
+  &lt;version&gt;{latestVersion}&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -155,78 +155,23 @@ Note, replace XXX with correct Json4s version.</p>
 <pre><code>&lt;dependency&gt;
   &lt;groupId&gt;org.json4s&lt;/groupId&gt;
   &lt;artifactId&gt;json4s-jackson_${scala.version}&lt;/artifactId&gt;
-  &lt;version&gt;3.2.10&lt;/version&gt;
+  &lt;version&gt;{latestVersion}&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
-<h3>
-<a name="others" class="anchor" href="#others"><span class="octicon octicon-link"></span></a>Others</h3>
-
-<p>Download following jars:</p>
+<h2><a name="extras" class="anchor" href="#extras"><span class="octicon octicon-link"></span></a>Extras</h2>
 
 <ul>
-<li><a href="http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.10/json4s-core_2.9.3-3.2.10.jar">http://repo1.maven.org/maven2/org/json4s/json4s-core_2.9.2/3.2.10/json4s-core_2.9.3-3.2.10.jar</a></li>
-<li><a href="http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.10/json4s-native_2.9.3-3.2.10.jar">http://repo1.maven.org/maven2/org/json4s/json4s-native_2.9.2/3.2.10/json4s-native_2.9.3-3.2.10.jar</a></li>
-<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.6/paranamer-2.5.6.jar">http://mirrors.ibiblio.org/pub/mirrors/maven2/com/thoughtworks/paranamer/paranamer/2.5.6/paranamer-2.5.6.jar</a></li>
-<li>scalap (Only for Scala-2.9 compatible versions)</li>
-</ul><h2>
-<a name="extras" class="anchor" href="#extras"><span class="octicon octicon-link"></span></a>Extras</h2>
-
-<ul>
-<li><a href="https://github.com/json4s/json4s/tree/master/ext">ext</a></li>
+<li><a href="https://github.com/json4s/json4s/tree/3.3/ext">ext</a></li>
 </ul><p>Support for Enum, Joda-Time, ...</p>
 
 <ul>
-<li><a href="https://github.com/json4s/json4s/tree/master/scalaz">scalaz</a></li>
+<li><a href="https://github.com/json4s/json4s/tree/3.3/scalaz">scalaz</a></li>
 </ul><p>Applicative style parsing with Scalaz</p>
 
 <ul>
-<li><a href="https://github.com/json4s/json4s/tree/master/native-lift">native-lift</a></li>
+<li><a href="https://github.com/json4s/json4s/tree/3.3/native-lift">native-lift</a></li>
 </ul><p>Support for Box</p>
-
-<h1>
-<a name="migration-from-older-versions" class="anchor" href="#migration-from-older-versions"><span class="octicon octicon-link"></span></a>Migration from older versions</h1>
-
-<h2>
-<a name="330--" class="anchor" href="#330--"><span class="octicon octicon-link"></span></a>3.3.0 -&gt;</h2>
-
-<p>The behavior of <code>.toOption</code> on JValue has changed. Now both <code>JNothing</code> and <code>JNull</code> return None.
-For the old behavior you can use <code>toSome</code> which will only turn a <code>JNothing</code> into a None.</p>
-
-<h2>
-<a name="300--" class="anchor" href="#300--"><span class="octicon octicon-link"></span></a>3.0.0 -&gt;</h2>
-
-<p>JField is no longer a JValue. This means more type safety since it is no longer possible
-to create invalid JSON where JFields are added directly into JArrays for instance. Most
-noticeable consequence of this change is that map, transform, find and filter come in
-two versions:</p>
-
-<div class="highlight highlight-scala"><pre><span class="k">def</span> <span class="n">map</span><span class="o">(</span><span class="n">f</span><span class="k">:</span> <span class="kt">JValue</span> <span class="o">=&gt;</span> <span class="nc">JValue</span><span class="o">)</span><span class="k">:</span> <span class="kt">JValue</span>
-<span class="k">def</span> <span class="n">mapField</span><span class="o">(</span><span class="n">f</span><span class="k">:</span> <span class="kt">JField</span> <span class="o">=&gt;</span> <span class="nc">JField</span><span class="o">)</span><span class="k">:</span> <span class="kt">JValue</span>
-<span class="k">def</span> <span class="n">transform</span><span class="o">(</span><span class="n">f</span><span class="k">:</span> <span class="kt">PartialFunction</span><span class="o">[</span><span class="kt">JValue</span>, <span class="kt">JValue</span><span class="o">])</span><span class="k">:</span> <span class="kt">JValue</span>
-<span class="k">def</span> <span class="n">transformField</span><span class="o">(</span><span class="n">f</span><span class="k">:</span> <span class="kt">PartialFunction</span><span class="o">[</span><span class="kt">JField</span>, <span class="kt">JField</span><span class="o">])</span><span class="k">:</span> <span class="kt">JValue</span>
-<span class="k">def</span> <span class="n">find</span><span class="o">(</span><span class="n">p</span><span class="k">:</span> <span class="kt">JValue</span> <span class="o">=&gt;</span> <span class="nc">Boolean</span><span class="o">)</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">JValue</span><span class="o">]</span>
-<span class="k">def</span> <span class="n">findField</span><span class="o">(</span><span class="n">p</span><span class="k">:</span> <span class="kt">JField</span> <span class="o">=&gt;</span> <span class="nc">Boolean</span><span class="o">)</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">JField</span><span class="o">]</span>
-<span class="c1">//...</span>
-</pre></div>
-
-<p>Use *Field functions to traverse fields in the JSON, and use the functions without 'Field'
-in the name to traverse values in the JSON.</p>
-
-<h2>
-<a name="22--" class="anchor" href="#22--"><span class="octicon octicon-link"></span></a>2.2 -&gt;</h2>
-
-<p>Path expressions were changed after 2.2 version. Previous versions returned JField which
-unnecessarily complicated the use of the expressions. If you have used path expressions
-with pattern matching like:</p>
-
-<pre><code>val JField("bar", JInt(x)) = json \ "foo" \ "bar"
-</code></pre>
-
-<p>It is now required to change that to:</p>
-
-<pre><code>val JInt(x) = json \ "foo" \ "bar"
-</code></pre>
 
 <h1>
 <a name="parsing-json" class="anchor" href="#parsing-json"><span class="octicon octicon-link"></span></a>Parsing JSON</h1>
@@ -382,7 +327,7 @@ To extend the dsl with your own classes you must have an implicit conversion in 
 <a name="merging--diffing" class="anchor" href="#merging--diffing"><span class="octicon octicon-link"></span></a>Merging &amp; Diffing</h2>
 
 <p>Two JSONs can be merged and diffed with each other.
-Please see more examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/MergeExamples.scala">MergeExamples.scala</a> and <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/DiffExamples.scala">DiffExamples.scala</a>.</p>
+Please see more examples in <a href="https://github.com/json4s/json4s/blob/3.3/tests/src/test/scala/org/json4s/MergeExamples.scala">MergeExamples.scala</a> and <a href="https://github.com/json4s/json4s/blob/3.3/tests/src/test/scala/org/json4s/DiffExamples.scala">DiffExamples.scala</a>.</p>
 
 <pre><code>scala&gt; import org.json4s._
 
@@ -440,7 +385,7 @@ List(JInt(52), JInt(3), JInt(12), JInt(11), JInt(18), JInt(22))))))))))))))
 <a name="linq-style" class="anchor" href="#linq-style"><span class="octicon octicon-link"></span></a>"LINQ" style</h2>
 
 <p>JSON values can be extracted using for-comprehensions.
-Please see more examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/JsonQueryExamples.scala">JsonQueryExamples.scala</a>.</p>
+Please see more examples in <a href="https://github.com/json4s/json4s/blob/3.3/tests/src/test/scala/org/json4s/JsonQueryExamples.scala">JsonQueryExamples.scala</a>.</p>
 
 <pre><code>scala&gt; import org.json4s._
 scala&gt; import org.json4s.native.JsonMethods._
@@ -597,7 +542,7 @@ res3: List[org.json4s.JsonAST.JString#Values] = List(Mary, Mazy)
 <p>Case classes can be used to extract values from parsed JSON. Non-existing values
 can be extracted into scala.Option and strings can be automatically converted into
 java.util.Dates.
-Please see more examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/ExtractionExamplesSpec.scala">ExtractionExampleSpec.scala</a>.</p>
+Please see more examples in <a href="https://github.com/json4s/json4s/blob/3.3/tests/src/test/scala/org/json4s/ExtractionExamplesSpec.scala">ExtractionExampleSpec.scala</a>.</p>
 
 <pre><code>scala&gt; import org.json4s._
 scala&gt; import org.json4s.jackson.JsonMethods._
@@ -631,7 +576,7 @@ res0: Person = Person(joe,Address(Bulevard,Helsinki),List(Child(Mary,5,Some(Sat 
 
 <p>By default the constructor parameter names must match json field names. However, sometimes json
 field names contain characters which are not allowed characters in Scala identifiers. There's two
-solutions for this (see <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/LottoExample.scala">LottoExample.scala</a> for bigger example).</p>
+solutions for this (see <a href="https://github.com/json4s/json4s/blob/3.3/tests/src/test/scala/org/json4s/LottoExample.scala">LottoExample.scala</a> for bigger example).</p>
 
 <p>Use back ticks.</p>
 
@@ -701,7 +646,7 @@ res0: PersonWithAddresses("joe", Map("address1" -&gt; Address("Bulevard", "Helsi
 <a name="serialization" class="anchor" href="#serialization"><span class="octicon octicon-link"></span></a>Serialization</h1>
 
 <p>Case classes can be serialized and deserialized.
-Please see other examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/native/SerializationExamples.scala">SerializationExamples.scala</a>.</p>
+Please see other examples in <a href="https://github.com/json4s/json4s/blob/3.3/tests/src/test/scala/org/json4s/native/SerializationExamples.scala">SerializationExamples.scala</a>.</p>
 
 <pre><code>scala&gt; import org.json4s._
 scala&gt; import org.json4s.native.Serialization
@@ -863,7 +808,7 @@ implicit val formats = org.json4s.DefaultFormats ++ org.json4s.ext.JodaTimeSeria
 <a name="xml-support" class="anchor" href="#xml-support"><span class="octicon octicon-link"></span></a>XML support</h1>
 
 <p>JSON structure can be converted to XML node and vice versa.
-Please see more examples in <a href="https://github.com/json4s/json4s/blob/master/tests/src/test/scala/org/json4s/XmlExamples.scala">XmlExamples.scala</a>.</p>
+Please see more examples in <a href="https://github.com/json4s/json4s/blob/3.3/tests/src/test/scala/org/json4s/XmlExamples.scala">XmlExamples.scala</a>.</p>
 
 <pre><code>scala&gt; import org.json4s.Xml.{toJson, toXml}
 scala&gt; val xml =
