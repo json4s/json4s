@@ -19,10 +19,10 @@ class Json(fmts: Formats, mapper: ObjectMapper = JsonMethods.mapper) extends Jso
   }
 
   def writePretty[A <: AnyRef](a: A): String =
-    mapper.writerWithDefaultPrettyPrinter[ObjectWriter].writeValueAsString(decompose(a))
+    mapper.writerWithDefaultPrettyPrinter.writeValueAsString(decompose(a))
 
   def writePretty[A <: AnyRef, W <: JWriter](a: A, out: W): W = {
-    mapper.writerWithDefaultPrettyPrinter[ObjectWriter].writeValue(out, decompose(a))
+    mapper.writerWithDefaultPrettyPrinter.writeValue(out, decompose(a))
     out
   }
 

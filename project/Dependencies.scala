@@ -8,11 +8,10 @@ object Dependencies {
     "org.joda"  % "joda-convert" % "1.7"
   )
   lazy val jackson      = Seq(
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.5.3"
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.2"
   )
-  lazy val jacksonScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.5.3"
-  lazy val liftCommon   = "net.liftweb"                  %% "lift-common"          % "2.5.1"
-  lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.1.3"
+  lazy val jacksonScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.6.1"
+  lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.1.4"
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.8"
   lazy val commonsCodec = "commons-codec"                %  "commons-codec"        % "1.9"
   lazy val specs        = "org.specs2"                   %% "specs2-scalacheck"    % "2.4.17"    % "test"
