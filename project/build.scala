@@ -116,13 +116,6 @@ object build extends Build {
     settings = json4sSettings ++ Seq(libraryDependencies ++= jodaTime)
   ) dependsOn(native % "provided->compile;test->test")
 
-  // TODO: remove this?
-//  lazy val nativeLift = Project(
-//    id = "json4s-native-lift",
-//    base = file("native-lift"),
-//    settings = json4sSettings ++ Seq(libraryDependencies ++= Seq(liftCommon, commonsCodec))
-//  )  dependsOn(native % "compile;test->test")
-
   lazy val jacksonSupport = Project(
     id = "json4s-jackson",
     base = file("jackson"),
@@ -154,7 +147,7 @@ object build extends Build {
      base = file("mongo"),
      settings = json4sSettings ++ Seq(
        libraryDependencies ++= Seq(
-         "org.mongodb" % "mongo-java-driver" % "3.0.3"
+         "org.mongodb" % "mongo-java-driver" % "3.0.4"
       )
   )) dependsOn(core % "compile;test->test")
 

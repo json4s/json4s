@@ -17,7 +17,7 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
   def mapper = _defaultMapper
 
   def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): JValue = {
-    var reader = mapper.reader[ObjectReader](classOf[JValue])
+    var reader = mapper.reader(classOf[JValue])
     if (useBigDecimalForDouble) reader = reader `with` USE_BIG_DECIMAL_FOR_FLOATS
     if (useBigIntForLong) reader = reader `with` USE_BIG_INTEGER_FOR_INTS
 
@@ -39,7 +39,7 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
   def compact(d: JValue): String = mapper.writeValueAsString(d)
 
   def pretty(d: JValue): String = {
-    val writer = mapper.writerWithDefaultPrettyPrinter[ObjectWriter]()
+    val writer = mapper.writerWithDefaultPrettyPrinter()
     writer.writeValueAsString(d)
   }
 
