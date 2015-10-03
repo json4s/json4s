@@ -8,7 +8,10 @@ object MimaSettings {
     previousArtifact := {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, scalaMajor)) if scalaMajor <= 11 =>
-          Some(organization.value % s"${name.value}_${scalaBinaryVersion.value}" % "3.3.0")
+          // NOTE: when we start 3.4.0 release, enable this mima setting
+          // previousArtifact must always be the previous version (e.g.) verify 3.4.2 for 3.4.3 build
+          // Some(organization.value % s"${name.value}_${scalaBinaryVersion.value}" % "3.4.0")
+          None
         case _ =>
           None
       }
