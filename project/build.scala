@@ -55,7 +55,7 @@ object build extends Build {
     scalaVersion := "2.11.7",
     crossScalaVersions := Seq("2.10.6", "2.11.7"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-Yinline-warnings", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
-    version := "3.3.0",
+    version := "3.3.1-SNAPSHOT",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     javaVersionPrefix in javaVersionCheck := Some("1.7"),
     manifestSetting,
