@@ -342,7 +342,7 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
 """
 {
   "ints": [[[1, 2], [3]], [[4], [5, 6]]],
-  "names": [[{"name": "joe"}, {"name": "mary"}], [[{"name": "mazy"}]]]
+  "names": [[{"name": "joe"}, {"name": "mary"}], [{"name": "mazy"}]]
 }
 """
 
