@@ -12,12 +12,15 @@ class MonadicJValue(jv: JValue) {
    * json \ "name"
    * </pre>
    */
-  def \(nameToFind: String): JValue =
-    findDirectByName(List(jv), nameToFind) match {
-      case Nil ⇒ JNothing
-      case x :: Nil ⇒ x
-      case x ⇒ JArray(x)
-    }
+  def \(nameToFind: String): JValue = jv match {
+    case JArray(xs) => JArray(findDirectByName(xs, nameToFind))
+    case _ =>
+      findDirectByName(List(jv), nameToFind) match {
+        case Nil ⇒ JNothing
+        case x :: Nil ⇒ x
+        case x ⇒ JArray(x)
+      }
+  }
 
   private[this] def findDirectByName(xs: List[JValue], name: String): List[JValue] = xs.flatMap {
     case JObject(l) ⇒ l.filter {

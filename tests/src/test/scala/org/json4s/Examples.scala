@@ -31,6 +31,7 @@ object Examples {
   "lotto":{
     "lotto-id":5,
     "winning-numbers":[2,45,34,23,7,5,3],
+    "lucky-number":[7],
     "winners":[ {
       "winner-id":23,
       "numbers":[2,45,34,23,3, 5]
@@ -84,6 +85,22 @@ object Examples {
     {
       "name": "Mazy",
       "age": 3
+    }
+  ]
+}
+"""
+
+  val objArray2 =
+"""
+{ "name": "joe",
+  "address": {
+    "street": "Bulevard",
+    "city": "Helsinki"
+  },
+  "children": [
+    {
+      "name": "Mary",
+      "age": 2
     }
   ]
 }
@@ -164,6 +181,11 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       compact(render((json \ "children")(0) \ "name")) must_== "\"Mary\""
       compact(render((json \ "children")(1) \ "name")) must_== "\"Mazy\""
       (for { JObject(o) <- json; JField("name", JString(y)) <- o } yield y) must_== List("joe", "Mary", "Mazy")
+    }
+
+    "Object array example 2" in {
+      compact(render(parse(lotto) \ "lotto" \ "lucky-number")) must_== """[7]"""
+      compact(render(parse(objArray2) \ "children" \ "name")) must_== """["Mary"]"""
     }
 
     "Unbox values using XPath-like type expression" in {
