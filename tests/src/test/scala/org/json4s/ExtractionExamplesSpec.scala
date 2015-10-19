@@ -186,6 +186,28 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
       json.extract[Map[String, String]] must_== Map("street" -> "Bulevard", "city" -> "Helsinki")
     }
 
+    "Set extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[Set[Name]] must_== Set(Name("Mary"), Name("Mazy"))
+    }
+
+    "Seq extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[Seq[Name]] must_== Seq(Name("Mary"), Name("Mazy"))
+    }
+
+    "Mutable set extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[scala.collection.mutable.Set[Name]] must_==
+        scala.collection.mutable.Set(Name("Mary"), Name("Mazy"))
+    }
+
+    "Mutable seq extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[scala.collection.mutable.Seq[Name]] must_==
+        scala.collection.mutable.Seq(Name("Mary"), Name("Mazy"))
+    }
+
     "Extraction and decomposition are symmetric" in {
       val person = parse(testJson).extract[Person]
       Extraction.decompose(person).extract[Person] must_== person
