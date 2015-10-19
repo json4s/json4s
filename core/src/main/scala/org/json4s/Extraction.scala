@@ -423,10 +423,10 @@ object Extraction {
       else if (tpe.erasure == classOf[List[_]]) mkCollection(a => List(a: _*))
       else if (tpe.erasure == classOf[Set[_]]) mkCollection(a => Set(a: _*))
       else if (tpe.erasure == classOf[scala.collection.mutable.Set[_]]) mkCollection(a => scala.collection.mutable.Set(a: _*))
+      else if (tpe.erasure == classOf[scala.collection.mutable.Seq[_]]) mkCollection(a => scala.collection.mutable.Seq(a: _*))
       else if (tpe.erasure == classOf[java.util.ArrayList[_]]) mkCollection(a => new java.util.ArrayList[Any](a.toList.asJavaCollection))
       else if (tpe.erasure.isArray) mkCollection(mkTypedArray)
       else if (classOf[Seq[_]].isAssignableFrom(tpe.erasure)) mkCollection(a => Seq(a: _*))
-      else if (classOf[scala.collection.mutable.Seq[_]].isAssignableFrom(tpe.erasure)) mkCollection(a => scala.collection.mutable.Seq(a: _*))
       else fail("Expected collection but got " + tpe)
     }
   }
