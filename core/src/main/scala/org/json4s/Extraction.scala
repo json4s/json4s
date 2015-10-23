@@ -614,7 +614,7 @@ object Extraction {
       case JInt(x) if (targetType == classOf[JavaShort]) => new JavaShort(x.shortValue)
       case JInt(x) if (targetType == classOf[Byte]) => x.byteValue
       case JInt(x) if (targetType == classOf[JavaByte]) => new JavaByte(x.byteValue)
-      case JInt(x) if (targetType == classOf[String]) => x.toString
+      case JInt(x) if (!formats.strictStringConversion && targetType == classOf[String]) => x.toString
       case JInt(x) if (targetType == classOf[Number]) => x.longValue
       case JInt(x) if (targetType == classOf[BigDecimal]) => BigDecimal(x)
       case JInt(x) if (targetType == classOf[JavaBigDecimal]) => BigDecimal(x).bigDecimal
@@ -631,7 +631,7 @@ object Extraction {
       case JLong(x) if (targetType == classOf[JavaShort]) => new JavaShort(x.shortValue)
       case JLong(x) if (targetType == classOf[Byte]) => x.byteValue
       case JLong(x) if (targetType == classOf[JavaByte]) => new JavaByte(x.byteValue)
-      case JLong(x) if (targetType == classOf[String]) => x.toString
+      case JLong(x) if (!formats.strictStringConversion && targetType == classOf[String]) => x.toString
       case JLong(x) if (targetType == classOf[Number]) => x.longValue
       case JLong(x) if (targetType == classOf[BigDecimal]) => BigDecimal(x)
       case JLong(x) if (targetType == classOf[JavaBigDecimal]) => BigDecimal(x).bigDecimal
@@ -639,7 +639,7 @@ object Extraction {
       case JDouble(x) if (targetType == classOf[JavaDouble]) => new JavaDouble(x)
       case JDouble(x) if (targetType == classOf[Float]) => x.floatValue
       case JDouble(x) if (targetType == classOf[JavaFloat]) => new JavaFloat(x.floatValue)
-      case JDouble(x) if (targetType == classOf[String]) => x.toString
+      case JDouble(x) if (!formats.strictStringConversion && targetType == classOf[String]) => x.toString
       case JDouble(x) if (targetType == classOf[Int]) => x.intValue
       case JDouble(x) if (targetType == classOf[Long]) => x.longValue
       case JDouble(x) if (targetType == classOf[Number]) => x
@@ -651,7 +651,7 @@ object Extraction {
       case JDecimal(x) if (targetType == classOf[JavaBigDecimal]) => x.bigDecimal
       case JDecimal(x) if (targetType == classOf[Float]) => x.floatValue
       case JDecimal(x) if (targetType == classOf[JavaFloat]) => new JavaFloat(x.floatValue)
-      case JDecimal(x) if (targetType == classOf[String]) => x.toString
+      case JDecimal(x) if (!formats.strictStringConversion && targetType == classOf[String]) => x.toString
       case JDecimal(x) if (targetType == classOf[Int]) => x.intValue
       case JDecimal(x) if (targetType == classOf[Long]) => x.longValue
       case JDecimal(x) if (targetType == classOf[Number]) => x
