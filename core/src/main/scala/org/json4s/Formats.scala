@@ -49,6 +49,7 @@ trait Formats extends Serializable { self: Formats =>
   def companions: List[(Class[_], AnyRef)] = Nil
   def allowNull: Boolean = true
   def strictOptionParsing: Boolean = false
+  def strictArrayCreation: Boolean = false
 
   /**
    * The name of the field in JSON where type hints are added (jsonClass by default)
@@ -74,7 +75,8 @@ trait Formats extends Serializable { self: Formats =>
                     wWantsBigDecimal: Boolean = self.wantsBigDecimal,
                     withPrimitives: Set[Type] = self.primitives,
                     wCompanions: List[(Class[_], AnyRef)] = self.companions,
-                    wStrict: Boolean = self.strictOptionParsing,
+                    wStrictOptionParsing: Boolean = self.strictOptionParsing,
+                    wStrictArrayCreation: Boolean = self.strictArrayCreation,
                     wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy): Formats =
     new Formats {
       def dateFormat: DateFormat = wDateFormat
@@ -88,7 +90,8 @@ trait Formats extends Serializable { self: Formats =>
       override def wantsBigDecimal: Boolean = wWantsBigDecimal
       override def primitives: Set[Type] = withPrimitives
       override def companions: List[(Class[_], AnyRef)] = wCompanions
-      override def strictOptionParsing: Boolean = wStrict
+      override def strictOptionParsing: Boolean = wStrictOptionParsing
+      override def strictArrayCreation: Boolean = wStrictArrayCreation
       override def emptyValueStrategy: EmptyValueStrategy = wEmptyValueStrategy
     }
 
@@ -338,6 +341,7 @@ trait Formats extends Serializable { self: Formats =>
     override val primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
     override val companions: List[(Class[_], AnyRef)] = Nil
     override val strictOptionParsing: Boolean = false
+    override val strictArrayCreation: Boolean = false
     override val emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
     override val allowNull: Boolean = true
 
