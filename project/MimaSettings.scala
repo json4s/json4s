@@ -5,12 +5,14 @@ import com.typesafe.tools.mima.plugin.MimaKeys._
 object MimaSettings {
 
   val mimaSettings = MimaPlugin.mimaDefaultSettings ++ Seq(
-    previousArtifact := {
+    previousArtifacts := {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, scalaMajor)) if scalaMajor <= 11 =>
-          Some(organization.value % s"${name.value}_${scalaBinaryVersion.value}" % "3.3.0")
+          Set("3.3.0").map{ v =>
+            organization.value % s"${name.value}_${scalaBinaryVersion.value}" % v
+          }
         case _ =>
-          None
+          Set.empty
       }
     }
   )
