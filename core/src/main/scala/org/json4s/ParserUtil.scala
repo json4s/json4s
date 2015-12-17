@@ -19,9 +19,9 @@ object ParserUtil {
     def append(s: String): StringBuilder = subj.append(s)
   }
 
-  def quote(s: String): String = quote(s, new StringBuilderAppender(new StringBuilder)).toString
-  private[json4s] def quote(s: String, writer: java.io.Writer): java.io.Writer = quote(s, new StringWriterAppender(writer))
-  private[this] def quote[T](s: String, appender: StringAppender[T]): T = { // hot path
+  def quote(s: String)(implicit formats: Formats = DefaultFormats): String = quote(s, new StringBuilderAppender(new StringBuilder)).toString
+  private[json4s] def quote(s: String, writer: java.io.Writer)(implicit formats: Formats): java.io.Writer = quote(s, new StringWriterAppender(writer))
+  private[this] def quote[T](s: String, appender: StringAppender[T])(implicit formats: Formats): T = { // hot path
     var i = 0
     val l = s.length
     while(i < l) {
@@ -34,7 +34,12 @@ object ParserUtil {
         case '\r' => appender.append("\\r")
         case '\t' => appender.append("\\t")
         case c =>
-          if (!AsciiEncoder.canEncode(c))
+          val shouldEscape = if (formats.alwaysEscapeUnicode) {
+            !AsciiEncoder.canEncode(c)
+          } else {
+            (c >= '\u0000' && c <= '\u001f') || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100')
+          }
+          if (shouldEscape)
             appender.append("\\u%04x".format(c: Int))
           else appender.append(c.toString)
       }
