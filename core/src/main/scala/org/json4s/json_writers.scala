@@ -7,8 +7,8 @@ import StreamingJsonWriter._
 object JsonWriter {
   def ast: JsonWriter[JValue] = new JDoubleAstRootJsonWriter
   def bigDecimalAst: JsonWriter[JValue] = new JDecimalAstRootJsonWriter
-  def streaming[T <: java.io.Writer](writer: T): JsonWriter[T] = new RootStreamingJsonWriter[T](writer, pretty = false)
-  def streamingPretty[T <: java.io.Writer](writer: T): JsonWriter[T] = new RootStreamingJsonWriter[T](writer, pretty = true)
+  def streaming[T <: java.io.Writer](writer: T)(implicit formats: Formats = DefaultFormats): JsonWriter[T] = new RootStreamingJsonWriter[T](writer, pretty = false, formats = formats)
+  def streamingPretty[T <: java.io.Writer](writer: T)(implicit formats: Formats = DefaultFormats): JsonWriter[T] = new RootStreamingJsonWriter[T](writer, pretty = true, formats = formats)
 }
 trait JsonWriter[T] {
   def startArray(): JsonWriter[T]
@@ -292,18 +292,18 @@ private sealed abstract class JDecimalAstJsonWriter extends JValueJsonWriter {
 
 }
 
-private final class FieldStreamingJsonWriter[T <: JWriter](name: String, isFirst: Boolean, protected[this] val nodes: T, protected[this] val level: Int, parent: ObjectStreamingJsonWriter[T], protected[this] val pretty: Boolean, protected[this] val spaces: Int) extends StreamingJsonWriter[T] {
+private final class FieldStreamingJsonWriter[T <: JWriter](name: String, isFirst: Boolean, protected[this] val nodes: T, protected[this] val level: Int, parent: ObjectStreamingJsonWriter[T], protected[this] val pretty: Boolean, protected[this] val spaces: Int, protected[this] val formats: Formats) extends StreamingJsonWriter[T] {
   def result: T = nodes
 
 
   override def startArray(): JsonWriter[T] = {
     writeName(hasPretty = true)
-    new ArrayStreamingJsonWriter(nodes, level + 1, parent, pretty, spaces)
+    new ArrayStreamingJsonWriter(nodes, level + 1, parent, pretty, spaces, formats)
   }
 
   override def startObject(): JsonWriter[T] = {
     writeName(hasPretty = true)
-    new ObjectStreamingJsonWriter(nodes, level + 1, parent, pretty, spaces)
+    new ObjectStreamingJsonWriter(nodes, level + 1, parent, pretty, spaces, formats)
   }
 
   private[this] def writeName(hasPretty: Boolean) {
@@ -312,7 +312,7 @@ private final class FieldStreamingJsonWriter[T <: JWriter](name: String, isFirst
       writePretty()
     }
     nodes.append("\"")
-    ParserUtil.quote(name, nodes)
+    ParserUtil.quote(name, nodes)(formats)
     nodes.append("\":")
   }
 
@@ -325,12 +325,12 @@ private final class FieldStreamingJsonWriter[T <: JWriter](name: String, isFirst
   def addAndQuoteNode(node: String): JsonWriter[T] = {
     writeName(hasPretty = false)
     nodes.append("\"")
-    ParserUtil.quote(node, nodes)
+    ParserUtil.quote(node, nodes)(formats)
     nodes.append("\"")
     parent
   }
 }
-private final class ObjectStreamingJsonWriter[T <: JWriter](protected[this] val nodes: T, protected[this] val level: Int, parent: StreamingJsonWriter[T], protected[this] val pretty: Boolean, protected[this] val spaces: Int) extends StreamingJsonWriter[T] {
+private final class ObjectStreamingJsonWriter[T <: JWriter](protected[this] val nodes: T, protected[this] val level: Int, parent: StreamingJsonWriter[T], protected[this] val pretty: Boolean, protected[this] val spaces: Int, protected[this] val formats: Formats) extends StreamingJsonWriter[T] {
   nodes write '{'
   writePretty()
   private[this] var isFirst = true
@@ -354,7 +354,7 @@ private final class ObjectStreamingJsonWriter[T <: JWriter](protected[this] val 
     if (isFirst) isFirst = false
     else nodes.append(",")
     nodes.append("\"")
-    ParserUtil.quote(node, nodes)
+    ParserUtil.quote(node, nodes)(formats)
     nodes.append("\"")
     this
   }
@@ -401,12 +401,12 @@ private final class ObjectStreamingJsonWriter[T <: JWriter](protected[this] val 
     sys.error("You have to start a field to be able to end it (bigDecimal called before startField in a JObject builder)")
 
   override def startField(name: String): JsonWriter[T] = {
-    val r = new FieldStreamingJsonWriter(name, isFirst, nodes, level, this, pretty, spaces)
+    val r = new FieldStreamingJsonWriter(name, isFirst, nodes, level, this, pretty, spaces, formats)
     if (isFirst) isFirst = false
     r
   }
 }
-private final class ArrayStreamingJsonWriter[T <: JWriter](protected[this] val nodes: T, protected[this] val level: Int, parent: StreamingJsonWriter[T], protected[this] val pretty: Boolean, protected[this] val spaces: Int) extends StreamingJsonWriter[T] {
+private final class ArrayStreamingJsonWriter[T <: JWriter](protected[this] val nodes: T, protected[this] val level: Int, parent: StreamingJsonWriter[T], protected[this] val pretty: Boolean, protected[this] val spaces: Int, protected[this] val formats: Formats) extends StreamingJsonWriter[T] {
   nodes.write('[')
   writePretty()
   private[this] var isFirst = true
@@ -445,12 +445,12 @@ private final class ArrayStreamingJsonWriter[T <: JWriter](protected[this] val n
   def addAndQuoteNode(node: String): JsonWriter[T] = {
     writeComma()
     nodes.append("\"")
-    ParserUtil.quote(node, nodes)
+    ParserUtil.quote(node, nodes)(formats)
     nodes.append("\"")
     this
   }
 }
-private final class RootStreamingJsonWriter[T <: JWriter](protected[this] val nodes: T = new StringWriter(), protected[this] val pretty: Boolean = false, protected[this] val spaces: Int = 2) extends StreamingJsonWriter[T] {
+private final class RootStreamingJsonWriter[T <: JWriter](protected[this] val nodes: T = new StringWriter(), protected[this] val pretty: Boolean = false, protected[this] val spaces: Int = 2, protected[this] val formats: Formats = DefaultFormats) extends StreamingJsonWriter[T] {
 
   protected[this] val level: Int = 0
 
@@ -462,7 +462,7 @@ private final class RootStreamingJsonWriter[T <: JWriter](protected[this] val no
 
   def addAndQuoteNode(node: String): JsonWriter[T] = {
     nodes.append("\"")
-    ParserUtil.quote(node, nodes)
+    ParserUtil.quote(node, nodes)(formats)
     nodes.append("\"")
     this
   }
@@ -476,13 +476,14 @@ private sealed abstract class StreamingJsonWriter[T <: JWriter] extends JsonWrit
   protected[this] def spaces: Int
   protected[this] def pretty: Boolean
   protected[this] def nodes: T
+  protected[this] val formats: Formats
 
   def startArray(): JsonWriter[T] = {
-    new ArrayStreamingJsonWriter(nodes, level + 1, this, pretty, spaces)
+    new ArrayStreamingJsonWriter(nodes, level + 1, this, pretty, spaces, formats)
   }
 
   def startObject(): JsonWriter[T] = {
-    new ObjectStreamingJsonWriter(nodes, level + 1, this, pretty, spaces)
+    new ObjectStreamingJsonWriter(nodes, level + 1, this, pretty, spaces, formats)
   }
 
   def addNode(node: String): JsonWriter[T]
