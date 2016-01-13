@@ -540,8 +540,8 @@ object Extraction {
       } catch {
         case e @ (_:IllegalArgumentException | _:InstantiationException) =>
           val argsTypeComparisonResult = {
-            val constructorParamTypes = jconstructor.getParameterTypes().map(Some(_))
-            val argTypes = args.map(arg => Some(if (arg != null) arg.getClass else null))
+            val constructorParamTypes = jconstructor.getParameterTypes().map(paramType => Some(paramType.asInstanceOf[Class[Any]]))
+            val argTypes = args.map(arg => Some(if (arg != null) arg.getClass.asInstanceOf[Class[Any]] else null))
             constructorParamTypes.zipAll(argTypes, None, None).map {
               case (None, Some(argType)) =>
                 s"REDUNDANT(${argType.getName})"
