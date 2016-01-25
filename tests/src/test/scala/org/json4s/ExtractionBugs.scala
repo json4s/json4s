@@ -1,6 +1,7 @@
 package org.json4s
 
 import org.json4s.ExtractionBugs.SomeOtherContent.SomeOtherContentClass
+
 import org.specs2.mutable.Specification
 import reflect.{ClassDescriptor, Reflector}
 import text.Document
@@ -15,6 +16,10 @@ trait SharedModule {
 
 object PingPongGame extends SharedModule
 
+object WithPrimitiveAlias {
+  type MyDouble = Double
+}
+case class WithPrimitiveAlias(foo: Seq[WithPrimitiveAlias.MyDouble])
 
 object ExtractionBugs {
   case class Response(data: List[Map[String, Int]])
@@ -89,6 +94,16 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
 
   import ExtractionBugs._
   implicit val formats: Formats = DefaultFormats.withCompanions(classOf[PingPongGame.SharedObj] -> PingPongGame)
+
+  "Primitive type should not hang" in {
+    val a = WithPrimitiveAlias(Vector(1.0, 2.0, 3.0, 4.0))
+    try {
+      Extraction.decompose(a)
+    } catch {
+      case x: MappingException =>  {}
+    }
+    1 must_== 1
+  }
 
   (mod+" Extraction bugs Specification") should {
     "ClassCastException (BigInt) regression 2 must pass" in {
