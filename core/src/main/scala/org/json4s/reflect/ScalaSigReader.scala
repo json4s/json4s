@@ -142,9 +142,8 @@ object ScalaSigReader {
       case NullaryMethodType(TypeRefType(_, _, args)) => args(typeArgIdx)
     }
 
-    @tailrec def findPrimitive(t: Type): Symbol = t match {
+    def findPrimitive(t: Type): Symbol = t match {
       case TypeRefType(ThisType(_), symbol, _) => symbol
-      case ref @ TypeRefType(_, _, _) => findPrimitive(ref)
       case x => fail("Unexpected type info " + x)
     }
     toClass(findPrimitive(t))
