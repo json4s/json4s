@@ -20,7 +20,6 @@ package scalaz
 import _root_.scalaz._
 import std.list._
 import std.option._
-import syntax.validation._
 import syntax.traverse._
 import scala.collection.breakOut
 
@@ -28,7 +27,7 @@ trait Base { this: Types =>
   implicit def boolJSON: JSON[Boolean] = new JSON[Boolean] {
     def read(json: JValue) = json match {
       case JBool(b) => Validation.success(b)
-      case x => UnexpectedJSONError(x, classOf[JBool]).failureNel
+      case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JBool]))
     }
 
     def write(value: Boolean) = JBool(value)
@@ -37,7 +36,7 @@ trait Base { this: Types =>
   implicit def intJSON: JSON[Int] = new JSON[Int] {
     def read(json: JValue) = json match {
       case JInt(x) => Validation.success(x.intValue)
-      case x => UnexpectedJSONError(x, classOf[JInt]).failureNel
+      case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JInt]))
     }
 
     def write(value: Int) = JInt(BigInt(value))
@@ -46,7 +45,7 @@ trait Base { this: Types =>
   implicit def longJSON: JSON[Long] = new JSON[Long] {
     def read(json: JValue) = json match {
       case JInt(x) => Validation.success(x.longValue)
-      case x => UnexpectedJSONError(x, classOf[JInt]).failureNel
+      case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JInt]))
     }
 
     def write(value: Long) = JInt(BigInt(value))
@@ -55,7 +54,7 @@ trait Base { this: Types =>
   implicit def doubleJSON: JSON[Double] = new JSON[Double] {
     def read(json: JValue) = json match {
       case JDouble(x) => Validation.success(x)
-      case x => UnexpectedJSONError(x, classOf[JDouble]).failureNel
+      case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JDouble]))
     }
 
     def write(value: Double) = JDouble(value)
@@ -64,7 +63,7 @@ trait Base { this: Types =>
   implicit def stringJSON: JSON[String] = new JSON[String] {
     def read(json: JValue) = json match {
       case JString(x) => Validation.success(x)
-      case x => UnexpectedJSONError(x, classOf[JString]).failureNel
+      case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JString]))
     }
 
     def write(value: String) = JString(value)
@@ -73,7 +72,7 @@ trait Base { this: Types =>
   implicit def bigintJSON: JSON[BigInt] = new JSON[BigInt] {
     def read(json: JValue) = json match {
       case JInt(x) => Validation.success(x)
-      case x => UnexpectedJSONError(x, classOf[JInt]).failureNel
+      case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JInt]))
     }
 
     def write(value: BigInt) = JInt(value)
@@ -88,7 +87,7 @@ trait Base { this: Types =>
     def read(json: JValue) = json match {
       case JArray(xs) => 
         xs.map(fromJSON[A]).sequence[({type λ[t] = ValidationNel[Error, t]})#λ, A]
-      case x => UnexpectedJSONError(x, classOf[JArray]).failureNel
+      case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JArray]))
     }
   }
   implicit def listJSONW[A: JSONW]: JSONW[List[A]] = new JSONW[List[A]] {
@@ -115,7 +114,7 @@ trait Base { this: Types =>
 //        r.map(_.toMap)
 //        val r = fs.map(f => fromJSON[A](f._2).map(v => (f._1, v))).sequence[PartialApply1Of2[ValidationNEL, Error]#Apply, (String, A)]
 //        r.map(_.toMap)
-      case x => UnexpectedJSONError(x, classOf[JObject]).failureNel
+      case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JObject]))
     }
   }
   implicit def mapJSONW[A: JSONW]: JSONW[Map[String, A]] = new JSONW[Map[String, A]] {
