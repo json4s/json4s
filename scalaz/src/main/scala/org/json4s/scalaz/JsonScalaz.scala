@@ -19,7 +19,6 @@ package scalaz
 
 import _root_.scalaz._
 import std.option._
-import syntax.validation._
 
 
 trait Types {
@@ -32,10 +31,10 @@ trait Types {
 
   case object Fail {
     def apply[A](key: String, desc: String, args: List[Any]): Result[A] = 
-      UncategorizedError(key, desc, args).failureNel
+      Validation.failureNel(UncategorizedError(key, desc, args))
 
     def apply[A](key: String, desc: String): Result[A] = 
-      UncategorizedError(key, desc, Nil).failureNel
+      Validation.failureNel(UncategorizedError(key, desc, Nil))
   }
 
   implicit def JValueMonoid: Monoid[JValue] = Monoid.instance(_ ++ _, JNothing)
@@ -63,8 +62,9 @@ trait Types {
       fs.find(_._1 == name)
         .map(f => implicitly[JSONR[A]].read(f._2))
         .orElse(implicitly[JSONR[A]].read(JNothing).fold(_ => none, x => some(Success(x))))
-        .getOrElse(NoSuchFieldError(name, json).failureNel)
-    case x => UnexpectedJSONError(x, classOf[JObject]).failureNel
+        .getOrElse(Validation.failureNel(NoSuchFieldError(name, json)))
+    case x =>
+      Validation.failureNel(UnexpectedJSONError(x, classOf[JObject]))
   }
 
   type EitherNel[+a] = NonEmptyList[Error] \/ a

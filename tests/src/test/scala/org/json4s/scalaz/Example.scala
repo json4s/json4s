@@ -27,7 +27,7 @@ object Example extends Specification {
   "Failed address parsing" in {
     val json = parse(""" {"street": "Manhattan 2", "zip": "00223" } """)
     val a = (field[String]("streets")(json) |@| field[String]("zip")(json)) { Address }
-    a.swap.toOption.get.list mustEqual List(NoSuchFieldError("streets", json))
+    a.swap.toOption.get.list mustEqual IList(NoSuchFieldError("streets", json))
   }
 
   "Parse Person with Address" in {
