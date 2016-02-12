@@ -4,7 +4,7 @@ import xml.Group
 import sbtbuildinfo.Plugin._
 import com.typesafe.sbt.SbtStartScript
 import MimaSettings.mimaSettings
-import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifact
+import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifacts
 import com.typesafe.sbt.JavaVersionCheckPlugin.autoImport._
 
 object build extends Build {
@@ -64,7 +64,7 @@ object build extends Build {
   ) ++ mimaSettings
 
   val noPublish = Seq(
-    previousArtifact := None,
+    previousArtifacts := Set(),
     publishArtifact := false,
     publish := {},
     publishLocal := {}
@@ -147,7 +147,7 @@ object build extends Build {
      base = file("mongo"),
      settings = json4sSettings ++ Seq(
        libraryDependencies ++= Seq(
-         "org.mongodb" % "mongo-java-driver" % "3.0.4"
+         "org.mongodb" % "mongo-java-driver" % "3.2.1"
       )
   )) dependsOn(core % "compile;test->test")
 
@@ -172,7 +172,7 @@ object build extends Build {
       libraryDependencies ++= Seq(
         "com.google.code.java-allocation-instrumenter" % "java-allocation-instrumenter" % "3.0",
         "com.google.caliper" % "caliper" % "0.5-rc1",
-        "com.google.code.gson" % "gson" % "2.3.1"
+        "com.google.code.gson" % "gson" % "2.6"
       ),
       libraryDependencies += jacksonScala,
       runner in Compile in run <<= (thisProject, taskTemporaryDirectory, scalaInstance, baseDirectory, javaOptions, outputStrategy, javaHome, connectInput) map {

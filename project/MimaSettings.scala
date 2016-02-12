@@ -4,17 +4,21 @@ import com.typesafe.tools.mima.plugin.MimaKeys._
 
 object MimaSettings {
 
+  // TODO: Enable this after 3.4.0 release
+  // val previousVersions = Set(0).map(patch => s"3.4.$patch")
+  val previousVersions: Set[String] = Set.empty
+
   val mimaSettings = MimaPlugin.mimaDefaultSettings ++ Seq(
-    previousArtifact := {
+    previousArtifacts := {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, scalaMajor)) if scalaMajor <= 11 =>
-          // NOTE: when we start 3.4.0 release, enable this mima setting
-          // previousArtifact must always be the previous version (e.g.) verify 3.4.2 for 3.4.3 build
-          // Some(organization.value % s"${name.value}_${scalaBinaryVersion.value}" % "3.4.0")
-          None
-        case _ =>
-          None
+          previousVersions.map { organization.value % s"${name.value}_${scalaBinaryVersion.value}" % _ }
+        case _ => Set.empty
       }
+    },
+    test in Test := {
+      reportBinaryIssues.value
+      (test in Test).value
     }
   )
 
