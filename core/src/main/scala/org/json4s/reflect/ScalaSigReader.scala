@@ -172,31 +172,9 @@ object ScalaSigReader {
   private[this] def parseClassFileFromByteCode(clazz: Class[_]): Option[ScalaSig] =
     Option(ClassFileParser.parse(ByteCode.forClass(clazz))) flatMap ScalaSigParser.parse
 
-//  def typeRefType(ms: MethodSymbol): TypeRefType = ms.infoType match {
-//    case PolyType(tr @ TypeRefType(_, _, _), _)                           => tr
-//    case NullaryMethodType(tr @ TypeRefType(_, _, _))                     => tr
-//    case NullaryMethodType(ExistentialType(tr @ TypeRefType(_, _, _), _)) => tr
-//  }
-
   val ModuleFieldName = "MODULE$"
   val OuterFieldName = "$outer"
   val ClassLoaders = Vector(this.getClass.getClassLoader)
-
-//  def companionClass(clazz: Class[_], classLoaders: Iterable[ClassLoader] = ClassLoaders) = {
-//    val path = if (clazz.getName.endsWith("$")) clazz.getName else "%s$".format(clazz.getName)
-//    resolveClass(path, classLoaders)
-//  }
-//
-//  def companionObject(clazz: Class[_], classLoaders: Iterable[ClassLoader] = ClassLoaders, companion: Option[AnyRef] = None) =
-//    companionClass(clazz, classLoaders) map (_.getField(ModuleFieldName).get(companion.orNull))
-//
-//  def companions(t: java.lang.reflect.Type, companion: Option[AnyRef] = None) = {
-//    val k = Reflector.rawClassOf(t)
-//    val cc = companionClass(k, ClassLoaders)
-//    def safeField(ccc: Class[_]) =
-//      try { Option(ccc.getField(ModuleFieldName)).map(_.get(companion.orNull)) } catch { case _: Throwable => None }
-//    cc map (ccc => (ccc, safeField(ccc)))
-//  }
 
   def companions(t: String, companion: Option[AnyRef] = None, classLoaders: Iterable[ClassLoader] = ClassLoaders) = {
     def path(tt: String) = if (tt.endsWith("$")) tt else (tt + "$")
