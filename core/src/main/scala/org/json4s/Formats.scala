@@ -49,6 +49,7 @@ trait Formats extends Serializable { self: Formats =>
   def companions: List[(Class[_], AnyRef)] = Nil
   def allowNull: Boolean = true
   def strictOptionParsing: Boolean = false
+  def alwaysEscapeUnicode: Boolean = false
 
   /**
    * The name of the field in JSON where type hints are added (jsonClass by default)
@@ -75,6 +76,7 @@ trait Formats extends Serializable { self: Formats =>
                     withPrimitives: Set[Type] = self.primitives,
                     wCompanions: List[(Class[_], AnyRef)] = self.companions,
                     wStrict: Boolean = self.strictOptionParsing,
+                    wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
                     wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy): Formats =
     new Formats {
       def dateFormat: DateFormat = wDateFormat
@@ -89,6 +91,7 @@ trait Formats extends Serializable { self: Formats =>
       override def primitives: Set[Type] = withPrimitives
       override def companions: List[(Class[_], AnyRef)] = wCompanions
       override def strictOptionParsing: Boolean = wStrict
+      override def alwaysEscapeUnicode: Boolean = wAlwaysEscapeUnicode
       override def emptyValueStrategy: EmptyValueStrategy = wEmptyValueStrategy
     }
 
@@ -109,6 +112,8 @@ trait Formats extends Serializable { self: Formats =>
   def withEmptyValueStrategy(strategy: EmptyValueStrategy): Formats = copy(wEmptyValueStrategy = strategy)
 
   def withTypeHintFieldName(name: String): Formats = copy(wTypeHintFieldName = name)
+
+  def withEscapeUnicode: Formats = copy(wAlwaysEscapeUnicode = true)
 
   /**
    * Adds the specified type hints to this formats.

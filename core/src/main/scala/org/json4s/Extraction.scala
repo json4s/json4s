@@ -272,7 +272,7 @@ object Extraction {
 
   /** Flattens the JSON to a key/value map.
    */
-  def flatten(json: JValue): Map[String, String] = {
+  def flatten(json: JValue)(implicit formats: Formats = DefaultFormats): Map[String, String] = {
     def escapePath(str: String) = str
 
     def flatten0(path: String, json: JValue): Map[String, String] = {
