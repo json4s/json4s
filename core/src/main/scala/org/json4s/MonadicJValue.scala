@@ -318,8 +318,12 @@ class MonadicJValue(jv: JValue) {
   }
 
   private[this] def camelize(word: String): String = {
-    val w = pascalize(word)
-    w.substring(0, 1).toLowerCase(ENGLISH) + w.substring(1)
+    if (word.nonEmpty) {
+      val w = pascalize(word)
+      w.substring(0, 1).toLowerCase(ENGLISH) + w.substring(1)
+    } else {
+      word
+    }
   }
   private[this] def pascalize(word: String): String = {
     val lst = word.split("_").toList
@@ -341,13 +345,13 @@ class MonadicJValue(jv: JValue) {
    * Camelize all the keys in this [[org.json4s.JsonAST.JValue]]
    */
   def camelizeKeys = rewriteJsonAST(camelize = true)
-  
+
   /**
    * Underscore all the keys in this [[org.json4s.JsonAST.JValue]]
    */
   def snakizeKeys = rewriteJsonAST(camelize = false)
 
-      
+
   /**
    * Underscore all the keys in this [[org.json4s.JsonAST.JValue]]
    */
