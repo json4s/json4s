@@ -5,7 +5,6 @@ import java.util.Date
 import org.json4s._
 import java.io._
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import java.util.concurrent.atomic.AtomicLong
 
 object SerBench extends Benchmark {
@@ -53,9 +52,6 @@ object SerBench extends Benchmark {
 
 
   val mapper = new ObjectMapper()
-  mapper.registerModule(DefaultScalaModule)
-
-  jackson.JsonMethods.mapper.registerModule(DefaultScalaModule)
 
   def main(args: Array[String]) {
     println("## Serialization  ")

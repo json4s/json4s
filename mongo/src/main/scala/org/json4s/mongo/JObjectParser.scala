@@ -48,19 +48,19 @@ object JObjectParser  {
   /*
   * Serialize a DBObject into a JObject
   */
-  def serialize(a: Any)(implicit formats: Formats): JValue = serialize(a, formats)
+  def serialize(a: Any)(implicit formats: Formats): JValue = serialize0(a, formats)
 
-  private def serialize(a: Any, formats: Formats): JValue = {
+  private[this] def serialize0(a: Any, formats: Formats): JValue = {
     import Meta.Reflection._
     a.asInstanceOf[AnyRef] match {
       case null => JNull
       case x if isPrimitive(x.getClass) => primitive2jvalue(x)
       case x if isDateType(x.getClass) => datetype2jvalue(x)(formats)
       case x if isMongoType(x.getClass) => mongotype2jvalue(x)(formats)
-      case x: BasicDBList => JArray(x.asScala.toList.map( x => serialize(x, formats)))
+      case x: BasicDBList => JArray(x.asScala.toList.map( x => serialize0(x, formats)))
       case x: BasicDBObject => JObject(
         x.keySet.asScala.toList.map { f =>
-          JField(f.toString, serialize(x.get(f.toString), formats))
+          JField(f.toString, serialize0(x.get(f.toString), formats))
         }
       )
       case x => {
