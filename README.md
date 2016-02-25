@@ -497,7 +497,7 @@ or
 scala> import org.json4s.jackson.JsonMethods._
 scala> import org.json4s.JsonDSL._
 
-scala> val json =
+scala> val json: JObject =
   ("person" ->
     ("name" -> "Joe") ~
     ("age" -> 35) ~
