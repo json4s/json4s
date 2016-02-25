@@ -323,6 +323,14 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       val actual = Extraction.extract[Issue146CamelCaseClass](jackson.parseJson(json).camelizeKeys)
       actual must_== expected
     }
+
+    "Camelize should not fail on json with empty keys." in {
+      implicit val f = DefaultFormats
+      val json = """{"full_name": "Kazuhiro Sera", "github_account_name": "seratch", "" : ""}"""
+      val expected = Issue146CamelCaseClass("Kazuhiro Sera", Some("seratch"))
+      val actual = Extraction.extract[Issue146CamelCaseClass](jackson.parseJson(json).camelizeKeys)
+      actual must_== expected
+    }
   }
 }
 private case class Issue146CamelCaseClass(fullName: String, githubAccountName: Option[String])
