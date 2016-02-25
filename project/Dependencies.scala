@@ -11,7 +11,6 @@ object Dependencies {
     // TODO: 2.7
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.5"
   )
-  lazy val jacksonScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.6.3"
   lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.0"
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.8"
   lazy val commonsCodec = "commons-codec"                %  "commons-codec"        % "1.9"

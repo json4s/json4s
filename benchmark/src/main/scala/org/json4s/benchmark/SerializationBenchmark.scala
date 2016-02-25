@@ -3,7 +3,6 @@ package benchmark
 
 import java.util.Date
 import com.fasterxml.jackson.databind.{JsonNode, DeserializationFeature, ObjectMapper}
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import java.util.concurrent.atomic.AtomicInteger
 
 class Json4sBenchmark extends SimpleScalaBenchmark {
@@ -40,7 +39,6 @@ class Json4sBenchmark extends SimpleScalaBenchmark {
 
   private[this] val mapper = new ObjectMapper()
   mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, false)
-  mapper.registerModule(DefaultScalaModule)
 
 
 
