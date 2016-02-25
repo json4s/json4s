@@ -53,7 +53,7 @@ object build extends Build {
   val json4sSettings = mavenCentralFrouFrou ++ Seq(
     organization := "org.json4s",
     scalaVersion := "2.11.7",
-    crossScalaVersions := Seq("2.10.6", "2.11.7"),
+    crossScalaVersions := Seq("2.10.6", "2.11.7", "2.12.0-M3"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-Yinline-warnings", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
     version := "3.4.0-SNAPSHOT",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
@@ -125,10 +125,7 @@ object build extends Build {
   lazy val examples = Project(
      id = "json4s-examples",
      base = file("examples"),
-     settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
-       libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.11.3",
-       libraryDependencies += jacksonScala
-     ) ++ noPublish
+     settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ noPublish
   ) dependsOn(
     core % "compile;test->test",
     native % "compile;test->test",
@@ -174,7 +171,6 @@ object build extends Build {
         "com.google.caliper" % "caliper" % "0.5-rc1",
         "com.google.code.gson" % "gson" % "2.6"
       ),
-      libraryDependencies += jacksonScala,
       runner in Compile in run <<= (thisProject, taskTemporaryDirectory, scalaInstance, baseDirectory, javaOptions, outputStrategy, javaHome, connectInput) map {
         (tp, tmp, si, base, options, strategy, javaHomeDir, connectIn) =>
           new MyRunner(tp.id, ForkOptions(javaHome = javaHomeDir, connectInput = connectIn, outputStrategy = strategy,
