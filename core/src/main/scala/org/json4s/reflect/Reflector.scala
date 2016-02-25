@@ -41,7 +41,6 @@ object Reflector {
 
 
   def createDescriptor(tpe: ScalaType, paramNameReader: ParameterNameReader = ParanamerReader, companionMappings: List[(Class[_], AnyRef)] = Nil): ObjectDescriptor = {
-//    println("Creating descriptor for " + tpe.fullName + " and paramNameReader: " + paramNameReader + " and mappings: " + companionMappings)
     if (tpe.isPrimitive) PrimitiveDescriptor(tpe)
     else new ClassDescriptorBuilder(tpe, paramNameReader, companionMappings).result
   }
@@ -176,7 +175,6 @@ object Reflector {
 
     def result = {
       val constructors = constructorsAndCompanion
-//      println("companion: " + companion)
       ClassDescriptor(tpe.simpleName, tpe.fullName, tpe, companion, constructors, properties)
     }
   }

@@ -36,10 +36,7 @@ object Extraction {
    * @throws MappingException is thrown if extraction fails
    */
   def extract[A](json: JValue)(implicit formats: Formats, mf: Manifest[A]): A = {
-//    def allTypes(mf: Manifest[_]): List[Class[_]] = mf.erasure :: (mf.typeArguments flatMap allTypes)
     try {
-//      val types = allTypes(mf)
-//      println("the types: %s" format types)
       extract(json, Reflector.scalaTypeOf[A]).asInstanceOf[A]
     } catch {
       case e: MappingException => throw e
@@ -284,7 +281,6 @@ object Extraction {
         case JLong(num)          => Map(path -> num.toString)
         case JInt(num)           => Map(path -> num.toString)
         case JBool(value)        => Map(path -> value.toString)
-//        case JField(name, value) => flatten0(path + escapePath(name), value)
         case JObject(obj)        => obj.foldLeft(Map[String, String]()) { case (map, (name, value)) =>
           map ++ flatten0(path + "." + escapePath(name), value)
         }
@@ -441,10 +437,6 @@ object Extraction {
             case (Nil, _) => None
             case (t, f) => Some((t.head._2.values.toString, f))
           }
-//          val grouped = fs groupBy (_._1 == formats.typeHintFieldName)
-//          if (grouped.isDefinedAt(true))
-//            Some((grouped(true).head._2.values.toString, grouped.get(false).getOrElse(Nil)))
-//          else None
         }
     }
     private[this] var _constructor: ConstructorDescriptor = null
@@ -457,7 +449,6 @@ object Extraction {
               case JObject(fs) => fs.map(_._1)
               case _ => Nil
             }
-//            println("Finding argument names: %s in constructors: %s" format (argNames, descr.constructors.map(_.params.map(_.name))))
             val r = descr.bestMatching(argNames)
             r.getOrElse(fail("No constructor for type " + descr.erasure + ", " + json))
           }
