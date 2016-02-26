@@ -57,7 +57,12 @@ object build extends Build {
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-Yinline-warnings", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
     version := "3.4.0-SNAPSHOT",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
-    javaVersionPrefix in javaVersionCheck := Some("1.7"),
+    javaVersionPrefix in javaVersionCheck := Some{
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, scalaMajor)) if scalaMajor <= 11 => "1.7"
+        case _ => "1.8"
+      }
+    },
     manifestSetting,
     resolvers ++= Seq(Opts.resolver.sonatypeSnapshots, Opts.resolver.sonatypeReleases),
     crossVersion := CrossVersion.binary
