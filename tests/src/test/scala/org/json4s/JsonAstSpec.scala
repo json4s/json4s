@@ -34,6 +34,13 @@ object JsonAstSpec extends Specification with JValueGen with ScalaCheck {
       val compositionProp = (json: JValue, fa: JValue => JValue, fb: JValue => JValue) =>
         json.map(fb).map(fa) must_== json.map(fa compose fb)
 
+      // TODO define Cogen[JValue]
+      implicit val JValueToJValueArbitrary: Arbitrary[JValue => JValue] =
+        Arbitrary(Gen.oneOf(
+          implicitly[Arbitrary[JValue]].arbitrary.map(j => (_: JValue) => j),
+          Gen.const(identity[JValue] _)
+        ))
+
       prop(compositionProp)
     }
 
@@ -150,7 +157,7 @@ object JsonAstSpec extends Specification with JValueGen with ScalaCheck {
       prop(anyReplacement)
     }
 
-    "equals hashCode" in check{ x: JObject =>
+    "equals hashCode" in prop{ x: JObject =>
       val y = JObject(scala.util.Random.shuffle(x.obj))
 
       x must_== y
