@@ -539,10 +539,26 @@ object Extraction {
         }
       } catch {
         case e @ (_:IllegalArgumentException | _:InstantiationException) =>
+          val argsTypeComparisonResult = {
+            val constructorParamTypes = jconstructor.getParameterTypes().map(paramType => Some(paramType.asInstanceOf[Class[Any]]))
+            val argTypes = args.map(arg => Some(if (arg != null) arg.getClass.asInstanceOf[Class[Any]] else null))
+            constructorParamTypes.zipAll(argTypes, None, None).map {
+              case (None, Some(argType)) =>
+                s"REDUNDANT(${argType.getName})"
+              case (Some(constructorParamType), None) =>
+                s"MISSING(${constructorParamType.getName})"
+              case (Some(constructorParamType), Some(argType)) if argType == null || constructorParamType.isAssignableFrom(argType) =>
+                "MATCH"
+              case (Some(constructorParamType), Some(argType)) =>
+                s"${argType.getName}(${argType.getClassLoader}) !<: ${constructorParamType.getName}(${constructorParamType.getClassLoader})"
+            }
+          }
           fail("Parsed JSON values do not match with class constructor\nargs=" +
                args.mkString(",") + "\narg types=" + args.map(a => if (a != null)
                  a.asInstanceOf[AnyRef].getClass.getName else "null").mkString(",") +
-               "\nconstructor=" + jconstructor)
+               "\nexecutable=" + jconstructor +
+               "\ncause=" + e.getMessage +
+               "\ntypes comparison result=" + argsTypeComparisonResult.mkString(","))
       }
     }
 
