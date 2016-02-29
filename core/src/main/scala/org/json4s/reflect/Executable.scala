@@ -59,4 +59,8 @@ class Executable private (val method: Method, val constructor: Constructor[_]) {
     else constructor
   }
 
+  override def toString =
+    if (method != null)
+      s"Executable(Method($method))"
+    else s"Executable(Constructor($constructor))"
 }
