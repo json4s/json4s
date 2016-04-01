@@ -146,7 +146,7 @@ object Reflector {
               val decoded = unmangleName(paramName)
               val default = companion flatMap { comp => defaultValue(comp.erasure.erasure, comp.instance, index) }
               //println(s"$paramName $index $tpe $ctorParameterNames ${genParams(index)}")
-              val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.toList, genParams(index))
+              val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.filterNot(_==ScalaSigReader.OuterFieldName).toList, genParams(index))
               ConstructorParamDescriptor(decoded, paramName, index, theType, default)
             }
           }
