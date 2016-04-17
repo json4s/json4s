@@ -26,5 +26,11 @@ object TupleExample extends Specification {
     val json = native.JsonParser.parse(""" [1,"foo"] """)
     fromJSON[CC](json) must_== Success(CC(1, "foo"))
 
+
+    val json2 = native.JsonParser.parse(""" [1,2] """)
+    fromJSON[CC](json2) must beLike[Result[CC]] {
+      case Failure(xs) => xs.size must_== 1
+    }
+
   }
 }
