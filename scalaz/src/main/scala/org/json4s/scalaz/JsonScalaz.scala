@@ -140,9 +140,9 @@ trait Types {
       }
     }
 
-    def orElse[B >: A](fa2: JSONR[B]): JSONR[B] = new JSONR[B] {
+    def orElse[B >: A](fb: JSONR[B]): JSONR[B] = new JSONR[B] {
       override def read(json: JValue): Result[B] = {
-        fa.read(json) orElse fa2.read(json)
+        fa.read(json) orElse fb.read(json)
       }
     }
 
@@ -150,16 +150,16 @@ trait Types {
 
   implicit class JSONExt[A](fa: JSON[A]) {
 
-    def xmap[B](f1: A => B, f2: B => A): JSON[B] = new JSON[B] {
-      override def write(value: B): JValue = (fa:JSONW[A]).contramap(f2).write(value)
+    def xmap[B](f: A => B, g: B => A): JSON[B] = new JSON[B] {
+      override def write(value: B): JValue = (fa:JSONW[A]).contramap(g).write(value)
 
-      override def read(json: JValue): Result[B] = (fa:JSONR[A]).map(f1).read(json)
+      override def read(json: JValue): Result[B] = (fa:JSONR[A]).map(f).read(json)
     }
 
-    def exmap[B](f1: A => Result[B], f2: B => A): JSON[B] = new JSON[B] {
-      override def write(value: B): JValue = (fa:JSONW[A]).contramap(f2).write(value)
+    def exmap[B](f: A => Result[B], g: B => A): JSON[B] = new JSON[B] {
+      override def write(value: B): JValue = (fa:JSONW[A]).contramap(g).write(value)
 
-      override def read(json: JValue): Result[B] = (fa:JSONR[A]).emap(f1).read(json)
+      override def read(json: JValue): Result[B] = (fa:JSONR[A]).emap(f).read(json)
     }
 
   }
