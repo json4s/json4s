@@ -30,13 +30,6 @@ object JsonAstSpec extends Specification with JValueGen with ScalaCheck {
       prop(identityProp)
     }
 
-    "Functor composition" in {
-      val compositionProp = (json: JValue, fa: JValue => JValue, fb: JValue => JValue) =>
-        json.map(fb).map(fa) must_== json.map(fa compose fb)
-
-      prop(compositionProp)
-    }
-
     "Monoid identity" in {
       val identityProp = (json: JValue) => (json ++ JNothing must_== json) and (JNothing ++ json must_== json)
       prop(identityProp)
