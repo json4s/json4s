@@ -21,7 +21,7 @@ import Gen._
 import Arbitrary.arbitrary
 
 trait JValueGen {
-  def genJValue: Gen[JValue] = frequency((5, genSimple), (1, wrap(genArray)), (1, wrap(genObject)))
+  def genJValue: Gen[JValue] = frequency((5, genSimple), (1, delay(genArray)), (1, delay(genObject)))
   def genSimple: Gen[JValue] = oneOf(
     const(JNull),
     arbitrary[Int].map(JInt(_)),
@@ -41,13 +41,31 @@ trait JValueGen {
     classOf[JDouble], classOf[JBool], classOf[JString], classOf[JArray], classOf[JObject])
 
   def listSize = choose(0, 5).sample.get
+
+  implicit val jValueCogen: Cogen[JValue] =
+    Cogen[JValue] {
+      new runtime.AbstractFunction2[rng.Seed, JValue, rng.Seed]{
+        def apply(seed: rng.Seed, j: JValue) = j match {
+          case JString(a) => Cogen.perturb(seed, a)
+          case JBool(a) => Cogen.perturb(seed, a)
+          case JArray(a) => Cogen.perturb(seed, a)
+          case JDecimal(a) => Cogen.perturb(seed, a.bigDecimal.unscaledValue.toByteArray)
+          case JDouble(a) => Cogen.perturb(seed, a)
+          case JInt(a) => Cogen.perturb(seed, a.toByteArray)
+          case JLong(a) => Cogen.perturb(seed, a)
+          case JObject(a) => Cogen.perturb(seed, a)
+          case JNothing => seed.reseed(1)
+          case JNull => seed.reseed(2)
+        }
+      }
+    }
 }
 
 trait NodeGen {
   import Xml.{XmlNode, XmlElem}
   import scala.xml.{Node, NodeSeq, Text}
 
-  def genXml: Gen[Node] = frequency((2, wrap(genNode)), (3, genElem))
+  def genXml: Gen[Node] = frequency((2, delay(genNode)), (3, genElem))
 
   def genNode = for {
     name <- genName
