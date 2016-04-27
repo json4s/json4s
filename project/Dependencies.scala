@@ -11,10 +11,20 @@ object Dependencies {
     // TODO: 2.7
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.5"
   )
-  lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.0"
+  lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.2"
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.8"
   lazy val commonsCodec = "commons-codec"                %  "commons-codec"        % "1.9"
-  lazy val specs        = "org.specs2"                   %% "specs2-scalacheck"    % "3.7"  % "test"
+  lazy val specs        = Def.setting{
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, scalaMajor)) if scalaMajor <= 11 => Seq(
+        "org.specs2" %% "specs2-scalacheck" % "3.7.3" % "test"
+      )
+      case _ => Seq(
+        "org.specs2" %% "specs2-scalacheck" % "3.7.3.1" % "test" exclude("org.scalacheck", "scalacheck_2.12.0-M3"),
+        "org.scalacheck" %% "scalacheck" % "1.13.1" % "test"
+      )
+    }
+  }
   lazy val mockito      = "org.mockito"                  %  "mockito-all"          % "1.10.19" % "test"
 
   def scalaXml(scalaVersion: String) = {
