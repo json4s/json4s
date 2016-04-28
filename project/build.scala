@@ -54,7 +54,7 @@ object build extends Build {
     organization := "org.json4s",
     scalaVersion := "2.11.7",
     crossScalaVersions := Seq("2.10.6", "2.11.7", "2.12.0-M3"),
-    scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-Yinline-warnings", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
     version := "3.3.1-SNAPSHOT",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     javaVersionPrefix in javaVersionCheck := Some{
@@ -143,12 +143,7 @@ object build extends Build {
     base = file("scalaz"),
     settings = json4sSettings ++ Seq(
       libraryDependencies += scalaz_core,
-      libraryDependencies += {
-        val v = PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion.value)){
-          case Some((2, scalaMajor)) if scalaMajor <= 11 => "2.2.6"
-        }.getOrElse("2.2.5-M3")
-        "org.scalatest" %% "scalatest" % v % "test"
-      }
+      libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.6" % "test"
     )
   ) dependsOn(core % "compile;test->test", native % "provided->compile", jacksonSupport % "provided->compile")
 
@@ -165,7 +160,7 @@ object build extends Build {
     id = "json4s-tests",
     base = file("tests"),
     settings = json4sSettings ++ Seq(
-      libraryDependencies ++= Seq(specs, mockito),
+      libraryDependencies ++= specs.value ++ Seq(mockito),
       initialCommands in (Test, console) :=
         """
           |import org.json4s._
