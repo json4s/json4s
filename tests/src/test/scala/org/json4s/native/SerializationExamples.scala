@@ -248,7 +248,7 @@ object FullTypeHintExamples extends TypeHintExamples {
 }
 
 object CustomTypeHintFieldNameExample extends TypeHintExamples {
-  import native.Serialization.{read, write => swrite}
+  import native.Serialization.{write => swrite}
 
   implicit val formats = new Formats {
     val dateFormat = DefaultFormats.lossless.dateFormat

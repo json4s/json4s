@@ -10,7 +10,6 @@ import org.json4s.jackson.JsonMethods._
 * System under specification for JSON Parser.
 */
 object JsonParserSpec extends Specification with JValueGen with ScalaCheck {
-  import scala.text.Document
   import native.{JsonParser,Printer}
   import native.JsonMethods._
 

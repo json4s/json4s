@@ -1,7 +1,5 @@
 package org.json4s
 
-import java.io.StringWriter
-
 abstract class JsonUtil(fmts: Formats) {
 
   protected[this] implicit val formats: Formats = fmts

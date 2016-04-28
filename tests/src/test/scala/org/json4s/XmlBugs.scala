@@ -23,7 +23,6 @@ object NativeXmlBugs extends XmlBugs[Document]("Native") with native.JsonMethods
 object JacksonXmlBugs extends XmlBugs[JValue]("Jackson") with jackson.JsonMethods
 abstract class XmlBugs[T](mod: String) extends Specification with JsonMethods[T]{
   import Xml._
-  import scala.xml.{Group, Text}
 
   (mod+" XML Bugs") should {
     "HarryH's XML parses correctly" in {

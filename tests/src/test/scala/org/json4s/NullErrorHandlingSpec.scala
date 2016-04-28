@@ -29,7 +29,6 @@ object NullErrorHandlingSpec {
 }
 
 abstract class NullErrorHandlingSpec[T](mod: String) extends Specification with JsonMethods[T] {
-  import JsonDSL._
   import NullErrorHandlingSpec._
 
   implicit lazy val formats = DefaultFormats

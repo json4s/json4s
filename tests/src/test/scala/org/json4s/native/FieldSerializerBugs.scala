@@ -3,7 +3,6 @@ package org.json4s
 import org.specs2.mutable.Specification
 
 object FieldSerializerBugs extends Specification {
-  import native.JsonMethods._
   import native.Serialization
   import Serialization.{read, write => swrite}
 

@@ -2,7 +2,6 @@ package org.json4s
 package scalaz
 
 import _root_.scalaz._
-import Scalaz._
 import JsonScalaz._
 
 import org.specs2.mutable.Specification
