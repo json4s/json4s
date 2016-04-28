@@ -23,7 +23,6 @@ object NativeXmlExamples extends XmlExamples[Document]("Native") with native.Jso
 object JacksonXmlExamples extends XmlExamples[JValue]("Jackson") with jackson.JsonMethods
 
 abstract class XmlExamples[T](mod: String) extends Specification with JsonMethods[T]{
-  import JsonDSL._
   import Xml._
   import scala.xml.{Group, Text}
 

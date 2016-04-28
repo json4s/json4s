@@ -1,8 +1,6 @@
 package org.json4s
 package jackson
 
-import com.fasterxml.jackson.databind.ObjectWriter
-
 import scala.reflect.Manifest
 import java.io.OutputStream
 

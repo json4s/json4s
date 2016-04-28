@@ -1,7 +1,7 @@
 package org.json4s
 package jackson
 
-import com.fasterxml.jackson.databind.{ObjectWriter, ObjectMapper}
+import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.{Writer => JWriter}
 
 object Json {

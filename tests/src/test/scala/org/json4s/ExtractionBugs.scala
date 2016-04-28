@@ -1,7 +1,5 @@
 package org.json4s
 
-import org.json4s.ExtractionBugs.SomeOtherContent.SomeOtherContentClass
-
 import org.specs2.mutable.Specification
 import reflect.{ClassDescriptor, Reflector}
 import text.Document

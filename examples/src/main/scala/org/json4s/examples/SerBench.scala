@@ -4,7 +4,7 @@ package examples
 import java.util.Date
 import org.json4s._
 import java.io._
-import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.concurrent.atomic.AtomicLong
 
 object SerBench extends Benchmark {

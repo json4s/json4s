@@ -4,8 +4,6 @@ import org.scalacheck._
 import Gen._
 import Arbitrary.arbitrary
 
-import org.json4s._
-
 object ArbitraryJson4s {
   //TODO allow for larger trees
   //TODO use ScalaCheck's size param

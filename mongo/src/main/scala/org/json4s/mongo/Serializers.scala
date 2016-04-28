@@ -15,7 +15,7 @@ package org.json4s
 package mongo
 
 import java.util.{Date, UUID}
-import java.util.regex.{Pattern, PatternSyntaxException}
+import java.util.regex.Pattern
 
 import org.bson.types.ObjectId
 

@@ -63,7 +63,7 @@ trait JValueGen {
 
 trait NodeGen {
   import Xml.{XmlNode, XmlElem}
-  import scala.xml.{Node, NodeSeq, Text}
+  import scala.xml.Node
 
   def genXml: Gen[Node] = frequency((2, delay(genNode)), (3, genElem))
 
