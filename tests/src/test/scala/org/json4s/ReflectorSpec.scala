@@ -22,6 +22,9 @@ object PathTypes {
 
   trait WithCaseClass {
     case class FromTrait(name: String)
+    case class FromTraitRROption(id: Int, name: String, status: Option[String], code: Option[Int], createdAt: Date, deletedAt: Option[Date])
+    // case class FromTraitRRTypeParam[T](id: Int, name: String, value: T, opt: Option[T], seq: Seq[T], map: Map[String, T])
+    // ..
   }
 
   object HasTrait extends WithCaseClass {
@@ -61,7 +64,10 @@ class NormalClass {
 
 class ReflectorSpec extends Specification {
 
-  implicit val formats: Formats = DefaultFormats.withCompanions(classOf[PathTypes.HasTrait.FromTrait] -> PathTypes.HasTrait)
+  implicit val formats: Formats = DefaultFormats.withCompanions(
+    classOf[PathTypes.HasTrait.FromTrait] -> PathTypes.HasTrait,
+    classOf[PathTypes.HasTrait.FromTraitRROption] -> PathTypes.HasTrait
+  )
 
   "Reflector" should {
 
@@ -308,5 +314,37 @@ class ReflectorSpec extends Specification {
       params(3).name must_== "optPrimitive"
       params(3).returnType must_== Reflector.scalaTypeOf[Option[Int]]
     }
+
+    "Describe a case class with options defined in a trait" in {
+      val desc = Reflector.describe[PathTypes.HasTrait.FromTraitRROption].asInstanceOf[ClassDescriptor]
+      desc.constructors.size must_== 1
+      desc.companion.map(_.instance) must_== Some(PathTypes.HasTrait.FromTraitRROption)
+      desc.constructors.head.params(0).defaultValue.get() must_== PathTypes.HasTrait
+
+      val params = desc.constructors.head.params.filterNot(_.name==ScalaSigReader.OuterFieldName)
+      params(0).name must_== "id"
+      params(0).defaultValue must beNone
+      params(0).argType must_== Reflector.scalaTypeOf[Int]
+      params(1).name must_== "name"
+      params(1).defaultValue must beNone
+      params(1).argType must_== Reflector.scalaTypeOf[String]
+      params(2).name must_== "status"
+      params(2).defaultValue must beNone
+      params(2).argType must_== Reflector.scalaTypeOf[Option[String]]
+      params(2).argType.typeArgs must_== Seq(Reflector.scalaTypeOf[String])
+      params(3).name must_== "code"
+      params(3).defaultValue must beNone
+      params(3).argType must_== Reflector.scalaTypeOf[Option[Int]]
+      params(3).argType must_!= Reflector.scalaTypeOf[Option[String]]
+      params(3).argType.typeArgs must_== Seq(Reflector.scalaTypeOf[Int])
+      params(4).name must_== "createdAt"
+      params(4).defaultValue must beNone
+      params(4).argType must_== Reflector.scalaTypeOf[Date]
+      params(5).name must_== "deletedAt"
+      params(5).defaultValue must beNone
+      params(5).argType must_== Reflector.scalaTypeOf[Option[Date]]
+      params(5).argType.typeArgs must_== Seq(Reflector.scalaTypeOf[Date])
+    }
+
   }
 }
