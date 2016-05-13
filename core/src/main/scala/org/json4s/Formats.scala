@@ -355,6 +355,8 @@ trait Formats extends Serializable { self: Formats =>
 
       def format(d: Date) = formatter.format(d)
 
+      def timezone = formatter.getTimeZone
+
       private[this] def formatter = df()
     }
 

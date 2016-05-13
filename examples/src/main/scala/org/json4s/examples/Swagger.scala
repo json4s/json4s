@@ -1,7 +1,7 @@
 package org.json4s
 package examples
 
-import java.util.{Date => JDate, Locale}
+import java.util.{Date => JDate, TimeZone, Locale}
 import ext.{ JodaTimeSerializers, EnumNameSerializer }
 import org.joda.time._
 import format.ISODateTimeFormat
@@ -101,6 +101,7 @@ object Api {
       } catch {
         case scala.util.control.NonFatal(_) ⇒ None
       }
+      def timezone = TimeZone.getTimeZone("UTC")
     }
   } ++ Seq(
     new EnumNameSerializer(ParamType),
