@@ -73,6 +73,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
     "DateTime and DateMidnight use configured date format 2" in {
 
       def usTimeZone = TimeZone.getTimeZone("America/New_York")
+      def usDateTimeZone = forTimeZone(usTimeZone)
 
       implicit val formats = new DefaultFormats {
         override def dateFormatter = {
@@ -83,21 +84,20 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
         }
       } ++ JodaTimeSerializers.all
 
-      val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0, forTimeZone(usTimeZone)), new DateMidnight(2011, 1, 16, forTimeZone(usTimeZone)))
+      val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0, usDateTimeZone), new DateMidnight(2011, 1, 16, usDateTimeZone))
       val ser = s.write(x)
       ser must beMatching(
         """\{"dt":"2011-01-16 10:32:00[-+]\d{2}:\d{2}","dm":"2011-01-16 00:00:00[-+]\d{2}:\d{2}"\}""")
 
-      (m.parse(ser) \ "dt").extract[DateTime] must_== new DateTime(2011, 1, 16, 10, 32, 0, 0, forTimeZone(usTimeZone))
-      (m.parse(ser) \ "dm").extract[DateTime] must_== new DateMidnight(2011, 1, 16, forTimeZone(usTimeZone))
+      (m.parse(ser) \ "dt").extract[DateTime] must_== new DateTime(2011, 1, 16, 10, 32, 0, 0, usDateTimeZone)
+      (m.parse(ser) \ "dm").extract[DateTime] must_== new DateMidnight(2011, 1, 16, usDateTimeZone)
     }
 
     "Serialising and deserialising Date types with the default format uses UTC rather than the default local timezone" in {
 
       DateTimeZone.setDefault(DateTimeZone.forID("America/New_York"))
 
-      val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0, UTC),
-        new DateMidnight(2011, 1, 16, UTC))
+      val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0, UTC), new DateMidnight(2011, 1, 16, UTC))
       val ser = s.write(x)
       val deserialisedDates = s.read[Dates](ser)
 
