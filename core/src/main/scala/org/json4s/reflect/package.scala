@@ -42,6 +42,8 @@ package object reflect {
       cache.put(x, v)
       v
     }
+
+    def clear() = cache.clear()
   }
 
   private[reflect] val ConstructorDefault = "$lessinit$greater$default"
