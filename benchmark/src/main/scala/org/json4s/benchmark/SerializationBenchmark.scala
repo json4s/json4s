@@ -42,7 +42,7 @@ class Json4sBenchmark extends SimpleScalaBenchmark {
 
 
 
-  override def setUp() {
+  override def setUp(): Unit = {
     val c = counter.incrementAndGet()
     project = Project("test"+c, new Date, Some(Language("Scala"+c, 2.75+c)), List(
           Team("QA"+c, List(Employee("John Doe"+c, 5+c), Employee("Mike"+c, 3+c))),

@@ -26,7 +26,7 @@ class Json4sScalaModule extends Module {
 
   def version(): Version = Json4sModule.version
 
-  def setupModule(ctxt: SetupContext) {
+  def setupModule(ctxt: SetupContext): Unit = {
     ctxt.addSerializers(JValueSerializerResolver)
     ctxt.addDeserializers(JValueDeserializerResolver)
   }

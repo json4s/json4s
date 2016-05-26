@@ -49,11 +49,8 @@ trait DefaultMemoisable extends Memoisable {
       other
   }
 
-  protected def onSuccess[S, T](key: AnyRef,  result: Success[S, T])  {
+  protected def onSuccess[S, T](key: AnyRef,  result: Success[S, T]): Unit = {
     val Success(out, t) = result
     if(DefaultMemoisable.debug) println(key + " -> " + t + " (" + out + ")")
   }
 }
-
-
-
