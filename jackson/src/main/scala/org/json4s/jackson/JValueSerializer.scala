@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.{SerializerProvider, JsonSerializer}
 import com.fasterxml.jackson.core.JsonGenerator
 
 class JValueSerializer extends JsonSerializer[JValue]{
-  def serialize(value: JValue, json: JsonGenerator, provider: SerializerProvider) {
+  def serialize(value: JValue, json: JsonGenerator, provider: SerializerProvider): Unit = {
     if (value == null) {
       json.writeNull()
     } else {

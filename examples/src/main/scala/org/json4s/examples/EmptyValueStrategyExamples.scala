@@ -15,14 +15,14 @@ object EmptyValueTreatmentExamples {
 
   private val eventAsCaseClass = EventAsCaseClass("dinner")
 
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     jacksonWaySkippingNulls
     jacksonWayPreservingNulls
     nativeWaySkippingNulls
     nativeWayPreservingNulls
   }
 
-  def jacksonWaySkippingNulls() {
+  def jacksonWaySkippingNulls(): Unit = {
     import jackson.JsonMethods._
     import jackson.Serialization._
 
@@ -40,7 +40,7 @@ object EmptyValueTreatmentExamples {
     println("\t" + write(eventAsCaseClass)) // = {"eventType":"dinner"}
   }
 
-  def jacksonWayPreservingNulls() {
+  def jacksonWayPreservingNulls(): Unit = {
     import jackson.JsonMethods._
     import jackson.Serialization._
     implicit val formats = jackson.Serialization.formats(NoTypeHints).preservingEmptyValues
@@ -57,7 +57,7 @@ object EmptyValueTreatmentExamples {
     println("\t" + write(eventAsCaseClass)) // = {"eventType":"dinner","duration":null}
   }
 
-  def nativeWaySkippingNulls() {
+  def nativeWaySkippingNulls(): Unit = {
     import native.JsonMethods._
     import native.Serialization._
 
@@ -75,7 +75,7 @@ object EmptyValueTreatmentExamples {
     println("\t" + write(eventAsCaseClass)) // = {"eventType":"dinner"}
   }
 
-  def nativeWayPreservingNulls() {
+  def nativeWayPreservingNulls(): Unit = {
     import native.JsonMethods._
     import native.Serialization._
     implicit val formats = native.Serialization.formats(NoTypeHints).preservingEmptyValues

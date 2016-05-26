@@ -306,7 +306,7 @@ private final class FieldStreamingJsonWriter[T <: JWriter](name: String, isFirst
     new ObjectStreamingJsonWriter(nodes, level + 1, parent, pretty, spaces, formats)
   }
 
-  private[this] def writeName(hasPretty: Boolean) {
+  private[this] def writeName(hasPretty: Boolean): Unit = {
     if (!isFirst) {
       nodes.write(",")
       writePretty()
@@ -418,7 +418,7 @@ private final class ArrayStreamingJsonWriter[T <: JWriter](protected[this] val n
     parent
   }
 
-  private[this] def writeComma() {
+  private[this] def writeComma(): Unit = {
     if (!isFirst) {
       nodes.write(',')
       writePretty()
@@ -547,7 +547,7 @@ private sealed abstract class StreamingJsonWriter[T <: JWriter] extends JsonWrit
     case _ => this
   }
 
-  protected def writePretty(outdent: Int = 0) {
+  protected def writePretty(outdent: Int = 0): Unit = {
     if (pretty) {
       nodes write '\n'
       nodes.write((" " * (level * spaces - outdent)))

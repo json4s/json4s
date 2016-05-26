@@ -152,7 +152,7 @@ object JsonParser {
       case x => x
     }
 
-    def closeBlock(v: Any) {
+    def closeBlock(v: Any): Unit = {
       @inline def toJValue(x: Any) = x match {
         case json: JValue => json
         case scala.util.control.NonFatal(_) => p.fail(s"unexpected field $x")
@@ -171,7 +171,7 @@ object JsonParser {
       }
     }
 
-    def newValue(v: JValue) {
+    def newValue(v: JValue): Unit = {
       vals.peekAny match {
         case (name: String, value) =>
           vals.pop(classOf[JField])
@@ -332,5 +332,4 @@ object JsonParser {
     case object OBJECT extends BlockMode
   }
 
-  
 }

@@ -53,7 +53,7 @@ object SerBench extends Benchmark {
 
   val mapper = new ObjectMapper()
 
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     println("## Serialization  ")
 
     val str = project.toString
