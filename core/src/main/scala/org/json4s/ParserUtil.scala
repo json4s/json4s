@@ -106,8 +106,8 @@ object ParserUtil {
     private[this] var cur = 0 // Pointer which points current parsing location
     private[this] var curSegmentIdx = 0 // Pointer which points current segment
 
-    def mark = { curMark = cur; curMarkSegment = curSegmentIdx }
-    def back = cur = cur-1
+    def mark() = { curMark = cur; curMarkSegment = curSegmentIdx }
+    def back() = cur = cur-1
 
     def next: Char = {
       if (cur == offset && read < 0) {
@@ -149,9 +149,9 @@ object ParserUtil {
 
     def near = new String(segment, (cur-20) max 0, 20 min cur)
 
-    def release = segments.foreach(Segments.release)
+    def release() = segments.foreach(Segments.release)
 
-    private[json4s] def automaticClose = if (closeAutomatically) in.close
+    private[json4s] def automaticClose() = if (closeAutomatically) in.close
 
     private[this] def read = {
       if (offset >= segment.length) {
@@ -179,7 +179,7 @@ object ParserUtil {
     private[this] val maxNumOfSegments = 10000
     private[this] var segmentCount = new AtomicInteger(0)
     private[this] val segments = new ArrayBlockingQueue[Segment](maxNumOfSegments)
-    private[json4s] def clear = segments.clear
+    private[json4s] def clear() = segments.clear
 
     def apply(): Segment = {
       val s = acquire
