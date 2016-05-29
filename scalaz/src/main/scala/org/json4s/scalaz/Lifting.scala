@@ -21,6 +21,11 @@ package scalaz
 import _root_.scalaz._
 
 trait Lifting { this: Types =>
+  implicit class Func1ToJSON[A: JSONR, R](z: (A) => R) {
+    def applyJSON(a: JValue => Result[A]): JValue => Result[R] =
+      (json: JValue) => Apply[Result].apply(a(json))(z)
+  }
+
   implicit class Func2ToJSON[A: JSONR, B: JSONR, R](z: (A, B) => R) {
     def applyJSON(a: JValue => Result[A], b: JValue => Result[B]): JValue => Result[R] = 
       (json: JValue) => Apply[Result].apply2(a(json),b(json))(z)
