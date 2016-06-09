@@ -208,6 +208,62 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
         scala.collection.mutable.Seq(Name("Mary"), Name("Mazy"))
     }
 
+    // https://github.com/json4s/json4s/issues/82
+    "Vector extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[Vector[Name]] must_== Vector(Name("Mary"), Name("Mazy"))
+    }
+
+    "Stream extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[Stream[Name]] must_== Stream(Name("Mary"), Name("Mazy"))
+    }
+
+    "Iterable extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[Iterable[Name]] must_== Iterable(Name("Mary"), Name("Mazy"))
+    }
+
+    "Immutable Queue extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[collection.immutable.Queue[Name]] must_== collection.immutable.Queue(Name("Mary"), Name("Mazy"))
+    }
+
+    "Mutable Queue extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[collection.mutable.Queue[Name]] must_== collection.mutable.Queue(Name("Mary"), Name("Mazy"))
+    }
+
+    "Immutable HashSet extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[collection.immutable.HashSet[Name]] must_== collection.immutable.HashSet(Name("Mary"), Name("Mazy"))
+    }
+
+    "Mutable HashSet extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[collection.mutable.HashSet[Name]] must_== collection.mutable.HashSet(Name("Mary"), Name("Mazy"))
+    }
+
+    "ArrayBuffer extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[collection.mutable.ArrayBuffer[Name]] must_== collection.mutable.ArrayBuffer(Name("Mary"), Name("Mazy"))
+    }
+
+    "ListBuffer extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[collection.mutable.ListBuffer[Name]] must_== collection.mutable.ListBuffer(Name("Mary"), Name("Mazy"))
+    }
+
+    "Mutable Stack extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[collection.mutable.Stack[Name]] must_== collection.mutable.Stack(Name("Mary"), Name("Mazy"))
+    }
+
+    "ArraySeq extraction example" in {
+      val json = parse(testJson) \ "children"
+      json.extract[collection.mutable.ArraySeq[Name]] must_== collection.mutable.ArraySeq(Name("Mary"), Name("Mazy"))
+    }
+
     "Extraction and decomposition are symmetric" in {
       val person = parse(testJson).extract[Person]
       Extraction.decompose(person).extract[Person] must_== person
