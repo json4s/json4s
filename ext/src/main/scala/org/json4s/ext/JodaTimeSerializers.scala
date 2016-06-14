@@ -17,6 +17,8 @@
 package org.json4s
 package ext
 
+import java.util.TimeZone
+
 import org.joda.time._
 
 
@@ -58,13 +60,19 @@ case object InstantSerializer extends CustomSerializer[Instant](format => (
 ))
 
 object DateParser {
-  def parse(s: String, format: Formats) =
-    format.dateFormat.parse(s).map(_.getTime).getOrElse(throw new MappingException(s"Invalid date format $s"))
+  def parse(s: String, format: Formats) = {
+    val instant = format.dateFormat.parse(s).map(_.getTime).getOrElse(throw new MappingException(s"Invalid date format $s"))
+    val timezone = format.dateFormat.timezone
+    ZonedInstant(instant, timezone)
+  }
+
 }
 
 case object DateTimeSerializer extends CustomSerializer[DateTime](format => (
   {
-    case JString(s) => new DateTime(DateParser.parse(s, format))
+    case JString(s) =>
+      val zonedInstant = DateParser.parse(s, format)
+      new DateTime(zonedInstant.instant, DateTimeZone.forTimeZone(zonedInstant.timezone))
     case JNull => null
   },
   {
@@ -76,7 +84,9 @@ case object DateTimeSerializer extends CustomSerializer[DateTime](format => (
 @deprecated("The time of midnight does not exist in some time zones where the daylight saving time forward shift skips the midnight hour. Use LocalDate to represent a date without a time zone. Or use DateTime to represent a full date and time, perhaps using DateTime.withTimeAtStartOfDay() to get an instant at the start of a day. (http://www.joda.org/joda-time/apidocs/org/joda/time/DateMidnight.html)", since = "3.3.0")
 case object DateMidnightSerializer extends CustomSerializer[DateMidnight](format => (
   {
-    case JString(s) => new DateMidnight(DateParser.parse(s, format))
+    case JString(s) =>
+      val zonedInstant = DateParser.parse(s, format)
+      new DateMidnight(zonedInstant.instant, DateTimeZone.forTimeZone(zonedInstant.timezone))
     case JNull => null
   },
   {
@@ -131,4 +141,6 @@ case class ClassSerializer[A : Manifest, B : Manifest](t: ClassType[A, B]) exten
     case a: A if a.asInstanceOf[AnyRef].getClass == Class => Extraction.decompose(t.wrap(a))
   }
 }
+
+case class ZonedInstant(val instant: Long, val timezone: TimeZone)
 
