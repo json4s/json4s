@@ -75,6 +75,7 @@ trait Formats extends Serializable { self: Formats =>
                     wWantsBigDecimal: Boolean = self.wantsBigDecimal,
                     withPrimitives: Set[Type] = self.primitives,
                     wCompanions: List[(Class[_], AnyRef)] = self.companions,
+                    wAllowNull: Boolean = self.allowNull,
                     wStrict: Boolean = self.strictOptionParsing,
                     wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
                     wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy): Formats =
@@ -90,6 +91,7 @@ trait Formats extends Serializable { self: Formats =>
       override def wantsBigDecimal: Boolean = wWantsBigDecimal
       override def primitives: Set[Type] = withPrimitives
       override def companions: List[(Class[_], AnyRef)] = wCompanions
+      override def allowNull: Boolean = wAllowNull
       override def strictOptionParsing: Boolean = wStrict
       override def alwaysEscapeUnicode: Boolean = wAlwaysEscapeUnicode
       override def emptyValueStrategy: EmptyValueStrategy = wEmptyValueStrategy
