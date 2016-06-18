@@ -180,9 +180,9 @@ object build extends Build {
     settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
       cancelable := true,
       libraryDependencies ++= Seq(
-        "com.google.code.java-allocation-instrumenter" % "java-allocation-instrumenter" % "3.0",
+        "com.google.code.java-allocation-instrumenter" % "java-allocation-instrumenter" % "3.0.1",
         "com.google.caliper" % "caliper" % "0.5-rc1",
-        "com.google.code.gson" % "gson" % "2.6"
+        "com.google.code.gson" % "gson" % "2.7"
       ),
       runner in Compile in run <<= (thisProject, taskTemporaryDirectory, scalaInstance, baseDirectory, javaOptions, outputStrategy, javaHome, connectInput) map {
         (tp, tmp, si, base, options, strategy, javaHomeDir, connectIn) =>

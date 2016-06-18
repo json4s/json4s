@@ -4,14 +4,14 @@ import Keys._
 object Dependencies {
 
   lazy val jodaTime     = Seq(
-    "joda-time" % "joda-time"    % "2.9.2",
+    "joda-time" % "joda-time"    % "2.9.4",
     "org.joda"  % "joda-convert" % "1.8.1"
   )
   lazy val jackson      = Seq(
     // TODO: 2.7
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.5"
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.7"
   )
-  lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.2"
+  lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.4"
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.8"
   lazy val commonsCodec = "commons-codec"                %  "commons-codec"        % "1.9"
   lazy val specs        = Def.setting{
