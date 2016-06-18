@@ -63,7 +63,7 @@ object build extends Build {
           Nil
       }
     },
-    version := "3.4.0-SNAPSHOT",
+    version := "3.4.0",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     javaVersionPrefix in javaVersionCheck := Some{
       CrossVersion.partialVersion(scalaVersion.value) match {
