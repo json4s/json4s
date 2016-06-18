@@ -87,7 +87,7 @@ object build extends Build {
     id = "json4s",
     base = file("."),
     settings = json4sSettings ++ noPublish
-  ) aggregate(core, native, json4sExt, jacksonSupport, scalazExt, json4sTests, mongo, ast, scalap, examples, benchmark)
+  ) aggregate(core, native, json4sExt, jacksonSupport, scalazExt, json4sTests, mongo, amongo, ast, scalap, examples, benchmark)
 
   lazy val ast = Project(
     id = "json4s-ast",
@@ -161,6 +161,15 @@ object build extends Build {
       )
   )) dependsOn(core % "compile;test->test")
 
+  lazy val amongo = Project(
+    id = "json4s-amongo",
+    base = file("amongo"),
+    settings = json4sSettings ++ Seq(
+      libraryDependencies ++= Seq(
+        "org.mongodb" % "bson" % "3.2.2"
+      )
+    )) dependsOn (core % "compile;test->test")
+
   lazy val json4sTests = Project(
     id = "json4s-tests",
     base = file("tests"),
@@ -172,7 +181,7 @@ object build extends Build {
           |import reflect._
         """.stripMargin
     ) ++ noPublish
-  ) dependsOn(core, native, json4sExt, scalazExt, jacksonSupport, mongo)
+  ) dependsOn(core, native, json4sExt, scalazExt, jacksonSupport, mongo, amongo)
 
   lazy val benchmark = Project(
     id = "json4s-benchmark",
@@ -190,7 +199,7 @@ object build extends Build {
             runJVMOptions = options, workingDirectory = Some(base)) )
       }
     ) ++ noPublish
-  ) dependsOn(core, native, jacksonSupport, json4sExt, mongo)
+  ) dependsOn(core, native, jacksonSupport, json4sExt, mongo,amongo)
 
 
 }
