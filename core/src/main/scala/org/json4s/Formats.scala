@@ -140,6 +140,11 @@ trait Formats extends Serializable { self: Formats =>
     copy(wCustomSerializers = newSerializers.foldRight(self.customSerializers)(_ :: _))
 
   /**
+   * Removes the specified custom serializer from this formats.
+   */
+  def - (serializer: Serializer[_]): Formats = copy(wCustomSerializers = self.customSerializers.filterNot(_ == serializer))
+
+  /**
    * Adds the specified custom serializers to this formats.
    */
   def addKeySerializers (newKeySerializers: Traversable[KeySerializer[_]]): Formats =
