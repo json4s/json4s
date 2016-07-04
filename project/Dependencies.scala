@@ -15,7 +15,10 @@ object Dependencies {
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.8"
   lazy val commonsCodec = "commons-codec"                %  "commons-codec"        % "1.9"
   lazy val specs        = Def.setting{
-    Seq("org.specs2" %% "specs2-scalacheck" % "3.8.3" % "test")
+    Seq(
+      "org.specs2" %% "specs2-scalacheck" % "3.8.4" % "test" exclude("org.scalacheck", "scalacheck_2.12.0-M4"),
+      "org.scalacheck" %% "scalacheck" % "1.13.1"
+    )
   }
   lazy val mockito      = "org.mockito"                  %  "mockito-all"          % "1.10.19" % "test"
 
