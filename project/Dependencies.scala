@@ -17,7 +17,7 @@ object Dependencies {
   lazy val specs        = Def.setting{
     Seq(
       "org.specs2" %% "specs2-scalacheck" % "3.8.4" % "test" exclude("org.scalacheck", "scalacheck_2.12.0-M4"),
-      "org.scalacheck" %% "scalacheck" % "1.13.1"
+      "org.scalacheck" %% "scalacheck" % "1.13.1" % "test"
     )
   }
   lazy val mockito      = "org.mockito"                  %  "mockito-all"          % "1.10.19" % "test"
