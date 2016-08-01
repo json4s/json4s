@@ -18,4 +18,15 @@ class FormatsSpec extends Specification {
       DefaultFormats.isInstanceOf[Serializable] must beTrue
     }
   }
+
+  "ClassDelta NPE Issue#342" should {
+    "Check for null class1 based on recursive call to clazz.getSuperclass" in {
+      ClassDelta.delta(null, classOf[Object]) must be_==(1)
+    }
+    "Check for null class2 based on recursive call to clazz.getSuperclass" in {
+      ClassDelta.delta(classOf[Object], null) must be_==(-1)
+    }
+  }
+
+
 }
