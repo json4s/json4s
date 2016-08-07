@@ -527,6 +527,7 @@ private sealed abstract class StreamingJsonWriter[T <: JWriter] extends JsonWrit
     case JNull => addNode("null")
     case JString(str) => string(str)
     case JInt(i) => bigInt(i)
+    case JLong(i) => long(i)
     case JDouble(d) => double(d)
     case JDecimal(d) => bigDecimal(d)
     case JBool(b) => boolean(b)
@@ -544,7 +545,7 @@ private sealed abstract class StreamingJsonWriter[T <: JWriter] extends JsonWrit
       }
       obj.endObject()
 
-    case _ => this
+    case JNothing => this
   }
 
   protected def writePretty(outdent: Int = 0): Unit = {
