@@ -15,7 +15,7 @@ This project also attempts to set lift-json free from the release schedule impos
 The Lift framework carries many dependencies and as such it's typically a blocker for many other scala projects when
 a new version of scala is released.
 
-So the native package in this library is in fact verbatim lift-json in a different package name, this means that
+So the native package in this library is in fact verbatim lift-json in a different package name; this means that
 your import statements will change if you use this library.
 
 ```scala
@@ -69,7 +69,7 @@ case class JArray(arr: List[JValue]) extends JValue
 type JField = (String, JValue)
 ```
 
-All features are implemented in terms of above AST. Functions are used to transform
+All features are implemented in terms of the above AST. Functions are used to transform
 the AST itself, or to transform the AST between different formats. Common transformations
 are summarized in a following picture.
 
@@ -78,15 +78,15 @@ are summarized in a following picture.
 Summary of the features:
 
 * Fast JSON parser
-* LINQ style queries
+* LINQ-style queries
 * Case classes can be used to extract values from parsed JSON
 * Diff & merge
 * DSL to produce valid JSON
-* XPath like expressions and HOFs to manipulate JSON
+* XPath-like expressions and HOFs to manipulate JSON
 * Pretty and compact printing
 * XML conversions
 * Serialization
-* Low level pull parser API
+* Low-level pull parser API
 
 Installation
 ============
@@ -166,8 +166,8 @@ https://github.com/json4s/json4s/pulls?q=is%3Apr+is%3Aclosed+milestone%3A3.3
 --------
 
 JField is no longer a JValue. This means more type safety since it is no longer possible
-to create invalid JSON where JFields are added directly into JArrays for instance. Most
-noticeable consequence of this change is that map, transform, find and filter come in
+to create invalid JSON where JFields are added directly into JArrays for instance. The most
+noticeable consequence of this change are that map, transform, find and filter come in
 two versions:
 
 ```scala
@@ -186,7 +186,7 @@ in the name to traverse values in the JSON.
 2.2 ->
 ------
 
-Path expressions were changed after 2.2 version. Previous versions returned JField which
+Path expressions were changed after version 2.2. Previous versions returned JField, which
 unnecessarily complicated the use of the expressions. If you have used path expressions
 with pattern matching like:
 
@@ -194,7 +194,7 @@ with pattern matching like:
 val JField("bar", JInt(x)) = json \ "foo" \ "bar"
 ```
 
-It is now required to change that to:
+it is now required to change that to:
 
 ```scala
 val JInt(x) = json \ "foo" \ "bar"
@@ -237,8 +237,8 @@ res1: org.json4s.package.JValue =
 Producing JSON
 ==============
 
-You can generate json in 2 modes either in `DoubleMode` or in `BigDecimalMode`; the former will map all decimal values
-into a JDouble the latter into a JDecimal.
+You can generate json in 2 modes: either in `DoubleMode` or in `BigDecimalMode`; the former will map all decimal values
+into JDoubles, and the latter into JDecimals.
 
 For the double mode dsl use:
 
@@ -286,7 +286,7 @@ scala> compact(render(json))
 res2: String = {"name":"joe","age":35}
 ```
 
-* Any value can be optional. Field and value is completely removed when it doesn't have a value.
+* Any value can be optional. The field and value are completely removed when it doesn't have a value.
 
 ```scala
 scala> val json = ("name" -> "joe") ~ ("age" -> Some(35))
@@ -343,7 +343,7 @@ scala> JsonExample
 [{"winner-id":23,"numbers":[2,45,34,23,3,5]},{"winner-id":54,"numbers":[52,3,12,11,18,22]}]}}
 ```
 
-Example produces following pretty printed JSON. Notice that draw-date field is not rendered since its value is None:
+The above example produces the following pretty-printed JSON. Notice that draw-date field is not rendered since its value is None:
 
 ```scala
 scala> pretty(render(JsonExample.json))
@@ -465,7 +465,7 @@ res1: List[(String, BigInt)] = List((Mary,5))
 XPath + HOFs
 ------------
 
-Json AST can be queried using XPath like functions. Following REPL session shows the usage of
+The json AST can be queried using XPath-like functions. The following REPL session shows the usage of
 '\\', '\\\\', 'find', 'filter', 'transform', 'remove' and 'values' functions.
 
 The example json is:
@@ -552,7 +552,7 @@ scala> json.values
 res8: scala.collection.immutable.Map[String,Any] = Map(person -> Map(name -> Joe, age -> 35, spouse -> Map(person -> Map(name -> Marilyn, age -> 33))))
 ```
 
-Indexed path expressions work too and values can be unboxed using type expressions.
+Indexed path expressions work too and values can be unboxed using type expressions:
 
 ```scala
 scala> val json = parse("""
@@ -586,7 +586,7 @@ res3: List[org.json4s.JsonAST.JString#Values] = List(Mary, Mazy)
 Extracting values
 =================
 
-Case classes can be used to extract values from parsed JSON. Non-existing values can be extracted into scala.Option and strings can be automatically converted into java.util.Dates.
+Case classes can be used to extract values from parsed JSON. Non-existent values can be extracted into scala.Option and strings can be automatically converted into java.util.Dates.
 
 Please see more examples in [ExtractionExampleSpec.scala](https://github.com/json4s/json4s/blob/3.5/tests/src/test/scala/org/json4s/ExtractionExamplesSpec.scala).
 
@@ -631,15 +631,15 @@ scala> (json \ "children").extract[List[Child]]  // Extract list of objects
 res2: List[Child] = List(Child(Mary,5,Some(Sat Sep 04 23:36:22 IST 2004)), Child(Mazy,3,None))
 ```
 
-By default the constructor parameter names must match json field names. However, sometimes json field names contain characters which are not allowed characters in Scala identifiers. There's two solutions for this (see [LottoExample.scala](https://github.com/json4s/json4s/blob/3.5/tests/src/test/scala/org/json4s/LottoExample.scala) for bigger example).
+By default the constructor parameter names must match json field names. However, sometimes json field names contain characters which are not allowed characters in Scala identifiers. There are two solutions for this.  (See [LottoExample.scala](https://github.com/json4s/json4s/blob/3.5/tests/src/test/scala/org/json4s/LottoExample.scala) for a bigger example.)
 
-Use back ticks.
+Use back ticks:
 
 ```scala
 scala> case class Person(`first-name`: String)
 ```
 
-Use transform function to postprocess AST.
+Use transform function to postprocess AST:
 
 ```scala
 scala> case class Person(firstname: String)
@@ -648,7 +648,7 @@ scala> json transformField {
        }
 ```
 
-If the json field names are snake case (i.e.: separated_by_underscores), but the case class uses camel case (i.e.: firstLetterLowercaseAndNextWordsCapitalized), you can convert the keys during the extraction using `camelizeKeys`:
+If the json field names are snake case (i.e., separated_by_underscores), but the case class uses camel case (i.e., firstLetterLowercaseAndNextWordsCapitalized), you can convert the keys during the extraction using `camelizeKeys`:
 
 ```scala
 scala> import org.json4s._
@@ -660,9 +660,9 @@ scala> case class Person(firstName: String)
 scala> json.camelizeKeys.extract[Person]
 res0: Person = Person(Mazy)
 ```
-See the "Serialization" section below for details on converting a class with camel case fields into json with snake case keys.
+See the "Serialization" section below for details on converting a class with camel-case fields into json with snake case keys.
 
-Extraction function tries to find the best matching constructor when case class has auxiliary constructors. For instance extracting from JSON {"price":350} into the following case class will use the auxiliary constructor instead of the primary constructor.
+The extraction function tries to find the best-matching constructor when the case class has auxiliary constructors. For instance, extracting from JSON {"price":350} into the following case class will use the auxiliary constructor instead of the primary constructor:
 
 ```scala
 scala> case class Bike(make: String, price: Int) {
@@ -672,7 +672,7 @@ scala> parse(""" {"price":350} """).extract[Bike]
 res0: Bike = Bike(Trek,350)
 ```
 
-Primitive values can be extracted from JSON primitives or fields.
+Primitive values can be extracted from JSON primitives or fields:
 
 ```scala
 scala> (json \ "name").extract[String]
@@ -682,7 +682,7 @@ scala> ((json \ "children")(0) \ "birthdate").extract[Date]
 res1: java.util.Date = Sat Sep 04 21:06:22 EEST 2004
 ```
 
-DateFormat can be changed by overriding 'DefaultFormats' (or by implmenting trait 'Formats').
+DateFormat can be changed by overriding 'DefaultFormats' (or by implmenting trait 'Formats'):
 
 ```scala
 scala> implicit val formats = new DefaultFormats {
@@ -690,8 +690,8 @@ scala> implicit val formats = new DefaultFormats {
        }
 ```
 
-JSON object can be extracted to Map[String, _] too. Each field becomes a key value pair
-in result Map.
+A JSON object can be extracted to Map[String, _] too. Each field becomes a key value pair
+in result Map:
 
 ```scala
 scala> val json = parse("""
@@ -715,7 +715,7 @@ res0: PersonWithAddresses("joe", Map("address1" -> Address("Bulevard", "Helsinki
                                      "address2" -> Address("Soho", "London")))
 ```
 
-Note that when the extraction of an `Option[_]` fails, the default behavior of `extract` is to return `None`. You can make it fail with a [MappingException] instead, you can override this behavior by using a custom `Formats` object:
+Note that when the extraction of an `Option[_]` fails, the default behavior of `extract` is to return `None`. You can make it fail with a [MappingException] instead; you can override this behavior by using a custom `Formats` object:
 
 ```scala
 val formats: Formats = new DefaultFormats {
@@ -758,7 +758,7 @@ res1: Child = Child(Mary,5,None)
 
 Serialization supports:
 
-* Arbitrarily deep case class graphs
+* Arbitrarily deep case-class graphs
 * All primitive types, including BigInt and Symbol
 * List, Seq, Array, Set and Map (note, keys of the Map must be strings: Map[String, _])
 * scala.Option
@@ -766,9 +766,9 @@ Serialization supports:
 * Polymorphic Lists (see below)
 * Recursive types
 * Serialization of fields of a class (see below)
-* Custom serializer functions for types which are not supported (see below)
+* Custom serializer functions for types that are not supported (see below)
  
-If the class contains camel case fields (i.e: firstLetterLowercaseAndNextWordsCapitalized) but you want to produce a json string with snake casing (i.e.: separated_by_underscores), you can use the `snakizeKeys` method:
+If the class contains camel-case fields (i.e: firstLetterLowercaseAndNextWordsCapitalized) but you want to produce a json string with snake casing (i.e., separated_by_underscores), you can use the `snakizeKeys` method:
 
 ```scala
 scala> val ser = write(Person("Mary"))
@@ -799,8 +799,8 @@ scala> read[Animals](ser)
 res0: Animals = Animals(List(Dog(pluto), Fish(1.2)))
 ```
 
-ShortTypeHints outputs short classname for all instances of configured objects. FullTypeHints outputs full
-classname. Other strategies can be implemented by extending TypeHints trait.
+ShortTypeHints outputs the short classname for all instances of configured objects. FullTypeHints outputs the full
+classname. Other strategies can be implemented by extending the TypeHints trait.
 
 Serializing fields of a class
 -----------------------------
@@ -812,7 +812,7 @@ implicit val formats = DefaultFormats + FieldSerializer[WildDog]()
 ```
 
 Now the type WildDog (and all subtypes) gets serialized with all its fields (+ constructor parameters).
-FieldSerializer takes two optional parameters which can be used to intercept the field serialization:
+FieldSerializer takes two optional parameters, which can be used to intercept the field serialization:
 
 ```scala
 case class FieldSerializer[A: Manifest](
@@ -838,7 +838,7 @@ We've added support for case classes defined in a trait. But they do need custom
 
 ##### Why?
 
-For classes defined in a trait it's a bit difficult to get to their companion object, which is needed to provide default values.  We could punt on those but that brings us to the next problem, the compiler generates an extra field in the constructor of such case classes.  The first field in the constructor of those case classes is called `$outer` and is of type of the *defining trait*.  So somehow we need to get an instance of that object, naively we could scan all classes and collect the ones that are implementing the trait, but when there are more than one: which one to take?
+For classes defined in a trait it's a bit difficult to get to their companion object, which is needed to provide default values.  We could punt on those but that brings us to the next problem, that the compiler generates an extra field in the constructor of such case classes.  The first field in the constructor of those case classes is called `$outer` and is of type of the *defining trait*.  So somehow we need to get an instance of that object, naively we could scan all classes and collect the ones that are implementing the trait, but when there are more than one: which one to take?
 
 ##### How?
 
@@ -863,7 +863,7 @@ Serializing non-supported types
 -------------------------------
 
 It is possible to plug in custom serializer + deserializer functions for any type.
-Now, if we have a non case class Interval (thus, not supported by default), we can still serialize it
+Now, if we have a non-case class Interval (thus, not supported by default), we can still serialize it
 by providing following serializer.
 
 ```scala
@@ -887,13 +887,13 @@ scala> class IntervalSerializer extends CustomSerializer[Interval](format => (
 scala> implicit val formats = Serialization.formats(NoTypeHints) + new IntervalSerializer
 ```
 
-Custom serializer is created by providing two partial functions. The first evaluates to a value
+A custom serializer is created by providing two partial functions. The first evaluates to a value
 if it can unpack the data from JSON. The second creates the desired JSON if the type matches.
 
 Extensions
 ----------
 
-Module json4s-ext contains extensions to extraction and serialization. Following types are supported.
+Module json4s-ext contains extensions to extraction and serialization. The following types are supported.
 
 ```scala
 // Lift's box
@@ -911,7 +911,7 @@ implicit val formats = org.json4s.DefaultFormats ++ org.json4s.ext.JodaTimeSeria
 XML support
 ===========
 
-JSON structure can be converted to XML node and vice versa.
+JSON structure can be converted to XML nodes and vice versa.
 Please see more examples in [XmlExamples.scala](https://github.com/json4s/json4s/blob/3.5/tests/src/test/scala/org/json4s/XmlExamples.scala).
 
 ```scala
@@ -944,7 +944,7 @@ res3: String =
 }
 ```
 
-Now, the above example has two problems. First, the id is converted to String while we might want it as an Int. This is easy to fix by mapping JString(s) to JInt(s.toInt). The second problem is more subtle. The conversion function decides to use JSON array because there's more than one user-element in XML. Therefore a structurally equivalent XML document which happens to have just one user-element will generate a JSON document without JSON array. This is rarely a desired outcome. These both problems can be fixed by following transformation function.
+Now, the above example has two problems. First, the ID is converted to String while we might want it as an Int. This is easy to fix by mapping JString(s) to JInt(s.toInt). The second problem is more subtle. The conversion function decides to use a JSON array because there's more than one `user` element in XML. Therefore a structurally equivalent XML document which happens to have just one `user` element will generate a JSON document without a JSON array. This is rarely a desired outcome. These both problems can be fixed by the following transformation function.
 
 ```scala
 scala> json transformField {
@@ -960,12 +960,12 @@ scala> toXml(json)
 res5: scala.xml.NodeSeq = NodeSeq(<users><user><id>1</id><name>Harry</name></user><user><id>2</id><name>David</name></user></users>)
 ```
 
-Low level pull parser API
+Low-level pull parser API
 =========================
 
-Pull parser API is provided for cases requiring extreme performance. It improves parsing performance by two ways. First, no intermediate AST is generated. Second, you can stop parsing at any time, skipping rest of the stream. Note, this parsing style is recommended only as an optimization. Above mentioned functional APIs are easier to use.
+The pull parser API is provided for cases requiring extreme performance. It improves parsing performance in two ways. First, no intermediate AST is generated. Second, you can stop parsing at any time, skipping rest of the stream. Note:  This parsing style is recommended only as an optimization. The above-mentioned functional APIs are easier to use.
 
-Consider following example which shows how to parse one field value from a big JSON.
+Consider the following example, which shows how to parse one field value from a big JSON.
 
 ```scala
 scala> val json = """
@@ -1003,9 +1003,9 @@ scala> val postalCode = parse(json, parser)
 postalCode: BigInt = 10021
 ```
 
-Pull parser is a function `Parser => A`, in this example it is concretely `Parser => BigInt`. 
-Constructed parser recursively reads tokens until it finds `FieldStart("postalCode")` token. 
-After that the next token must be `IntVal`, otherwise parsing fails. It returns parsed integer and stops parsing immediately.
+The pull parser is a function `Parser => A`; in this example it is concretely `Parser => BigInt`. 
+The constructed parser recursively reads tokens until it finds a `FieldStart("postalCode")` token. 
+After that the next token must be `IntVal`; otherwise parsing fails. It returns the parsed integer value and stops parsing immediately.
 
 FAQ
 ===
@@ -1026,12 +1026,12 @@ org.json4s.MappingException: Parsed JSON values do not match with class construc
 
 A1:
 
-Extraction does not work for classes defined in REPL. Compile the case class definitions
-with scalac and import those to REPL.
+Extraction does not work for classes defined in the REPL. Compile the case class definitions
+with scalac and import those to the REPL.
 
 Kudos
 =====
 
-* The original idea for DSL syntax was taken from Lift mailing list ([by Marius](http://markmail.org/message/lniven2hn22vhupu)).
+* The original idea for the DSL syntax was taken from the Lift mailing list ([by Marius](http://markmail.org/message/lniven2hn22vhupu)).
 
-* The idea for AST and rendering was taken from [Real World Haskell book](http://book.realworldhaskell.org/read/writing-a-library-working-with-json-data.html).
+* The idea for the AST and rendering was taken from [Real World Haskell book](http://book.realworldhaskell.org/read/writing-a-library-working-with-json-data.html).
