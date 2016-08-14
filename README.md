@@ -682,7 +682,7 @@ scala> ((json \ "children")(0) \ "birthdate").extract[Date]
 res1: java.util.Date = Sat Sep 04 21:06:22 EEST 2004
 ```
 
-DateFormat can be changed by overriding 'DefaultFormats' (or by implmenting trait 'Formats'):
+DateFormat can be changed by overriding 'DefaultFormats' (or by implementing trait 'Formats'):
 
 ```scala
 scala> implicit val formats = new DefaultFormats {
@@ -963,9 +963,9 @@ res5: scala.xml.NodeSeq = NodeSeq(<users><user><id>1</id><name>Harry</name></use
 Low-level pull parser API
 =========================
 
-The pull parser API is provided for cases requiring extreme performance. It improves parsing performance in two ways. First, no intermediate AST is generated. Second, you can stop parsing at any time, skipping rest of the stream. Note:  This parsing style is recommended only as an optimization. The above-mentioned functional APIs are easier to use.
+The pull parser API is provided for cases requiring extreme performance. It improves parsing performance in two ways. First, no intermediate AST is generated. Second, you can stop parsing at any time, skipping the rest of the stream. Note:  This parsing style is recommended only as an optimization. The above-mentioned functional APIs are easier to use.
 
-Consider the following example, which shows how to parse one field value from a big JSON.
+Consider the following example, which shows how to parse one field value from a big JSON:
 
 ```scala
 scala> val json = """
