@@ -203,7 +203,10 @@ object ShortTypeHintExamples extends TypeHintExamples {
     native.Serialization.read[Animals](ser) must_== Animals(Nil, Dog("pluto"))
   }
 
-
+  "Deserialization succeeds when a field name matching typeHintFieldName exists" in {
+    val ser = """{"jsonClass":"Dog"}"""
+    native.Serialization.read[NotTypeHint](ser) must_== NotTypeHint("Dog")
+  }
 }
 
 object FullTypeHintExamples extends TypeHintExamples {
@@ -244,6 +247,11 @@ object FullTypeHintExamples extends TypeHintExamples {
     val ser = swrite(pw)
     ser must_== """{"name":"zoltan","bird":{"jsonClass":"org.json4s.Chicken","eggs":3}}"""
     read[PlayerWithBird]("""{"name":"zoltan"}""") must_== pw
+  }
+
+  "Deserialization succeeds when a field name matching typeHintFieldName exists" in {
+    val ser = """{"jsonClass":"org.json4s.Chicken"}"""
+    read[NotTypeHint](ser) must_== NotTypeHint("org.json4s.Chicken")
   }
 }
 
@@ -286,6 +294,8 @@ trait TypeHintExamples extends Specification {
     read[(Animal, Animal)](ser) must_== t
   }
 }
+
+case class NotTypeHint(jsonClass: String)
 
 case class Animals(animals: List[Animal], pet: Animal)
 trait Animal
