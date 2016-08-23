@@ -9,6 +9,35 @@ object NativeJsonMethodsSpec extends Specification {
   import scala.text._
   import JsonMethods._
 
+  "JsonMethods.parse" should {
+
+	  val stringJson = """{"number": 200}"""
+
+    "parse StringInput and produce JInt" in {
+      (parse(stringJson) \ "number") must beAnInstanceOf[JInt]
+    }
+
+    "parse ReaderInput and produce JInt" in {
+      (parse(new java.io.StringReader(stringJson)) \ "number") must beAnInstanceOf[JInt]
+    }
+
+    "parse StreamInput and produce JInt" in {
+      (parse(new java.io.ByteArrayInputStream(stringJson.getBytes)) \ "number") must beAnInstanceOf[JInt]
+    }
+
+    "parse StringInput and produce JLong" in {
+      (parse(stringJson, useBigIntForLong = false) \ "number") must beAnInstanceOf[JLong]
+    }
+
+    "parse ReaderInput and produce JLong" in {
+      (parse(new java.io.StringReader(stringJson), useBigIntForLong = false) \ "number") must beAnInstanceOf[JLong]
+    }
+
+    "parse StreamInput and produce AST using Long" in {
+      (parse(new java.io.ByteArrayInputStream(stringJson.getBytes), useBigIntForLong = false) \ "number") must beAnInstanceOf[JLong]
+    }
+  }
+
   "JsonMethods.write" should {
 
     "produce JSON without empty fields" in {
