@@ -17,7 +17,7 @@
 package org.json4s
 
 import org.specs2.mutable.Specification
-import text.Document
+import org.json4s.native.Document
 
 object NativeXmlExamples extends XmlExamples[Document]("Native") with native.JsonMethods
 object JacksonXmlExamples extends XmlExamples[JValue]("Jackson") with jackson.JsonMethods

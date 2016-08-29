@@ -1,8 +1,7 @@
 package org.json4s
 package native
 
-import text.Document
-import text.Document._
+import org.json4s.native.Document._
 import io.Source
 
 trait JsonMethods extends org.json4s.JsonMethods[Document] {

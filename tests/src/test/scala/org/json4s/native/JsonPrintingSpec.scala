@@ -9,7 +9,7 @@ import org.specs2.mutable.Specification
 * System under specification for JSON Printing.
 */
 object JsonPrintingSpec extends Specification with JValueGen with ScalaCheck {
-  import scala.text.Document
+  import native.Document
   import native.Printer
   import native.JsonMethods._
 

@@ -20,7 +20,7 @@ import java.util.Date
 import org.json4s
 
 import org.specs2.mutable.Specification
-import text.Document
+import org.json4s.native.Document
 
 object NativeExtractionExamples extends ExtractionExamples[Document]("Native", native.Serialization) with native.JsonMethods
 object JacksonExtractionExamples extends ExtractionExamples[JValue]("Jackson", jackson.Serialization) with jackson.JsonMethods

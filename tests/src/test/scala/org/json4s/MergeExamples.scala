@@ -17,7 +17,7 @@
 package org.json4s
 
 import org.specs2.mutable.Specification
-import text.Document
+import org.json4s.native.Document
 
 object NativeMergeExamples extends MergeExamples[Document]("Native") with native.JsonMethods
 object JacksonMergeExamples extends MergeExamples[JValue]("Jackson") with jackson.JsonMethods

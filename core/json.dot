@@ -18,7 +18,7 @@ digraph json {
   ast [label="Json AST"]
   dsl [label="Json DSL"]
   ser [label="Serialized\nstring"]
-  doc [label="<<scala.text>>\nDocument"]
+  doc [label="Document"]
   s [label="String"]
   class [label="Case class"]
   xml [label="XML"]

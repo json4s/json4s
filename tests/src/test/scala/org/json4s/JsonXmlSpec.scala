@@ -19,7 +19,7 @@ package org.json4s
 import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
 import org.scalacheck.Arbitrary
-import text.Document
+import org.json4s.native.Document
 
 //import NativeImports._
 //import JsonMethods._

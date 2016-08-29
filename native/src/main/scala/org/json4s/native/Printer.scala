@@ -2,7 +2,7 @@ package org.json4s
 package native
 
 /** Printer converts JSON to String.
- * Before printing a <code>JValue</code> needs to be rendered into scala.text.Document.
+ * Before printing a <code>JValue</code> needs to be rendered into [[Document]].
  * <p>
  * Example:<pre>
  * pretty(render(json))
@@ -13,7 +13,6 @@ package native
 object Printer extends Printer
 trait Printer {
   import java.io._
-  import scala.text._
 
   /** Compact printing (no whitespace etc.)
    */
