@@ -1,7 +1,5 @@
 package org.json4s
 
-import text.Document
-
 package object native {
   def parseJson(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue =
     JsonMethods.parse(in, useBigDecimalForDouble)

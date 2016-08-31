@@ -18,7 +18,7 @@ package org.json4s
 
 import org.json4s.prefs.EmptyValueStrategy
 import org.specs2.mutable.Specification
-import text.Document
+import org.json4s.native.Document
 
 object NativeExamples extends Examples[Document]("Native") with native.JsonMethods
 object JacksonExamples extends Examples[JValue]("Jackson") with jackson.JsonMethods

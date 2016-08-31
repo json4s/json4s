@@ -2,7 +2,7 @@ package org.json4s
 
 import org.specs2.mutable.Specification
 import reflect.{ClassDescriptor, Reflector}
-import text.Document
+import org.json4s.native.Document
 import java.util
 
 object NativeExtractionBugs extends ExtractionBugs[Document]("Native") with native.JsonMethods
