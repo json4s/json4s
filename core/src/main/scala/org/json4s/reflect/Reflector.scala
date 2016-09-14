@@ -131,25 +131,19 @@ object Reflector {
         else
           Nil
         val genParams = Vector(ctor.getGenericParameterTypes: _*)
-        val ctorParams = ctorParameterNames.zipWithIndex map { paramNameAndIndex =>
-          paramNameAndIndex match {
-            case (ScalaSigReader.OuterFieldName, index) => {
-              //            println("The result type of the $outer param: " + genParams(0))
-              if (tpe.erasure.getDeclaringClass == null) fail("Classes defined in method bodies are not supported.")
-              companion = findCompanion(checkCompanionMapping = true)
-              val default = companionMappings.find(_._1 == tpe.erasure).map(_._2).map(() => _)
-              val tt = scalaTypeOf(tpe.erasure.getDeclaringClass)
-              ConstructorParamDescriptor(ScalaSigReader.OuterFieldName, ScalaSigReader.OuterFieldName, index, tt, default)
-            }
-            case (paramName, index) => {
-              companion = findCompanion(checkCompanionMapping = false)
-              val decoded = unmangleName(paramName)
-              val default = companion flatMap { comp => defaultValue(comp.erasure.erasure, comp.instance, index) }
-              //println(s"$paramName $index $tpe $ctorParameterNames ${genParams(index)}")
-              val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.filterNot(_==ScalaSigReader.OuterFieldName).toList, genParams(index))
-              ConstructorParamDescriptor(decoded, paramName, index, theType, default)
-            }
-          }
+        val ctorParams = ctorParameterNames.zip(genParams).zipWithIndex.map {
+          case ((ScalaSigReader.OuterFieldName, _), index) =>
+            if (tpe.erasure.getDeclaringClass == null) fail("Classes defined in method bodies are not supported.")
+            companion = findCompanion(checkCompanionMapping = true)
+            val default = companionMappings.find(_._1 == tpe.erasure).map(_._2).map(() => _)
+            val tt = scalaTypeOf(tpe.erasure.getDeclaringClass)
+            ConstructorParamDescriptor(ScalaSigReader.OuterFieldName, ScalaSigReader.OuterFieldName, index, tt, default)
+          case ((paramName, genParam), index) =>
+            companion = findCompanion(checkCompanionMapping = false)
+            val decoded = unmangleName(paramName)
+            val default = companion flatMap { comp => defaultValue(comp.erasure.erasure, comp.instance, index) }
+            val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.filterNot(_==ScalaSigReader.OuterFieldName).toList, genParam)
+            ConstructorParamDescriptor(decoded, paramName, index, theType, default)
         }
         ConstructorDescriptor(ctorParams.toSeq, ctor, isPrimary = false)
       }
