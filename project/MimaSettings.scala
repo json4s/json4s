@@ -4,7 +4,7 @@ import com.typesafe.tools.mima.plugin.MimaKeys._
 
 object MimaSettings {
 
-  val previousVersions: Set[String] = Set(0).map(patch => s"3.4.$patch")
+  val previousVersions: Set[String] = Set(0, 1).map(patch => s"3.4.$patch")
 
   val mimaSettings = MimaPlugin.mimaDefaultSettings ++ Seq(
     previousArtifacts := {
