@@ -58,6 +58,8 @@ object Diff {
     case (x, y) if x == y => Diff(JNothing, JNothing, JNothing)
     case (JObject(xs), JObject(ys)) => diffFields(xs, ys)
     case (JArray(xs), JArray(ys)) => diffVals(xs, ys)
+    // unlike diff of JArrays, order of elements is ignored in diff of JSets
+    case (JSet(x), JSet(y)) if (JSet(x) != (JSet(y))) => Diff(JNothing, JSet(y).difference(JSet(x)), JSet(x).difference(JSet(y)))
     case (JInt(x), JInt(y)) if (x != y) => Diff(JInt(y), JNothing, JNothing)
     case (JDouble(x), JDouble(y)) if (x != y) => Diff(JDouble(y), JNothing, JNothing)
     case (JDecimal(x), JDecimal(y)) if (x != y) => Diff(JDecimal(y), JNothing, JNothing)
