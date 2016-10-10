@@ -443,7 +443,7 @@ object Extraction {
 
     private object TypeHint {
       def unapply(fs: List[JField]): Option[(String, List[JField])] =
-        if (formats.typeHints == NoTypeHints) None
+        if (!formats.typeHints.shouldExtractHints(descr.erasure.erasure)) None
         else {
           fs.partition(_._1 == formats.typeHintFieldName) match {
             case (Nil, _) => None

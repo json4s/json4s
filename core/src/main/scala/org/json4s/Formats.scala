@@ -227,6 +227,7 @@ trait Formats extends Serializable { self: Formats =>
     @deprecated("Use `containsHint` without `_?` instead", "3.2.0")
     def containsHint_?(clazz: Class[_]): Boolean = containsHint(clazz)
     def containsHint(clazz: Class[_]): Boolean = hints exists (_ isAssignableFrom clazz)
+    def shouldExtractHints(clazz: Class[_]): Boolean = hints exists (clazz isAssignableFrom _)
     def deserialize: PartialFunction[(String, JObject), Any] = Map()
     def serialize: PartialFunction[Any, JObject] = Map()
 
@@ -292,6 +293,7 @@ trait Formats extends Serializable { self: Formats =>
     val hints: List[Class[_]] = Nil
     def hintFor(clazz: Class[_]) = sys.error("NoTypeHints does not provide any type hints.")
     def classFor(hint: String) = None
+    override def shouldExtractHints(clazz: Class[_]) = false
   }
 
   /** Use short class name as a type hint.
