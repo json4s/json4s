@@ -176,6 +176,23 @@ object JsonAST {
     override def apply(i: Int): JValue = arr(i)
   }
 
+  // JSet is set implementation for JValue.
+  // It supports basic set operations, like intersection, union and difference.
+  case class JSet(set: Set[JValue]) extends JValue {
+    type Values = Set[JValue]
+    def values = set
+
+    override def equals(o: Any): Boolean = o match {
+      case o: JSet ⇒ o.values == values
+      case _ ⇒ false
+    }
+
+    def intersect(o: JSet): JSet = JSet(o.values.intersect(values))
+    def union(o: JSet): JSet = JSet(o.values.union(values))
+    def difference(o: JSet): JSet = JSet(values.diff(o.values))
+
+  }
+
   type JField = (String, JValue)
   object JField {
     def apply(name: String, value: JValue) = (name, value)
