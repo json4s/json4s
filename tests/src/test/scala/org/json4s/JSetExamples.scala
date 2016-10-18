@@ -4,7 +4,6 @@ package org.json4s
   * Created by pankhuri on 8/18/16.
   */
 import org.specs2.mutable._
-import JsonAST.JSet
 
 
 class JSetExamples extends Specification {
