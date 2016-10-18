@@ -41,6 +41,8 @@ package object json4s {
   val  JObject  = JsonAST.JObject
   type JArray   = JsonAST.JArray
   val  JArray   = JsonAST.JArray
+  type JSet     = JsonAST.JSet
+  val  JSet     = JsonAST.JSet
 
   val  TypeInfo = reflect.TypeInfo
   type TypeInfo = reflect.TypeInfo

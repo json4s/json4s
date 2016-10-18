@@ -537,6 +537,11 @@ private sealed abstract class StreamingJsonWriter[T <: JWriter] extends JsonWrit
       arr foreach ab.addJValue
       ab.endArray()
 
+    case JSet(s) =>
+      val ab = startArray()
+      s foreach ab.addJValue
+      ab.endArray()
+
     case JObject(flds) =>
       val obj = startObject()
       flds foreach {

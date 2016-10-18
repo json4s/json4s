@@ -272,6 +272,15 @@ object Extraction {
     def escapePath(str: String) = str
 
     def flatten0(path: String, json: JValue): Map[String, String] = {
+      def array(arr: Iterable[JValue]) = {
+        arr.size match {
+          case 0 => Map(path -> "[]")
+          case _ => arr.foldLeft((Map[String, String](), 0)) {
+                      (tuple, value) => (tuple._1 ++ flatten0(path + "[" + tuple._2 + "]", value), tuple._2 + 1)
+                    }._1
+        }
+      }
+
       json match {
         case JNothing | JNull    => Map()
         case JString(s)          => Map(path -> ("\"" + ParserUtil.quote(s) + "\""))
@@ -283,12 +292,8 @@ object Extraction {
         case JObject(obj)        => obj.foldLeft(Map[String, String]()) { case (map, (name, value)) =>
           map ++ flatten0(path + "." + escapePath(name), value)
         }
-        case JArray(arr)         => arr.length match {
-          case 0 => Map(path -> "[]")
-          case _ => arr.foldLeft((Map[String, String](), 0)) {
-                      (tuple, value) => (tuple._1 ++ flatten0(path + "[" + tuple._2 + "]", value), tuple._2 + 1)
-                    }._1
-        }
+        case JArray(arr)         => array(arr)
+        case JSet(s)             => array(s)
       }
     }
 

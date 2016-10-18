@@ -38,7 +38,7 @@ trait JValueGen {
 
   def genJValueClass: Gen[Class[_ <: JValue]] = oneOf(
     JNull.getClass.asInstanceOf[Class[JValue]], JNothing.getClass.asInstanceOf[Class[JValue]], classOf[JInt],
-    classOf[JDouble], classOf[JBool], classOf[JString], classOf[JArray], classOf[JObject])
+    classOf[JDouble], classOf[JBool], classOf[JString], classOf[JArray], classOf[JObject], classOf[JSet])
 
   def listSize = choose(0, 5).sample.get
 
@@ -49,6 +49,7 @@ trait JValueGen {
           case JString(a) => Cogen.perturb(seed, a)
           case JBool(a) => Cogen.perturb(seed, a)
           case JArray(a) => Cogen.perturb(seed, a)
+          case JSet(a) => Cogen.perturb(seed, a.toList)
           case JDecimal(a) => Cogen.perturb(seed, a.bigDecimal.unscaledValue.toByteArray)
           case JDouble(a) => Cogen.perturb(seed, a)
           case JInt(a) => Cogen.perturb(seed, a.toByteArray)
