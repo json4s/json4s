@@ -23,6 +23,14 @@ object Reflector {
         classOf[java.math.BigDecimal], classOf[java.math.BigInteger])
   }
 
+
+  def clearCaches() = {
+    rawClasses.clear()
+    unmangledNames.clear()
+    descriptors.clear()
+    stringTypes.clear()
+  }
+
   def isPrimitive(t: Type, extra: Set[Type] = Set.empty) = (primitives ++ extra) contains t
 
   def scalaTypeOf[T](implicit mf: Manifest[T]): ScalaType = ScalaType(mf)
