@@ -53,7 +53,7 @@ object build extends Build {
   val json4sSettings = mavenCentralFrouFrou ++ Seq(
     organization := "org.json4s",
     scalaVersion := "2.11.8",
-    crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.0-RC1"),
+    crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.0-RC2"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
@@ -63,7 +63,7 @@ object build extends Build {
           Nil
       }
     },
-    version := "3.4.2-SNAPSHOT",
+    version := "3.4.2",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     javaVersionPrefix in javaVersionCheck := Some{
       CrossVersion.partialVersion(scalaVersion.value) match {
