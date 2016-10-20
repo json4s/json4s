@@ -7,7 +7,7 @@ object MimaSettings {
   val previousVersions: Set[String] = Set(0, 2).map(patch => s"3.4.$patch")
 
   val mimaSettings = MimaPlugin.mimaDefaultSettings ++ Seq(
-    previousArtifacts := {
+    mimaPreviousArtifacts := {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, scalaMajor)) if scalaMajor <= 11 =>
           previousVersions.map { organization.value % s"${name.value}_${scalaBinaryVersion.value}" % _ }
@@ -15,7 +15,7 @@ object MimaSettings {
       }
     },
     test in Test := {
-      reportBinaryIssues.value
+      mimaReportBinaryIssues.value
       (test in Test).value
     }
   )
