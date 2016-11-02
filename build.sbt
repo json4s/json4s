@@ -30,7 +30,7 @@ lazy val core = Project(
   id = "json4s-core",
   base = file("core"),
   settings = json4sSettings ++ Seq(
-    libraryDependencies <++= scalaVersion { sv => Seq(paranamer) ++ scalaXml(sv) },
+    libraryDependencies ++= Seq(paranamer) ++ scalaXml(scalaVersion.value),
     initialCommands in (Test, console) := """
         |import org.json4s._
         |import reflect._
@@ -78,7 +78,7 @@ lazy val mongo = Project(
    base = file("mongo"),
    settings = json4sSettings ++ Seq(
      libraryDependencies ++= Seq(
-       "org.mongodb" % "mongo-java-driver" % "3.2.1"
+       "org.mongodb" % "mongo-java-driver" % "3.3.0"
     )
 )) dependsOn(core % "compile;test->test")
 
@@ -103,10 +103,11 @@ lazy val benchmark = Project(
     libraryDependencies ++= Seq(
       "com.google.code.java-allocation-instrumenter" % "java-allocation-instrumenter" % "3.0.1",
       "com.google.caliper" % "caliper" % "0.5-rc1",
-      "com.google.code.gson" % "gson" % "2.7"
+      "com.google.code.gson" % "gson" % "2.8.0"
     ),
-    runner in Compile in run <<= (thisProject, taskTemporaryDirectory, scalaInstance, baseDirectory, javaOptions, outputStrategy, javaHome, connectInput) map {
-      (tp, tmp, si, base, options, strategy, javaHomeDir, connectIn) =>
+    runner in Compile in run := {
+      val (tp, tmp, si, base, options, strategy, javaHomeDir, connectIn) =
+        (thisProject.value, taskTemporaryDirectory.value, scalaInstance.value, baseDirectory.value, javaOptions.value, outputStrategy.value, javaHome.value, connectInput.value)
         new MyRunner(tp.id, ForkOptions(javaHome = javaHomeDir, connectInput = connectIn, outputStrategy = strategy,
           runJVMOptions = options, workingDirectory = Some(base)) )
     }

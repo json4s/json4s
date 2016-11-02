@@ -8,8 +8,7 @@ object Dependencies {
     "org.joda"  % "joda-convert" % "1.8.1"
   )
   lazy val jackson      = Seq(
-    // TODO: 2.7
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.7"
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.4"
   )
   lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.7"
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.8"
