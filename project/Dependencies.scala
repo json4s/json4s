@@ -11,11 +11,11 @@ object Dependencies {
     // TODO: 2.7
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.7"
   )
-  lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.6"
+  lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.7"
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.8"
   lazy val commonsCodec = "commons-codec"                %  "commons-codec"        % "1.9"
   lazy val specs        = Def.setting{
-    Seq("org.specs2" %% "specs2-scalacheck" % "3.8.5" % "test")
+    Seq("org.specs2" %% "specs2-scalacheck" % "3.8.6" % "test")
   }
   lazy val mockito      = "org.mockito"                  %  "mockito-all"          % "1.10.19" % "test"
 
