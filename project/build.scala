@@ -10,17 +10,17 @@ import com.typesafe.sbt.JavaVersionCheckPlugin.autoImport._
 object build {
   import Dependencies._
 
-  val manifestSetting = packageOptions <+= (name, version, organization) map {
-    (title, version, vendor) =>
+  val manifestSetting = packageOptions += {
+    val (title, v, vendor) = (name.value, version.value, organization.value)
       Package.ManifestAttributes(
         "Created-By" -> "Simple Build Tool",
         "Built-By" -> System.getProperty("user.name"),
         "Build-Jdk" -> System.getProperty("java.version"),
         "Specification-Title" -> title,
-        "Specification-Version" -> version,
+        "Specification-Version" -> v,
         "Specification-Vendor" -> vendor,
         "Implementation-Title" -> title,
-        "Implementation-Version" -> version,
+        "Implementation-Version" -> v,
         "Implementation-Vendor-Id" -> vendor,
         "Implementation-Vendor" -> vendor
       )
@@ -30,7 +30,8 @@ object build {
     homepage := Some(new URL("https://github.com/json4s/json4s")),
     startYear := Some(2009),
     licenses := Seq(("Apache-2.0", new URL("http://www.apache.org/licenses/LICENSE-2.0"))),
-    pomExtra <<= (pomExtra, name, description) {(pom, name, desc) => pom ++ Group(
+    pomExtra := {
+      pomExtra.value ++ Group(
       <scm>
         <url>http://github.com/json4s/json4s</url>
         <connection>scm:git:git://github.com/json4s/json4s.git</connection>
@@ -47,12 +48,13 @@ object build {
           <url>http://git.io/sera</url>
         </developer>
       </developers>
-    )}
+      )
+    }
   )
 
   val json4sSettings = mavenCentralFrouFrou ++ Seq(
     organization := "org.json4s",
-    scalaVersion := "2.11.8",
+    scalaVersion := "2.12.0",
     crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.0"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
     scalacOptions ++= {

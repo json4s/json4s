@@ -3,8 +3,9 @@ package jackson
 
 import collection.JavaConverters._
 import java.util.concurrent.ConcurrentHashMap
+
 import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.`type`.{ArrayType, TypeFactory}
+import com.fasterxml.jackson.databind.`type`.{ArrayType, TypeBindings, TypeFactory}
 
 
 private[jackson] object Types {
@@ -15,7 +16,14 @@ private[jackson] object Types {
 
   private def constructType(factory: TypeFactory, manifest: Manifest[_]): JavaType = {
     if (manifest.runtimeClass.isArray) {
-      ArrayType.construct(factory.constructType(manifest.runtimeClass.getComponentType), null, null)
+      val javaType: JavaType = factory.constructType(manifest.runtimeClass.getComponentType)
+      val typeBindings: TypeBindings = new TypeBindings
+      ArrayType.construct(
+        javaType,
+        typeBindings,
+        null,
+        null
+      )
     } else {
       val clazz = manifest.runtimeClass
       factory.constructParametrizedType(
