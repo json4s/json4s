@@ -65,7 +65,7 @@ object build {
           Nil
       }
     },
-    version := "3.5.0.RC1",
+    version := "3.5.0-SNAPSHOT",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     javaVersionPrefix in javaVersionCheck := Some{
       CrossVersion.partialVersion(scalaVersion.value) match {
