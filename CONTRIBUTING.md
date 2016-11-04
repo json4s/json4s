@@ -8,17 +8,23 @@
 
 ### Pull Requests
 
-- Pull requests basically should be sent toward "3.5" branch
+- Pull requests basically should be sent toward "3.6" branch
 - Source/binary compatibility always must be kept as far as possible
 - Prefer creating scala source code for each class/object/trait (of course, except for sealed trait)
 - json4s build checks binary compatibility by using [MiMa](https://github.com/typesafehub/migration-manager/wiki/Sbt-plugin) for maintenance releases (e.g. 3.3.x).
 
 #### Branches
 
-##### 3.5 (the default branch)
+##### 3.6 (the default branch)
 
 - The latest stable version
-- This branch must be able to build against Scala 2.10 and 2.11
+- This branch must be able to build against Scala 2.10, 2.11 and 2.12
+- This branch requires Java 8+ for all Scala versions
+
+##### 3.5
+
+- The latest stable version
+- This branch must be able to build against Scala 2.10, 2.11 and 2.12
 
 ##### 3.4
 
