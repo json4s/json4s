@@ -23,7 +23,7 @@
 
 ##### 3.5
 
-- The latest stable version
+- The version 3.5 series maintainance branch
 - This branch must be able to build against Scala 2.10, 2.11 and 2.12
 
 ##### 3.4
