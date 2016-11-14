@@ -1,5 +1,4 @@
 import xml.Group
-import sbtbuildinfo.Plugin._
 import com.typesafe.sbt.SbtStartScript
 import Dependencies._
 import build._
@@ -13,12 +12,11 @@ lazy val root = Project(
 lazy val ast = Project(
   id = "json4s-ast",
   base = file("ast"),
-  settings = json4sSettings ++ buildInfoSettings ++ Seq(
-    sourceGenerators in Compile <+= buildInfo,
+  settings = json4sSettings ++ Seq(
     buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
     buildInfoPackage := "org.json4s"
   )
-)
+).enablePlugins(BuildInfoPlugin)
 
 lazy val scalap = Project(
   id = "json4s-scalap",

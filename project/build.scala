@@ -1,7 +1,6 @@
 import sbt._
 import Keys._
 import xml.Group
-import sbtbuildinfo.Plugin._
 import com.typesafe.sbt.SbtStartScript
 import MimaSettings.mimaSettings
 import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifacts
