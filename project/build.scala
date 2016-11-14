@@ -3,7 +3,7 @@ import Keys._
 import xml.Group
 import com.typesafe.sbt.SbtStartScript
 import MimaSettings.mimaSettings
-import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifacts
+import com.typesafe.tools.mima.plugin.MimaKeys.mimaPreviousArtifacts
 import com.typesafe.sbt.JavaVersionCheckPlugin.autoImport._
 
 object build {
@@ -79,7 +79,7 @@ object build {
   ) ++ mimaSettings
 
   val noPublish = Seq(
-    previousArtifacts := Set(),
+    mimaPreviousArtifacts := Set(),
     publishArtifact := false,
     publish := {},
     publishLocal := {}
