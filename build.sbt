@@ -14,7 +14,7 @@ lazy val ast = Project(
   id = "json4s-ast",
   base = file("ast"),
   settings = json4sSettings ++ buildInfoSettings ++ Seq(
-    sourceGenerators in Compile <+= buildInfo,
+    sourceGenerators in Compile += buildInfo.taskValue,
     buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
     buildInfoPackage := "org.json4s"
   )
