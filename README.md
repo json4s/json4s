@@ -1,4 +1,4 @@
-# JSON4S [![Build Status](https://travis-ci.org/json4s/json4s.svg?branch=3.5)](https://travis-ci.org/json4s/json4s)
+# JSON4S [![Build Status](https://travis-ci.org/json4s/json4s.svg?branch=3.6)](https://travis-ci.org/json4s/json4s)
 
 [![Join the chat at https://gitter.im/json4s/json4s](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/json4s/json4s?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -73,7 +73,7 @@ All features are implemented in terms of the above AST. Functions are used to tr
 the AST itself, or to transform the AST between different formats. Common transformations
 are summarized in a following picture.
 
-![Json AST](https://raw.github.com/json4s/json4s/3.5/core/json.png)
+![Json AST](https://raw.github.com/json4s/json4s/3.6/core/json.png)
 
 Summary of the features:
 
@@ -136,11 +136,11 @@ For the jackson support add the following dependency to your pom:
 Extras
 ------
 
-* [ext](https://github.com/json4s/json4s/tree/3.5/ext)
+* [ext](https://github.com/json4s/json4s/tree/3.6/ext)
 
 Support for Enum, Joda-Time, ...
 
-* [scalaz](https://github.com/json4s/json4s/tree/3.5/scalaz)
+* [scalaz](https://github.com/json4s/json4s/tree/3.6/scalaz)
 
 Applicative style parsing with Scalaz
 
@@ -363,7 +363,7 @@ Merging & Diffing
 -----------------
 
 Two JSONs can be merged and diffed with each other.
-Please see more examples in [MergeExamples.scala](https://github.com/json4s/json4s/blob/3.5/tests/src/test/scala/org/json4s/MergeExamples.scala) and [DiffExamples.scala](https://github.com/json4s/json4s/blob/3.5/tests/src/test/scala/org/json4s/DiffExamples.scala).
+Please see more examples in [MergeExamples.scala](https://github.com/json4s/json4s/blob/3.6/tests/src/test/scala/org/json4s/MergeExamples.scala) and [DiffExamples.scala](https://github.com/json4s/json4s/blob/3.6/tests/src/test/scala/org/json4s/DiffExamples.scala).
 
 ```scala
 scala> import org.json4s._
@@ -422,7 +422,7 @@ Querying JSON
 ------------
 
 JSON values can be extracted using for-comprehensions.
-Please see more examples in [JsonQueryExamples.scala](https://github.com/json4s/json4s/blob/3.5/tests/src/test/scala/org/json4s/JsonQueryExamples.scala).
+Please see more examples in [JsonQueryExamples.scala](https://github.com/json4s/json4s/blob/3.6/tests/src/test/scala/org/json4s/JsonQueryExamples.scala).
 
 ```scala
 scala> import org.json4s._
@@ -584,7 +584,7 @@ Extracting values
 
 Case classes can be used to extract values from parsed JSON. Non-existent values can be extracted into scala.Option and strings can be automatically converted into java.util.Dates.
 
-Please see more examples in [ExtractionExampleSpec.scala](https://github.com/json4s/json4s/blob/3.5/tests/src/test/scala/org/json4s/ExtractionExamplesSpec.scala).
+Please see more examples in [ExtractionExampleSpec.scala](https://github.com/json4s/json4s/blob/3.6/tests/src/test/scala/org/json4s/ExtractionExamplesSpec.scala).
 
 ```scala
 scala> import org.json4s._
@@ -627,7 +627,7 @@ scala> (json \ "children").extract[List[Child]]  // Extract list of objects
 res2: List[Child] = List(Child(Mary,5,Some(Sat Sep 04 23:36:22 IST 2004)), Child(Mazy,3,None))
 ```
 
-By default the constructor parameter names must match json field names. However, sometimes json field names contain characters which are not allowed characters in Scala identifiers. There are two solutions for this.  (See [LottoExample.scala](https://github.com/json4s/json4s/blob/3.5/tests/src/test/scala/org/json4s/LottoExample.scala) for a bigger example.)
+By default the constructor parameter names must match json field names. However, sometimes json field names contain characters which are not allowed characters in Scala identifiers. There are two solutions for this.  (See [LottoExample.scala](https://github.com/json4s/json4s/blob/3.6/tests/src/test/scala/org/json4s/LottoExample.scala) for a bigger example.)
 
 Use back ticks:
 
@@ -722,7 +722,7 @@ val formats: Formats = new DefaultFormats {
 Serialization
 =============
 
-Case classes can be serialized and deserialized. Please see other examples in [SerializationExamples.scala](https://github.com/json4s/json4s/blob/3.5/tests/src/test/scala/org/json4s/native/SerializationExamples.scala).
+Case classes can be serialized and deserialized. Please see other examples in [SerializationExamples.scala](https://github.com/json4s/json4s/blob/3.6/tests/src/test/scala/org/json4s/native/SerializationExamples.scala).
 
 ```scala
 scala> import org.json4s._
@@ -908,7 +908,7 @@ XML support
 ===========
 
 JSON structure can be converted to XML nodes and vice versa.
-Please see more examples in [XmlExamples.scala](https://github.com/json4s/json4s/blob/3.5/tests/src/test/scala/org/json4s/XmlExamples.scala).
+Please see more examples in [XmlExamples.scala](https://github.com/json4s/json4s/blob/3.6/tests/src/test/scala/org/json4s/XmlExamples.scala).
 
 ```scala
 scala> import org.json4s.Xml.{toJson, toXml}
