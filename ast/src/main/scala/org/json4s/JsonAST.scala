@@ -179,7 +179,12 @@ object JsonAST {
   type JField = (String, JValue)
   object JField {
     def apply(name: String, value: JValue) = (name, value)
-    def unapply(f: JField): Option[(String, JValue)] = Some(f)
+
+    final class OptionStringJValue(val f: JField) extends AnyVal {
+      def get: JField = f
+      def isEmpty = false
+    }
+    def unapply(f: JField): OptionStringJValue = new OptionStringJValue(f)
   }
 }
 
