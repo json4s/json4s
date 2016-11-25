@@ -19,6 +19,9 @@ package scalaz
 
 import _root_.scalaz._
 import std.option._
+import syntax.applicative._
+import syntax.validation._
+import syntax.contravariant._
 
 
 trait Types {
@@ -56,6 +59,120 @@ trait Types {
 
   def fromJSON[A: JSONR](json: JValue): Result[A] = implicitly[JSONR[A]].read(json)
   def toJSON[A: JSONW](value: A): JValue = implicitly[JSONW[A]].write(value)
+
+  object JSONW {
+
+    def apply[A:JSONW]: JSONW[A] = implicitly[JSONW[A]]
+
+    def instance[A](f: A => JValue): JSONW[A] = new JSONW[A] {
+      def write(a: A) = f(a)
+    }
+
+  }
+
+
+  object JSONR {
+
+    def apply[A:JSONR]: JSONR[A] = implicitly[JSONR[A]]
+
+    def instance[A](f: JValue => Result[A]): JSONR[A] = new JSONR[A] {
+      def read(json: JValue) = f(json)
+    }
+
+    def instanceE[A](f: JValue => Error \/ A): JSONR[A] = new JSONR[A] {
+      def read(json: JValue) = f(json).validationNel
+    }
+
+  }
+
+  object JSON {
+
+    def apply[A:JSON](implicit jsonA: JSON[A]): JSON[A] = jsonA
+
+    def instance[A](f: JValue => Result[A], g: A => JValue): JSON[A] = new JSON[A] {
+      override def read(json: JValue): Result[A] = f(json)
+      override def write(value: A): JValue = g(value)
+    }
+
+    implicit def JSONfromJSONRW[A](implicit readA: JSONR[A], writeA: JSONW[A]): JSON[A] = new JSON[A] {
+      override def read(json: JValue): Result[A] = readA.read(json)
+      override def write(value: A): JValue = writeA.write(value)
+    }
+
+  }
+
+
+  implicit val jsonrMonad = new Monad[JSONR] {
+
+    override def point[A](a: => A): JSONR[A] = new JSONR[A] {
+      override def read(json: JValue): Result[A] = a.successNel
+    }
+
+    override def bind[A, B](fa: JSONR[A])(f: (A) => JSONR[B]): JSONR[B] = new JSONR[B] {
+      override def read(json: JValue): Result[B] = {
+        fa.read(json) match {
+          case Success(a) => f(a).read(json)
+          case Failure(error) => Failure(error)
+        }
+      }
+    }
+
+  }
+
+  implicit val jsonwContravariant = new Contravariant[JSONW] {
+
+    override def contramap[A, B](r: JSONW[A])(f: (B) => A): JSONW[B] = new JSONW[B] {
+      override def write(value: B): JValue = {
+        r.write(f(value))
+      }
+    }
+
+  }
+
+  implicit class JSONRExt[A](fa: JSONR[A]) {
+
+    def emap[B](f: A => Result[B]): JSONR[B] = new JSONR[B] {
+      override def read(json: JValue): Result[B] = {
+        fa.read(json) match {
+          case Success(a) => f(a)
+          case f@Failure(error) => f
+        }
+      }
+    }
+
+    def orElse[B >: A](fb: JSONR[B]): JSONR[B] = new JSONR[B] {
+      override def read(json: JValue): Result[B] = {
+        fa.read(json) orElse fb.read(json)
+      }
+    }
+
+  }
+
+  implicit class JSONExt[A](fa: JSON[A]) {
+
+    def xmap[B](f: A => B, g: B => A): JSON[B] = new JSON[B] {
+      override def write(value: B): JValue = (fa:JSONW[A]).contramap(g).write(value)
+
+      override def read(json: JValue): Result[B] = (fa:JSONR[A]).map(f).read(json)
+    }
+
+    def exmap[B](f: A => Result[B], g: B => A): JSON[B] = new JSON[B] {
+      override def write(value: B): JValue = (fa:JSONW[A]).contramap(g).write(value)
+
+      override def read(json: JValue): Result[B] = (fa:JSONR[A]).emap(f).read(json)
+    }
+
+  }
+
+  implicit class JSONROps(json: JValue) {
+    def validate[A: JSONR]: ValidationNel[Error, A] = implicitly[JSONR[A]].read(json)
+    def read[A: JSONR]: Error \/ A = implicitly[JSONR[A]].read(json).disjunction.leftMap(_.head)
+  }
+
+  implicit class JSONWOps[A](a: A) {
+    def toJson(implicit w: JSONW[A]): JValue = w.write(a)
+  }
+
 
   def field[A: JSONR](name: String)(json: JValue): Result[A] = json match {
     case JObject(fs) => 

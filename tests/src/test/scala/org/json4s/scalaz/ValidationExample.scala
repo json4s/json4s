@@ -49,8 +49,8 @@ object ValidationExample extends Specification {
     }.disjunction
 
     // Valid range is a range having start <= end
-    implicit def rangeJSON: JSONR[Range] = new JSONR[Range] {
-      def read(json: JValue) =
+    implicit def rangeJSON: JSONR[Range] = JSONR.instance[Range] {
+      json =>
         (((field[Int]("s")(json) |@| field[Int]("e")(json))(ascending)).disjunction.join map Range.tupled).validation
     }
 

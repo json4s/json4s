@@ -31,8 +31,8 @@ object Example extends Specification {
   }
 
   "Parse Person with Address" in {
-    implicit def addrJSON: JSONR[Address] = new JSONR[Address] {
-      def read(json: JValue) = Address.applyJSON(field[String]("street"), field[String]("zip"))(json)
+    implicit def addrJSON: JSONR[Address] = JSONR.instance[Address] {
+      json => Address.applyJSON(field[String]("street"), field[String]("zip"))(json)
     }
 
     val p = parse(""" {"name":"joe","age":34,"address":{"street": "Manhattan 2", "zip": "00223" }} """)
@@ -41,8 +41,8 @@ object Example extends Specification {
   }
 
   "Format Person with Address" in {
-    implicit def addrJSON: JSONW[Address] = new JSONW[Address] {
-      def write(a: Address) =
+    implicit def addrJSON: JSONW[Address] = JSONW.instance[Address] {
+      a =>
         makeObj(("street" -> toJSON(a.street)) :: ("zip" -> toJSON(a.zipCode)) :: Nil)
     }
 
@@ -62,5 +62,95 @@ object Example extends Specification {
   "Format Map" in {
     toJSON(Map("street" -> "Manhattan 2", "zip" -> "00223")).shows mustEqual
       """{"street":"Manhattan 2","zip":"00223"}"""
+  }
+
+  "Parse item in Monadic style" in {
+
+    case class Item(label: String, amount: Int, price: Double)
+
+    val json: JValue =
+      parse("""
+        |[
+        |  {
+        |    "label": "foo item",
+        |    "amount": { "value": 200 },
+        |    "price": { "value": 1.99 }
+        |  },
+        |  {
+        |    "label": "bar item",
+        |    "amount": { "value": 100 },
+        |    "price": { "value": 2.50 }
+        |  }
+        |]
+      """.stripMargin)
+
+    implicit val itemJSONR: JSONR[Item] = JSONR.instanceE[Item] { json =>
+      for {
+        label <- (json \ "label").read[String]
+        amount <- (json \ "amount" \ "value").read[Int]
+        price <- (json \ "price" \ "value").read[Double]
+      } yield Item(label, amount, price)
+    }
+
+    implicit val itemJSONW: JSONW[Item] = JSONW.instance[Item] { item =>
+      makeObj(
+        ("label" -> toJSON(item.label)) ::
+        ("amount" -> makeObj(("value" -> toJSON(item.amount)) :: Nil)) ::
+        ("price" -> makeObj(("value" -> toJSON(item.price)) :: Nil)) :: Nil
+      )
+    }
+
+    json.validate[List[Item]] must beLike[Result[List[Item]]] {
+      case Success(xs) =>
+        xs must haveSize(2)
+
+        (xs.toJson === json) must beTrue
+    }
+
+  }
+
+  "DynamicJValue" in {
+
+    val text =
+      """
+        |{
+        |  "street" : "Manhattan 2",
+        |  "zip" : "00223",
+        |  "info" : { "verified": true }
+        |}
+      """.stripMargin
+
+    val json: JValue = parse(text)
+
+    case class AddressInfo(street: String, zip: String, info: DynamicJValue)
+
+    implicit val dynamicJValueJson = JSON.instance[DynamicJValue](
+      json => DynamicJValue.dyn(json).successNel,
+      _.raw
+    )
+
+    implicit val adressInfoJSONR: JSONR[AddressInfo] = AddressInfo.applyJSON(
+      field[String]("street"),
+      field[String]("zip"),
+      field[DynamicJValue]("info")
+    )
+
+    implicit val addressInfoJSONW: JSONW[AddressInfo] = JSONW.instance[AddressInfo] { info =>
+      makeObj(
+        ("street" -> toJSON(info.street)) ::
+        ("zip" -> toJSON(info.zip)) ::
+        ("info" -> toJSON(info.info)) :: Nil
+      )
+    }
+
+    json.validate[AddressInfo] must beLike[Result[AddressInfo]] {
+      case Success(info) =>
+
+        info.street must_== "Manhattan 2"
+        info.zip must_== "00223"
+        info.info.raw must_== JObject("verified" -> JBool(true))
+    }
+
+
   }
 }
