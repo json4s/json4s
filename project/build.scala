@@ -157,7 +157,7 @@ object build extends Build {
      base = file("mongo"),
      settings = json4sSettings ++ Seq(
        libraryDependencies ++= Seq(
-         "org.mongodb" % "mongo-java-driver" % "3.2.1"
+         "org.mongodb.scala" %% "mongo-scala-driver" % "1.1.1"
       )
   )) dependsOn(core % "compile;test->test")
 
