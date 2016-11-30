@@ -1,0 +1,31 @@
+package org.json4s.ext
+
+import org.json4s._
+import org.json4s.reflect.TypeInfo
+
+
+object DateParser {
+  def parse(s: String, format: Formats) =
+    format.dateFormat.parse(s).map(_.getTime).getOrElse(throw new MappingException(s"Invalid date format $s"))
+}
+
+private[ext] trait ClassType[A, B] {
+  def unwrap(b: B)(implicit format: Formats): A
+  def wrap(a: A)(implicit format: Formats): B
+}
+
+case class ClassSerializer[A : Manifest, B : Manifest](t: ClassType[A, B]) extends Serializer[A] {
+  private val Class = implicitly[Manifest[A]].runtimeClass
+
+  def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), A] = {
+    case (TypeInfo(Class, _), json) => json match {
+      case JNull => null.asInstanceOf[A]
+      case xs: JObject if (xs.extractOpt[B].isDefined) => t.unwrap(xs.extract[B])
+      case value => throw new MappingException(s"Can't convert $value to $Class")
+    }
+  }
+
+  def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
+    case a: A if a.asInstanceOf[AnyRef].getClass == Class => Extraction.decompose(t.wrap(a))
+  }
+}
