@@ -4,7 +4,7 @@ import Keys._
 object Dependencies {
 
   lazy val jodaTime     = Seq(
-    "joda-time" % "joda-time"    % "2.9.5",
+    "joda-time" % "joda-time"    % "2.9.6",
     "org.joda"  % "joda-convert" % "1.8.1"
   )
   lazy val jackson      = Seq(
