@@ -17,10 +17,10 @@
 package org.json4s
 package ext
 
-import java.net.URL
-import java.net.URI
+import java.net.{URI, URL}
 import java.util.UUID
-import scala.util.{Try, Success, Failure}
+
+import scala.util.control.NonFatal
 
 object JavaTypesSerializers {
   val all = List(UUIDSerializer, URLSerializer, URISerializer)
@@ -29,10 +29,11 @@ object JavaTypesSerializers {
 case object UUIDSerializer extends CustomSerializer[UUID](format => (
   {
     case JString(s) =>
-      Try(UUID.fromString(s)) match {
-        case Success(u) => u
-        case Failure(e) =>
-          throw new MappingException(e.getMessage, new java.lang.IllegalArgumentException(e))
+      try {
+        UUID.fromString(s)
+      } catch {
+        case NonFatal(e) =>
+          throw MappingException(e.getMessage, new java.lang.IllegalArgumentException(e))
       }
     case JNull      => null
   },
