@@ -43,7 +43,13 @@ abstract class UUIDSerializerSpec(mod: String) extends Specification {
       val ser = s.write(x)
       s.read[SubjectWithUUID](ser) must_== x
     }
+
+    "Throw mapping exceptions when fails to create uuid from string" in {
+      val nonUUIDString = "abcdef"
+      JString(nonUUIDString).extract[UUID] must throwA[MappingException]
+    }
   }
+
 }
 
 case class SubjectWithUUID(id:UUID)
