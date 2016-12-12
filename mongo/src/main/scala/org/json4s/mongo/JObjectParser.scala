@@ -24,6 +24,7 @@ import org.bson.types.ObjectId
 import java.util.concurrent.atomic.AtomicReference
 import org.json4s.ParserUtil.ParseException
 import collection.JavaConverters._
+import scala.util.Try
 
 object JObjectParser  {
   /**
@@ -79,55 +80,43 @@ object JObjectParser  {
       case x => throw new ParseException(s"Couldn't parse $x to a DBObject", null)
     }
 
+    private def render(jv: JValue, formats: Formats) : Option[Object] = jv match {
+      case JObject(JField("$oid", JString(s)) :: Nil) =>
+        if(ObjectId.isValid(s)) Some(new ObjectId(s)) else None
+      case JObject(JField("$regex", JString(s)) :: JField("$flags", JInt(f)) :: Nil) =>
+        Try { Pattern.compile(s, f.intValue) } toOption
+      case JObject(JField("$dt", JString(s)) :: Nil) =>
+        formats.dateFormat.parse(s)
+      case JObject(JField("$uuid", JString(s)) :: Nil) =>
+        Try { UUID.fromString(s) } toOption
+      case JArray(arr) => Some(parseArray(arr, formats))
+      case JSet(set) =>  Some(parseArray(set.toList, formats))
+      case JObject(jo) => Some(parseObject(jo, formats))
+      case JBool(b) => Some(java.lang.Boolean.valueOf(b))
+      case JInt(n) => Some(renderInteger(n))
+      case JLong(n) => Some(new java.lang.Long(n))
+      case JDouble(n) => Some(new java.lang.Double(n))
+      case JDecimal(bd) => Some(bd.bigDecimal.toString)
+      case JNull => Some(null)
+      case JNothing => sys.error("can't render 'nothing'")
+      case JString(null) => Some("null")
+      case JString(s) => Some(stringProcessor.get()(s))
+    }
+
     private def parseArray(arr: List[JValue], formats: Formats): BasicDBList = {
       val dbl = new BasicDBList
-      trimArr(arr) foreach { a =>
-        a match {
-          case JObject(JField("$oid", JString(s)) :: Nil) if (ObjectId.isValid(s)) =>
-            dbl.add(new ObjectId(s))
-          case JObject(JField("$regex", JString(s)) :: JField("$flags", JInt(f)) :: Nil) =>
-            dbl.add(Pattern.compile(s, f.intValue))
-          case JObject(JField("$dt", JString(s)) :: Nil) =>
-            formats.dateFormat.parse(s) foreach { d => dbl.add(d) }
-          case JObject(JField("$uuid", JString(s)) :: Nil) =>
-            dbl.add(UUID.fromString(s))
-          case JArray(arr) => dbl.add(parseArray(arr, formats))
-          case JObject(jo) => dbl.add(parseObject(jo, formats))
-          case jv: JValue => dbl.add(renderValue(jv, formats))
-        }
+      trimArr(arr) foreach { jv =>
+        render(jv, formats).foreach { o => dbl.add(o) }
       }
       dbl
     }
 
     private def parseObject(obj: List[JField], formats: Formats): BasicDBObject = {
       val dbo = new BasicDBObject
-      trimObj(obj) foreach { jf =>
-        jf._2 match {
-          case JObject(JField("$oid", JString(s)) :: Nil) if (ObjectId.isValid(s)) =>
-            dbo.put(jf._1, new ObjectId(s))
-          case JObject(JField("$regex", JString(s)) :: JField("$flags", JInt(f)) :: Nil) =>
-            dbo.put(jf._1, Pattern.compile(s, f.intValue))
-          case JObject(JField("$dt", JString(s)) :: Nil) =>
-            formats.dateFormat.parse(s) foreach { d => dbo.put(jf._1, d) }
-          case JObject(JField("$uuid", JString(s)) :: Nil) =>
-            dbo.put(jf._1, UUID.fromString(s))
-          case JArray(arr) => dbo.put(jf._1, parseArray(arr, formats))
-          case JObject(jo) => dbo.put(jf._1, parseObject(jo, formats))
-          case jv: JValue => dbo.put(jf._1, renderValue(jv, formats))
-        }
+      trimObj(obj) foreach { case (name, jv) =>
+        render(jv, formats).foreach { o => dbo.put(name, o) }
       }
       dbo
-    }
-
-    private def renderValue(jv: JValue, formats: Formats): Object = jv match {
-      case JBool(b) => java.lang.Boolean.valueOf(b)
-      case JInt(n) => renderInteger(n)
-      case JDouble(n) => new java.lang.Double(n)
-      case JNull => null
-      case JNothing => sys.error("can't render 'nothing'")
-      case JString(null) => "null"
-      case JString(s) => stringProcessor.get()(s)
-      case _ =>  ""
     }
 
     // FIXME: This is not ideal.
