@@ -98,14 +98,14 @@ object JObjectParser  {
       case JDouble(n) => Some(java.lang.Double.valueOf(n))
       case JDecimal(bd) => Some(bd.bigDecimal.toString)
       case JNull => Some(null)
-      case JNothing => sys.error("can't render 'nothing'")
+      case JNothing => None
       case JString(null) => Some("null")
       case JString(s) => Some(stringProcessor.get()(s))
     }
 
     private def parseArray(arr: List[JValue], formats: Formats): BasicDBList = {
       val dbl = new BasicDBList
-      trimArr(arr) foreach { jv =>
+      arr foreach { jv =>
         render(jv, formats).foreach { o => dbl.add(o) }
       }
       dbl
@@ -113,7 +113,7 @@ object JObjectParser  {
 
     private def parseObject(obj: List[JField], formats: Formats): BasicDBObject = {
       val dbo = new BasicDBObject
-      trimObj(obj) foreach { case (name, jv) =>
+      obj foreach { case (name, jv) =>
         render(jv, formats).foreach { o => dbo.put(name, o) }
       }
       dbo
@@ -130,7 +130,5 @@ object JObjectParser  {
       }
     }
 
-    private def trimArr(xs: List[JValue]) = xs.filterNot(_ == JNothing)
-    private def trimObj(xs: List[JField]) = xs.filterNot(_._2 == JNothing)
   }
 }
