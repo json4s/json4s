@@ -26,7 +26,7 @@ sealed abstract class Document extends Product with Serializable {
    * Format this document on `writer` and try to set line
    * breaks so that the result fits in `width` columns.
    */
-  def format(width: Int, writer: Writer) {
+  def format(width: Int, writer: Writer): Unit = {
     type FmtState = (Int, Boolean, Document)
 
     def fits(w: Int, state: List[FmtState]): Boolean = state match {
@@ -50,7 +50,7 @@ sealed abstract class Document extends Product with Serializable {
         fits(w, (i, false, d) :: z)
     }
 
-    def spaces(n: Int) {
+    def spaces(n: Int): Unit = {
       var rem = n
       while (rem >= 16) { writer write "                "; rem -= 16 }
       if (rem >= 8)     { writer write "        "; rem -= 8 }
