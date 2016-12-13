@@ -94,8 +94,8 @@ object JObjectParser  {
       case JObject(jo) => Some(parseObject(jo, formats))
       case JBool(b) => Some(java.lang.Boolean.valueOf(b))
       case JInt(n) => Some(renderInteger(n))
-      case JLong(n) => Some(new java.lang.Long(n))
-      case JDouble(n) => Some(new java.lang.Double(n))
+      case JLong(n) => Some(java.lang.Long.valueOf(n))
+      case JDouble(n) => Some(java.lang.Double.valueOf(n))
       case JDecimal(bd) => Some(bd.bigDecimal.toString)
       case JNull => Some(null)
       case JNothing => sys.error("can't render 'nothing'")
@@ -122,12 +122,10 @@ object JObjectParser  {
     // FIXME: This is not ideal.
     private def renderInteger(i: BigInt): Object = {
       if (i <= java.lang.Integer.MAX_VALUE && i >= java.lang.Integer.MIN_VALUE) {
-        new java.lang.Integer(i.intValue)
-      }
-      else if (i <= java.lang.Long.MAX_VALUE && i >= java.lang.Long.MIN_VALUE) {
-        new java.lang.Long(i.longValue)
-      }
-      else {
+        java.lang.Integer.valueOf(i.intValue)
+      } else if (i <= java.lang.Long.MAX_VALUE && i >= java.lang.Long.MIN_VALUE) {
+        java.lang.Long.valueOf(i.longValue)
+      } else {
         i.toString
       }
     }
