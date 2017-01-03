@@ -57,6 +57,11 @@ object build {
     scalaVersion := "2.12.1",
     crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.1"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps", "-Xfuture"),
+    scalacOptions in (Compile, doc) ++= {
+      val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
+      val hash = sys.process.Process("git rev-parse HEAD").lines_!.head
+      Seq("-sourcepath", base, "-doc-source-url", "https://github.com/json4s/json4s/tree/" + hash + "€{FILE_PATH}.scala")
+    },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, scalaMajor)) if scalaMajor >= 11 =>
