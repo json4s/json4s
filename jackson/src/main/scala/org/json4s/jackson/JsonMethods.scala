@@ -16,7 +16,11 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
   }
   def mapper = _defaultMapper
 
-  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue = {
+  def parse(in: JsonInput): JValue = {
+    parse(in, false, true)
+  }
+
+  def parse(in: JsonInput, useBigDecimalForDouble: Boolean): JValue = {
     parse(in, useBigDecimalForDouble, true)
   }
 
