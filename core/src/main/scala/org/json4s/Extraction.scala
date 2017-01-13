@@ -37,7 +37,14 @@ object Extraction {
    */
   def extract[A](json: JValue)(implicit formats: Formats, mf: Manifest[A]): A = {
     try {
-      extract(json, Reflector.scalaTypeOf[A]).asInstanceOf[A]
+      val j = if(formats.keyTransformation.isIdentity) {
+        json
+      } else {
+        json.mapField {
+          case (key, value) => formats.keyTransformation.read(key) -> value
+        }
+      }
+      extract(j, Reflector.scalaTypeOf[A]).asInstanceOf[A]
     } catch {
       case e: MappingException => throw e
       case e: Exception =>
@@ -107,8 +114,8 @@ object Extraction {
       JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
 
     def addField(name: String, v: Any, obj: JsonWriter[T]): Unit = v match {
-      case None => formats.emptyValueStrategy.noneValReplacement foreach (internalDecomposeWithBuilder(_, obj.startField(name)))
-      case _ => internalDecomposeWithBuilder(v, obj.startField(name))
+      case None => formats.emptyValueStrategy.noneValReplacement foreach (internalDecomposeWithBuilder(_, obj.startField(formats.keyTransformation.write(name))))
+      case _ => internalDecomposeWithBuilder(v, obj.startField(formats.keyTransformation.write(name)))
     }
 
     val serializer = formats.typeHints.serialize
@@ -464,7 +471,7 @@ object Extraction {
               None
           }
           c.flatMap { _ =>
-            reflect.ScalaSigReader.companions(tpe.erasure.getName).flatMap(_._2) 
+            reflect.ScalaSigReader.companions(tpe.erasure.getName).flatMap(_._2)
           }
         }
 
@@ -661,8 +668,8 @@ object Extraction {
   private[this] def convert(key: String, target: ScalaType, formats: Formats): Any = {
     val targetType = target.erasure
     targetType match {
-      case tt if tt == classOf[String] => key
-      case tt if tt == classOf[Symbol] => Symbol(key)
+      case tt if tt == classOf[String] => formats.keyTransformation.read(key)
+      case tt if tt == classOf[Symbol] => Symbol(formats.keyTransformation.read(key))
       case tt if tt == classOf[Int] => key.toInt
       case tt if tt == classOf[JavaInteger] => JavaInteger.valueOf(key.toInt)
       case tt if tt == classOf[BigInt] => key.toInt

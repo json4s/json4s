@@ -9,6 +9,24 @@ private case class AnotherModel(id: MyId)
 
 abstract class SerializationSpec(serialization: Serialization, baseFormats: Formats) extends Specification {
 
+  "Serialization with transformation from camelCases to snake_case keys" should {
+    implicit val formats = DefaultFormats.withCamelSnakeTransformation
+
+    "map with camelCase key" in {
+      val map = Map[String, String]("customKey" -> "hello", "mapWith" -> "world")
+      val ser = serialization.write(map)
+      println(ser)
+      ser must_== """{"custom_key":"hello","map_with":"world"}"""
+      serialization.read[Map[String, String]](ser) must_== map
+    }
+    "case class with camelCase key" in {
+      val optFields = OptionalFields(Some("string"), Some(5), None, None)
+      val ser = serialization.write(optFields)
+      println(ser)
+      ser must_== """{"opt_string":"string","opt_int":5}"""
+      serialization.read[OptionalFields](ser) must_== optFields
+    }
+  }
   "Serialization of case class with many Option[T] fields" should {
 
     implicit val formats = baseFormats.skippingEmptyValues
