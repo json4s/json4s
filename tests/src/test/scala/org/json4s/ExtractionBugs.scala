@@ -87,6 +87,19 @@ object ExtractionBugs {
     }
   }
 
+  trait TraitWithTypeMember {
+
+    type A
+
+    def a: A
+
+    val seq = Seq(a)
+  }
+
+  case class ClassWithSuperTypeMember(a: String) extends TraitWithTypeMember {
+    override type A = String
+  }
+
 }
 abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMethods[T] {
 
@@ -208,6 +221,12 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       parse("""{"num": 12.305}""", useBigDecimalForDouble = true).extract[ABigDecimal] must_== bd
     }
 
+    "Decompose a class with a super-type type member" in {
+      val obj = ClassWithSuperTypeMember("foo")
+
+      val result = Extraction.decompose(obj)
+
+      result mustEqual JObject("a" -> JString("foo"))
+    }
   }
 }
-
