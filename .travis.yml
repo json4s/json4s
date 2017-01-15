@@ -1,6 +1,7 @@
 language: scala
+jdk: oraclejdk7
 scala:
   # since version 3.2.12, we support only 2.9.3
   - 2.9.3
 sudo: false
-script: sbt ++$TRAVIS_SCALA_VERSION test
+script: sbt ++$TRAVIS_SCALA_VERSION mimaReportBinaryIssues test

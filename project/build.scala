@@ -1,10 +1,10 @@
 import sbt._
 import Keys._
 import xml.Group
-//import sbtscalashim.Plugin._
 import sbtbuildinfo.Plugin._
 import com.typesafe.sbt.SbtStartScript
-
+import com.typesafe.tools.mima.plugin.MimaKeys.mimaPreviousArtifacts
+import com.typesafe.tools.mima.plugin.MimaPlugin
 
 object build extends Build {
   import Dependencies._
@@ -52,7 +52,7 @@ object build extends Build {
     )}
   )
 
-  val json4sSettings = Defaults.defaultSettings ++ mavenCentralFrouFrou ++ Seq(
+  val json4sCommonSettings = Defaults.defaultSettings ++ mavenCentralFrouFrou ++ Seq(
     organization := "org.json4s",
     scalaVersion := "2.9.3",
     // NOTE: since version 3.2.12, we support only 2.9.3
@@ -65,10 +65,16 @@ object build extends Build {
     resolvers ++= Seq( Opts.resolver.sonatypeSnapshots, Opts.resolver.sonatypeReleases)
   )
 
+  val json4sSettings = json4sCommonSettings ++ MimaPlugin.mimaDefaultSettings ++ Seq(
+    mimaPreviousArtifacts := Set(
+      organization.value % s"${name.value}_${scalaBinaryVersion.value}" % "3.2.11"
+    )
+  )
+
   lazy val root = Project(
     id = "json4s",
     base = file("."),
-    settings = json4sSettings
+    settings = json4sCommonSettings
   ) aggregate(core, native, json4sExt, nativeLift, jacksonSupport, scalazExt, json4sTests, mongo, ast)
 
   lazy val ast = Project(
@@ -127,7 +133,7 @@ object build extends Build {
   lazy val examples = Project(
      id = "json4s-examples",
      base = file("examples"),
-     settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
+     settings = json4sCommonSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
        libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.9.2" % "0.11.0",
        libraryDependencies += jacksonScala
      )
@@ -164,7 +170,7 @@ object build extends Build {
   lazy val json4sTests = Project(
     id = "json4s-tests",
     base = file("tests"),
-    settings = json4sSettings ++ Seq(
+    settings = json4sCommonSettings ++ Seq(
       libraryDependencies ++= Seq(specs, scalacheck, mockito),
       initialCommands in (Test, console) :=
         """
@@ -178,7 +184,7 @@ object build extends Build {
   lazy val benchmark = Project(
     id = "json4s-benchmark",
     base = file("benchmark"),
-    settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
+    settings = json4sCommonSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
       cancelable := true,
       libraryDependencies ++= Seq(
         "com.google.code.java-allocation-instrumenter" % "java-allocation-instrumenter" % "2.0",

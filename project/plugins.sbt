@@ -1,4 +1,4 @@
-// addSbtPlugin("com.eed3si9n" % "sbt-scalashim" % "0.2.2")
+addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.1.13")
 
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.3.0")
 
