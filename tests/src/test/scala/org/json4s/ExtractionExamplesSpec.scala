@@ -236,11 +236,6 @@ abstract class ExtractionExamples[T](mod: String) extends Specification with Jso
     "Complex nested non-polymorphic collections extraction example" in {
       parse("""{"a":[{"b":"c"}]}""").extract[Map[String, List[Map[String, String]]]] must_== Map("a" -> List(Map("b" -> "c")))
     }
-
-    "Optional field extraction should throw a MappingException when noneForInvalidOptions is set to false" in {
-      val formatsWithOptionValidation = formats.withOptionParseExceptionsThrown
-      parse("""{"date":"Not a date"}""").extract[DateBox](formatsWithOptionValidation, Manifest.classType(classOf[DateBox])) must throwA(MappingException("No usable value for date\nInvalid date 'Not a date'", null))
-    }
   }
 
   val testJson =
@@ -387,4 +382,3 @@ case class MultipleConstructors(name: String, age: Int, size: Option[String]) {
 
 case class ClassWithJSON(name: String, message: JValue)
 
-case class DateBox(date: Option[Date])
