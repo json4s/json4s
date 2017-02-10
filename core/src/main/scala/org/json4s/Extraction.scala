@@ -138,7 +138,7 @@ object Extraction {
             val vvv = if (fieldSerializer.includeLazyVal) loadLazyValValue(a, nn, vv) else vv
             addField(nn, vvv, obj)
           }
-        } else if ((ctorParams contains prop.name) && (methods contains prop.name)) addField(n, fieldVal, obj)
+        } else if ((ctorParams contains prop.name) && (methods contains prop.name.replaceAll("-", "\\$minus"))) addField(n, fieldVal, obj)
       }
       obj.endObject()
     }
