@@ -30,6 +30,15 @@ object SerializationExamples extends Specification {
 
   case class Nullable(name: String)
 
+  case class SymbolFields(### : Int, !!! : String, +++ : Boolean, %%% : Long, @@@ : List[Double])
+
+  "symbol fields" in {
+    val j = SymbolFields(42, "foo", true, 99, List(0.5))
+
+    val ser = swrite(j)
+    read[SymbolFields](ser) must_== j
+  }
+
   "Lotto serialization example" in {
     import LottoExample.{Lotto, lotto}
 
