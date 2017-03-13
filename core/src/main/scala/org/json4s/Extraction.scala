@@ -22,6 +22,7 @@ import java.util.Date
 import java.sql.Timestamp
 import reflect._
 import scala.reflect.Manifest
+import scala.reflect.NameTransformer.encode
 import scala.collection.JavaConverters._
 
 /** Function to extract values from JSON AST using case classes.
@@ -117,6 +118,7 @@ object Extraction {
       val klass = Reflector.scalaTypeOf(k)
       val descriptor = Reflector.describe(klass).asInstanceOf[reflect.ClassDescriptor]
       val ctorParams = descriptor.mostComprehensive.map(_.name)
+      val methods = k.getMethods.toSeq.map(_.getName)
       val iter = descriptor.properties.iterator
       val obj = current.startObject()
       if (formats.typeHints.containsHint(k)) {
@@ -137,7 +139,7 @@ object Extraction {
             val vvv = if (fieldSerializer.includeLazyVal) loadLazyValValue(a, nn, vv) else vv
             addField(nn, vvv, obj)
           }
-        } else if (ctorParams contains prop.name) addField(n, fieldVal, obj)
+        } else if ((ctorParams contains prop.name) && (methods contains encode(prop.name))) addField(n, fieldVal, obj)
       }
       obj.endObject()
     }
