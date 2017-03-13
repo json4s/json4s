@@ -23,6 +23,10 @@ object SerializationExamples extends Specification {
   case class Team(role: String, members: List[Employee])
   case class Employee(name: String, experience: Int)
 
+  case class ArgsTwoLists(name: String, age: Int)(nick: String) {
+    val tmp = nick //nick becomes field of object
+  }
+
   "Null example" in {
     val ser = swrite(Nullable(null))
     read[Nullable](ser) must_== Nullable(null)
@@ -50,6 +54,13 @@ object SerializationExamples extends Specification {
     val primitives = Primitives(124, 123L, 126.5, 127.5.floatValue, "128", 's, 125, 129.byteValue, true)
     val ser = swrite(primitives)
     read[Primitives](ser) must_== primitives
+  }
+
+  "Args two lists" in {
+    val argsToLists = ArgsTwoLists("Adam", 23)("Ady")
+    val ser = swrite(argsToLists)
+
+    ser must_== "{\"name\":\"Adam\",\"age\":23}"
   }
 
   "Multidimensional list example" in {
