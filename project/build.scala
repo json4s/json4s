@@ -1,26 +1,25 @@
 import sbt._
 import Keys._
 import xml.Group
-import sbtbuildinfo.Plugin._
 import com.typesafe.sbt.SbtStartScript
 import MimaSettings.mimaSettings
-import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifacts
+import com.typesafe.tools.mima.plugin.MimaKeys.mimaPreviousArtifacts
 import com.typesafe.sbt.JavaVersionCheckPlugin.autoImport._
 
 object build {
   import Dependencies._
 
-  val manifestSetting = packageOptions <+= (name, version, organization) map {
-    (title, version, vendor) =>
+  val manifestSetting = packageOptions += {
+    val (title, v, vendor) = (name.value, version.value, organization.value)
       Package.ManifestAttributes(
         "Created-By" -> "Simple Build Tool",
         "Built-By" -> System.getProperty("user.name"),
         "Build-Jdk" -> System.getProperty("java.version"),
         "Specification-Title" -> title,
-        "Specification-Version" -> version,
+        "Specification-Version" -> v,
         "Specification-Vendor" -> vendor,
         "Implementation-Title" -> title,
-        "Implementation-Version" -> version,
+        "Implementation-Version" -> v,
         "Implementation-Vendor-Id" -> vendor,
         "Implementation-Vendor" -> vendor
       )
@@ -30,7 +29,8 @@ object build {
     homepage := Some(new URL("https://github.com/json4s/json4s")),
     startYear := Some(2009),
     licenses := Seq(("Apache-2.0", new URL("http://www.apache.org/licenses/LICENSE-2.0"))),
-    pomExtra <<= (pomExtra, name, description) {(pom, name, desc) => pom ++ Group(
+    pomExtra := {
+      pomExtra.value ++ Group(
       <scm>
         <url>http://github.com/json4s/json4s</url>
         <connection>scm:git:git://github.com/json4s/json4s.git</connection>
@@ -47,14 +47,20 @@ object build {
           <url>http://git.io/sera</url>
         </developer>
       </developers>
-    )}
+      )
+    }
   )
 
   val json4sSettings = mavenCentralFrouFrou ++ Seq(
     organization := "org.json4s",
-    scalaVersion := "2.11.8",
-    crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.0-RC2"),
-    scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
+    scalaVersion := "2.12.1",
+    crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.1"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps", "-Xfuture"),
+    scalacOptions in (Compile, doc) ++= {
+      val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
+      val hash = sys.process.Process("git rev-parse HEAD").lines_!.head
+      Seq("-sourcepath", base, "-doc-source-url", "https://github.com/json4s/json4s/tree/" + hash + "€{FILE_PATH}.scala")
+    },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, scalaMajor)) if scalaMajor >= 11 =>
@@ -63,7 +69,7 @@ object build {
           Nil
       }
     },
-    version := "3.5.0-SNAPSHOT",
+    version := "3.5.1-SNAPSHOT",
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     javaVersionPrefix in javaVersionCheck := Some{
       CrossVersion.partialVersion(scalaVersion.value) match {
@@ -78,7 +84,7 @@ object build {
   ) ++ mimaSettings
 
   val noPublish = Seq(
-    previousArtifacts := Set(),
+    mimaPreviousArtifacts := Set(),
     publishArtifact := false,
     publish := {},
     publishLocal := {}
