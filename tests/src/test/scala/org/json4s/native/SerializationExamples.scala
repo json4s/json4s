@@ -43,6 +43,17 @@ object SerializationExamples extends Specification {
     read[SymbolFields](ser) must_== j
   }
 
+  case class SymbolFieldsArgsTwoLists(!@# : Int, -+> : Int)(%!@# : String) {
+    val ### = %!@#
+  }
+
+  "symbol two args lists" in {
+    val symbolArgsTwoList = SymbolFieldsArgsTwoLists(1, 2)("Adam")
+    val ser = swrite(symbolArgsTwoList)
+
+    ser must_== "{\"!@#\":1,\"-+>\":2}"
+  }
+
   "Lotto serialization example" in {
     import LottoExample.{Lotto, lotto}
 
