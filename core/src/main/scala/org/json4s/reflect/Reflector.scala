@@ -159,7 +159,7 @@ object Reflector {
             }
           }
         }
-        ConstructorDescriptor(ctorParams.toSeq, ctor, isPrimary = false)
+        ConstructorDescriptor(ctorParams.toSeq, ctor, isPrimary = ctor.getMarkedAsPrimary())
       }
     }
 

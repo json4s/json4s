@@ -235,8 +235,20 @@ case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaT
   def mostComprehensive: Seq[ConstructorParamDescriptor] = {
     if (_mostComprehensive == null)
       _mostComprehensive =
-        if (constructors.nonEmpty) constructors.sortBy(-_.params.size).headOption.map(_.params).getOrElse(Nil)
-        else Nil
+        if (constructors.nonEmpty) {
+          val primaryCtors = constructors.filter(_.isPrimary)
+
+          if (primaryCtors.length > 1) {
+            throw new IllegalArgumentException(s"Two constructors annotated with PrimaryConstructor in `${fullName}`")
+          }
+
+          primaryCtors.headOption
+            .orElse(constructors.sortBy(-_.params.size).headOption)
+            .map(_.params)
+            .getOrElse(Nil)
+        } else {
+          Nil
+        }
 
     _mostComprehensive
   }
