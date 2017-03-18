@@ -59,6 +59,14 @@ class Executable private (val method: Method, val constructor: Constructor[_]) {
     else constructor
   }
 
+  def getMarkedAsPrimary(): Boolean = {
+    if (method == null) {
+      constructor.isAnnotationPresent(classOf[PrimaryConstructor])
+    } else {
+      false
+    }
+  }
+
   override def toString =
     if (method != null)
       s"Executable(Method($method))"

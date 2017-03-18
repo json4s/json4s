@@ -1,7 +1,7 @@
 package org.json4s
 
 import org.specs2.mutable.Specification
-import reflect.{ClassDescriptor, Reflector}
+import reflect.{ClassDescriptor, PrimaryConstructor, Reflector}
 import org.json4s.native.Document
 import java.util
 
@@ -30,6 +30,18 @@ object ExtractionBugs {
     def this() = this(0, "John", "Doe", "")
     def this(name: String) = this(0, name, "Doe", "")
     def this(name: String, email: String) = this(0, name, "Doe", email)
+  }
+
+  case class ManyConstructorsWithPrimary @PrimaryConstructor() (id: Long, name: String, lastName: String, email: String) {
+    def this() = this(0, "John", "Doe", "")
+    def this(name: String) = this(0, name, "Doe", "")
+    def this(id: Long, name: String, lastName: String, email: String, domain: String) = {
+      this(id, name, lastName, email + "@" + domain)
+    }
+  }
+
+  case class ManyPrimaryConstructors @PrimaryConstructor() () {
+    @PrimaryConstructor def this(name: String) = this()
   }
 
   case class ExtractWithAnyRef()
@@ -137,6 +149,17 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
     "Extraction should always choose constructor with the most arguments if more than one constructor exists" in {
       val args = Reflector.describe[ManyConstructors].asInstanceOf[ClassDescriptor].mostComprehensive
       args.size must_== 4
+    }
+
+    "Extraction should always choose primary constructor if exists" in {
+      val args = Reflector.describe[ManyConstructorsWithPrimary].asInstanceOf[ClassDescriptor].mostComprehensive
+      args.size must_== 4
+      args.map(_.name) must_== Seq("id", "name", "lastName", "email")
+    }
+
+    "Extraction should throw exception if two or more constructors marked as primary" in {
+      Reflector.describe[ManyPrimaryConstructors].asInstanceOf[ClassDescriptor].mostComprehensive must
+        throwA[IllegalArgumentException]
     }
 
     "Extraction should handle AnyRef" in {
