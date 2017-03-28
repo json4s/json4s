@@ -76,7 +76,7 @@ lazy val mongo = Project(
    base = file("mongo"),
    settings = json4sSettings ++ Seq(
      libraryDependencies ++= Seq(
-       "org.mongodb" % "mongo-java-driver" % "3.3.0"
+       "org.mongodb" % "mongo-java-driver" % "3.4.2"
     )
 )) dependsOn(core % "compile;test->test")
 
