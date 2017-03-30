@@ -232,6 +232,20 @@ object SerializationBugs extends Specification {
     val deserialized = read[SingleValue[Double]](serialized)
     expected.value must_== deserialized.value
   }
+
+  "NaN Float serializes to null" in {
+    val expected = SingleValue(Float.NaN)
+    val serialized = native.Serialization.write(expected)
+    val deserialized = read[SingleValue[Float]](serialized)
+    (deserialized.value == null) must beTrue
+  }
+
+  "NaN Double serializes to null" in {
+    val expected = SingleValue(Double.NaN)
+    val serialized = native.Serialization.write(expected)
+    val deserialized = read[SingleValue[Double]](serialized)
+    (deserialized.value == null) must beTrue
+  }
 }
 
 case class Eith(x: Either[String, Int])
