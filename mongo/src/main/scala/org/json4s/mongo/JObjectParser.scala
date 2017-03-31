@@ -122,7 +122,7 @@ object JObjectParser  {
     private def renderValue(jv: JValue, formats: Formats): Object = jv match {
       case JBool(b) => java.lang.Boolean.valueOf(b)
       case JInt(n) => renderInteger(n)
-      case JDouble(n) => new java.lang.Double(n)
+      case JDouble(n) => java.lang.Double.valueOf(n)
       case JNull => null
       case JNothing => sys.error("can't render 'nothing'")
       case JString(null) => "null"
@@ -133,10 +133,10 @@ object JObjectParser  {
     // FIXME: This is not ideal.
     private def renderInteger(i: BigInt): Object = {
       if (i <= java.lang.Integer.MAX_VALUE && i >= java.lang.Integer.MIN_VALUE) {
-        new java.lang.Integer(i.intValue)
+        java.lang.Integer.valueOf(i.intValue)
       }
       else if (i <= java.lang.Long.MAX_VALUE && i >= java.lang.Long.MIN_VALUE) {
-        new java.lang.Long(i.longValue)
+        java.lang.Long.valueOf(i.longValue)
       }
       else {
         i.toString
