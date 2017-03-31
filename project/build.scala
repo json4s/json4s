@@ -81,7 +81,7 @@ object build {
     manifestSetting,
     resolvers ++= Seq(Opts.resolver.sonatypeSnapshots, Opts.resolver.sonatypeReleases),
     crossVersion := CrossVersion.binary
-  ) ++ mimaSettings
+  )
 
   val noPublish = Seq(
     mimaPreviousArtifacts := Set(),
