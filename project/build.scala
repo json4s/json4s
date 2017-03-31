@@ -56,7 +56,10 @@ object build {
     organization := "org.json4s",
     scalaVersion := "2.12.1",
     crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.1"),
-    scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps", "-Xfuture"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps", "-Xfuture"),
+    scalacOptions ++= PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion.value)) {
+      case Some((2, 10)) => "-optimize"
+    }.toList,
     scalacOptions in (Compile, doc) ++= {
       val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
       val hash = sys.process.Process("git rev-parse HEAD").lines_!.head

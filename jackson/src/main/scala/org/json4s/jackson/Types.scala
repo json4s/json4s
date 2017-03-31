@@ -17,7 +17,7 @@ private[jackson] object Types {
   private def constructType(factory: TypeFactory, manifest: Manifest[_]): JavaType = {
     if (manifest.runtimeClass.isArray) {
       val javaType: JavaType = factory.constructType(manifest.runtimeClass.getComponentType)
-      val typeBindings: TypeBindings = new TypeBindings
+      val typeBindings: TypeBindings = TypeBindings.emptyBindings
       ArrayType.construct(
         javaType,
         typeBindings,
