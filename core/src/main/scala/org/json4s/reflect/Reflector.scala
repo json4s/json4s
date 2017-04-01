@@ -157,7 +157,7 @@ object Reflector {
             ConstructorParamDescriptor(decoded, paramName, index, theType, default)
           }
         }
-        ConstructorDescriptor(ctorParams.toSeq, ctor, isPrimary = ctor.getMarkedAsPrimary())
+        ConstructorDescriptor(ctorParams, ctor, isPrimary = ctor.getMarkedAsPrimary())
       }
     }
 

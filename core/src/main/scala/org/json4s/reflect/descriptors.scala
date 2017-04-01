@@ -130,7 +130,7 @@ class ScalaType(private val manifest: Manifest[_]) extends Equals {
   lazy val typeInfo: TypeInfo =
     new TypeInfo(
       erasure,
-      if (typeArgs.nonEmpty) Some(Reflector.mkParameterizedType(erasure, typeArgs.map(_.erasure).toSeq)) else None
+      if (typeArgs.nonEmpty) Some(Reflector.mkParameterizedType(erasure, typeArgs.map(_.erasure))) else None
     ) with SourceType {
       val scalaType: ScalaType = ScalaType.this
     }
