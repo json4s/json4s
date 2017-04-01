@@ -81,20 +81,18 @@ object JObjectParser  {
 
     private def parseArray(arr: List[JValue], formats: Formats): BasicDBList = {
       val dbl = new BasicDBList
-      trimArr(arr) foreach { a =>
-        a match {
-          case JObject(JField("$oid", JString(s)) :: Nil) if (ObjectId.isValid(s)) =>
-            dbl.add(new ObjectId(s))
-          case JObject(JField("$regex", JString(s)) :: JField("$flags", JInt(f)) :: Nil) =>
-            dbl.add(Pattern.compile(s, f.intValue))
-          case JObject(JField("$dt", JString(s)) :: Nil) =>
-            formats.dateFormat.parse(s) foreach { d => dbl.add(d) }
-          case JObject(JField("$uuid", JString(s)) :: Nil) =>
-            dbl.add(UUID.fromString(s))
-          case JArray(arr) => dbl.add(parseArray(arr, formats))
-          case JObject(jo) => dbl.add(parseObject(jo, formats))
-          case jv: JValue => dbl.add(renderValue(jv, formats))
-        }
+      trimArr(arr) foreach {
+        case JObject(JField("$oid", JString(s)) :: Nil) if (ObjectId.isValid(s)) =>
+          dbl.add(new ObjectId(s))
+        case JObject(JField("$regex", JString(s)) :: JField("$flags", JInt(f)) :: Nil) =>
+          dbl.add(Pattern.compile(s, f.intValue))
+        case JObject(JField("$dt", JString(s)) :: Nil) =>
+          formats.dateFormat.parse(s) foreach { d => dbl.add(d) }
+        case JObject(JField("$uuid", JString(s)) :: Nil) =>
+          dbl.add(UUID.fromString(s))
+        case JArray(arr) => dbl.add(parseArray(arr, formats))
+        case JObject(jo) => dbl.add(parseObject(jo, formats))
+        case jv: JValue => dbl.add(renderValue(jv, formats))
       }
       dbl
     }
