@@ -24,12 +24,12 @@ object ManifestFactory {
 
     case wt: WildcardType =>
       val upper = wt.getUpperBounds
-      if (upper != null && upper.size > 0) manifestOf(upper(0))
+      if (upper != null && upper.length > 0) manifestOf(upper(0))
       else manifestOf(classOf[AnyRef])
 
     case wt: TypeVariable[_] =>
       val upper = wt.getBounds
-      if (upper != null && upper.size > 0) manifestOf(upper(0))
+      if (upper != null && upper.length > 0) manifestOf(upper(0))
       else manifestOf(classOf[AnyRef])
 
     case c: Class[_] => fromClass(c)
