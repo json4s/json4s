@@ -88,7 +88,7 @@ object Xml {
         case _ => n.child.toList.flatMap { x => x :: descendant(x) }
       }
 
-      !descendant(node).find(_.isInstanceOf[Elem]).isDefined
+      !descendant(node).exists(_.isInstanceOf[Elem])
     }
 
     def isArray(nodeNames: Seq[String]) = nodeNames.size != 1 && nodeNames.toList.distinct.size == 1
