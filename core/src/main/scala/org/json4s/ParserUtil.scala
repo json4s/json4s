@@ -131,7 +131,7 @@ object ParserUtil {
           parts = (start, end, s) :: parts
           i = i-1
         }
-        val len = parts.map(p => p._2 - p._1 - 1).foldLeft(0)(_ + _)
+        val len = parts.map(p => p._2 - p._1 - 1).sum
         val chars = new Array[Char](len)
         i = 0
         var pos = 0
