@@ -105,8 +105,8 @@ object Extraction {
     def prependTypeHint(clazz: Class[_], o: JObject) =
       JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
 
-    def addField(name: String, v: Any, obj: JsonWriter[T]) = v match {
-      case None => formats.emptyValueStrategy.noneValReplacement map (internalDecomposeWithBuilder(_, obj.startField(name)))
+    def addField(name: String, v: Any, obj: JsonWriter[T]): Unit = v match {
+      case None => formats.emptyValueStrategy.noneValReplacement foreach (internalDecomposeWithBuilder(_, obj.startField(name)))
       case oth => internalDecomposeWithBuilder(v, obj.startField(name))
     }
 
@@ -477,7 +477,7 @@ object Extraction {
 
     private[this] def setFields(a: AnyRef) = json match {
       case JObject(fields) =>
-        formats.fieldSerializer(a.getClass) map { serializer =>
+        formats.fieldSerializer(a.getClass) foreach { serializer =>
           val ctorArgs = constructor.params.map(_.name)
           val fieldsToSet = descr.properties.filterNot(f => ctorArgs.contains(f.name))
           val idPf: PartialFunction[JField, JField] = { case f => f }
