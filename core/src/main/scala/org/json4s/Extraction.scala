@@ -509,7 +509,7 @@ object Extraction {
           val x = if (json == JNothing && default.isDefined) default.get() else extract(json, descr.argType)
           if (descr.isOptional) { if (x == null) defv(None) else x }
           else if (x == null) {
-            if(!default.isDefined && descr.argType <:< ScalaType(manifest[AnyVal])) {
+            if(default.isEmpty && descr.argType <:< ScalaType(manifest[AnyVal])) {
               throw new MappingException("Null invalid value for a sub-type of AnyVal")
             } else {
               defv(x)
