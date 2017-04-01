@@ -60,7 +60,7 @@ object JObjectParser  {
       case x: BasicDBList => JArray(x.asScala.toList.map( x => serialize0(x, formats)))
       case x: BasicDBObject => JObject(
         x.keySet.asScala.toList.map { f =>
-          JField(f.toString, serialize0(x.get(f.toString), formats))
+          JField(f, serialize0(x.get(f), formats))
         }
       )
       case x => {
