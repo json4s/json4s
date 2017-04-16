@@ -57,17 +57,23 @@ object Reflector {
         val f = ls.next()
         val mod = f.getModifiers
         if (!(Modifier.isStatic(mod) || Modifier.isTransient(mod) || Modifier.isVolatile(mod)  || f.isSynthetic)) {
-          val st = ScalaType(f.getType, f.getGenericType match {
-            case p: ParameterizedType => p.getActualTypeArguments.toSeq.zipWithIndex map { case (cc, i) =>
-              if (cc == classOf[java.lang.Object]) Reflector.scalaTypeOf(ScalaSigReader.readField(f.getName, clazz, i))
-              else Reflector.scalaTypeOf(cc)
+          try {
+            val st = ScalaType(f.getType, f.getGenericType match {
+              case p: ParameterizedType => p.getActualTypeArguments.toSeq.zipWithIndex map { case (cc, i) =>
+                if (cc == classOf[java.lang.Object]) Reflector.scalaTypeOf(ScalaSigReader.readField(f.getName, clazz, i))
+                else Reflector.scalaTypeOf(cc)
+              }
+              case _ => Nil
+            })
+            if (f.getName != ScalaSigReader.OuterFieldName) {
+              val decoded = unmangleName(f.getName)
+              f.setAccessible(true)
+              lb += PropertyDescriptor(decoded, f.getName, st, f)
             }
-            case _ => Nil
-          })
-          if (f.getName != ScalaSigReader.OuterFieldName) {
-            val decoded = unmangleName(f.getName)
-            f.setAccessible(true)
-            lb += PropertyDescriptor(decoded, f.getName, st, f)
+          }
+          catch {
+            case ex: Exception =>
+              println(s"Skipping $f due to $ex")
           }
         }
       }
