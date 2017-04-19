@@ -1,15 +1,15 @@
 language: scala
 scala:
   - 2.10.6
-  - 2.11.8
+  - 2.11.11
 matrix:
   include:
-  - scala: 2.12.1
+  - scala: 2.12.2
     jdk: oraclejdk8
   - dist: trusty
     group: edge
     sudo: required
-    scala: 2.12.1
+    scala: 2.12.2
     jdk: oraclejdk9
     script:
     # https://github.com/sbt/sbt/pull/2951
