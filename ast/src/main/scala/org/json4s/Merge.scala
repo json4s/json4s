@@ -18,6 +18,8 @@ package org.json4s
 
 import JsonAST._
 
+import scala.annotation.tailrec
+
 /** Use fundep encoding to improve return type of merge function 
  *  (see: http://www.chuusai.com/2011/07/16/fundeps-in-scala/)
  *
@@ -66,32 +68,36 @@ object Merge {
   def merge[A <: JValue, B <: JValue, R <: JValue]
     (val1: A, val2: B)(implicit instance: MergeDep[A, B, R]): R = instance(val1, val2)
 
+
   private[json4s] def mergeFields(vs1: List[JField], vs2: List[JField]): List[JField] = {
-    def mergeRec(xleft: List[JField], yleft: List[JField]): List[JField] = xleft match {
-      case Nil => yleft
+
+    @tailrec
+    def mergeRec(acc: List[JField], xleft: List[JField], yleft: List[JField]): List[JField] = xleft match {
+      case Nil => acc ++ yleft
       case (xn, xv) :: xs => yleft find (_._1 == xn) match {
         case Some(y @ (yn, yv)) =>
-          JField(xn, merge(xv, yv)) :: mergeRec(xs, yleft filterNot (_ == y))
-        case None => JField(xn, xv) :: mergeRec(xs, yleft)
+          mergeRec(acc ++ List(JField(xn, merge(xv, yv))), xs, yleft filterNot (_ == y))
+        case None => mergeRec(acc ++ List(JField(xn, xv)), xs, yleft)
       }
     }
 
-    mergeRec(vs1, vs2)
+    mergeRec(List(), vs1, vs2)
   }
 
   private[json4s] def mergeVals(vs1: List[JValue], vs2: List[JValue]): List[JValue] = {
-    def mergeRec(xleft: List[JValue], yleft: List[JValue]): List[JValue] = xleft match {
-      case Nil => yleft
+    @tailrec
+    def mergeRec(acc: List[JValue], xleft: List[JValue], yleft: List[JValue]): List[JValue] = xleft match {
+      case Nil => acc ++ yleft
       case x :: xs => yleft find (_ == x) match {
-        case Some(y) => merge(x, y) :: mergeRec(xs, yleft filterNot (_ == y))
-        case None => x :: mergeRec(xs, yleft)
+        case Some(y) => mergeRec(acc ++ List(merge(x,y)), xs, yleft filterNot (_ == y))
+        case None => mergeRec(acc ++ List(x), xs, yleft)
       }
     }
 
-    mergeRec(vs1, vs2)
+    mergeRec(List(), vs1, vs2)
   }
 
-  private[json4s] trait Mergeable extends MergeDeps { 
+  private[json4s] trait Mergeable extends MergeDeps {
     implicit def j2m[A <: JValue](json: A): MergeSyntax[A] = new MergeSyntax(json)
 
     class MergeSyntax[A <: JValue](json: A) {
