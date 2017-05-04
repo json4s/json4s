@@ -6,6 +6,13 @@ matrix:
   include:
   - scala: 2.12.2
     jdk: oraclejdk8
+  - scala: 2.13.0-M1
+    jdk: oraclejdk8
+    script:
+    # https://github.com/etorreborre/specs2/issues/573
+    - travis_retry sbt ++$TRAVIS_SCALA_VERSION javaVersionCheck compile
+    - find $HOME/.sbt -name "*.lock" | xargs rm
+    - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
   - dist: trusty
     group: edge
     sudo: required
