@@ -6,6 +6,8 @@ matrix:
   include:
   - scala: 2.12.2
     jdk: oraclejdk8
+  - scala: 2.13.0-M1
+    jdk: oraclejdk8
   - dist: trusty
     group: edge
     sudo: required
