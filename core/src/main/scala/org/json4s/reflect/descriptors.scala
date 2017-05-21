@@ -138,6 +138,7 @@ class ScalaType(private val manifest: Manifest[_]) extends Equals {
   val isPrimitive = false
 
   def isMap = classOf[collection.immutable.Map[_, _]].isAssignableFrom(erasure) || classOf[collection.Map[_, _]].isAssignableFrom(erasure)
+  def isMutableMap: Boolean = classOf[collection.mutable.Map[_, _]].isAssignableFrom(erasure)
   def isCollection = erasure.isArray || classOf[Iterable[_]].isAssignableFrom(erasure) || classOf[java.util.Collection[_]].isAssignableFrom(erasure)
   def isOption = classOf[Option[_]].isAssignableFrom(erasure)
   def isEither = classOf[Either[_, _]].isAssignableFrom(erasure)
