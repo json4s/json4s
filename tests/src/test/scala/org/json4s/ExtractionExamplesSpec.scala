@@ -69,9 +69,14 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
                                        "address2" -> Address("Soho", "London")))
     }
 
-    "Mutable map extraction example" in {
+    "scala.collection.Map extraction example" in {
       val json = parse("""{ "name": "Joe" }""")
       json.extract[scala.collection.Map[String, String]] must_== scala.collection.Map("name" -> "Joe")
+    }
+
+    "mutable.Map extraction example" in {
+      val json = parse("""{ "name": "Joe" }""")
+      json.extract[scala.collection.mutable.Map[String, String]] must_== scala.collection.mutable.Map("name" -> "Joe")
     }
 
     "Simple value extraction example" in {

@@ -371,7 +371,12 @@ object Extraction {
         case JObject(xs) => {
           val kta = scalaType.typeArgs(0)
           val ta = scalaType.typeArgs(1)
-          Map(xs.map(x => (convert(x._1, kta, formats), extract(x._2, ta))): _*)
+          val values = xs.map(x => (convert(x._1, kta, formats), extract(x._2, ta)))
+          if (scalaType.isMutableMap) {
+            scala.collection.mutable.Map(values: _*)
+          } else {
+            values.toMap
+          }
         }
         case x => fail("Expected object but got " + x)
       }
