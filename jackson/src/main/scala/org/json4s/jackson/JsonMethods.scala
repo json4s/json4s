@@ -16,6 +16,10 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
   }
   def mapper = _defaultMapper
 
+  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false): JValue = {
+    parse(in, useBigDecimalForDouble, true)
+  }
+
   def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): JValue = {
     var reader = mapper.reader(classOf[JValue])
     if (useBigDecimalForDouble) reader = reader `with` USE_BIG_DECIMAL_FOR_FLOATS
