@@ -229,8 +229,6 @@ trait Formats extends Serializable { self: Formats =>
      */
     def classFor(hint: String): Option[Class[_]]
 
-    @deprecated("Use `containsHint` without `_?` instead", "3.2.0")
-    def containsHint_?(clazz: Class[_]): Boolean = containsHint(clazz)
     def containsHint(clazz: Class[_]): Boolean = hints exists (_ isAssignableFrom clazz)
     def shouldExtractHints(clazz: Class[_]): Boolean = hints exists (clazz isAssignableFrom _)
     def deserialize: PartialFunction[(String, JObject), Any] = Map()

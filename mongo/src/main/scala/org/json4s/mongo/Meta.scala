@@ -69,8 +69,6 @@ object Meta {
     */
     val datetypes = Set[Class[_]](classOf[Calendar], classOf[Date], classOf[GregorianCalendar])
 
-    @deprecated("Use `isDateType` instead", "3.1.0")
-    def datetype_?(clazz: Class[_]) = isDateType(clazz)
     def isDateType(clazz: Class[_]) = datetypes contains clazz
 
     def datetype2jvalue(a: Any)(implicit formats: Formats) = a match {
@@ -89,8 +87,6 @@ object Meta {
     val mongotypes = Set[Class[_]](
       classOf[DBRef], classOf[ObjectId], classOf[Pattern], classOf[UUID])
 
-    @deprecated("Use `isMongoType` instead", "3.1.0")
-    def mongotype_?(clazz: Class[_]) = isMongoType(clazz)
     def isMongoType(clazz: Class[_]) = mongotypes contains clazz
 
     /*
