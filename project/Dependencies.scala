@@ -13,12 +13,7 @@ object Dependencies {
   lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.12"
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.8"
   lazy val specs        = Def.setting{
-    // TODO enable if specs2 for Scala 2.13 released
-    // https://github.com/etorreborre/specs2/issues/573
-    PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion.value)){
-      case Some((2, v)) if v <= 12 =>
-        Seq("org.specs2" %% "specs2-scalacheck" % "3.8.9" % "test")
-    }.toList.flatten
+    Seq("org.specs2" %% "specs2-scalacheck" % "3.9.0" % "test")
   }
   lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "2.7.19" % "test"
 
