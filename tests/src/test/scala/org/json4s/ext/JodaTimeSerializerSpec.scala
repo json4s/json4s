@@ -47,7 +47,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
   (mod + " JodaTimeSerializer Specification") should {
     "Serialize joda time types with default format" in {
       val x = JodaTypes(new Duration(10*1000), new Instant(System.currentTimeMillis),
-                        new DateTime(UTC), new DateMidnight(UTC), new Interval(1000, 50000),
+                        new DateTime(UTC), new DateMidnight(UTC),
                         new LocalDate(2011, 1, 16), new LocalTime(16, 52, 10), Period.weeks(3))
       val ser = s.write(x)
       s.read[JodaTypes](ser) must_== x
@@ -105,7 +105,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
     }
 
     "null is serialized as JSON null" in {
-      val x = JodaTypes(null, null, null, null, null, null, null, null)
+      val x = JodaTypes(null, null, null, null, null, null, null)
       val ser = s.write(x)
       s.read[JodaTypes](ser) must_== x
     }
@@ -113,7 +113,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
 }
 
 case class JodaTypes(duration: Duration, instant: Instant, dateTime: DateTime,
-                     dateMidnight: DateMidnight, interval: Interval, localDate: LocalDate,
+                     dateMidnight: DateMidnight, localDate: LocalDate,
                      localTime: LocalTime, period: Period)
 
 case class Dates(dt: DateTime, dm: DateMidnight)
