@@ -10,7 +10,7 @@ object Dependencies {
   lazy val jackson      = Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.4"
   )
-  lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.12"
+  lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.14"
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.8"
   lazy val specs        = Def.setting{
     Seq("org.specs2" %% "specs2-scalacheck" % "3.9.0" % "test")
