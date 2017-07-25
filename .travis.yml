@@ -37,7 +37,7 @@ sudo: false
 cache:
   directories:
     - $HOME/.ivy2/cache
-    - $HOME/.sbt/boot/scala-$TRAVIS_SCALA_VERSION
+    - $HOME/.sbt/launchers
 before_install:
   - export TZ=Australia/Canberra
 script:
