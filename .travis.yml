@@ -6,8 +6,9 @@ matrix:
   include:
   - scala: 2.12.2
     jdk: oraclejdk8
-  - scala: 2.13.0-M1
+  - scala: 2.13.0-M2
     jdk: oraclejdk8
+    script: sbt ++$TRAVIS_SCALA_VERSION compile
   - dist: trusty
     group: edge
     sudo: required
