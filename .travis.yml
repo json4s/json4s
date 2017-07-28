@@ -42,6 +42,7 @@ before_install:
   - export TZ=Australia/Canberra
 script:
   - travis_retry sbt ++$TRAVIS_SCALA_VERSION mimaReportBinaryIssues javaVersionCheck test
+before_cache:
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 addons:
