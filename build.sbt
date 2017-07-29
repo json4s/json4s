@@ -7,7 +7,7 @@ lazy val root = Project(
   id = "json4s",
   base = file("."),
   settings = json4sSettings ++ noPublish
-) aggregate(core, native, json4sExt, jacksonSupport, scalazExt, json4sTests, mongo, ast, scalap, examples, benchmark)
+) aggregate(core, native, json4sExt, jacksonSupport, scalazExt, json4sTests, mongo, ast, scalap, examples)
 
 lazy val ast = Project(
   id = "json4s-ast",
@@ -92,22 +92,3 @@ lazy val json4sTests = Project(
       """.stripMargin
   ) ++ noPublish
 ) dependsOn(core, native, json4sExt, scalazExt, jacksonSupport, mongo)
-
-lazy val benchmark = Project(
-  id = "json4s-benchmark",
-  base = file("benchmark"),
-  settings = json4sSettings ++ SbtStartScript.startScriptForClassesSettings ++ Seq(
-    cancelable := true,
-    libraryDependencies ++= Seq(
-      "com.google.code.java-allocation-instrumenter" % "java-allocation-instrumenter" % "3.0.1",
-      "com.google.caliper" % "caliper" % "0.5-rc1",
-      "com.google.code.gson" % "gson" % "2.8.0"
-    ),
-    runner in Compile in run := {
-      val (tp, tmp, si, base, options, strategy, javaHomeDir, connectIn) =
-        (thisProject.value, taskTemporaryDirectory.value, scalaInstance.value, baseDirectory.value, javaOptions.value, outputStrategy.value, javaHome.value, connectInput.value)
-        new MyRunner(tp.id, ForkOptions(javaHome = javaHomeDir, connectInput = connectIn, outputStrategy = strategy,
-          runJVMOptions = options, workingDirectory = Some(base)) )
-    }
-  ) ++ noPublish
-) dependsOn(core, native, jacksonSupport, json4sExt, mongo)
