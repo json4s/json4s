@@ -1,0 +1,14 @@
+language: scala
+sudo: false
+matrix:
+  include:
+  - scala: 2.12.3
+    jdk: oraclejdk8
+  - scala: 2.11.11
+    jdk: oraclejdk7
+script:
+- sbt "++${TRAVIS_SCALA_VERSION}" mimaReportBinaryIssues test
+addons:
+  apt:
+    packages:
+    - oracle-java8-installer

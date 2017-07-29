@@ -64,10 +64,10 @@ object ArbitraryJson4s {
   } yield JInt(l)
   def arbJInt: Arbitrary[JInt] = Arbitrary(genJInt)
 
-  def genJNull: Gen[JNull.type] = Gen value JNull
+  def genJNull: Gen[JNull.type] = Gen const JNull
   def arbJNull: Arbitrary[JNull.type] = Arbitrary(genJNull)
 
-  def genJNothing: Gen[JNothing.type] = Gen value JNothing
+  def genJNothing: Gen[JNothing.type] = Gen const JNothing
   def arbJNothing: Arbitrary[JNothing.type] = Arbitrary(genJNothing)
 
   class Nodes(decimalMode: Boolean) {

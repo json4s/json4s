@@ -135,13 +135,6 @@ Extras
 
 Support for Enum, Joda-Time, ...
 
-* [scalaz](https://github.com/json4s/json4s/tree/master/scalaz)
-
-Applicative style parsing with Scalaz
-
-* [native-lift](https://github.com/json4s/json4s/tree/master/native-lift)
-
-Support for Box
 
 Migration from older versions
 =============================
