@@ -93,32 +93,3 @@ object build {
     publishLocal := {}
   )
 }
-
-// TODO: fix some deprecation warnings
-// taken from https://github.com/dcsobral/scala-foreach-benchmark
-class MyRunner(subproject: String, config: ForkScalaRun) extends sbt.ScalaRun {
-  def run(mainClass: String, classpath: Seq[File], options: Seq[String], log: Logger): Option[String] = {
-    log.info("Running " + subproject + " " + mainClass + " " + options.mkString(" "))
-
-    val javaOptions = classpathOption(classpath) ::: mainClass :: options.toList
-    val strategy = config.outputStrategy getOrElse LoggedOutput(log)
-    val process =  Fork.java.fork(config.javaHome,
-                                  config.runJVMOptions ++ javaOptions,
-                                  config.workingDirectory,
-                                  Map.empty,
-                                  config.connectInput,
-                                  strategy)
-    def cancel() = {
-      log.warn("Run canceled.")
-      process.destroy()
-      1
-    }
-    val exitCode = try process.exitValue() catch { case e: InterruptedException => cancel() }
-    processExitCode(exitCode, "runner")
-  }
-  private def classpathOption(classpath: Seq[File]) = "-classpath" :: Path.makeString(classpath) :: Nil
-  private def processExitCode(exitCode: Int, label: String) = {
-    if(exitCode == 0) None
-    else Some("Nonzero exit code returned from " + label + ": " + exitCode)
-  }
-}
