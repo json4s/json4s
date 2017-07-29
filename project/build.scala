@@ -8,24 +8,23 @@ import com.typesafe.sbt.pgp.PgpKeys
 object build extends Build {
   import Dependencies._
 
-  val manifestSetting = packageOptions <+= (name, version, organization) map {
-    (title, version, vendor) =>
+  val manifestSetting = packageOptions += {
       Package.ManifestAttributes(
         "Created-By" -> "Simple Build Tool",
         "Built-By" -> System.getProperty("user.name"),
         "Build-Jdk" -> System.getProperty("java.version"),
-        "Specification-Title" -> title,
-        "Specification-Version" -> version,
-        "Specification-Vendor" -> vendor,
-        "Implementation-Title" -> title,
-        "Implementation-Version" -> version,
-        "Implementation-Vendor-Id" -> vendor,
-        "Implementation-Vendor" -> vendor
+        "Specification-Title" -> name.value,
+        "Specification-Version" -> version.value,
+        "Specification-Vendor" -> organization.value,
+        "Implementation-Title" -> name.value,
+        "Implementation-Version" -> version.value,
+        "Implementation-Vendor-Id" -> organization.value,
+        "Implementation-Vendor" -> organization.value
       )
   }
 
-  val publishSetting = publishTo <<= (version) { version: String =>
-    if (version.trim.endsWith("SNAPSHOT"))
+  val publishSetting = publishTo := {
+    if (version.value.trim.endsWith("SNAPSHOT"))
       Some(Opts.resolver.sonatypeSnapshots)
     else
       Some(Opts.resolver.sonatypeStaging)
@@ -35,7 +34,7 @@ object build extends Build {
     homepage := Some(new URL("https://github.com/json4s/json4s")),
     startYear := Some(2009),
     licenses := Seq(("ASL", new URL("http://github.com/json4s/json4s/raw/HEAD/LICENSE"))),
-    pomExtra <<= (pomExtra, name, description) {(pom, name, desc) => pom ++ Group(
+    pomExtra := (pomExtra.value ++ Group(
       <scm>
         <url>http://github.com/json4s/json4s</url>
         <connection>scm:git:git://github.com/json4s/json4s.git</connection>
@@ -47,12 +46,12 @@ object build extends Build {
           <url>http://flanders.co.nz/</url>
         </developer>
       </developers>
-    )}
+    ))
   )
 
   val Scala212 = "2.12.3"
 
-  val json4sSettings = Defaults.defaultSettings ++ mavenCentralFrouFrou ++ Seq(
+  val json4sSettings = mavenCentralFrouFrou ++ Seq(
     organization := "org.json4s",
     scalaVersion := Scala212,
     version := "3.2.12-SNAPSHOT",
@@ -88,7 +87,7 @@ object build extends Build {
     id = "json4s-ast",
     base = file("ast"),
     settings = json4sSettings ++ buildInfoSettings ++ json4sMimaSettings ++ Seq(
-      sourceGenerators in Compile <+= buildInfo,
+      sourceGenerators in Compile += buildInfo.taskValue,
       buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
       buildInfoPackage := "org.json4s"
     )
@@ -98,7 +97,7 @@ object build extends Build {
     id = "json4s-core",
     base = file("core"),
     settings = json4sSettings ++ json4sMimaSettings ++ Seq(
-      libraryDependencies <++= scalaVersion { sv => Seq(paranamer, scalap(sv)) },
+      libraryDependencies ++= Seq(paranamer, scalap(scalaVersion.value)),
       initialCommands in (Test, console) := """
           |import org.json4s._
           |import reflect._
