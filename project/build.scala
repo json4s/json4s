@@ -55,7 +55,7 @@ object build extends Build {
   val json4sSettings = Defaults.defaultSettings ++ mavenCentralFrouFrou ++ Seq(
     organization := "org.json4s",
     scalaVersion := Scala212,
-    version := "3.2.11",
+    version := "3.2.12-SNAPSHOT",
     crossScalaVersions := Seq("2.11.11", Scala212),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:reflectiveCalls", "-language:postfixOps"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
@@ -68,10 +68,10 @@ object build extends Build {
   val json4sMimaSettings = Seq(
     mimaPreviousArtifacts := {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 11)) =>
+        case Some((2, v)) if v <= 12 =>
           Set("11").map { v =>
             organization.value %% name.value % s"3.2.$v"
-          } 
+          }
         case _ =>
           Set.empty
       }
