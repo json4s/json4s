@@ -8,7 +8,7 @@ object ManifestFactory {
   def manifestOf(t: Type): Manifest[_] = t match {
 
     case pt: ParameterizedType =>
-      val clazz = manifestOf(pt.getRawType).erasure
+      val clazz = manifestOf(pt.getRawType).runtimeClass
       val typeArgs = pt.getActualTypeArguments map manifestOf
 
       if (pt.getOwnerType == null) {
@@ -20,7 +20,7 @@ object ManifestFactory {
     case at: GenericArrayType =>
       val componentManifest = manifestOf(at.getGenericComponentType)
       val arrayManifest = componentManifest.arrayManifest // strips component type args off
-      Manifest.classType(arrayManifest.erasure, componentManifest)
+      Manifest.classType(arrayManifest.runtimeClass, componentManifest)
 
     case wt: WildcardType =>
       val upper = wt.getUpperBounds
@@ -42,7 +42,7 @@ object ManifestFactory {
     } else {
       val normalizedErasure =
         if (erasure.getName == "scala.Array")
-          typeArgs(0).arrayManifest.erasure
+          typeArgs(0).arrayManifest.runtimeClass
         else
           erasure
 

@@ -14,11 +14,11 @@ private[jackson] object Types {
     cachedTypes.getOrElseUpdate(manifest, constructType(factory, manifest))
 
   private def constructType(factory: TypeFactory, manifest: Manifest[_]): JavaType = {
-    if (manifest.erasure.isArray) {
-      ArrayType.construct(factory.constructType(manifest.erasure.getComponentType), null, null)
+    if (manifest.runtimeClass.isArray) {
+      ArrayType.construct(factory.constructType(manifest.runtimeClass.getComponentType), null, null)
     } else {
       factory.constructParametricType(
-        manifest.erasure,
+        manifest.runtimeClass,
         manifest.typeArguments.map {m => build(factory, m)}.toArray: _*)
     }
   }
