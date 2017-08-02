@@ -33,7 +33,7 @@ class FormatsSpec extends Specification {
   "issue#550 avoid scalac bug" in {
     val a = new TypeHints {
       override val hints: List[Class[_]] = List.empty
-      override def hintFor(clazz: Class[_]): String = ""
+      override def hintFor(clazz: Class[_]): Option[String] = None
       override def classFor(hint: String): Option[Class[_]] = None
     }
     a + a

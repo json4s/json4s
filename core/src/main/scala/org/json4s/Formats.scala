@@ -16,15 +16,16 @@
 
 package org.json4s
 
-
 import java.util.{Date, TimeZone}
 
-import reflect.{Reflector, ScalaType}
+import reflect.ScalaType
 
-import annotation.implicitNotFound
 import java.lang.reflect.Type
 
 import org.json4s.prefs.EmptyValueStrategy
+import org.json4s.reflect.Reflector
+
+import scala.annotation.implicitNotFound
 
 object Formats {
 
@@ -97,11 +98,6 @@ trait Formats extends Serializable { self: Formats =>
   def strictFieldDeserialization: Boolean = false
 
   /**
-   * The name of the field in JSON where type hints are added (jsonClass by default)
-   */
-  def typeHintFieldName: String = "jsonClass"
-
-  /**
    * Parameter name reading strategy. By default 'paranamer' is used.
    */
   def parameterNameReader: reflect.ParameterNameReader = reflect.ParanamerReader
@@ -110,7 +106,6 @@ trait Formats extends Serializable { self: Formats =>
 
   private def copy(
                     wDateFormat: DateFormat = self.dateFormat,
-                    wTypeHintFieldName: String = self.typeHintFieldName,
                     wParameterNameReader: reflect.ParameterNameReader = self.parameterNameReader,
                     wTypeHints: TypeHints = self.typeHints,
                     wCustomSerializers: List[Serializer[_]] = self.customSerializers,
@@ -129,7 +124,6 @@ trait Formats extends Serializable { self: Formats =>
                     wStrictFieldDeserialization: Boolean = self.strictFieldDeserialization): Formats =
     new Formats {
       def dateFormat: DateFormat = wDateFormat
-      override def typeHintFieldName: String = wTypeHintFieldName
       override def parameterNameReader: reflect.ParameterNameReader = wParameterNameReader
       override def typeHints: TypeHints = wTypeHints
       override def customSerializers: List[Serializer[_]] = wCustomSerializers
@@ -163,8 +157,6 @@ trait Formats extends Serializable { self: Formats =>
   def skippingEmptyValues = withEmptyValueStrategy(EmptyValueStrategy.skip)
 
   def withEmptyValueStrategy(strategy: EmptyValueStrategy): Formats = copy(wEmptyValueStrategy = strategy)
-
-  def withTypeHintFieldName(name: String): Formats = copy(wTypeHintFieldName = name)
 
   def withEscapeUnicode: Formats = copy(wAlwaysEscapeUnicode = true)
 
@@ -215,7 +207,7 @@ trait Formats extends Serializable { self: Formats =>
   /**
    * Adds the specified custom serializers to this formats.
    */
-  def addKeySerializers (newKeySerializers: Iterable[KeySerializer[_]]): Formats =
+  def addKeySerializers(newKeySerializers: Iterable[KeySerializer[_]]): Formats =
     newKeySerializers.foldLeft(this)(_ + _)
 
   /**
@@ -299,20 +291,35 @@ trait TypeHints {
 
   /** Return hint for given type.
    */
-  def hintFor(clazz: Class[_]): String
+  def hintFor(clazz: Class[_]): Option[String]
 
   /** Return type for given hint.
    */
   def classFor(hint: String): Option[Class[_]]
 
-  def containsHint(clazz: Class[_]): Boolean = hints exists (_ isAssignableFrom clazz)
-  def shouldExtractHints(clazz: Class[_]): Boolean = hints exists (clazz isAssignableFrom _)
+  /**
+   * The name of the field in JSON where type hints are added (jsonClass by default)
+   */
+  def typeHintFieldName: String = "jsonClass"
+
+  def isTypeHintField(f: JField): Boolean = f match {
+    case (key, JString(value)) =>
+      val a = typeHintFieldNameForHint(value)
+      key == typeHintFieldName && a.isDefined
+    case _ => false
+  }
+  def typeHintFieldNameForHint(hint: String): Option[String] =
+    classFor(hint) map (_ => typeHintFieldName)
+  def typeHintFieldNameForClass(clazz: Class[_]): Option[String] =
+    hintFor(clazz).flatMap(typeHintFieldNameForHint)
+  def containsHint(clazz: Class[_]): Boolean =
+    hints exists (_ isAssignableFrom clazz)
+  def shouldExtractHints(clazz: Class[_]): Boolean =
+    hints exists (clazz isAssignableFrom _)
   def deserialize: PartialFunction[(String, JObject), Any] = Map()
   def serialize: PartialFunction[Any, JObject] = Map()
 
   def components: List[TypeHints] = List(this)
-
-
 
   /**
    * Adds the specified type hints to this type hints.
@@ -329,11 +336,20 @@ private[json4s] object TypeHints {
     /**
      * Chooses most specific class.
      */
-    def hintFor(clazz: Class[_]): String = {
+    def hintFor(clazz: Class[_]): Option[String] = {
       (components.reverse
         filter (_.containsHint(clazz))
-        map (th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error("hintFor/classFor not invertible for " + th))))
-        sortWith((x, y) => (ClassDelta.delta(x._2, clazz) - ClassDelta.delta(y._2, clazz)) <= 0)).head._1
+        map { th =>
+          val hint =  th.hintFor(clazz)
+          (
+            hint,
+            hint.flatMap(th.classFor)
+              .getOrElse(
+                sys.error("hintFor/classFor not invertible for " + th)
+              )
+          )
+        }
+        sortWith ((x, y) => (ClassDelta.delta(x._2, clazz) - ClassDelta.delta(y._2, clazz)) <= 0)).headOption.flatMap(_._1)
     }
 
     def classFor(hint: String): Option[Class[_]] = {
@@ -343,13 +359,24 @@ private[json4s] object TypeHints {
       components find (hasClass) flatMap (_.classFor(hint))
     }
 
-    override def deserialize: PartialFunction[(String, JObject), Any] = components.foldLeft[PartialFunction[(String, JObject),Any]](Map()) {
-      (result, cur) => result.orElse(cur.deserialize)
-    }
+    override def isTypeHintField(f: JField): Boolean =
+      components exists (_.isTypeHintField(f))
 
-    override def serialize: PartialFunction[Any, JObject] = components.foldLeft[PartialFunction[Any, JObject]](Map()) {
-      (result, cur) => result.orElse(cur.serialize)
-    }
+    override def typeHintFieldNameForHint(hint: String): Option[String] =
+      components.flatMap(_.typeHintFieldNameForHint(hint)).headOption
+
+    override def typeHintFieldNameForClass(clazz: Class[_]): Option[String] =
+      components.flatMap(_.typeHintFieldNameForClass(clazz)).headOption
+
+    override def deserialize: PartialFunction[(String, JObject), Any] =
+      components.foldLeft[PartialFunction[(String, JObject), Any]](Map()) { (result, cur) =>
+        result.orElse(cur.deserialize)
+      }
+
+    override def serialize: PartialFunction[Any, JObject] =
+      components.foldLeft[PartialFunction[Any, JObject]](Map()) { (result, cur) =>
+        result.orElse(cur.serialize)
+      }
   }
 
 }
@@ -375,24 +402,32 @@ private[json4s] object ClassDelta {
  */
 case object NoTypeHints extends TypeHints {
   val hints: List[Class[_]] = Nil
-  def hintFor(clazz: Class[_]) = sys.error("NoTypeHints does not provide any type hints.")
+  def hintFor(clazz: Class[_])= None
   def classFor(hint: String) = None
   override def shouldExtractHints(clazz: Class[_]) = false
 }
 
 /** Use short class name as a type hint.
  */
-case class ShortTypeHints(hints: List[Class[_]]) extends TypeHints {
-  def hintFor(clazz: Class[_]) = clazz.getName.substring(clazz.getName.lastIndexOf(".")+1)
-  def classFor(hint: String) = hints find (hintFor(_) == hint)
+case class ShortTypeHints(hints: List[Class[_]],
+                          override val typeHintFieldName: String = "jsonClass")
+    extends TypeHints {
+  def hintFor(clazz: Class[_]) =
+    Some(clazz.getName.substring(clazz.getName.lastIndexOf(".") + 1))
+  def classFor(hint: String) = hints find (hintFor(_).exists(_ == hint))
 }
 
 /** Use full class name as a type hint.
  */
-case class FullTypeHints(hints: List[Class[_]]) extends TypeHints {
-  def hintFor(clazz: Class[_]) = clazz.getName
+case class FullTypeHints(hints: List[Class[_]],
+                         override val typeHintFieldName: String = "jsonClass")
+    extends TypeHints {
+  def hintFor(clazz: Class[_]) = Some(clazz.getName)
   def classFor(hint: String) = {
-    Reflector.scalaTypeOf(hint).map(_.erasure)//.find(h => hints.exists(l => l.isAssignableFrom(h.erasure)))
+    Reflector
+      .scalaTypeOf(hint)
+      .find(h => hints.exists(l => l.isAssignableFrom(h.erasure)))
+      .map(_.erasure)
   }
 }
 
@@ -404,7 +439,7 @@ case class MappedTypeHints(hintMap: Map[Class[_], String]) extends TypeHints {
   override val hints: List[Class[_]] = hintMap.keys.toList
   private val lookup: Map[String, Class[_]] = hintMap.map(_.swap)
 
-  def hintFor(clazz: Class[_]) = hintMap.get(clazz).get  // will throw exception if not present
+  def hintFor(clazz: Class[_]) = hintMap.get(clazz)
   def classFor(hint: String) = lookup.get(hint)
 }
 
@@ -422,7 +457,6 @@ object DefaultFormats extends DefaultFormats {
     new ThreadLocal(createSdf)
   }
 
-
 }
 
 private[json4s] class ThreadLocal[A](init: => A) extends java.lang.ThreadLocal[A] with (() => A) {
@@ -434,7 +468,6 @@ trait DefaultFormats extends Formats {
 
   private[this] val df = new ThreadLocal[SimpleDateFormat](dateFormatter)
 
-  override val typeHintFieldName: String = "jsonClass"
   override val parameterNameReader: reflect.ParameterNameReader = reflect.ParanamerReader
   override val typeHints: TypeHints = NoTypeHints
   override val customSerializers: List[Serializer[_]] = Nil
@@ -448,7 +481,6 @@ trait DefaultFormats extends Formats {
   override val emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
   override val allowNull: Boolean = true
   override def strictFieldDeserialization: Boolean = false
-
 
   val dateFormat: DateFormat = new DateFormat {
     def parse(s: String) = try {
@@ -482,8 +514,6 @@ trait DefaultFormats extends Formats {
     override val typeHints = hints
   }
 }
-
-
 
 class CustomSerializer[A: Manifest](
   ser: Formats => (PartialFunction[JValue, A], PartialFunction[Any, JValue])) extends Serializer[A] {

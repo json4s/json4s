@@ -105,8 +105,10 @@ object Extraction {
    */
   def internalDecomposeWithBuilder[T](a: Any, builder: JsonWriter[T])(implicit formats: Formats):Unit = {
     val current = builder
-    def prependTypeHint(clazz: Class[_], o: JObject) =
-      JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
+    def prependTypeHint(clazz: Class[_], o: JObject) = for {
+      hint <- formats.typeHints.hintFor(clazz)
+      typeHintFieldName <- formats.typeHints.typeHintFieldNameForHint(hint)
+    } yield  JObject(JField(typeHintFieldName, JString(hint)) :: o.obj)
 
     def addField(name: String, v: Any, obj: JsonWriter[T]): Unit = v match {
       case None => formats.emptyValueStrategy.noneValReplacement foreach (internalDecomposeWithBuilder(_, obj.startField(name)))
@@ -123,10 +125,12 @@ object Extraction {
       val methods = k.getMethods.toSeq.map(_.getName)
       val iter = descriptor.properties.iterator
       val obj = current.startObject()
-      if (formats.typeHints.containsHint(k)) {
-        val f = obj.startField(formats.typeHintFieldName)
-        f.string(formats.typeHints.hintFor(k))
-      }
+
+      for {
+        hintName <- formats.typeHints.typeHintFieldNameForClass(k)
+        hintValue <- formats.typeHints.hintFor(k)
+      } obj.startField(hintName).string(hintValue)
+
       val fs = formats.fieldSerializer(k)
       while(iter.hasNext) {
         val prop = iter.next()
@@ -232,7 +236,7 @@ object Extraction {
       } else {
         decomposeObject(k)
       }
-    } else current addJValue prependTypeHint(any.getClass, serializer(any))
+    } else prependTypeHint(any.getClass, serializer(any)).foreach(current.addJValue)
   }
 
   /** Decompose a case class into JSON.
@@ -426,7 +430,11 @@ object Extraction {
   private[this] def extractDetectingNonTerminal(jvalue: JValue, typeArg: ScalaType)(implicit formats: Formats) = jvalue match {
     case subArr: JArray if typeArg.erasure == Manifest.Object.runtimeClass =>
       extract(subArr, Reflector.scalaTypeOf[List[Object]])
-    case subObj: JObject if typeArg.erasure == Manifest.Object.runtimeClass && subObj.obj.exists(_._1 == formats.typeHintFieldName) =>
+    case subObj: JObject
+        if typeArg.erasure == Manifest.Object.runtimeClass && subObj.obj
+          .exists(
+            _._1 == formats.typeHints.typeHintFieldName
+          ) =>
       extract(subObj, Reflector.scalaTypeOf[Object])
     case subObj: JObject if typeArg.erasure == Manifest.Object.runtimeClass =>
       extract(subObj, Reflector.scalaTypeOf[Map[String, Object]])
@@ -507,7 +515,7 @@ object Extraction {
       def unapply(fs: List[JField]): Option[(String, List[JField])] =
         if (!formats.typeHints.shouldExtractHints(descr.erasure.erasure)) None
         else {
-          fs.partition(_._1 == formats.typeHintFieldName) match {
+          fs.partition(formats.typeHints.isTypeHintField) match {
             case (Nil, _) => None
             case (t, f) => Some((t.head._2.values.toString, f))
           }
@@ -665,7 +673,7 @@ object Extraction {
     }
 
     private[this] def mkWithTypeHint(typeHint: String, fields: List[JField], typeInfo: ScalaType) = {
-      val obj = JObject(fields filterNot (_._1 == formats.typeHintFieldName))
+      val obj = JObject(fields filterNot formats.typeHints.isTypeHintField)
       val deserializer = formats.typeHints.deserialize
       if (!deserializer.isDefinedAt(typeHint, obj)) {
         val concreteClass = formats.typeHints.classFor(typeHint) getOrElse fail("Do not know how to deserialize '" + typeHint + "'")
