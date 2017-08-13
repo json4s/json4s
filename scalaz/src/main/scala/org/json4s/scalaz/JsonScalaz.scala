@@ -37,8 +37,8 @@ trait Types {
       Validation.failureNel(UncategorizedError(key, desc, Nil))
   }
 
-  implicit def JValueMonoid: Monoid[JValue] = Monoid.instance(_ ++ _, JNothing)
-  implicit def JValueEqual: Equal[JValue] = Equal.equalA
+  implicit val JValueMonoid: Monoid[JValue] = Monoid.instance(_ ++ _, JNothing)
+  implicit val JValueEqual: Equal[JValue] = Equal.equalA
 
   trait JSONR[A] {
     def read(json: JValue): Result[A]
