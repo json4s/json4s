@@ -16,6 +16,7 @@ trait DefaultReaders {
   implicit object IntReader extends Reader[Int] {
     def read(value: JValue): Int = value match {
       case JInt(x) => x.intValue
+      case JLong(x) => x.intValue
       case JDouble(x) => x.intValue
       case JDecimal(x) => x.intValue
       case x => throw new MappingException("Can't convert %s to Int." format x)
@@ -25,6 +26,7 @@ trait DefaultReaders {
   implicit object BigIntReader extends Reader[BigInt] {
     def read(value: JValue): BigInt = value match {
       case JInt(x) => x
+      case JLong(x) => BigInt(x)
       case JDouble(x) => BigInt(x.longValue)
       case JDecimal(x) => x.toBigInt()
       case x => throw new MappingException("Can't convert %s to BigInt." format x)
@@ -34,6 +36,7 @@ trait DefaultReaders {
   implicit object LongReader extends Reader[Long] {
     def read(value: JValue): Long = value match {
       case JInt(x) => x.longValue
+      case JLong(x) => x
       case JDouble(x) => x.longValue
       case JDecimal(x) => x.longValue
       case x => throw new MappingException("Can't convert %s to Long." format x)
@@ -43,6 +46,7 @@ trait DefaultReaders {
   implicit object ShortReader extends Reader[Short] {
     def read(value: JValue): Short = value match {
       case JInt(x) => x.shortValue
+      case JLong(x) => x.shortValue
       case JDouble(x) => x.shortValue
       case JDecimal(x) => x.shortValue
       case JNull => 0
@@ -53,6 +57,7 @@ trait DefaultReaders {
   implicit object ByteReader extends Reader[Byte] {
     def read(value: _root_.org.json4s.JValue): Byte = value match {
       case JInt(x) => x.byteValue
+      case JLong(x) => x.byteValue
       case JDouble(x) => x.byteValue
       case JDecimal(x) => x.byteValue
       case JNull => 0
@@ -63,6 +68,7 @@ trait DefaultReaders {
   implicit object FloatReader extends Reader[Float] {
     def read(value: _root_.org.json4s.JValue): Float = value match {
       case JInt(x) => x.floatValue
+      case JLong(x) => x.floatValue
       case JDouble(x) => x.floatValue
       case JDecimal(x) => x.floatValue
       case JNull => 0
@@ -73,6 +79,7 @@ trait DefaultReaders {
   implicit object DoubleReader extends Reader[Double] {
     def read(value: _root_.org.json4s.JValue): Double = value match {
       case JInt(x) => x.doubleValue
+      case JLong(x) => x.doubleValue
       case JDouble(x) => x
       case JDecimal(x) => x.doubleValue
       case JNull => 0
@@ -83,6 +90,7 @@ trait DefaultReaders {
   implicit object BigDecimalReader extends Reader[BigDecimal] {
     def read(value: _root_.org.json4s.JValue): BigDecimal = value match {
       case JInt(x) => BigDecimal(x)
+      case JLong(x) => BigDecimal(x)
       case JDouble(x) => BigDecimal(x)
       case JDecimal(x) => x
       case JNull => 0
@@ -101,6 +109,7 @@ trait DefaultReaders {
   implicit object StringReader extends Reader[String] {
     def read(value: _root_.org.json4s.JValue): String = value match {
       case JInt(x) => x.toString
+      case JLong(x) => x.toString
       case JDecimal(x) => x.toString
       case JDouble(x) => x.toString
       case JBool(x) => x.toString

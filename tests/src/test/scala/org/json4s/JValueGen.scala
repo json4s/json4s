@@ -25,6 +25,7 @@ trait JValueGen {
   def genSimple: Gen[JValue] = oneOf(
     const(JNull),
     arbitrary[Int].map(JInt(_)),
+    arbitrary[Long].map(JLong(_)),
     arbitrary[Double].map(JDouble(_)),
     arbitrary[Boolean].map(JBool(_)),
     arbitrary[String].map(JString(_)))
