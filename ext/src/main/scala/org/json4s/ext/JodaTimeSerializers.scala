@@ -17,8 +17,6 @@
 package org.json4s
 package ext
 
-import java.util.TimeZone
-
 import org.joda.time._
 
 
@@ -58,15 +56,6 @@ case object InstantSerializer extends CustomSerializer[Instant](format => (
     case i: Instant => JInt(i.getMillis)
   }
 ))
-
-object DateParser {
-  def parse(s: String, format: Formats) = {
-    val instant = format.dateFormat.parse(s).map(_.getTime).getOrElse(throw new MappingException(s"Invalid date format $s"))
-    val timezone = format.dateFormat.timezone
-    ZonedInstant(instant, timezone)
-  }
-
-}
 
 case object DateTimeSerializer extends CustomSerializer[DateTime](format => (
   {
@@ -120,27 +109,4 @@ object LocalTimeSerializer {
       _LocalTime(t.getHourOfDay, t.getMinuteOfHour, t.getSecondOfMinute, t.getMillisOfSecond)
   })
 }
-
-private[ext] trait ClassType[A, B] {
-  def unwrap(b: B)(implicit format: Formats): A
-  def wrap(a: A)(implicit format: Formats): B
-}
-
-case class ClassSerializer[A : Manifest, B : Manifest](t: ClassType[A, B]) extends Serializer[A] {
-  private val Class = implicitly[Manifest[A]].runtimeClass
-
-  def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), A] = {
-    case (TypeInfo(Class, _), json) => json match {
-      case JNull => null.asInstanceOf[A]
-      case xs: JObject if (xs.extractOpt[B].isDefined) => t.unwrap(xs.extract[B])
-      case value => throw new MappingException(s"Can't convert $value to $Class")
-    }
-  }
-
-  def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case a: A if a.asInstanceOf[AnyRef].getClass == Class => Extraction.decompose(t.wrap(a))
-  }
-}
-
-case class ZonedInstant(val instant: Long, val timezone: TimeZone)
 
