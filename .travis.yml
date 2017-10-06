@@ -21,7 +21,7 @@ matrix:
     - git clone https://github.com/retronym/java9-rt-export
     - cd java9-rt-export/
     - git checkout 1019a2873d057dd7214f4135e84283695728395d
-    - echo "sbt.version=1.0.0-RC2" > project/build.properties
+    - echo "sbt.version=1.0.2" > project/build.properties
     - sbt package
     - export JAVA_HOME=~/jdk-9
     - PATH=$JAVA_HOME/bin:$PATH
