@@ -73,13 +73,8 @@ object build {
       }
     },
     version := "3.6.0-SNAPSHOT",
-    javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
-    javaVersionPrefix in javaVersionCheck := Some{
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, scalaMajor)) if scalaMajor <= 11 => "1.7"
-        case _ => "1.8"
-      }
-    },
+    javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
+    javaVersionPrefix in javaVersionCheck := Some("1.8"),
     parallelExecution in Test := false,
     manifestSetting,
     resolvers ++= Seq(Opts.resolver.sonatypeReleases),
