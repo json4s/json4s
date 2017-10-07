@@ -40,7 +40,9 @@ abstract class JavaDateTimeSerializerSpec(mod: String) extends Specification {
     "LocalDateTime use configured date format" in {
       implicit val formats = new DefaultFormats {
         override def dateFormatter = {
-          new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'")
+          val f = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'")
+          f.setTimeZone(DefaultFormats.UTC)
+          f
         }
       } ++ JavaTimeSerializers.all
 

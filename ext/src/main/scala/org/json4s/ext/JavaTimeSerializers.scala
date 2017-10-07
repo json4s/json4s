@@ -34,9 +34,10 @@ case object JLocalDateTimeSerializer extends CustomSerializer[LocalDateTime](for
     case JNull => null
   },
   {
-    case d: LocalDateTime => JString(format.dateFormat.format(
-      Date.from(d.toInstant(JavaTimeSerializers.getZoneOffset(format.dateFormat.timezone)))
-    ))
+    case d: LocalDateTime =>
+      JString(format.dateFormat.format(
+        Date.from(d.toInstant(JavaTimeSerializers.getZoneOffset(format.dateFormat.timezone)))
+      ))
   }
 ))
 
