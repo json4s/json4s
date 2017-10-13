@@ -72,7 +72,7 @@ object build {
           Nil
       }
     },
-    version := "3.6.0-M1",
+    version := "3.6.0-SNAPSHOT",
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
     javaVersionPrefix in javaVersionCheck := Some("1.8"),
     parallelExecution in Test := false,
