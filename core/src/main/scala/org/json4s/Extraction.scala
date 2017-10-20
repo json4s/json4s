@@ -371,7 +371,12 @@ object Extraction {
         case JObject(xs) => {
           val kta = scalaType.typeArgs(0)
           val ta = scalaType.typeArgs(1)
-          val values = xs.map(x => (convert(x._1, kta, formats), extract(x._2, ta)))
+          val values = xs.map {
+            case (key, value) =>
+              val convertedKey = convert(key, kta, formats)
+              val extractedValue = extractDetectingNonTerminal(value, ta)
+              convertedKey -> extractedValue
+          }
           if (scalaType.isMutableMap) {
             scala.collection.mutable.Map(values: _*)
           } else {
@@ -405,11 +410,23 @@ object Extraction {
     }
   }
 
+  // if the type args are unknown, these cases will make sure the elements that are non-terminal
+  // will have some type information so type hinted data within the nested structure is deserialized properly
+  private def extractDetectingNonTerminal(jvalue: JValue, typeArg: ScalaType)(implicit formats: Formats) = jvalue match {
+    case subArr: JArray if typeArg.erasure == Manifest.Object.runtimeClass =>
+      extract(subArr, Reflector.scalaTypeOf[List[Object]])
+    case subObj: JObject if typeArg.erasure == Manifest.Object.runtimeClass && subObj.obj.exists(_._1 == formats.typeHintFieldName) =>
+      extract(subObj, Reflector.scalaTypeOf[Object])
+    case subObj: JObject if typeArg.erasure == Manifest.Object.runtimeClass =>
+      extract(subObj, Reflector.scalaTypeOf[Map[String, Object]])
+    case value => extract(value, typeArg)
+  }
+
   private class CollectionBuilder(json: JValue, tpe: ScalaType)(implicit formats: Formats) {
     private[this] val typeArg = tpe.typeArgs.head
     private[this] def mkCollection(constructor: Array[_] => Any) = {
       val array: Array[_] = json match {
-        case JArray(arr)      => arr.map(extract(_, typeArg)).toArray
+        case JArray(arr) => arr.map(extractDetectingNonTerminal(_, typeArg)).toArray
         case JNothing | JNull => Array[AnyRef]()
         case x                => fail("Expected collection but got " + x + " for root " + json + " and mapping " + tpe)
       }
