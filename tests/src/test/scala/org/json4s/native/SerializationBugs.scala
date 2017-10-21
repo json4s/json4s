@@ -116,6 +116,26 @@ object SerializationBugs extends Specification {
     read[Eith](s) must_== x
   }
 
+  "Deserialization of nested non-terminal types w/o type information should not suppress type hinted deserialization" in {
+    implicit val formats: Formats = DefaultFormats + ShortTypeHints(List(classOf[Y]))
+
+    def test[Expected <: AnyRef, Actual](expected: Expected)(implicit mf: Manifest[Actual]) = {
+      val json = native.Serialization.write[Expected](expected)
+      val actual = read[Actual](json)
+
+      actual must_== expected
+    }
+
+    test[Seq[Seq[Any]],               Seq[_]](Seq(Seq[Any](1, Y("foo"), "bar")))
+    test[Seq[Map[String, Y]],         Seq[_]](Seq(Map("f1" -> Y("foo"))))
+    test[Map[String, Seq[Y]],         Map[String, _]](Map("f1" -> Seq(Y("foo"))))
+    test[Map[String, Map[String, Y]], Map[String, _]](Map("f1" -> Map("f2" -> Y("foo"))))
+
+    // and then really run it through the ringer
+
+    test[Seq[Seq[Map[String, Any]]], Seq[_]](Seq(Seq(Map("f1" -> Map("f2" -> Seq(Seq[Any](1, Y("foo"), "bar"))), "f1" -> 2.0))))
+  }
+
   "Custom serializer should work as Map key (scala 2.9) (issue #1077)" in {
     class SingleOrVectorSerializer extends Serializer[SingleOrVector[Double]] {
       private val singleOrVectorClass = classOf[SingleOrVector[Double]]
