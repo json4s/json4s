@@ -412,7 +412,7 @@ object Extraction {
 
   // if the type args are unknown, these cases will make sure the elements that are non-terminal
   // will have some type information so type hinted data within the nested structure is deserialized properly
-  private def extractDetectingNonTerminal(jvalue: JValue, typeArg: ScalaType)(implicit formats: Formats) = jvalue match {
+  private[this] def extractDetectingNonTerminal(jvalue: JValue, typeArg: ScalaType)(implicit formats: Formats) = jvalue match {
     case subArr: JArray if typeArg.erasure == Manifest.Object.runtimeClass =>
       extract(subArr, Reflector.scalaTypeOf[List[Object]])
     case subObj: JObject if typeArg.erasure == Manifest.Object.runtimeClass && subObj.obj.exists(_._1 == formats.typeHintFieldName) =>
