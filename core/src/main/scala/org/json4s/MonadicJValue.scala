@@ -344,12 +344,17 @@ class MonadicJValue(jv: JValue) {
   /**
    * Camelize all the keys in this [[org.json4s.JsonAST.JValue]]
    */
-  def camelizeKeys = rewriteJsonAST(camelize = true)
+  def camelizeKeys = rewriteJsonAST(this.camelize)
+
+  /**
+    * Pascalize all the keys in this [[org.json4s.JsonAST.JValue]]
+    */
+  def pascalizeKeys = rewriteJsonAST(this.pascalize)
 
   /**
    * Underscore all the keys in this [[org.json4s.JsonAST.JValue]]
    */
-  def snakizeKeys = rewriteJsonAST(camelize = false)
+  def snakizeKeys = rewriteJsonAST(this.underscore)
 
 
   /**
@@ -357,9 +362,9 @@ class MonadicJValue(jv: JValue) {
    */
   def underscoreKeys = snakizeKeys
 
-  private[this] def rewriteJsonAST(camelize: Boolean): JValue =
+  private[this] def rewriteJsonAST(keyCaseTransform: String => String): JValue =
     transformField {
-      case JField(nm, x) if !nm.startsWith("_") ⇒ JField(if (camelize) this.camelize(nm) else underscore(nm), x)
+      case JField(nm, x) if !nm.startsWith("_") ⇒ JField(keyCaseTransform(nm), x)
     }
 
   /**
