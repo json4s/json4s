@@ -561,12 +561,12 @@ private sealed abstract class StreamingJsonWriter[T <: JWriter] extends JsonWrit
   }
 }
 
-private object StreamingJsonWriter {
+private[json4s] object StreamingJsonWriter {
 
   private val posInfinityVal = "1e+500"
   private val negInfiniteVal = "-1e+500"
 
-  private def handleInfinity(value: Float): String = {
+  private[json4s] def handleInfinity(value: Float): String = {
     if(value.isPosInfinity) {
       posInfinityVal
     } else if (value.isNegInfinity){
@@ -575,7 +575,7 @@ private object StreamingJsonWriter {
       value.toString
     }
   }
-  private def handleInfinity(value: Double): String = {
+  private[json4s] def handleInfinity(value: Double): String = {
     if(value.isPosInfinity) {
       posInfinityVal
     } else if (value.isNegInfinity){

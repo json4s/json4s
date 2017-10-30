@@ -29,7 +29,7 @@ trait JsonMethods extends org.json4s.JsonMethods[Document] {
       case null          => text("null")
       case JBool(true)   => text("true")
       case JBool(false)  => text("false")
-      case JDouble(n)    => text(n.toString)
+      case JDouble(n)    => text(StreamingJsonWriter.handleInfinity(n))
       case JDecimal(n)   => text(n.toString)
       case JLong(n)      => text(n.toString)
       case JInt(n)       => text(n.toString)

@@ -20,7 +20,19 @@ import org.json4s.prefs.EmptyValueStrategy
 import org.specs2.mutable.Specification
 import org.json4s.native.Document
 
-object NativeExamples extends Examples[Document]("Native") with native.JsonMethods
+object NativeExamples extends Examples[Document]("Native") with native.JsonMethods {
+  import JsonDSL._
+
+  "issue 482 Infinity" in {
+    val value = Map("a" -> Double.PositiveInfinity, "b" -> Double.NegativeInfinity)
+    val json = compact(render(value))
+    parse(json) must_== JObject(List(
+      ("a", JDouble(Double.PositiveInfinity)),
+      ("b", JDouble(Double.NegativeInfinity))
+    ))
+  }
+}
+
 object JacksonExamples extends Examples[JValue]("Jackson") with jackson.JsonMethods
 
 object Examples {
