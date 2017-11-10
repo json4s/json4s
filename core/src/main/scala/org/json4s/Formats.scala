@@ -49,6 +49,7 @@ trait Formats extends Serializable { self: Formats =>
   def companions: List[(Class[_], AnyRef)] = Nil
   def allowNull: Boolean = true
   def strictOptionParsing: Boolean = false
+  def strictArrayExtraction: Boolean = false
   def alwaysEscapeUnicode: Boolean = false
 
   /**
@@ -76,7 +77,8 @@ trait Formats extends Serializable { self: Formats =>
                     withPrimitives: Set[Type] = self.primitives,
                     wCompanions: List[(Class[_], AnyRef)] = self.companions,
                     wAllowNull: Boolean = self.allowNull,
-                    wStrict: Boolean = self.strictOptionParsing,
+                    wStrictOptionParsing: Boolean = self.strictOptionParsing,
+                    wStrictArrayExtraction: Boolean = self.strictArrayExtraction,
                     wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
                     wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy): Formats =
     new Formats {
@@ -92,7 +94,8 @@ trait Formats extends Serializable { self: Formats =>
       override def primitives: Set[Type] = withPrimitives
       override def companions: List[(Class[_], AnyRef)] = wCompanions
       override def allowNull: Boolean = wAllowNull
-      override def strictOptionParsing: Boolean = wStrict
+      override def strictOptionParsing: Boolean = wStrictOptionParsing
+      override def strictArrayExtraction: Boolean = wStrictArrayExtraction
       override def alwaysEscapeUnicode: Boolean = wAlwaysEscapeUnicode
       override def emptyValueStrategy: EmptyValueStrategy = wEmptyValueStrategy
     }
@@ -116,6 +119,14 @@ trait Formats extends Serializable { self: Formats =>
   def withTypeHintFieldName(name: String): Formats = copy(wTypeHintFieldName = name)
 
   def withEscapeUnicode: Formats = copy(wAlwaysEscapeUnicode = true)
+
+  def withStrictOptionParsing: Formats = copy(wStrictOptionParsing = true)
+
+  def withStrictArrayExtraction: Formats = copy(wStrictArrayExtraction = true)
+
+  def strict: Formats = copy(wStrictOptionParsing = true, wStrictArrayExtraction = true)
+
+  def nonStrict: Formats = copy(wStrictOptionParsing = false, wStrictArrayExtraction = false)
 
   /**
    * Adds the specified type hints to this formats.
