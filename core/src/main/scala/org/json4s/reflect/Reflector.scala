@@ -88,7 +88,7 @@ object Reflector {
       val idxes = container.map(_._2.reverse)
       t  match {
         case v: TypeVariable[_] =>
-          val a = owner.typeVars.getOrElse(v, scalaTypeOf(v))
+          val a = owner.typeVars.getOrElse(v.getName, scalaTypeOf(v))
           if (a.erasure == classOf[java.lang.Object]) {
             val r = ScalaSigReader.readConstructor(name, owner, index, ctorParameterNames)
             scalaTypeOf(r)
