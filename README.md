@@ -711,12 +711,40 @@ res0: PersonWithAddresses("joe", Map("address1" -> Address("Bulevard", "Helsinki
                                      "address2" -> Address("Soho", "London")))
 ```
 
-Note that when the extraction of an `Option[_]` fails, the default behavior of `extract` is to return `None`. You can make it fail with a [MappingException] instead; you can override this behavior by using a custom `Formats` object:
+Note that when the extraction of an `Option[_]` fails, the default behavior of `extract` is to return `None`.
+You can make it fail with a [MappingException] by using a custom `Formats` object:
+
+```scala
+val formats: Formats = DefaultFormats.withStrictOptionParsing
+```
+
+or
 
 ```scala
 val formats: Formats = new DefaultFormats {
   override val strictOptionParsing: Boolean = true
 }
+```
+
+Same happens with collections, the default behavior of `extract` is to return an empty instance of the collection.
+You can make it fail with a [MappingException] by using a custom `Formats` object:
+
+```scala
+val formats: Formats = DefaultFormats.withStrictArrayExtraction
+```
+
+or
+
+```scala
+val formats: Formats = new DefaultFormats {
+  override val strictArrayExtraction: Boolean = true
+}
+```
+
+Both these settings (`strictOptionParsing` and `strictArrayExtraction`) can be enabled with
+
+```scala
+val formats: Formats = DefaultFormats.strict
 ```
 
 Serialization

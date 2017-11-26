@@ -33,6 +33,10 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
     override val allowNull = false
   }
 
+  val strictFormats = formats.strict
+
+  val nonStrictFormats = formats.nonStrict
+
   def treeFormats[T] = ser.formats(ShortTypeHints(List(classOf[Node[T]], classOf[Leaf[T]], EmptyLeaf.getClass)))
 
   (mod+" Extraction Examples Specification") should {
@@ -122,8 +126,20 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
       json.extract[OChild] must_== OChild(None, 5, Some(Parent("Marilyn")), None)
     }
 
-    "Missing JSON array can be extracted as an empty List" in {
-      parse(missingChildren).extract[Person] must_== Person("joe", Address("Bulevard", "Helsinki"), Nil)
+    "Missing JSON array extracted as an empty List (no default value) when strictArrayExtraction is false" in {
+      parse(missingChildren).extract[Person](nonStrictFormats, implicitly[Manifest[Person]]) must_== Person("joe", Address("Bulevard", "Helsinki"), Nil)
+    }
+
+    "Missing JSON array extracted as an empty List (has default value) when strictArrayExtraction is false" in {
+      parse(missingChildren).extract[PersonNoKids](nonStrictFormats, implicitly[Manifest[PersonNoKids]]) must_== PersonNoKids("joe", Address("Bulevard", "Helsinki"), Nil)
+    }
+
+    "Missing JSON array fails extraction (no default value) when strictArrayExtraction is true" in {
+      parse(missingChildren).extract[Person](strictFormats, implicitly[Manifest[Person]]) must throwA[MappingException]
+    }
+
+    "Missing JSON array extracted as an empty List (has default value) when strictArrayExtraction is true" in {
+      parse(missingChildren).extract[PersonNoKids](strictFormats, implicitly[Manifest[PersonNoKids]]) must_== PersonNoKids("joe", Address("Bulevard", "Helsinki"), Nil)
     }
 
     "Multidimensional array extraction example" in {
@@ -484,6 +500,7 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
 case class SetWrapper(set: Set[String])
 
 case class Person(name: String, address: Address, children: List[Child])
+case class PersonNoKids(name: String, address: Address, children: List[Child] = Nil)
 case class Address(street: String, city: String)
 case class Child(name: String, age: Int, birthdate: Option[java.util.Date])
 

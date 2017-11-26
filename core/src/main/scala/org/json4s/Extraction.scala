@@ -427,7 +427,7 @@ object Extraction {
     private[this] def mkCollection(constructor: Array[_] => Any) = {
       val array: Array[_] = json match {
         case JArray(arr)      => arr.map(extractDetectingNonTerminal(_, typeArg)).toArray
-        case JNothing | JNull => Array[AnyRef]()
+        case JNothing | JNull if !formats.strictArrayExtraction => Array[AnyRef]()
         case x                => fail("Expected collection but got " + x + " for root " + json + " and mapping " + tpe)
       }
 
