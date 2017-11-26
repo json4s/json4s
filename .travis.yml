@@ -1,34 +1,14 @@
 language: scala
-dist: precise
 jdk: oraclejdk8
 scala:
   - 2.10.6
   - 2.11.11
+  - 2.12.4
+  - 2.13.0-M2
 matrix:
   include:
   - scala: 2.12.4
-    jdk: oraclejdk8
-  - scala: 2.13.0-M2
-    jdk: oraclejdk8
-    script: sbt ++$TRAVIS_SCALA_VERSION compile
-  - dist: trusty
-    group: edge
-    sudo: required
-    scala: 2.12.4
     jdk: oraclejdk9
-    before_install:
-    # https://github.com/sbt/sbt/pull/2951
-    - git clone https://github.com/retronym/java9-rt-export
-    - cd java9-rt-export/
-    - git checkout 1019a2873d057dd7214f4135e84283695728395d
-    - echo "sbt.version=1.0.2" > project/build.properties
-    - sbt package
-    - java -version
-    - mkdir -p $HOME/.sbt/0.13/java9-rt-ext; java -jar target/java9-rt-export-*.jar $HOME/.sbt/0.13/java9-rt-ext/rt.jar
-    - jar tf $HOME/.sbt/0.13/java9-rt-ext/rt.jar | grep java/lang/Object
-    - cd ..
-    script:
-    - ./sbt -Dscala.ext.dirs=$HOME/.sbt/0.13/java9-rt-ext ++$TRAVIS_SCALA_VERSION test
 sudo: false
 cache:
   directories:
@@ -37,7 +17,7 @@ cache:
 before_install:
   - export TZ=Australia/Canberra
 script:
-  - travis_retry sbt ++$TRAVIS_SCALA_VERSION javaVersionCheck test
+  - travis_retry sbt ++$TRAVIS_SCALA_VERSION test
 before_cache:
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm

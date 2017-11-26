@@ -1,10 +1,8 @@
 import sbt._
 import Keys._
 import xml.Group
-import com.typesafe.sbt.SbtStartScript
 import MimaSettings.mimaSettings
 import com.typesafe.tools.mima.plugin.MimaKeys.mimaPreviousArtifacts
-import com.typesafe.sbt.JavaVersionCheckPlugin.autoImport._
 
 object build {
   import Dependencies._
@@ -67,7 +65,7 @@ object build {
     }.toList,
     scalacOptions in (Compile, doc) ++= {
       val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
-      val hash = sys.process.Process("git rev-parse HEAD").lines_!.head
+      val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
       Seq("-sourcepath", base, "-doc-source-url", "https://github.com/json4s/json4s/tree/" + hash + "€{FILE_PATH}.scala")
     },
     scalacOptions ++= {
@@ -80,7 +78,6 @@ object build {
     },
     version := "3.6.0-SNAPSHOT",
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
-    javaVersionPrefix in javaVersionCheck := Some("1.8"),
     parallelExecution in Test := false,
     manifestSetting,
     resolvers ++= Seq(Opts.resolver.sonatypeReleases),
