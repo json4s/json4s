@@ -112,6 +112,14 @@ object ExtractionBugs {
     override type A = String
   }
 
+  object CaseClassWithCompanion {
+
+    def apply(v: String): CaseClassWithCompanion = CaseClassWithCompanion(v, "Bar")
+
+  }
+
+  case class CaseClassWithCompanion(value: String, other: String)
+
 }
 abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMethods[T] {
 
@@ -232,6 +240,12 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       lst.add("one")
       lst.add("two")
       json.extract[util.ArrayList[String]] must_== lst
+    }
+
+    "Extraction should be able to call companion object apply method even when c'tors exists" in {
+      val json = parse("""{"v": "Foo"}""")
+      val expected = CaseClassWithCompanion("Foo")
+      json.extract[CaseClassWithCompanion] must_== expected
     }
 
     "Parse 0 as BigDecimal" in {

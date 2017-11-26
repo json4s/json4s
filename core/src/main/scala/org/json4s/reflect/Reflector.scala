@@ -88,7 +88,7 @@ object Reflector {
       val idxes = container.map(_._2.reverse)
       t  match {
         case v: TypeVariable[_] =>
-          val a = owner.typeVars.getOrElse(v, scalaTypeOf(v))
+          val a = owner.typeVars.getOrElse(v.getName, scalaTypeOf(v))
           if (a.erasure == classOf[java.lang.Object]) {
             val r = ScalaSigReader.readConstructor(name, owner, index, ctorParameterNames)
             scalaTypeOf(r)
@@ -119,17 +119,14 @@ object Reflector {
         er.getConstructors.map(new Executable(_))
       }
       val constructorDescriptors = createConstructorDescriptors(ccs)
-      if (constructorDescriptors.isEmpty) {
-        companion = findCompanion(checkCompanionMapping = false)
-        val applyMethods: scala.Array[Method] = companion match {
-          case Some(singletonDescriptor) => {
-            singletonDescriptor.instance.getClass.getMethods.filter { method => method.getName == "apply" && method.getReturnType == er }
-          }
-          case None => scala.Array[Method]()
-        }
-        val applyExecutables = applyMethods.map{ m => new Executable(m) }
-        createConstructorDescriptors(applyExecutables)
-      } else constructorDescriptors
+      companion = findCompanion(checkCompanionMapping = false)
+      val applyMethods: scala.Array[Method] = companion match {
+        case Some(singletonDescriptor) =>
+          singletonDescriptor.instance.getClass.getMethods.filter { method => method.getName == "apply" && method.getReturnType == er }
+        case None => scala.Array[Method]()
+      }
+      val applyExecutables = applyMethods.map{ m => new Executable(m) }
+      constructorDescriptors ++ createConstructorDescriptors(applyExecutables)
     }
 
     def createConstructorDescriptors(ccs: Iterable[Executable]): Seq[ConstructorDescriptor] = {

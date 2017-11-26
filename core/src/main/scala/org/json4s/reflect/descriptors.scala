@@ -75,13 +75,13 @@ object ScalaType {
   }
   private class CopiedScalaType(
                   mf: Manifest[_],
-                  private[this] var _typeVars: Map[TypeVariable[_], ScalaType],
+                  private[this] var _typeVars: Map[String, ScalaType],
                   override val isPrimitive: Boolean) extends ScalaType(mf) {
 
-    override def typeVars: Map[TypeVariable[_], ScalaType] = {
+    override def typeVars: Map[String, ScalaType] = {
       if (_typeVars == null)
         _typeVars = Map.empty ++
-          erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).zip(typeArgs)
+          erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]].getName).zip(typeArgs)
       _typeVars
     }
   }
@@ -96,11 +96,11 @@ class ScalaType(private val manifest: Manifest[_]) extends Equals {
     if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
   )
 
-  private[this] var _typeVars: Map[TypeVariable[_], ScalaType] = null
-  def typeVars: Map[TypeVariable[_], ScalaType] = {
+  private[this] var _typeVars: Map[String, ScalaType] = null
+  def typeVars: Map[String, ScalaType] = {
     if (_typeVars == null)
       _typeVars = Map.empty ++
-        erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).zip(typeArgs)
+        erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]].getName).zip(typeArgs)
     _typeVars
   }
 
@@ -161,7 +161,7 @@ class ScalaType(private val manifest: Manifest[_]) extends Equals {
     case _ => false
   }
 
-  def copy(erasure: Class[_] = erasure, typeArgs: Seq[ScalaType] = typeArgs, typeVars: Map[TypeVariable[_], ScalaType] = _typeVars): ScalaType = {
+  def copy(erasure: Class[_] = erasure, typeArgs: Seq[ScalaType] = typeArgs, typeVars: Map[String, ScalaType] = _typeVars): ScalaType = {
     /* optimization */
     if (erasure == classOf[Int] || erasure == classOf[java.lang.Integer]) ScalaType.IntType
     else if (erasure == classOf[Long] || erasure == classOf[java.lang.Long]) ScalaType.LongType
