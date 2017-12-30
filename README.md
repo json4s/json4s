@@ -1031,28 +1031,6 @@ The pull parser is a function `Parser => A`; in this example it is concretely `P
 The constructed parser recursively reads tokens until it finds a `FieldStart("postalCode")` token. 
 After that the next token must be `IntVal`; otherwise parsing fails. It returns the parsed integer value and stops parsing immediately.
 
-FAQ
-===
-
-Q1: I have a JSON object and I want to extract it to a case class:
-
-```scala
-scala> case class Person(name: String, age: Int)
-scala> val json = """{"name":"joe","age":15}"""
-```
-
-But extraction fails:
-
-```scala
-scala> parse(json).extract[Person]
-org.json4s.MappingException: Parsed JSON values do not match with class constructor
-```
-
-A1:
-
-Extraction does not work for classes defined in the REPL. Compile the case class definitions
-with scalac and import those to the REPL.
-
 Kudos
 =====
 
