@@ -1,6 +1,7 @@
 language: scala
-dist: precise
-jdk: oraclejdk7
+# https://github.com/travis-ci/travis-ci/issues/7884#issuecomment-308451879
+# travis-ci no longer support oraclejdk7
+jdk: openjdk7
 scala:
   - 2.10.6
   - 2.11.11
@@ -12,8 +13,6 @@ matrix:
     jdk: oraclejdk8
     script: sbt ++$TRAVIS_SCALA_VERSION compile
   - dist: trusty
-    group: edge
-    sudo: required
     scala: 2.12.3
     jdk: oraclejdk9
     script:
@@ -22,7 +21,6 @@ sudo: false
 cache:
   directories:
     - $HOME/.ivy2/cache
-    - $HOME/.sbt/boot/scala-$TRAVIS_SCALA_VERSION
 before_install:
   - export TZ=Australia/Canberra
 script:
