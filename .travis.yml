@@ -9,6 +9,10 @@ matrix:
   include:
   - scala: 2.12.4
     jdk: oraclejdk9
+  - scala: 2.13.0-M3
+    script:
+    # TODO specs2 for Scala 2.13.0-M3
+    - sbt "++${TRAVIS_SCALA_VERSION}!" 'project json4s-tests' 'set libraryDependencies ~= {_.filterNot(_.organization == "org.specs2")}' 'project /' compile
 sudo: false
 cache:
   directories:
