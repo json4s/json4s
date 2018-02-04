@@ -10,7 +10,7 @@ object Dependencies {
   lazy val jackson      = Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.4"
   )
-  lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.14"
+  lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.19"
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.8"
   lazy val specs        = Def.setting{
     // TODO enable if specs2 for Scala 2.13.0-M2 released
