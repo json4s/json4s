@@ -620,9 +620,7 @@ object Extraction {
   private[this] def customOrElse(target: ScalaType, json: JValue)(thunk: JValue => Any)(implicit formats: Formats): Any = {
     val custom = formats.customDeserializer(formats)
     val targetType = target.typeInfo
-    if (custom.isDefinedAt(targetType, json)) {
-      custom(targetType, json)
-    } else thunk(json)
+    custom.applyOrElse((targetType, json), (t: (TypeInfo, JValue)) => thunk(t._2))
   }
 
   private[this] def convert(key: String, target: ScalaType, formats: Formats): Any = {
