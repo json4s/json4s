@@ -177,22 +177,22 @@ trait Formats extends Serializable { self: Formats =>
     }
   }
 
-  def customSerializer(implicit format: Formats) =
+  def customSerializer(implicit format: Formats): PartialFunction[Any, JValue] =
     customSerializers.foldLeft(Map(): PartialFunction[Any, JValue]) { (acc, x) =>
       acc.orElse(x.serialize)
     }
 
-  def customDeserializer(implicit format: Formats) =
+  def customDeserializer(implicit format: Formats): PartialFunction[(TypeInfo, JValue), Any] =
     customSerializers.foldLeft(Map(): PartialFunction[(TypeInfo, JValue), Any]) { (acc, x) =>
       acc.orElse(x.deserialize)
     }
 
-  def customKeySerializer(implicit format: Formats) =
+  def customKeySerializer(implicit format: Formats): PartialFunction[Any, String] =
     customKeySerializers.foldLeft(Map(): PartialFunction[Any, String]) { (acc, x) =>
       acc.orElse(x.serialize)
     }
 
-  def customKeyDeserializer(implicit format: Formats) =
+  def customKeyDeserializer(implicit format: Formats): PartialFunction[(TypeInfo, String), Any] =
     customKeySerializers.foldLeft(Map(): PartialFunction[(TypeInfo, String), Any]) { (acc, x) =>
       acc.orElse(x.deserialize)
     }
