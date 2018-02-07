@@ -2,14 +2,19 @@ package org.json4s
 package reflect
 
 import org.json4s.scalap.scalasig._
-import annotation.tailrec
+
+import scala.annotation.tailrec
 
 object ScalaSigReader {
+  private val localPathMemo = new Memo[String, Option[Class[_]]]
+  private val remotePathMemo = new Memo[(String, Iterable[ClassLoader]), Option[Class[_]]]
+
   def readConstructor(argName: String, clazz: Class[_], typeArgIndex: Int, argNames: List[String]): Class[_] = {
     val cl = findClass(clazz)
     val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndex)
   }
+
   def readConstructor(argName: String, clazz: Class[_], typeArgIndexes: List[Int], argNames: List[String]): Class[_] = {
     val cl = findClass(clazz)
     val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
@@ -46,6 +51,7 @@ object ScalaSigReader {
           .orElse(current.getInterfaces.flatMap(findField(_, name)).headOption)
           .getOrElse(read(current.getSuperclass))
     }
+
     findArgTypeForField(read(clazz), typeArgIndex)
   }
 
@@ -61,7 +67,7 @@ object ScalaSigReader {
       sig.topLevelClasses.find(_.symbolInfo.name == name).orElse {
         sig.topLevelObjects.map { obj =>
           val t = obj.infoType.asInstanceOf[TypeRefType]
-          t.symbol.children collect { case c: ClassSymbol => c } find(_.symbolInfo.name == name)
+          t.symbol.children collect { case c: ClassSymbol => c } find (_.symbolInfo.name == name)
         }.head
       }
     }
@@ -113,12 +119,13 @@ object ScalaSigReader {
         case TypeRefType(_, _, args) =>
           val ta = args(typeArgIndex)
           ta match {
-            case ref @ TypeRefType(_, _, _) => findPrimitive(ref)
+            case ref@TypeRefType(_, _, _) => findPrimitive(ref)
             case x => fail("Unexpected type info " + x)
           }
         case x => fail("Unexpected type info " + x)
       }
     }
+
     toClass(findPrimitive(s.children(argIdx).asInstanceOf[SymbolInfoSymbol].infoType))
   }
 
@@ -133,12 +140,13 @@ object ScalaSigReader {
         case TypeRefType(_, _, args) =>
           val ta = args(typeArgIndexes(ii))
           ta match {
-            case ref @ TypeRefType(_, _, _) => findPrimitive(ref, curr + 1)
+            case ref@TypeRefType(_, _, _) => findPrimitive(ref, curr + 1)
             case x => fail("Unexpected type info " + x)
           }
         case x => fail("Unexpected type info " + x)
       }
     }
+
     toClass(findPrimitive(s.children(argIdx).asInstanceOf[SymbolInfoSymbol].infoType, 0))
   }
 
@@ -190,22 +198,30 @@ object ScalaSigReader {
   }
 
   def resolveClass[X <: AnyRef](c: String, classLoaders: Iterable[ClassLoader] = ClassLoaders): Option[Class[X]] = {
-      try {
-        var clazz: Class[_] = null
-        val iter = classLoaders.iterator ++ List(Thread.currentThread().getContextClassLoader())
-        while (clazz == null && iter.hasNext) {
-          try {
-            clazz = Class.forName(c, true, iter.next())
-          }
-          catch {
-            case e: ClassNotFoundException => // keep going, maybe it's in the next one
-          }
-        }
-
-        if (clazz != null) Some(clazz.asInstanceOf[Class[X]]) else None
-      }
-      catch {
-        case _: Throwable => None
-      }
+    if (classLoaders eq ClassLoaders) {
+      localPathMemo(c, c => resolveClassCached(c, classLoaders)).asInstanceOf[Option[Class[X]]]
+    } else {
+      remotePathMemo((c, classLoaders), tuple => resolveClassCached(tuple._1, tuple._2)).asInstanceOf[Option[Class[X]]]
     }
+  }
+
+  private def resolveClassCached[X <: AnyRef](c: String, classLoaders: Iterable[ClassLoader]): Option[Class[X]] = {
+    try {
+      var clazz: Class[_] = null
+      val iter = classLoaders.iterator ++ Iterator.single(Thread.currentThread().getContextClassLoader)
+      while (clazz == null && iter.hasNext) {
+        try {
+          clazz = Class.forName(c, true, iter.next())
+        }
+        catch {
+          case e: ClassNotFoundException => // keep going, maybe it's in the next one
+        }
+      }
+
+      if (clazz != null) Some(clazz.asInstanceOf[Class[X]]) else None
+    }
+    catch {
+      case _: Throwable => None
+    }
+  }
 }
