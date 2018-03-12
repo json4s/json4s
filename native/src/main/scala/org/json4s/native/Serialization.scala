@@ -33,35 +33,35 @@ object Serialization extends Serialization  {
   import java.io.{Reader, StringWriter, Writer}
   /** Serialize to String.
    */
-  def write[A <: AnyRef](a: A)(implicit formats: Formats): String = {
+  def write[A](a: A)(implicit formats: Formats): String = {
     (write(a, new StringWriter)(formats)).toString
   }
 
   /** Serialize to Writer.
    */
-  def write[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
+  def write[A, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
     Extraction.decomposeWithBuilder(a, JsonWriter.streaming(out)(formats))(formats)
   }
 
   /** Serialize to String (pretty format).
    */
-  def writePretty[A <: AnyRef](a: A)(implicit formats: Formats): String =
+  def writePretty[A](a: A)(implicit formats: Formats): String =
     (writePretty(a, new StringWriter)(formats)).toString
 
   /** Serialize to Writer (pretty format).
    */
-  def writePretty[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
+  def writePretty[A, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
     Extraction.decomposeWithBuilder(a, JsonWriter.streamingPretty(out)(formats))(formats)
   }
 
   /** Serialize to String (pretty format).
    */
-  def writePrettyOld[A <: AnyRef](a: A)(implicit formats: Formats): String =
+  def writePrettyOld[A](a: A)(implicit formats: Formats): String =
     (writePrettyOld(a, new StringWriter)(formats)).toString
 
   /** Serialize to Writer (pretty format).
    */
-  def writePrettyOld[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
+  def writePrettyOld[A, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
     Printer.pretty(JsonMethods.render(Extraction.decompose(a)(formats)), out)
   }
 
