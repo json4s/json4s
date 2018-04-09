@@ -76,7 +76,7 @@ object build {
           Nil
       }
     },
-    version := "3.6.0-SNAPSHOT",
+    version := "3.6.0-M3",
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
     parallelExecution in Test := false,
     manifestSetting,
