@@ -60,6 +60,12 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
       (json \ "address2").extractOrElse(Address("Tie", "Helsinki")) must_== Address("Tie", "Helsinki")
     }
 
+    "Extract with default value and secondary constructor" in {
+      val json = parse("""{ "a": "A", "b": "B", "int": 5 }""")
+      val result = json.extract[SecondaryConstructorCaseClass]
+      result must_== SecondaryConstructorCaseClass(Pair("A", "B"), None, false, 5)
+    }
+
     "Map with primitive values extraction example" in {
       val json = parse(testJson)
       json.extract[PersonWithMap] must_==
@@ -540,3 +546,9 @@ case object EmptyLeaf extends LeafTree[Nothing]
 
 case class WithDefaultValueHolder(values: Seq[WithDefaultValue])
 case class WithDefaultValue(name: String, gender: String = "male")
+
+case class Pair(a: String, b: String)
+
+case class SecondaryConstructorCaseClass(pair: Pair, test: Option[String], createdUsingCtor: Boolean = true, int: Int) {
+  def this(a: String, b: String, test: Option[String], int: Int) = this(Pair(a, b), test, false, int)
+}

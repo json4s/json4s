@@ -116,7 +116,13 @@ object Reflector {
     def constructorsAndCompanion: Seq[ConstructorDescriptor] = {
       val er = tpe.erasure
       val ccs: Iterable[Executable] = allCatch.withApply(e => fail(e.getMessage + " Case classes defined in function bodies are not supported.")) {
-        er.getConstructors.map(new Executable(_))
+        val ctors = er.getConstructors
+        val primaryCtor = ctors.find(new Executable(_, false).getMarkedAsPrimary())
+        primaryCtor match {
+          case Some(ctor) => ctors.map(c => new Executable(c, c eq ctor))
+          case None if ctors.length == 1 => ctors.map(c => new Executable(c, true))
+          case None => ctors.map(new Executable(_, false))
+        }
       }
       val constructorDescriptors = createConstructorDescriptors(ccs)
       companion = findCompanion(checkCompanionMapping = false)
@@ -148,7 +154,11 @@ object Reflector {
           case (paramName, index) => {
             companion = findCompanion(checkCompanionMapping = false)
             val decoded = unmangleName(paramName)
-            val default = companion flatMap { comp => defaultValue(comp.erasure.erasure, comp.instance, index) }
+            val default = (companion, ctor.defaultValuePattern) match {
+              case (Some(comp), Some(pattern)) =>
+                defaultValue(comp.erasure.erasure, comp.instance, index, pattern)
+              case _ => None
+            }
             //println(s"$paramName $index $tpe $ctorParameterNames ${genParams(index)}")
             val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.filterNot(_ == ScalaSigReader.OuterFieldName).toList, genParams(index))
             ConstructorParamDescriptor(decoded, paramName, index, theType, default)
@@ -182,11 +192,11 @@ object Reflector {
     }
   }
 
-  def defaultValue(compClass: Class[_], compObj: AnyRef, argIndex: Int) = {
+  def defaultValue(compClass: Class[_], compObj: AnyRef, argIndex: Int, pattern: String) = {
     allCatch.withApply(_ => None) {
       if (compObj == null) None
       else {
-        Option(compClass.getMethod("%s$%d".format(ConstructorDefault, argIndex + 1))) map {
+        Option(compClass.getMethod(pattern.format(argIndex + 1))) map {
           meth => () => meth.invoke(compObj)
         }
       }
