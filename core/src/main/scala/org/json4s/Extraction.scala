@@ -367,24 +367,26 @@ object Extraction {
     } else if (scalaType.isOption) {
       customOrElse(scalaType, json)(_.toOption flatMap (j => Option(extract(j, scalaType.typeArgs.head))))
     } else if (scalaType.isMap) {
-      json match {
-        case JObject(xs) => {
-          val kta = scalaType.typeArgs(0)
-          val ta = scalaType.typeArgs(1)
-          val values = xs.map {
-            case (key, value) =>
-              val convertedKey = convert(key, kta, formats)
-              val extractedValue = extractDetectingNonTerminal(value, ta)
-              convertedKey -> extractedValue
+      customOrElse(scalaType, json)({
+        _ match {
+          case JObject(xs) => {
+            val kta = scalaType.typeArgs(0)
+            val ta = scalaType.typeArgs(1)
+            val values = xs.map {
+              case (key, value) =>
+                val convertedKey = convert(key, kta, formats)
+                val extractedValue = extractDetectingNonTerminal(value, ta)
+                convertedKey -> extractedValue
+            }
+            if (scalaType.isMutableMap) {
+              scala.collection.mutable.Map(values: _*)
+            } else {
+              values.toMap
+            }
           }
-          if (scalaType.isMutableMap) {
-            scala.collection.mutable.Map(values: _*)
-          } else {
-            values.toMap
-          }
+          case x => fail("Expected object but got " + x)
         }
-        case x => fail("Expected object but got " + x)
-      }
+      })
     } else if (scalaType.isCollection) {
       customOrElse(scalaType, json)(new CollectionBuilder(_, scalaType).result)
     } else if (classOf[(_, _)].isAssignableFrom(scalaType.erasure) && (classOf[String].isAssignableFrom(scalaType.typeArgs.head.erasure) || classOf[Symbol].isAssignableFrom(scalaType.typeArgs.head.erasure) )) {
