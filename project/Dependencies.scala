@@ -10,7 +10,7 @@ object Dependencies {
   lazy val jackson      = Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.4"
   )
-  lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.20"
+  lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.22"
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.8"
   lazy val specs        = Def.setting{
     CrossVersion.partialVersion(scalaVersion.value) match {
