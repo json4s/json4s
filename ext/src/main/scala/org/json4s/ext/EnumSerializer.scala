@@ -26,7 +26,7 @@ class EnumSerializer[E <: Enumeration: ClassTag](enum: E)
   val EnumerationClass = classOf[E#Value]
 
   private[this] def isValid(json: JValue) = json match {
-    case JInt(value) => value <= enum.maxId
+    case JInt(value) => enum.values.map(_.id).contains(value.toInt)
     case _ => false
   }
 
@@ -39,7 +39,7 @@ class EnumSerializer[E <: Enumeration: ClassTag](enum: E)
     }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case i: E#Value => i.id
+    case i: E#Value if enum.values.exists(_ == i) => i.id
   }
 }
 
@@ -65,6 +65,6 @@ class EnumNameSerializer[E <: Enumeration: ClassTag](enum: E)
   }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case i: E#Value => i.toString
+    case i: E#Value if enum.values.exists(_ == i) => i.toString
   }
 }
