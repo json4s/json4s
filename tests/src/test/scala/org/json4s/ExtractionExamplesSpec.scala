@@ -355,6 +355,17 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
       parse("""{"name":null,"age":22}""").extract[OChild](notNullFormats, Manifest.classType(classOf[OChild])) must_== new OChild(None, 22, None, None)
     }
 
+    "allowNull format set to false should use custom null serializer to set Option[T] as None" in {
+      object CustomNull extends CustomSerializer[Null](_ => ( {
+        case JNothing => null
+        case JNull => null
+        case JString("") => null
+      }, {
+        case _ => JString("")
+      }))
+      parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](notNullFormats + CustomNull, Manifest.classType(classOf[OChild])) must_== new OChild(None, 22, None, None)
+    }
+
     "simple case objects should be sucessfully extracted as a singleton instance" in {
       parse(emptyTree).extract[LeafTree[Int]](treeFormats, Manifest.classType(classOf[LeafTree[Int]])) must_== LeafTree.empty
     }
