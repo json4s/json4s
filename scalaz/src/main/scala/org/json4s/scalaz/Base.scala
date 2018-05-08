@@ -21,7 +21,6 @@ import _root_.scalaz._
 import std.list._
 import std.option._
 import syntax.traverse._
-import scala.collection.breakOut
 
 trait Base { this: Types =>
   implicit def boolJSON: JSON[Boolean] = new JSON[Boolean] {
@@ -118,6 +117,6 @@ trait Base { this: Types =>
     }
   }
   implicit def mapJSONW[A: JSONW]: JSONW[Map[String, A]] = new JSONW[Map[String, A]] {
-    def write(values: Map[String, A]) = JObject(values.map { case (k, v) => JField(k, toJSON(v)) }(breakOut).toList)
+    def write(values: Map[String, A]) = JObject(values.map { case (k, v) => JField(k, toJSON(v)) }.toList)
   }
 }
