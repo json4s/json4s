@@ -27,7 +27,7 @@ object ScalaSigParser {
 
     def mergedLongSignatureBytes(signatureParts: Seq[ElementValue]): Array[Byte] = signatureParts.flatMap {
       case ConstValueIndex(index) => bytesForIndex(index)
-    }(collection.breakOut)
+    }.toArray
 
     def bytesForIndex(index: Int) = constantWrapped(index).asInstanceOf[StringBytesPair].bytes
 
