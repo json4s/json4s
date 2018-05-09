@@ -82,20 +82,18 @@ class SeqRule[S, +A, +X](rule: Rule[S, S, A, X]) {
 
   /** Repeats this rule num times */
   def times(num: Int): Rule[S, S, Seq[A], X] = from[S] {
-    val result = new scala.collection.mutable.ArraySeq[A](num)
     // more compact using HoF but written this way so it's tail-recursive
-    def rep(i: Int, in: S): Result[S, Seq[A], X] = {
-      if (i == num) Success(in, result)
+    def rep(result: List[A], i: Int, in: S): Result[S, Seq[A], X] = {
+      if (i == num) Success(in, result.reverse)
       else rule(in) match {
        case Success(out, a) => {
-         result(i) = a
-         rep(i + 1, out)
+         rep(a :: result, i + 1, out)
        }
        case Failure => Failure
        case err: Error[_] => err
       }
     }
-    in => rep(0, in)
+    in => rep(Nil, 0, in)
   }
 }
 
