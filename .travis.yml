@@ -3,17 +3,17 @@ language: scala
 # travis-ci no longer support oraclejdk7
 jdk: openjdk7
 scala:
-  - 2.10.6
-  - 2.11.11
+  - 2.10.7
+  - 2.11.12
 matrix:
   include:
-  - scala: 2.12.3
+  - scala: 2.12.6
     jdk: oraclejdk8
   - scala: 2.13.0-M3
     jdk: oraclejdk8
     script: sbt ++$TRAVIS_SCALA_VERSION compile
   - dist: trusty
-    scala: 2.12.3
+    scala: 2.12.6
     jdk: oraclejdk9
     script:
     - ./sbt ++$TRAVIS_SCALA_VERSION test
