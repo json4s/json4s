@@ -1,6 +1,6 @@
 package org.json4s
 
-import collection.{generic, immutable}
+import collection.immutable
 import annotation.implicitNotFound
 
 // based on the type classes from play 2 but with the conversions from lift-json
@@ -117,7 +117,7 @@ trait DefaultReaders {
     }
   }
 
-  implicit def traversableReader[F[_], V](implicit cbf: generic.CanBuildFrom[F[_], V, F[V]], valueReader: Reader[V]) =
+  implicit def traversableReader[F[_], V](implicit cbf: CanBuildFrom[F[_], V, F[V]], valueReader: Reader[V]) =
     new Reader[F[V]] {
       def read(value: _root_.org.json4s.JValue): F[V] = value match {
         case JArray(items) =>
