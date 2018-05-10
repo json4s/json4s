@@ -26,7 +26,7 @@ class JValueDeserializer(factory: TypeFactory, klass: Class[_]) extends JsonDese
       case JsonTokenId.ID_FALSE => JBool.False
 
       case JsonTokenId.ID_START_ARRAY =>
-        val values = new mutable.MutableList[JValue]()
+        val values = new mutable.ListBuffer[JValue]()
         jp.nextToken()
         while(jp.getCurrentToken != JsonToken.END_ARRAY) {
           values += deserialize(jp, ctxt).asInstanceOf[JValue]
@@ -39,7 +39,7 @@ class JValueDeserializer(factory: TypeFactory, klass: Class[_]) extends JsonDese
         deserialize(jp, ctxt)
 
       case JsonTokenId.ID_FIELD_NAME | JsonTokenId.ID_END_OBJECT =>
-        val fields = new mutable.MutableList[JField]
+        val fields = new mutable.ListBuffer[JField]
         while (jp.getCurrentToken.id() != JsonTokenId.ID_END_OBJECT) {
           val name = jp.getCurrentName
           jp.nextToken()
