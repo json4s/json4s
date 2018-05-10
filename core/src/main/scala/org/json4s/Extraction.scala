@@ -454,7 +454,7 @@ object Extraction {
       else if (tpe.erasure == classOf[scala.collection.mutable.Seq[_]]) mkCollection(a => scala.collection.mutable.Seq(a: _*))
       else if (tpe.erasure == classOf[java.util.ArrayList[_]]) mkCollection(a => new java.util.ArrayList[Any](a.toList.asJavaCollection))
       else if (tpe.erasure.isArray) mkCollection(mkTypedArray)
-      else if (classOf[scala.collection.generic.GenericTraversableTemplate[_, Any]].isAssignableFrom(tpe.erasure)) {
+      else if (Class.forName("scala.collection.generic.GenericTraversableTemplate").isAssignableFrom(tpe.erasure)) {
         reflect.ScalaSigReader.companions(tpe.erasure.getName) match {
           case Some(tuple) => // can't `case Some((_, Some(c)))` due to Scala 2.10 bug
             tuple match {
