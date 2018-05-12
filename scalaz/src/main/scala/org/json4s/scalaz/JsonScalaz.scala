@@ -72,7 +72,7 @@ trait Types {
   implicit def function2EitherNel[A](f: A => Result[A]): (A => EitherNel[A]) = (a: A) => f(a).disjunction
   implicit def kleisli2Result[A](v: Kleisli[EitherNel, JValue, A]): JValue => Result[A] = v.run.andThen(_.validation)
 
-  def makeObj(fields: Traversable[(String, JValue)]): JObject = 
+  def makeObj(fields: Iterable[(String, JValue)]): JObject = 
     JObject(fields.toList.map { case (n, v) => JField(n, v) })
 }
 

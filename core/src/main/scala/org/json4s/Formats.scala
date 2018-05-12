@@ -147,7 +147,7 @@ trait Formats extends Serializable { self: Formats =>
   /**
    * Adds the specified custom serializers to this formats.
    */
-  def ++ (newSerializers: Traversable[Serializer[_]]): Formats =
+  def ++ (newSerializers: Iterable[Serializer[_]]): Formats =
     copy(wCustomSerializers = newSerializers.foldRight(self.customSerializers)(_ :: _))
 
   /**
@@ -158,7 +158,7 @@ trait Formats extends Serializable { self: Formats =>
   /**
    * Adds the specified custom serializers to this formats.
    */
-  def addKeySerializers (newKeySerializers: Traversable[KeySerializer[_]]): Formats =
+  def addKeySerializers (newKeySerializers: Iterable[KeySerializer[_]]): Formats =
     newKeySerializers.foldLeft(this)(_ + _)
 
   /**
