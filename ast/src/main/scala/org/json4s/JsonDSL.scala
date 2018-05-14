@@ -67,7 +67,7 @@ object JsonDSL extends JsonDSL with DoubleMode {
 }
 trait JsonDSL extends Implicits {
 
-  implicit def seq2jvalue[A](s: Traversable[A])(implicit ev: A => JValue) =
+  implicit def seq2jvalue[A](s: Iterable[A])(implicit ev: A => JValue) =
     JArray(s.toList.map { a ⇒ val v: JValue = a; v })
 
   implicit def map2jvalue[A](m: Map[String, A])(implicit ev: A => JValue) =
