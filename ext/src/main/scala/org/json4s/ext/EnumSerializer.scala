@@ -26,7 +26,7 @@ class EnumSerializer[E <: Enumeration: ClassTag](enum: E)
   val EnumerationClass = classOf[E#Value]
 
   private[this] def isValid(json: JValue) = json match {
-    case JInt(value) => enum.values.map(_.id).contains(value.toInt)
+    case JInt(value) => enum.values.toSeq.map(_.id).contains(value.toInt)
     case _ => false
   }
 

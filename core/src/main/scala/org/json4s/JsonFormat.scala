@@ -1,6 +1,6 @@
 package org.json4s
 
-import collection.{generic, immutable}
+import collection.immutable
 import annotation.implicitNotFound
 
 // based on the type classes from play 2 but with the conversions from lift-json
@@ -12,7 +12,7 @@ trait Reader[T] {
 }
 
 object DefaultReaders extends DefaultReaders
-trait DefaultReaders {
+trait DefaultReaders extends DefaultReaders0 {
   implicit object IntReader extends Reader[Int] {
     def read(value: JValue): Int = value match {
       case JInt(x) => x.intValue
@@ -125,16 +125,6 @@ trait DefaultReaders {
       case x => throw new MappingException("Can't convert %s to Map." format x)
     }
   }
-
-  implicit def traversableReader[F[_], V](implicit cbf: generic.CanBuildFrom[F[_], V, F[V]], valueReader: Reader[V]) =
-    new Reader[F[V]] {
-      def read(value: _root_.org.json4s.JValue): F[V] = value match {
-        case JArray(items) =>
-          val builder = cbf()
-          (items.foldLeft(builder) { (acc, i) => acc += valueReader.read(i); acc}).result()
-        case x => throw new MappingException("Can't convert %s to Traversable." format x)
-      }
-    }
 
   implicit def arrayReader[T:Manifest:Reader]: Reader[Array[T]] = new Reader[Array[T]] {
     def read(value: _root_.org.json4s.JValue): Array[T] = {

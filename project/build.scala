@@ -55,10 +55,10 @@ object build {
     }
   )
 
-  val json4sSettings = mavenCentralFrouFrou ++ Seq(
+  val json4sSettings = mavenCentralFrouFrou ++ Def.settings(
     organization := "org.json4s",
     scalaVersion := "2.12.6",
-    crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.6", "2.13.0-M3"),
+    crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.6", "2.13.0-M4"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps", "-Xfuture"),
     scalacOptions ++= PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion.value)) {
       case Some((2, 10)) => "-optimize"
@@ -78,6 +78,17 @@ object build {
     },
     version := "3.6.0-SNAPSHOT",
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
+    Seq(Compile, Test).map { scope =>
+      unmanagedSourceDirectories in scope += {
+        val base = (sourceDirectory in scope).value.getParentFile / Defaults.nameForSrc(scope.name)
+        CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((2, v)) if v >= 13 && scalaVersion.value != "2.13.0-M3" =>
+            base / s"scala-2.13+"
+          case _ =>
+            base / s"scala-2.13-"
+        }
+      }
+    },
     parallelExecution in Test := false,
     manifestSetting,
     resolvers ++= Seq(Opts.resolver.sonatypeReleases),
