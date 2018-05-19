@@ -8,7 +8,7 @@ lazy val root = Project(
 ).settings(
   json4sSettings,
   noPublish,
-) aggregate(core, native, json4sExt, jacksonSupport, scalazExt, json4sTests, mongo, ast, scalap, examples)
+) aggregate(core, xml, native, json4sExt, jacksonSupport, scalazExt, json4sTests, mongo, ast, scalap, examples)
 
 lazy val ast = Project(
   id = "json4s-ast",
@@ -26,12 +26,20 @@ lazy val scalap = Project(
   json4sSettings,
 )
 
+lazy val xml = Project(
+  id = "json4s-xml",
+  base = file("xml"),
+).settings(
+  json4sSettings,
+  libraryDependencies ++= scalaXml(scalaVersion.value),
+) dependsOn(core)
+
 lazy val core = Project(
   id = "json4s-core",
   base = file("core"),
 ).settings(
   json4sSettings,
-  libraryDependencies ++= Seq(paranamer) ++ scalaXml(scalaVersion.value),
+  libraryDependencies ++= Seq(paranamer),
   initialCommands in (Test, console) := """
       |import org.json4s._
       |import reflect._
@@ -104,4 +112,4 @@ lazy val json4sTests = Project(
       |import org.json4s._
       |import reflect._
     """.stripMargin,
-) dependsOn(core, native, json4sExt, scalazExt, jacksonSupport, mongo)
+) dependsOn(core, xml, native, json4sExt, scalazExt, jacksonSupport, mongo)
