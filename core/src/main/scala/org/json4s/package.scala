@@ -16,7 +16,7 @@
 
 package org
 
-package object json4s {
+package object json4s extends Compat {
   
 
 

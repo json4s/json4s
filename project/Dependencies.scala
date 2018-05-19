@@ -17,6 +17,9 @@ object Dependencies {
       case Some((2, v)) if v <= 10 =>
         // specs2 4.x does not support Scala 2.10
         Seq("org.specs2" %% "specs2-scalacheck" % "3.9.4" % "test")
+      case Some((2, v)) if v >= 13 && scalaVersion.value != "2.13.0-M3" =>
+        // TODO specs2 Scala 2.13.0-M4 support
+        Nil
       case _ =>
         Seq("org.specs2" %% "specs2-scalacheck" % "4.0.2" % "test")
     }
@@ -25,7 +28,9 @@ object Dependencies {
 
   def scalaXml(scalaVersion: String) = {
     PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion)){
-      case Some((2, scalaMajor)) if scalaMajor >= 11 =>
+      case Some((2, v)) if v >= 13 && scalaVersion != "2.13.0-M3" =>
+        Seq("org.scala-lang.modules" %% "scala-xml" % "1.1.0")
+      case Some((2, v)) if v >= 11 =>
         Seq("org.scala-lang.modules" %% "scala-xml" % "1.0.6")
     }.toList.flatten
   }
