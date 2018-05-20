@@ -16,6 +16,9 @@ object Dependencies {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, v)) if v <= 10 =>
         Seq("org.specs2" %% "specs2-scalacheck" % "3.9.4" % "test")
+      case Some((2, v)) if v >= 13 && scalaVersion.value != "2.13.0-M3" =>
+        // TODO specs2 Scala 2.13.0-M4 support
+        Nil
       case _ =>
         Seq("org.specs2" %% "specs2-scalacheck" % "4.2.0" % "test")
     }
