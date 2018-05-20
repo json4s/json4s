@@ -8,7 +8,7 @@ trait ClassType[A, B] {
 }
 
 case class ClassSerializer[A : Manifest, B : Manifest](t: ClassType[A, B]) extends Serializer[A] {
-  private val Class = implicitly[Manifest[A]].runtimeClass
+  private[this] val Class = implicitly[Manifest[A]].runtimeClass
 
   def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), A] = {
     case (TypeInfo(Class, _), json) => json match {

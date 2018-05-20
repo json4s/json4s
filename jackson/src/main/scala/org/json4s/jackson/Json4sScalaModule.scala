@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.Module
 import com.fasterxml.jackson.databind.Module.SetupContext
 
 object Json4sModule {
-  private val VersionRegex = """(\d+)\.(\d+)(?:\.(\d+)(?:\-(.*))?)?""".r
+  private[this] val VersionRegex = """(\d+)\.(\d+)(?:\.(\d+)(?:\-(.*))?)?""".r
   val version: Version = try {
     val groupId = BuildInfo.organization
     val artifactId = BuildInfo.name

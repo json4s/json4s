@@ -5,8 +5,8 @@ import java.nio.charset.Charset
 object ParserUtil {
 
   class ParseException(message: String, cause: Exception) extends Exception(message, cause)
-  private val EOF = (-1).asInstanceOf[Char]
-  private val AsciiEncoder = Charset.forName("US-ASCII").newEncoder();
+  private[this] val EOF = (-1).asInstanceOf[Char]
+  private[this] val AsciiEncoder = Charset.forName("US-ASCII").newEncoder();
 
   private[this] sealed abstract class StringAppender[T] {
     def append(s: String): T
@@ -210,7 +210,7 @@ object ParserUtil {
   case class DisposableSegment(seg: Array[Char]) extends Segment
 
 
-  private val BrokenDouble = BigDecimal("2.2250738585072012e-308")
+  private[this] val BrokenDouble = BigDecimal("2.2250738585072012e-308")
   private[json4s] def parseDouble(s: String) = {
     val d = BigDecimal(s)
     if (d == BrokenDouble) sys.error("Error parsing 2.2250738585072012e-308")

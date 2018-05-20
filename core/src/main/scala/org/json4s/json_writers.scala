@@ -563,8 +563,8 @@ private sealed abstract class StreamingJsonWriter[T <: JWriter] extends JsonWrit
 
 private[json4s] object StreamingJsonWriter {
 
-  private val posInfinityVal = "1e+500"
-  private val negInfiniteVal = "-1e+500"
+  private[this] val posInfinityVal = "1e+500"
+  private[this] val negInfiniteVal = "-1e+500"
 
   private[json4s] def handleInfinity(value: Float): String = {
     if(value.isPosInfinity) {

@@ -118,6 +118,6 @@ object Meta {
   private def isObjectIdSerializerUsed(formats: Formats): Boolean =
     formats.customSerializers.exists(_.getClass == objectIdSerializerClass)
 
-  private val objectIdSerializerClass = classOf[ObjectIdSerializer]
+  private[this] val objectIdSerializerClass = classOf[ObjectIdSerializer]
 }
 

@@ -6,8 +6,8 @@ import org.json4s.scalap.scalasig._
 import scala.annotation.tailrec
 
 object ScalaSigReader {
-  private val localPathMemo = new Memo[String, Option[Class[_]]]
-  private val remotePathMemo = new Memo[(String, Iterable[ClassLoader]), Option[Class[_]]]
+  private[this] val localPathMemo = new Memo[String, Option[Class[_]]]
+  private[this] val remotePathMemo = new Memo[(String, Iterable[ClassLoader]), Option[Class[_]]]
 
   def readConstructor(argName: String, clazz: Class[_], typeArgIndex: Int, argNames: List[String]): Class[_] = {
     val cl = findClass(clazz)

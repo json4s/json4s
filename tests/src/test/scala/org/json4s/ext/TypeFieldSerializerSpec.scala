@@ -16,7 +16,7 @@ abstract class TypeFieldSerializerSpec(mod: String) extends Specification with M
 
   def s: Serialization
 
-  private val map = Map(
+  private[this] val map = Map(
     "concrete1" -> classOf[Concrete1],
     "concrete2" -> classOf[Concrete2]
   )

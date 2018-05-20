@@ -138,7 +138,7 @@ object SerializationBugs extends Specification {
 
   "Custom serializer should work as Map key (scala 2.9) (issue #1077)" in {
     class SingleOrVectorSerializer extends Serializer[SingleOrVector[Double]] {
-      private val singleOrVectorClass = classOf[SingleOrVector[Double]]
+      private[this] val singleOrVectorClass = classOf[SingleOrVector[Double]]
 
       def deserialize(implicit format: Formats) = {
         case (TypeInfo(`singleOrVectorClass`, _), json) => json match {

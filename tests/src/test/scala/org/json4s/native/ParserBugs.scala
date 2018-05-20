@@ -40,7 +40,7 @@ object ParserBugs extends Specification {
     }
   }
 
-  private val discardParser = (p : JsonParser.Parser) => {
+  private[this] val discardParser = (p : JsonParser.Parser) => {
      var token: JsonParser.Token = null
      do {
        token = p.nextToken

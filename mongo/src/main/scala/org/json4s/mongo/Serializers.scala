@@ -26,7 +26,7 @@ import org.bson.types.ObjectId
 * ("_id" -> ("$oid" -> oid.toString))
 */
 class ObjectIdSerializer extends Serializer[ObjectId] {
-  private val ObjectIdClass = classOf[ObjectId]
+  private[this] val ObjectIdClass = classOf[ObjectId]
 
   def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), ObjectId] = {
     case (TypeInfo(ObjectIdClass, _), json) => json match {
@@ -49,7 +49,7 @@ class ObjectIdSerializer extends Serializer[ObjectId] {
 * ("pattern" -> (("$regex" -> "^Mo") ~ ("$flags" -> Pattern.CASE_INSENSITIVE)))
 */
 class PatternSerializer extends Serializer[Pattern] {
-  private val PatternClass = classOf[Pattern]
+  private[this] val PatternClass = classOf[Pattern]
 
   def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), Pattern] = {
     case (TypeInfo(PatternClass, _), json) => json match {
@@ -71,7 +71,7 @@ class PatternSerializer extends Serializer[Pattern] {
 * ("dt" -> ("$dt" -> formats.dateFormat.format(dt)))
 */
 class DateSerializer(fieldName: String = "$dt") extends Serializer[Date] {
-  private val DateClass = classOf[Date]
+  private[this] val DateClass = classOf[Date]
 
   def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), Date] = {
     case (TypeInfo(DateClass, _), json) => json match {
@@ -93,7 +93,7 @@ class DateSerializer(fieldName: String = "$dt") extends Serializer[Date] {
 * ("uuid" -> ("$uuid" -> u.toString))
 */
 class UUIDSerializer extends Serializer[UUID] {
-  private val UUIDClass = classOf[UUID]
+  private[this] val UUIDClass = classOf[UUID]
 
   def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), UUID] = {
     case (TypeInfo(UUIDClass, _), json) => json match {

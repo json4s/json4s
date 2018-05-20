@@ -7,13 +7,13 @@ object EmptyValueTreatmentExamples {
 
   import JsonDSL._
 
-  private val weekPlans = Seq(Some("event for monday"), None, None, None, Some("friday boogie night!"), Some("uh, headaches.."), Some("sunday laziness"))
+  private[this] val weekPlans = Seq(Some("event for monday"), None, None, None, Some("friday boogie night!"), Some("uh, headaches.."), Some("sunday laziness"))
 
-  private val eventAsMap = Map(
+  private[this] val eventAsMap = Map(
     ("eventType" -> Some("event")),
     ("duration" -> None))
 
-  private val eventAsCaseClass = EventAsCaseClass("dinner")
+  private[this] val eventAsCaseClass = EventAsCaseClass("dinner")
 
   def main(args: Array[String]): Unit = {
     jacksonWaySkippingNulls

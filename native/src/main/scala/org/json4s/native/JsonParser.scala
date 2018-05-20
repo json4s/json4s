@@ -140,7 +140,7 @@ object JsonParser {
 
 
 
-  private val astParser = (p: Parser, useBigDecimal: Boolean, useBigIntForLong: Boolean) => {
+  private[this] val astParser = (p: Parser, useBigDecimal: Boolean, useBigIntForLong: Boolean) => {
     val vals = new ValStack(p)
     var token: Token = null
     var root: Option[JValue] = None
@@ -204,7 +204,7 @@ object JsonParser {
     root getOrElse JNothing
   }
 
-  private val EOF = (-1).asInstanceOf[Char]
+  private[this] val EOF = (-1).asInstanceOf[Char]
 
   private class ValStack(parser: Parser) {
     import java.util.LinkedList
