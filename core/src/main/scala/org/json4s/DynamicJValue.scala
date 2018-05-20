@@ -11,7 +11,7 @@ class DynamicJValue(val raw: JValue) extends Dynamic {
    * </pre>
    */
   def selectDynamic(name:String) = new DynamicJValue(raw \ name)
-  
+
   override def hashCode():Int = raw.hashCode
 
   override def equals(p1: Any): Boolean = p1 match {

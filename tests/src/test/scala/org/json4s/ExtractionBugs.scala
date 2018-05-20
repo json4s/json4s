@@ -52,7 +52,7 @@ object ExtractionBugs {
     def hello = "hello"
   }
   case class HasCompanion(nums: List[Int])
-  
+
   case class ABigDecimal(num: BigDecimal)
 
   trait Content {

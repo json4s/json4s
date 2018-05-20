@@ -17,7 +17,7 @@
 package org
 
 package object json4s {
-  
+
 
 
   type JValue   = JsonAST.JValue

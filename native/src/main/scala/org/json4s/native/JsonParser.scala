@@ -135,8 +135,8 @@ object JsonParser {
     } finally { buf.release }
   }
 
-  
-  
+
+
 
 
 
@@ -236,7 +236,7 @@ object JsonParser {
     /** Parse next Token from stream.
      */
     def nextToken: Token = {
-      def parseString: String = 
+      def parseString: String =
         try {
           ParserUtil.unquote(buf)
         } catch {

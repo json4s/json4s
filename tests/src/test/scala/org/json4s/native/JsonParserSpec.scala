@@ -22,7 +22,7 @@ object JsonParserSpec extends Specification with JValueGen with ScalaCheck {
     "Empty Json is parsed to JObject" in {
         parse("{}") must_== JObject()
     }
-    
+
     "Buffer size does not change parsing result" in {
       val bufSize = Gen.choose(2, 64)
       val parsing = (x: JValue, s1: Int, s2: Int) => { parseVal(x, s1) must_== parseVal(x, s2) }

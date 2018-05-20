@@ -20,7 +20,7 @@ import JsonAST._
 
 import scala.annotation.tailrec
 
-/** Use fundep encoding to improve return type of merge function 
+/** Use fundep encoding to improve return type of merge function
  *  (see: http://www.chuusai.com/2011/07/16/fundeps-in-scala/)
  *
  *  JObject merge JObject = JObject
@@ -104,7 +104,7 @@ object Merge {
       /** Return merged JSON.
        * @see org.json4s.Merge#merge
        */
-      def merge[B <: JValue, R <: JValue](other: B)(implicit instance: MergeDep[A, B, R]): R = 
+      def merge[B <: JValue, R <: JValue](other: B)(implicit instance: MergeDep[A, B, R]): R =
         Merge.merge(json, other)(instance)
     }
   }
