@@ -226,7 +226,7 @@ class MonadicJValue(jv: JValue) {
    */
   def findField(p: JField ⇒ Boolean): Option[JField] = {
     def find(json: JValue): Option[JField] = json match {
-      case JObject(fs) if (fs find p).isDefined ⇒ fs find p
+      case JObject(fs) if fs exists p ⇒ fs find p
       case JObject(fs) ⇒ fs.flatMap { case (n, v) ⇒ find(v) }.headOption
       case JArray(l) ⇒ l.flatMap(find _).headOption
       case _ ⇒ None
