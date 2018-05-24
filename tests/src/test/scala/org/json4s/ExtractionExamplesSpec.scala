@@ -132,6 +132,19 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
       json.extract[OChild] must_== OChild(None, 5, Some(Parent("Marilyn")), None)
     }
 
+    "Option extraction example with strictOptionParsing" in {
+      // JNull should not extract to None
+      val fm = notNullFormats.withStrictOptionParsing
+
+      parse("""{ "name": null, "age": 5, "mother":{"name":"Marilyn"}}""")
+        .extract[OChild](fm, implicitly[Manifest[OChild]]) must throwA[MappingException]
+      
+      val mf   = implicitly[Manifest[OptionValue]]
+      parse("""{"value": null}""").extract[OptionValue](fm, mf) must throwA[MappingException]
+      parse("""{}""").extract[OptionValue](fm, mf) must_== OptionValue(None)
+      parse("""{"value": 1}""").extract[OptionValue](fm, mf) must_== OptionValue(Some(1))
+    }
+
     "Missing JSON array extracted as an empty List (no default value) when strictArrayExtraction is false" in {
       parse(missingChildren).extract[Person](nonStrictFormats, implicitly[Manifest[Person]]) must_== Person("joe", Address("Bulevard", "Helsinki"), Nil)
     }
@@ -563,3 +576,4 @@ case class Pair(a: String, b: String)
 case class SecondaryConstructorCaseClass(pair: Pair, test: Option[String], createdUsingCtor: Boolean = true, int: Int) {
   def this(a: String, b: String, test: Option[String], int: Int) = this(Pair(a, b), test, false, int)
 }
+case class OptionValue(value: Option[Int])
