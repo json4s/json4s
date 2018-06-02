@@ -127,6 +127,8 @@ trait Formats extends Serializable { self: Formats =>
   def strict: Formats = copy(wStrictOptionParsing = true, wStrictArrayExtraction = true)
 
   def nonStrict: Formats = copy(wStrictOptionParsing = false, wStrictArrayExtraction = false)
+  
+  def disallowNull: Formats = copy(wAllowNull = false)
 
   /**
    * Adds the specified type hints to this formats.
