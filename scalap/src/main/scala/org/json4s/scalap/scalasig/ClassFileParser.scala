@@ -115,6 +115,16 @@ object ClassFileParser extends ByteCodeReader {
   val methodHandle = u1 ~ u2 ^^ add1 { case referenceKind ~ referenceIndex => pool => "MethodHandle: " + referenceKind + ", " + pool(referenceIndex) }
   val methodType = u2 ^^ add1 { case descriptorIndex => pool => "MethodType: " + pool(descriptorIndex) }
   val invokeDynamic = u2 ~ u2 ^^ add1 { case bootstrapMethodAttrIndex ~ nameAndTypeIndex => pool => "InvokeDynamic: " + "bootstrapMethodAttrIndex = " + bootstrapMethodAttrIndex + ", " + pool(nameAndTypeIndex) }
+  val constantModule = u2 ^^ add1 { case index =>
+    pool =>
+      val StringBytesPair(value, _) = pool(index)
+      s"ConstantModule: ${value}"
+  }
+  val constantPackage = u2 ^^ add1 { case index =>
+    pool =>
+      val StringBytesPair(value, _) = pool(index)
+      s"ConstantPackage: ${value}"
+  }
 
   val constantPoolEntry = u1 >> {
     case 1 => utf8String
@@ -131,6 +141,8 @@ object ClassFileParser extends ByteCodeReader {
     case 15 => methodHandle
     case 16 => methodType
     case 18 => invokeDynamic
+    case 19 => constantModule
+    case 20 => constantPackage
   }
 
   val interfaces = u2 >> u2.times
