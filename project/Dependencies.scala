@@ -2,6 +2,7 @@ import sbt._
 import Keys._
 
 object Dependencies {
+  lazy val jaxbApi = "javax.xml.bind" % "jaxb-api" % "2.3.0" % "test"
 
   lazy val jodaTime     = Seq(
     "joda-time" % "joda-time"    % "2.9.9",
