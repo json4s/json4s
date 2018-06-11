@@ -71,7 +71,7 @@ private final class JDecimalAstRootJsonWriter extends JDecimalAstJsonWriter {
 private final class JDoubleJObjectJsonWriter(parent: JsonWriter[JValue]) extends JsonWriter[JValue] {
   private[this] val nodes = ListBuffer[JField]()
   def addNode(node: JField): JDoubleJObjectJsonWriter = {
-    nodes append node
+    nodes += node
     this
   }
   def startArray(): JsonWriter[JValue] = {
@@ -132,7 +132,7 @@ private final class JDoubleJObjectJsonWriter(parent: JsonWriter[JValue]) extends
 private final class JDecimalJObjectJsonWriter(parent: JsonWriter[JValue]) extends JsonWriter[JValue] {
   private[this] val nodes = ListBuffer[JField]()
   def addNode(node: JField): JDecimalJObjectJsonWriter = {
-    nodes append node
+    nodes += node
     this
   }
   def startArray(): JsonWriter[JValue] = {
@@ -194,7 +194,7 @@ private final class JDecimalJObjectJsonWriter(parent: JsonWriter[JValue]) extend
 private final class JDoubleJArrayJsonWriter(parent: JsonWriter[JValue]) extends JDoubleAstJsonWriter {
   private[this] val nodes = ListBuffer[JValue]()
   def addNode(node: JValue): JsonWriter[JValue] = {
-    nodes append node
+    nodes += node
     this
   }
 
@@ -211,7 +211,7 @@ private final class JDoubleJArrayJsonWriter(parent: JsonWriter[JValue]) extends 
 private final class JDecimalJArrayJsonWriter(parent: JsonWriter[JValue]) extends JDecimalAstJsonWriter {
   private[this] val nodes = ListBuffer[JValue]()
   def addNode(node: JValue): JsonWriter[JValue] = {
-    nodes append node
+    nodes += node
     this
   }
 
