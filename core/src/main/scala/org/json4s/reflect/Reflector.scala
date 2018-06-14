@@ -1,7 +1,7 @@
 package org.json4s
 package reflect
 
-import java.lang.reflect._
+import java.lang.reflect.{Executable => _, _}
 import scala.util.control.Exception._
 import java.util.Date
 import java.sql.Timestamp
