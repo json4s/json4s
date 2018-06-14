@@ -1,7 +1,7 @@
 package org.json4s
 package reflect
 
-import java.lang.reflect.{Executable => _, _}
+import java.lang.reflect.{Method, Modifier, ParameterizedType, Type, TypeVariable, WildcardType}
 import scala.util.control.Exception._
 import java.util.Date
 import java.sql.Timestamp
