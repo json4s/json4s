@@ -454,21 +454,39 @@ object Extraction {
       else if (tpe.erasure == classOf[scala.collection.mutable.Seq[_]]) mkCollection(a => scala.collection.mutable.Seq(a: _*))
       else if (tpe.erasure == classOf[java.util.ArrayList[_]]) mkCollection(a => new java.util.ArrayList[Any](a.toList.asJavaCollection))
       else if (tpe.erasure.isArray) mkCollection(mkTypedArray)
-      else if (Class.forName("scala.collection.generic.GenericTraversableTemplate").isAssignableFrom(tpe.erasure)) {
-        reflect.ScalaSigReader.companions(tpe.erasure.getName) match {
-          case Some(tuple) => // can't `case Some((_, Some(c)))` due to Scala 2.10 bug
-            tuple match {
-              case (_, Some(c)) =>
-                import language.reflectiveCalls
-                val companion = c.asInstanceOf[{def apply(elems: Seq[_]): Any}]
-                mkCollection(a => companion(a.toSeq))
+      else {
+        def getCompanion(className: String): Option[Any] = {
+          val c = try {
+            Some(Class.forName(className).isAssignableFrom(tpe.erasure))
+          } catch {
+            case _: ClassNotFoundException =>
+              None
+          }
+          c.flatMap { _ =>
+            reflect.ScalaSigReader.companions(tpe.erasure.getName).flatMap(_._2) 
+          }
+        }
+
+        import language.reflectiveCalls
+
+        getCompanion("scala.collection.generic.GenericTraversableTemplate") match {
+          case Some(c) =>
+            val companion = c.asInstanceOf[{def apply(elems: collection.Seq[_]): Any}]
+            mkCollection(a => companion(a.toSeq))
+          case _ =>
+            getCompanion("scala.collection.Factory") match {
+              case Some(c) =>
+                val companion = c.asInstanceOf[{def newBuilder: collection.mutable.Builder[Any, Any]}]
+                mkCollection{ a =>
+                  val b = companion.newBuilder
+                  b ++= a
+                  b.result
+                }
               case _ =>
                 fail("Expected collection but got " + tpe)
             }
-          case _ =>
-            fail("Expected collection but got " + tpe)
         }
-      } else fail("Expected collection but got " + tpe)
+      }
     }
   }
 

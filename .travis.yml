@@ -4,11 +4,9 @@ scala:
   - 2.10.7
   - 2.11.12
   - 2.12.6
+  - 2.13.0-M4
 matrix:
   include:
-  - scala: 2.13.0-M4
-    jdk: oraclejdk8
-    script: sbt "++${TRAVIS_SCALA_VERSION}!" compile
   - scala: 2.12.6
     jdk: oraclejdk9
 sudo: false

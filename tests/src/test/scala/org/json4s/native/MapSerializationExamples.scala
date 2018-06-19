@@ -48,7 +48,9 @@ class MapSerializationExamples extends Specification {
   "Map with Timestamp key" in {
     val t2013 = new Timestamp(1356998400)
     val t2014 = new Timestamp(1388534400)
-    val pw = Map[Timestamp, String](t2013 -> "hello", t2014 -> "world")
+    // TODO use Map.apply instead of "new Map.Map2" when 2.13.0-M5 released
+    // https://github.com/scala/scala/commit/6a570b6f1f59222cae4f55aa25d48e3d4c22ea59
+    val pw: Map[Timestamp, String] = new Map.Map2(t2013, "hello", t2014, "world")
     val ser = swrite(pw)
 
     val f2013 = formats.dateFormat.format(t2013)
@@ -78,7 +80,9 @@ class MapSerializationExamples extends Specification {
   }
 
   "case class with custom map" in {
-    val pw = PlayerWithCustomMap("zortan", Map("2013" -> "zortan13", "2014" -> "zortan14"))
+    // TODO use Map.apply instead of "new Map.Map2" when 2.13.0-M5 released
+    // https://github.com/scala/scala/commit/6a570b6f1f59222cae4f55aa25d48e3d4c22ea59
+    val pw = PlayerWithCustomMap("zortan", new Map.Map2("2013", "zortan13", "2014", "zortan14"))
     val ser = swrite(pw)
     val s: String = """{"name":"zortan","aliasByYear":{"2013":"zortan13","2014":"zortan14"}}"""
     ser must_== s
