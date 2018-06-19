@@ -23,15 +23,6 @@ object SerializerCheck extends Properties("serializer") {
     forAll { json: JValue => serDeserAreInverses(json, false) }
   }
 
-  def p2 = (
-    "In *decimal mode* any json document can be serialized into a string and " +
-    "deserialized into an equivalent json document."
-  )
-  property(p2) = {
-    implicit val arbJson = ArbitraryJson4s.arbJValueDecimal
-    forAll { json: JValue => serDeserAreInverses(json, true) }
-  }
-
   def serDeserAreInverses(json: JValue, decimalMode: Boolean): Boolean = {
     type SerType = List[JValue]
     val lst1: SerType = List(json)
