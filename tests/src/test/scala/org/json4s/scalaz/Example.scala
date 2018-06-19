@@ -60,7 +60,7 @@ object Example extends Specification {
   }
 
   "Format Map" in {
-    toJSON(Map("street" -> "Manhattan 2", "zip" -> "00223")).shows mustEqual
-      """{"street":"Manhattan 2","zip":"00223"}"""
+    toJSON(Map("street" -> "Manhattan 2", "zip" -> "00223")) mustEqual
+      parse("""{"street":"Manhattan 2","zip":"00223"}""")
   }
 }
