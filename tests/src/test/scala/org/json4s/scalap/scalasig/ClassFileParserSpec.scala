@@ -31,7 +31,7 @@ object ClassFileParserSpec extends Specification {
     classes.collectFirst {
       case s if s.toString == "module-info.class" =>
         getBytes(jarFile.getInputStream(s))
-    }.getOrElse(sys.error("not fould"))
+    }.getOrElse(sys.error("not found"))
   }
 
   private def getBytes(in: InputStream): Array[Byte] = {
