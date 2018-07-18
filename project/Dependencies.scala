@@ -16,11 +16,9 @@ object Dependencies {
   lazy val specs        = Def.setting{
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, v)) if v <= 10 =>
-        Seq("org.specs2" %% "specs2-scalacheck" % "3.9.4" % "test")
-      case Some((2, v)) if v >= 13 && scalaVersion.value != "2.13.0-M3" =>
-        Seq("org.specs2" %% "specs2-scalacheck" % "4.3.0" % "test")
+        Seq("org.specs2" %% "specs2-scalacheck" % "3.10.0" % "test")
       case _ =>
-        Seq("org.specs2" %% "specs2-scalacheck" % "4.2.0" % "test")
+        Seq("org.specs2" %% "specs2-scalacheck" % "4.3.2" % "test")
     }
   }
   lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "2.18.3" % "test"
