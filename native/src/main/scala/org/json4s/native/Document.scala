@@ -44,7 +44,7 @@ sealed abstract class Document extends Product with Serializable {
         fits(w, (i + ii, b, d) :: z)
       case (_, false, DocBreak) :: z =>
         fits(w - 1, z)
-      case (_, true, DocBreak) :: z =>
+      case (_, true, DocBreak) :: _ =>
         true
       case (i, _, DocGroup(d)) :: z =>
         fits(w, (i, false, d) :: z)
@@ -65,7 +65,7 @@ sealed abstract class Document extends Product with Serializable {
         fmt(k, z)
       case (i, b, DocCons(h, t)) :: z =>
         fmt(k, (i, b, h) :: (i, b, t) :: z)
-      case (i, _, DocText(t)) :: z =>
+      case (i@_, _, DocText(t)) :: z =>
         writer write t
         fmt(k + t.length(), z)
       case (i, b, DocNest(ii, d)) :: z =>
@@ -74,10 +74,10 @@ sealed abstract class Document extends Product with Serializable {
         writer write "\n"
         spaces(i)
         fmt(i, z)
-      case (i, false, DocBreak) :: z =>
+      case (i@_, false, DocBreak) :: z =>
         writer write " "
         fmt(k + 1, z)
-      case (i, b, DocGroup(d)) :: z =>
+      case (i, b@_, DocGroup(d)) :: z =>
         val fitsFlat = fits(width - k, (i, false, d) :: z)
         fmt(k, (i, !fitsFlat, d) :: z)
       case _ =>

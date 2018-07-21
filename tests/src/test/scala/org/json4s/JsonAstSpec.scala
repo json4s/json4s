@@ -65,7 +65,7 @@ object JsonAstSpec extends Specification with JValueGen with ScalaCheck {
 
     "Diff is subset of originals" in {
       val subsetProp = (x: JObject, y: JObject) => {
-        val Diff(c, a, d) = x diff y
+        val Diff(c, a, d@_) = x diff y
         y must_== (y merge (c merge a))
       }
       prop(subsetProp)
@@ -112,7 +112,7 @@ object JsonAstSpec extends Specification with JValueGen with ScalaCheck {
       val anyReplacement = (x: JValue, replacement: JObject) => {
         def findOnePath(jv: JValue, l: List[String]): List[String] = jv match {
           case JObject(fl) => fl match {
-            case field :: xs => findOnePath(field._2, l)
+            case field :: _ => findOnePath(field._2, l)
             case Nil => l
           }
           case _ => l

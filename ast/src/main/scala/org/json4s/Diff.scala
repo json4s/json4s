@@ -67,7 +67,7 @@ object Diff {
     case (JBool(x), JBool(y)) if (x != y) => Diff(JBool(y), JNothing, JNothing)
     case (JNothing, x) => Diff(JNothing, x, JNothing)
     case (x, JNothing) => Diff(JNothing, JNothing, x)
-    case (x, y) => Diff(y, JNothing, JNothing)
+    case (x@_, y) => Diff(y, JNothing, JNothing)
   }
 
   private def diffFields(vs1: List[JField], vs2: List[JField]) = {

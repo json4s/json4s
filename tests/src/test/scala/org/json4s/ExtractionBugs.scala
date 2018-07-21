@@ -143,7 +143,7 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
     try {
       Extraction.decompose(a)
     } catch {
-      case x: MappingException =>  {}
+      case _: MappingException =>  {}
     }
     1 must_== 1
   }

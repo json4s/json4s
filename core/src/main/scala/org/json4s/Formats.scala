@@ -372,7 +372,7 @@ trait DefaultFormats extends Formats {
     def parse(s: String) = try {
       Some(formatter.parse(s))
     } catch {
-      case e: ParseException => None
+      case _: ParseException => None
     }
 
     def format(d: Date) = formatter.format(d)

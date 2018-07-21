@@ -63,9 +63,7 @@ object JObjectParser  {
           JField(f, serialize0(x.get(f), formats))
         }
       )
-      case x => {
-        JNothing
-      }
+      case _ => JNothing
     }
   }
 
@@ -92,7 +90,7 @@ object JObjectParser  {
           dbl.add(UUID.fromString(s))
         case JArray(arr) => dbl.add(parseArray(arr, formats))
         case JObject(jo) => dbl.add(parseObject(jo, formats))
-        case jv: JValue => dbl.add(renderValue(jv, formats))
+        case jv: JValue => dbl.add(renderValue(jv))
       }
       dbl
     }
@@ -111,13 +109,13 @@ object JObjectParser  {
             dbo.put(jf._1, UUID.fromString(s))
           case JArray(arr) => dbo.put(jf._1, parseArray(arr, formats))
           case JObject(jo) => dbo.put(jf._1, parseObject(jo, formats))
-          case jv: JValue => dbo.put(jf._1, renderValue(jv, formats))
+          case jv: JValue => dbo.put(jf._1, renderValue(jv))
         }
       }
       dbo
     }
 
-    private def renderValue(jv: JValue, formats: Formats): Object = jv match {
+    private def renderValue(jv: JValue): Object = jv match {
       case JBool(b) => java.lang.Boolean.valueOf(b)
       case JInt(n) => renderInteger(n)
       case JDouble(n) => java.lang.Double.valueOf(n)

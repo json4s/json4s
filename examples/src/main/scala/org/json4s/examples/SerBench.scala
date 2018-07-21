@@ -56,7 +56,7 @@ object SerBench extends Benchmark {
   def main(args: Array[String]): Unit = {
     println("## Serialization  ")
 
-    val str = project.toString
+    // val str = project.toString
 
     // def strr = str
     // benchmark("Java serialization (ser)") { serialize(project) }

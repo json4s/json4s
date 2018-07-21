@@ -112,7 +112,7 @@ object ScalaSigReader {
     def findPrimitive(t: Type): Symbol = {
       t match {
         case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol) => symbol
-        case TypeRefType(_, _, TypeRefType(ThisType(_), symbol, _) :: xs) => symbol
+        case TypeRefType(_, _, TypeRefType(ThisType(_), symbol, _) :: _) => symbol
         case TypeRefType(_, symbol, Nil) => symbol
         case TypeRefType(_, _, args) if typeArgIndex >= args.length =>
           findPrimitive(args(0))
@@ -179,7 +179,7 @@ object ScalaSigReader {
     // taken from ScalaSigParser parse method with the explicit purpose of walking away from NPE
     parseClassFileFromByteCode(clazz).orElse(findScalaSig(clazz.getDeclaringClass))
   } catch {
-    case e: NullPointerException => None // yes, this is the exception, but it is totally unhelpful to the end user
+    case _: NullPointerException => None // yes, this is the exception, but it is totally unhelpful to the end user
   }
 
   private[this] def parseClassFileFromByteCode(clazz: Class[_]): Option[ScalaSig] =
@@ -214,7 +214,7 @@ object ScalaSigReader {
           clazz = Class.forName(c, true, iter.next())
         }
         catch {
-          case e: ClassNotFoundException => // keep going, maybe it's in the next one
+          case _: ClassNotFoundException => // keep going, maybe it's in the next one
         }
       }
 

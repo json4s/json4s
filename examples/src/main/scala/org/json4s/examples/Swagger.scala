@@ -202,7 +202,6 @@ object SwaggerSerializers {
       )
   }, {
     case x: ModelField =>
-      implicit val fmts = formats
       val c = ("description" -> x.description) ~
       ("defaultValue" -> x.defaultValue) ~
       ("enum" -> x.enum) ~
