@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.deser.Deserializers
 import com.fasterxml.jackson.databind.{BeanDescription, DeserializationConfig, JavaType}
 
 private object JValueDeserializerResolver extends Deserializers.Base {
-  private[this] val JVALUE = classOf[JValue]
+  private[this] val J_VALUE = classOf[JValue]
 
   override def findBeanDeserializer(javaType: JavaType, config: DeserializationConfig, beanDesc: BeanDescription) = {
-    if (!JVALUE.isAssignableFrom(javaType.getRawClass)) null
-    else new JValueDeserializer(config.getTypeFactory(), javaType.getRawClass)
+    if (!J_VALUE.isAssignableFrom(javaType.getRawClass)) null
+    else new JValueDeserializer(javaType.getRawClass)
   }
 }

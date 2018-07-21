@@ -86,7 +86,7 @@ object Extraction {
       method.setAccessible(true)
       method.invoke(a)
     } catch {
-      case e: Exception => defaultValue
+      case _: Exception => defaultValue
     }
   }
 
@@ -108,7 +108,7 @@ object Extraction {
 
     def addField(name: String, v: Any, obj: JsonWriter[T]): Unit = v match {
       case None => formats.emptyValueStrategy.noneValReplacement foreach (internalDecomposeWithBuilder(_, obj.startField(name)))
-      case oth => internalDecomposeWithBuilder(v, obj.startField(name))
+      case _ => internalDecomposeWithBuilder(v, obj.startField(name))
     }
 
     val serializer = formats.typeHints.serialize
@@ -339,18 +339,18 @@ object Extraction {
     val uniquePaths = map.keys.foldLeft[Set[String]](Set()) {
       (set, key) =>
         key match {
-          case ArrayProp(p, f, i) => set + p
-          case OtherProp(p, f)    => set + p
-          case ArrayElem(p, i)    => set + p
+          case ArrayProp(p, f@_, i@_) => set + p
+          case OtherProp(p, f@_)    => set + p
+          case ArrayElem(p, f@_)    => set + p
           case x @ _              => set + x
         }
     }.toList.sortWith(_ < _) // Sort is necessary to get array order right
 
     uniquePaths.foldLeft[JValue](JNothing) { (jvalue, key) =>
       jvalue.merge(key match {
-        case ArrayProp(p, f, i) => JObject(List(JField(f, unflatten(submap(key)))))
-        case ArrayElem(p, i)    => JArray(List(unflatten(submap(key))))
-        case OtherProp(p, f)    => JObject(List(JField(f, unflatten(submap(key)))))
+        case ArrayProp(p@_, f, i@_) => JObject(List(JField(f, unflatten(submap(key)))))
+        case ArrayElem(p@_, f@_)    => JArray(List(unflatten(submap(key))))
+        case OtherProp(p@_, f)    => JObject(List(JField(f, unflatten(submap(key)))))
         case ""                 => extractValue(map(key))
       })
     }

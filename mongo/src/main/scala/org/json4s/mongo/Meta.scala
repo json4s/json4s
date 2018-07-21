@@ -96,7 +96,7 @@ object Meta {
       case x: ObjectId => objectIdAsJValue(x, formats)
       case x: Pattern => patternAsJValue(x)
       case x: UUID => uuidAsJValue(x)
-      case x: DBRef => sys.error("DBRefs are not supported.")
+      case _: DBRef => sys.error("DBRefs are not supported.")
       case _ => sys.error(s"not a mongotype  ${a.asInstanceOf[AnyRef].getClass.getName}")
     }
   }

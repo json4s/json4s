@@ -3,14 +3,14 @@ package org.json4s
 import scala.reflect.Manifest
 
 trait Serialization {
-  import java.io.{Reader, Writer}
+  import java.io.{Writer => JavaWriter}
   /** Serialize to String.
    */
   def write[A <: AnyRef](a: A)(implicit formats: Formats): String
 
   /** Serialize to Writer.
    */
-  def write[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W
+  def write[A <: AnyRef, W <: JavaWriter](a: A, out: W)(implicit formats: Formats): W
 
   /** Serialize to String (pretty format).
    */
@@ -18,7 +18,7 @@ trait Serialization {
 
   /** Serialize to Writer (pretty format).
    */
-  def writePretty[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W
+  def writePretty[A <: AnyRef, W <: JavaWriter](a: A, out: W)(implicit formats: Formats): W
 
   /** Deserialize from a String.
    */

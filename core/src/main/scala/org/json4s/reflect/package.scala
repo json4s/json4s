@@ -10,7 +10,7 @@ package object reflect {
     try {
       clazz.getSimpleName
     } catch {
-      case t: Throwable =>
+      case _: Throwable =>
         val packageNameLen = Some(clazz.getPackage) map (_.getName.length + 1) getOrElse 0
         stripDollar(clazz.getName.substring(packageNameLen))
     }

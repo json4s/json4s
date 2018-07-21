@@ -85,13 +85,15 @@ object JsonParser {
   /** Return parsed JSON.
    */
   def parseOpt(s: String, useBigDecimalForDouble: Boolean): Option[JValue] =
-    try { parse(s, useBigDecimalForDouble).toOption } catch { case e: Exception => None }
+    try { parse(s, useBigDecimalForDouble).toOption }
+    catch { case _: Exception => None }
 
   /** Return parsed JSON.
    * @param closeAutomatically true (default) if the Reader is automatically closed on EOF
    */
   def parseOpt(s: Reader, closeAutomatically: Boolean = true, useBigDecimalForDouble: Boolean = false): Option[JValue] =
-    try { parse(s, closeAutomatically, useBigDecimalForDouble).toOption } catch { case e: Exception => None }
+    try { parse(s, closeAutomatically, useBigDecimalForDouble).toOption }
+    catch { case _: Exception => None }
 
   /** Parse in pull parsing style.
    * Use <code>p.nextToken</code> to parse tokens one by one from a string.
@@ -159,7 +161,7 @@ object JsonParser {
       }
 
       vals.peekOption match {
-        case Some((name: String, value)) =>
+        case Some((name: String, _)) =>
           vals.pop(classOf[JField])
           val obj = vals.peek(classOf[JObject])
           vals.replace(JObject((name, toJValue(v)) :: obj.obj))
@@ -173,7 +175,7 @@ object JsonParser {
 
     def newValue(v: JValue): Unit = {
       vals.peekAny match {
-        case (name: String, value) =>
+        case (name: String, _) =>
           vals.pop(classOf[JField])
           val obj = vals.peek(classOf[JObject])
           vals.replace(JObject((name, v) :: obj.obj))

@@ -292,9 +292,17 @@ private sealed abstract class JDecimalAstJsonWriter extends JValueJsonWriter {
 
 }
 
-private final class FieldStreamingJsonWriter[T <: JWriter](name: String, isFirst: Boolean, protected[this] val nodes: T, protected[this] val level: Int, parent: ObjectStreamingJsonWriter[T], protected[this] val pretty: Boolean, protected[this] val spaces: Int, protected[this] val formats: Formats) extends StreamingJsonWriter[T] {
-  def result: T = nodes
+private final class FieldStreamingJsonWriter[T <: JWriter](
+  name: String,
+  isFirst: Boolean,
+  protected[this] val nodes: T,
+  protected[this] val level: Int,
+  parent: ObjectStreamingJsonWriter[T],
+  protected[this] val pretty: Boolean,
+  protected[this] val spaces: Int,
+  protected[this] val formats: Formats) extends StreamingJsonWriter[T] {
 
+  def result: T = nodes
 
   override def startArray(): JsonWriter[T] = {
     writeName(hasPretty = true)
@@ -306,6 +314,7 @@ private final class FieldStreamingJsonWriter[T <: JWriter](name: String, isFirst
     new ObjectStreamingJsonWriter(nodes, level + 1, parent, pretty, spaces, formats)
   }
 
+  // FIXME: hasPretty is no longer used?
   private[this] def writeName(hasPretty: Boolean): Unit = {
     if (!isFirst) {
       nodes.write(",")
@@ -545,7 +554,7 @@ private sealed abstract class StreamingJsonWriter[T <: JWriter] extends JsonWrit
     case JObject(flds) =>
       val obj = startObject()
       flds foreach {
-        case (k, v) if v == JNothing => this
+        case (k@_, v) if v == JNothing => this
         case (k, v) => obj.startField(k).addJValue(v)
       }
       obj.endObject()

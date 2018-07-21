@@ -177,7 +177,7 @@ trait DefaultWriters {
   implicit object BigIntWriter extends W[BigInt](JInt(_))
   implicit object BooleanWriter extends W[Boolean](JBool(_))
   implicit object StringWriter extends W[String](JString(_))
-  implicit def arrayWriter[T](implicit valueWriter: Writer[T], mf: Manifest[T]): Writer[Array[T]] = new Writer[Array[T]] {
+  implicit def arrayWriter[T](implicit valueWriter: Writer[T]): Writer[Array[T]] = new Writer[Array[T]] {
     def write(obj: Array[T]): _root_.org.json4s.JValue = JArray(obj.map(valueWriter.write(_)).toList)
   }
   implicit def mapWriter[V](implicit valueWriter: Writer[V]): Writer[immutable.Map[String, V]] = new Writer[Map[String, V]] {

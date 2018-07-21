@@ -75,7 +75,7 @@ object Merge {
     def mergeRec(acc: List[JField], xleft: List[JField], yleft: List[JField]): List[JField] = xleft match {
       case Nil => acc ++ yleft
       case (xn, xv) :: xs => yleft find (_._1 == xn) match {
-        case Some(y @ (yn, yv)) =>
+        case Some(y @ (yn@_, yv)) =>
           mergeRec(acc ++ List(JField(xn, merge(xv, yv))), xs, yleft filterNot (_ == y))
         case None => mergeRec(acc ++ List(JField(xn, xv)), xs, yleft)
       }

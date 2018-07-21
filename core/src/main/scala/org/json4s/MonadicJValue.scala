@@ -33,7 +33,7 @@ class MonadicJValue(jv: JValue) {
 
   private[this] def findDirect(xs: List[JValue], p: JValue ⇒ Boolean): List[JValue] = xs.flatMap {
     case JObject(l) ⇒ l.filter {
-      case (n, x) if p(x) ⇒ true
+      case (n@_, x) if p(x) ⇒ true
       case _ ⇒ false
     } map (_._2)
     case JArray(l) ⇒ findDirect(l, p)
@@ -97,7 +97,7 @@ class MonadicJValue(jv: JValue) {
     def rec(acc: A, v: JValue) = {
       val newAcc = f(acc, v)
       v match {
-        case JObject(l) ⇒ l.foldLeft(newAcc) { case (a, (name, value)) ⇒ value.fold(a)(f) }
+        case JObject(l) ⇒ l.foldLeft(newAcc) { case (a, (name@_, value)) ⇒ value.fold(a)(f) }
         case JArray(l) ⇒ l.foldLeft(newAcc)((a, e) ⇒ e.fold(a)(f))
         case _ ⇒ newAcc
       }
@@ -113,7 +113,7 @@ class MonadicJValue(jv: JValue) {
     def rec(acc: A, v: JValue) = {
       v match {
         case JObject(l) ⇒ l.foldLeft(acc) {
-          case (a, field @ (name, value)) ⇒ value.foldField(f(a, field))(f)
+          case (a, field @ (name@_, value)) ⇒ value.foldField(f(a, field))(f)
         }
         case JArray(l) ⇒ l.foldLeft(acc)((a, e) ⇒ e.foldField(a)(f))
         case _ ⇒ acc
@@ -227,7 +227,7 @@ class MonadicJValue(jv: JValue) {
   def findField(p: JField ⇒ Boolean): Option[JField] = {
     def find(json: JValue): Option[JField] = json match {
       case JObject(fs) if fs exists p ⇒ fs find p
-      case JObject(fs) ⇒ fs.flatMap { case (n, v) ⇒ find(v) }.headOption
+      case JObject(fs) ⇒ fs.flatMap { case (_, v) ⇒ find(v) }.headOption
       case JArray(l) ⇒ l.flatMap(find _).headOption
       case _ ⇒ None
     }
@@ -245,7 +245,7 @@ class MonadicJValue(jv: JValue) {
     def find(json: JValue): Option[JValue] = {
       if (p(json)) return Some(json)
       json match {
-        case JObject(fs) ⇒ fs.flatMap { case (n, v) ⇒ find(v) }.headOption
+        case JObject(fs) ⇒ fs.flatMap { case (_, v) ⇒ find(v) }.headOption
         case JArray(l) ⇒ l.flatMap(find _).headOption
         case _ ⇒ None
       }
