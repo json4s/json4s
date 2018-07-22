@@ -104,7 +104,7 @@ object SerializationExamples extends Specification {
 
   "Array serialization example" in {
     val s = ArrayContainer(Array("foo", "bar"))
-    val ser = swrite(s);
+    val ser = swrite(s)
     val unser = read[ArrayContainer](ser)
     s.array.toList must_== unser.array.toList
   }

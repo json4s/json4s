@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.json4s
 package native
 
@@ -22,9 +21,8 @@ import org.json4s.ParserUtil.{Buffer, parseDouble, ParseException}
 /** JSON parser.
  */
 object JsonParser {
+
   import java.io._
-
-
 
   /** Parsed tokens from low level pull parser.
    */
@@ -57,16 +55,18 @@ object JsonParser {
   }
 
   /** Return parsed JSON.
-   * @throws ParseException is thrown if parsing fails
    */
+  @throws[ParserUtil.ParseException]
   def parse(s: String): JValue = parse(s, useBigDecimalForDouble = false, useBigIntForLong = true)
+
   /** Return parsed JSON.
-   * @throws ParseException is thrown if parsing fails
    */
+  @throws[ParserUtil.ParseException]
   def parse(s: String, useBigDecimalForDouble: Boolean): JValue = parse(s, useBigDecimalForDouble = useBigDecimalForDouble, useBigIntForLong = true)
+
   /** Return parsed JSON.
-   * @throws ParseException is thrown if parsing fails
    */
+  @throws[ParserUtil.ParseException]
   def parse(s: String, useBigDecimalForDouble: Boolean, useBigIntForLong: Boolean): JValue =
     parse(new Buffer(new StringReader(s), false), useBigDecimal = useBigDecimalForDouble, useBigInt = useBigIntForLong)
 
@@ -74,8 +74,8 @@ object JsonParser {
    * @param closeAutomatically true (default) if the Reader is automatically closed on EOF
    * @param useBigDecimalForDouble true if double values need to be parsed as BigDecimal
    * @param useBigIntForLong true if long values need to be parsed as BigInt
-   * @throws ParseException is thrown if parsing fails
    */
+  @throws[ParserUtil.ParseException]
   def parse(s: Reader, closeAutomatically: Boolean = true, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): JValue =
     parse(new Buffer(s, closeAutomatically), useBigDecimal = useBigDecimalForDouble, useBigInt = useBigIntForLong)
 
