@@ -60,7 +60,7 @@ class ExtractableJsonAstNode(jv: JValue) {
 
   /**
    * Given that an implicit reader of type `A` is in scope
-   * It will deserialize the [[org.json4s.JsonAST.JValue]] to an object of type `A`
+   * It will deserialize the org.json4s.JsonAST.JValue to an object of type `A`
    *
    * Example:
    * {{{
@@ -75,7 +75,7 @@ class ExtractableJsonAstNode(jv: JValue) {
 
   /**
    * Given that an implicit reader of type `A` is in scope
-   * It will deserialize the [[org.json4s.JsonAST.JValue]] to an object of type Option[`A`]
+   * It will deserialize the org.json4s.JsonAST.JValue to an object of type Option[`A`]
    *
    * Example:
    * {{{
@@ -92,7 +92,7 @@ class ExtractableJsonAstNode(jv: JValue) {
 
   /**
    * Given that an implicit reader of type `A` is in scope
-   * It will deserialize the [[org.json4s.JsonAST.JValue]] to an object of type `A`
+   * It will deserialize the org.json4s.JsonAST.JValue to an object of type `A`
    * if an error occurs it will return the default value.
    *
    * Example:

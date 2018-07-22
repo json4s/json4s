@@ -71,9 +71,9 @@ object Extraction {
     * This is a fix for failed lazy val serialization from FieldSerializer (see org.json4s.native.LazyValBugs test).
     *
     * We do this by finding the hidden lazy method which will have same name as the lazy val name
-    * but with suffix "$lzycompute" (for scala v2.10+), then invoke the method if found, and return the value.
+    * but with suffix "\$lzycompute" (for scala v2.10+), then invoke the method if found, and return the value.
     *
-    * The "$lzycompute" method naming could be changed in future so this method must be adjusted if that happens.
+    * The "\$lzycompute" method naming could be changed in future so this method must be adjusted if that happens.
     *
     * @param a Object to be serialized
     * @param name Field name to be checked

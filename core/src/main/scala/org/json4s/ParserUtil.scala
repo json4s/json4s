@@ -5,8 +5,9 @@ import java.nio.charset.Charset
 object ParserUtil {
 
   class ParseException(message: String, cause: Exception) extends Exception(message, cause)
+
   private[this] val EOF = (-1).asInstanceOf[Char]
-  private[this] val AsciiEncoder = Charset.forName("US-ASCII").newEncoder();
+  private[this] val AsciiEncoder = Charset.forName("US-ASCII").newEncoder()
 
   private[this] sealed abstract class StringAppender[T] {
     def append(s: String): T
@@ -19,8 +20,12 @@ object ParserUtil {
     def append(s: String): StringBuilder = subj.append(s)
   }
 
-  def quote(s: String)(implicit formats: Formats = DefaultFormats): String = quote(s, new StringBuilderAppender(new StringBuilder)).toString
-  private[json4s] def quote(s: String, writer: java.io.Writer)(implicit formats: Formats): java.io.Writer = quote(s, new StringWriterAppender(writer))
+  def quote(s: String)(implicit formats: Formats = DefaultFormats): String =
+    quote(s, new StringBuilderAppender(new StringBuilder)).toString
+
+  private[json4s] def quote(s: String, writer: java.io.Writer)(implicit formats: Formats): java.io.Writer =
+    quote(s, new StringWriterAppender(writer))
+
   private[this] def quote[T](s: String, appender: StringAppender[T])(implicit formats: Formats): T = { // hot path
     var i = 0
     val l = s.length
@@ -169,7 +174,7 @@ object ParserUtil {
     }
   }
 
-  /* A pool of preallocated char arrays.
+  /* A pool of pre-allocated char arrays.
    */
   private[json4s] object Segments {
     import java.util.concurrent.ArrayBlockingQueue
@@ -208,7 +213,6 @@ object ParserUtil {
   }
   case class RecycledSegment(seg: Array[Char]) extends Segment
   case class DisposableSegment(seg: Array[Char]) extends Segment
-
 
   private[this] val BrokenDouble = BigDecimal("2.2250738585072012e-308")
   private[json4s] def parseDouble(s: String) = {
