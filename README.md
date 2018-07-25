@@ -1,4 +1,4 @@
-# JSON4S [![Build Status](https://travis-ci.org/json4s/json4s.svg?branch=3.6)](https://travis-ci.org/json4s/json4s)
+# JSON4S [![Build Status](https://travis-ci.org/json4s/json4s.svg?branch=master)](https://travis-ci.org/json4s/json4s)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.json4s/json4s-core_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.json4s/json4s-core_2.12)
 
 [![Join the chat at https://gitter.im/json4s/json4s](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/json4s/json4s?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -74,7 +74,7 @@ All features are implemented in terms of the above AST. Functions are used to tr
 the AST itself, or to transform the AST between different formats. Common transformations
 are summarized in a following picture.
 
-![Json AST](https://raw.github.com/json4s/json4s/3.6/core/json.png)
+![Json AST](https://raw.github.com/json4s/json4s/master/core/json.png)
 
 Summary of the features:
 
@@ -137,11 +137,11 @@ For the jackson support add the following dependency to your pom:
 Extras
 ------
 
-* [ext](https://github.com/json4s/json4s/tree/3.6/ext)
+* [ext](https://github.com/json4s/json4s/tree/master/ext)
 
 Support for Enum, Joda-Time, ...
 
-* [scalaz](https://github.com/json4s/json4s/tree/3.6/scalaz)
+* [scalaz](https://github.com/json4s/json4s/tree/master/scalaz)
 
 Applicative style parsing with Scalaz
 
