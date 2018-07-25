@@ -55,7 +55,7 @@ object build {
     }
   )
 
-  val json4sSettings = mavenCentralFrouFrou ++ mimaSettings ++ Def.settings(
+  val json4sSettings = mavenCentralFrouFrou ++ Def.settings(
     organization := "org.json4s",
     scalaVersion := "2.12.6",
     crossScalaVersions := Seq("2.11.12", "2.12.6", "2.13.0-M4"),
@@ -65,7 +65,15 @@ object build {
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
       Seq("-sourcepath", base, "-doc-source-url", "https://github.com/json4s/json4s/tree/" + hash + "€{FILE_PATH}.scala")
     },
-    version := "3.6.1-SNAPSHOT",
+    scalacOptions ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, scalaMajor)) if scalaMajor >= 11 =>
+          Seq("-Ywarn-unused")
+        case _ =>
+          Nil
+      }
+    },
+    version := "3.7.0-SNAPSHOT",
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
     Seq(Compile, Test).map { scope =>
       unmanagedSourceDirectories in scope += {
