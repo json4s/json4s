@@ -58,23 +58,12 @@ object build {
   val json4sSettings = mavenCentralFrouFrou ++ mimaSettings ++ Def.settings(
     organization := "org.json4s",
     scalaVersion := "2.12.6",
-    crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.6", "2.13.0-M4"),
-    scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps", "-Xfuture"),
-    scalacOptions ++= PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion.value)) {
-      case Some((2, 10)) => "-optimize"
-    }.toList,
+    crossScalaVersions := Seq("2.11.12", "2.12.6", "2.13.0-M4"),
+    scalacOptions ++= Seq("-Ywarn-unused", "-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps", "-Xfuture"),
     scalacOptions in (Compile, doc) ++= {
       val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
       Seq("-sourcepath", base, "-doc-source-url", "https://github.com/json4s/json4s/tree/" + hash + "€{FILE_PATH}.scala")
-    },
-    scalacOptions ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, scalaMajor)) if scalaMajor >= 11 =>
-          Seq("-Ywarn-unused")
-        case _ =>
-          Nil
-      }
     },
     version := "3.6.1-SNAPSHOT",
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),

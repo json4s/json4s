@@ -31,7 +31,7 @@ lazy val xml = Project(
   base = file("xml"),
 ).settings(
   json4sSettings,
-  libraryDependencies ++= scalaXml(scalaVersion.value),
+  libraryDependencies += scalaXml,
 ) dependsOn(core)
 
 lazy val core = Project(
@@ -106,7 +106,7 @@ lazy val json4sTests = Project(
 ).settings(
   json4sSettings,
   noPublish,
-  libraryDependencies ++= (specs.value :+ mockito :+ jaxbApi),
+  libraryDependencies ++= Seq(specs, mockito, jaxbApi),
   initialCommands in (Test, console) :=
     """
       |import org.json4s._
