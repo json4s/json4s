@@ -40,9 +40,11 @@ abstract class JsonQueryExamples[T](mod: String) extends Specification with Json
 
     "List of IPs in cluster2" in {
       val ips = for {
-        cluster @ JObject(x) <- json \ "data_center"
-        if (x contains JField("name", JString("cluster2")))
-        JString(ip) <- cluster \\ "ip" } yield ip
+        // NOTE: the following warning given by Scala compiler is incorrect
+        // pattern var cluster in value $anonfun is never used; `cluster@_' suppresses this warning
+        cluster @ JObject(x) <- json \ "data_center" if (x contains JField("name", JString("cluster2")))
+        JString(ip) <- cluster \\ "ip"
+      } yield ip
       ips must_== List("192.168.2.125", "192.168.2.126")
     }
 

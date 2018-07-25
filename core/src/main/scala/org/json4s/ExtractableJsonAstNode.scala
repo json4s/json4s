@@ -104,7 +104,7 @@ class ExtractableJsonAstNode(jv: JValue) {
    *   JObject(JField("name", JString("Joe")) :: Nil).getAsOrElse(Person("Tom"))
    * }}}
    */
-  def getAsOrElse[A](default: ⇒ A)(implicit reader: Reader[A], mf: Manifest[A]): A =
+  def getAsOrElse[A](default: ⇒ A)(implicit reader: Reader[A]): A =
     getAs(reader) getOrElse default
 }
 

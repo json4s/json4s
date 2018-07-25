@@ -4,6 +4,8 @@ import org.specs2.ScalaCheck
 import org.scalacheck.Arbitrary
 import org.specs2.mutable.Specification
 
+import scala.util.Try
+
 
 /**
 * System under specification for JSON Printing.
@@ -18,7 +20,9 @@ object JsonPrintingSpec extends Specification with JValueGen with ScalaCheck {
     prop(rendering)
   }
 
-  private def parse(json: String) = scala.util.parsing.json.JSON.parseFull(json)
+  private def parse(json: String) = {
+    Try { native.JsonMethods.parse(json) }.toOption
+  }
 
   implicit def arbDoc: Arbitrary[Document] = Arbitrary(genJValue.map(render(_)))
 }
