@@ -1,4 +1,5 @@
 # JSON4S [![Build Status](https://travis-ci.org/json4s/json4s.svg?branch=3.6)](https://travis-ci.org/json4s/json4s)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.json4s/json4s-core_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.json4s/json4s-core_2.12)
 
 [![Join the chat at https://gitter.im/json4s/json4s](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/json4s/json4s?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
