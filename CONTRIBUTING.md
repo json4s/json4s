@@ -18,7 +18,7 @@
 ##### master (the default branch)
 
 - The latest stable version
-- This branch must be able to build against Scala 2.10, 2.11, 2.12, and 2.13
+- This branch must be able to build against Scala 2.11, 2.12, and 2.13
 - This branch requires Java 8+ for all Scala versions
 
 ##### 3.6
