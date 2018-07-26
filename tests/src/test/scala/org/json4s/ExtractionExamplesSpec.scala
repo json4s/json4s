@@ -301,7 +301,7 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
 
     "ArraySeq extraction example" in {
       val scalaV = scala.util.Properties.versionNumberString
-      if (scalaV.startsWith("2.10") || scalaV.startsWith("2.11") || scalaV.startsWith("2.12")) {
+      if (scalaV.startsWith("2.11") || scalaV.startsWith("2.12")) {
         val json = parse(testJson) \ "children"
         json.extract[collection.mutable.ArraySeq[Name]] must_== collection.mutable.ArraySeq(Name("Mary"), Name("Mazy"))
       } else {
