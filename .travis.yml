@@ -7,7 +7,7 @@ scala:
 matrix:
   include:
   - scala: 2.12.6
-    jdk: oraclejdk9
+    jdk: oraclejdk10
 sudo: false
 cache:
   directories:
