@@ -26,7 +26,7 @@ trait DefaultReaders {
     def read(value: JValue): BigInt = value match {
       case JInt(x) => x
       case JDouble(x) => BigInt(x.longValue)
-      case JDecimal(x) => x.toBigInt()
+      case JDecimal(x) => x.toBigInt
       case x => throw new MappingException("Can't convert %s to BigInt." format x)
     }
   }
