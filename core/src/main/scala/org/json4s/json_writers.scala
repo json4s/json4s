@@ -272,7 +272,7 @@ private sealed abstract class JDoubleAstJsonWriter extends JValueJsonWriter {
 
   def double(value: Double): JsonWriter[JValue] = addNode(JDouble(value))
 
-  def bigDecimal(value: BigDecimal): JsonWriter[JValue] = addNode(JDouble(value.doubleValue()))
+  def bigDecimal(value: BigDecimal): JsonWriter[JValue] = addNode(JDouble(value.doubleValue))
 }
 
 private sealed abstract class JDecimalAstJsonWriter extends JValueJsonWriter {
