@@ -3,7 +3,7 @@
 ### Issues
 
 - Questions should be posted to [stackoverflow.com](http://stackoverflow.com/questions/tagged/json4s)
-- Please describe about your issue in detail (verison, situation, examples)
+- Please describe about your issue in detail (version, situation, examples)
 - We may close your issue when we have no plan to take action right now. We appreciate your understanding.
 
 ### Pull Requests
@@ -29,18 +29,18 @@
 
 ##### 3.5
 
-- The version 3.5 series maintainance branch
+- The version 3.5 series maintenance branch
 - This branch must be able to build against Scala 2.10, 2.11 and 2.12
 
 ##### 3.4
 
-- The version 3.4 series maintainance branch
+- The version 3.4 series maintenance branch
 - All the backports must be source/binary compatibility
 - This branch must be able to build against Scala 2.10 and 2.11
 
 ##### 3.3
 
-- The version 3.3 series maintainance branch
+- The version 3.3 series maintenance branch
 - All the backports must be source/binary compatibility
 - This branch must be able to build against Scala 2.10 and 2.11
 

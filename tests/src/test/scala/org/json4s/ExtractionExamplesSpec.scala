@@ -385,11 +385,11 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
       parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](notNullFormats + CustomNull, Manifest.classType(classOf[OChild])) must_== new OChild(None, 22, None, None)
     }
 
-    "simple case objects should be sucessfully extracted as a singleton instance" in {
+    "simple case objects should be successfully extracted as a singleton instance" in {
       parse(emptyTree).extract[LeafTree[Int]](treeFormats, Manifest.classType(classOf[LeafTree[Int]])) must_== LeafTree.empty
     }
 
-    "case objects in a complex structure should be sucessfully extracted as a singleton instance" in {
+    "case objects in a complex structure should be successfully extracted as a singleton instance" in {
       parse(tree).extract[LeafTree[Int]](treeFormats[Int], Manifest.classType(classOf[LeafTree[Int]])) must_== Node(List[LeafTree[Int]](EmptyLeaf, Node(List.empty), Leaf(1), Leaf(2)))
     }
 
