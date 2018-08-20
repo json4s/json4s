@@ -95,7 +95,7 @@ You can add the json4s as a dependency in following ways. Note, replace {latestV
 
 You can find available versions here:
 
-http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.json4s%22
+https://search.maven.org/search?q=org.json4s
 
 ### SBT users
 
