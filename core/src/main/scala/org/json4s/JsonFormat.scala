@@ -28,7 +28,7 @@ trait DefaultReaders extends DefaultReaders0 {
       case JInt(x) => x
       case JLong(x) => BigInt(x)
       case JDouble(x) => BigInt(x.longValue)
-      case JDecimal(x) => x.toBigInt()
+      case JDecimal(x) => x.toBigInt
       case x => throw new MappingException("Can't convert %s to BigInt." format x)
     }
   }

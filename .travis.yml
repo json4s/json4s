@@ -9,6 +9,12 @@ matrix:
   include:
   - scala: 2.12.6
     jdk: oraclejdk9
+  - scala: 2.13.0-M5
+    script:
+    - sbt
+      "++${TRAVIS_SCALA_VERSION}!"
+      json4s-examples/compile
+      json4s-scalaz/compile
 sudo: false
 cache:
   directories:

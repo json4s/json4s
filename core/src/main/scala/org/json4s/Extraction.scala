@@ -254,13 +254,13 @@ object Extraction {
     case x: BigDecimal => builder.bigDecimal(x)
     case x: Boolean => builder.boolean(x)
     case x: Short => builder.short(x)
-    case x: java.lang.Integer => builder.int(x.intValue())
-    case x: java.lang.Long => builder.long(x.longValue())
-    case x: java.lang.Double => builder.double(x.doubleValue())
-    case x: java.lang.Float => builder.float(x.floatValue())
-    case x: java.lang.Byte => builder.byte(x.byteValue())
-    case x: java.lang.Boolean => builder.boolean(x.booleanValue())
-    case x: java.lang.Short => builder.short(x.shortValue())
+    case x: java.lang.Integer => builder.int(x.intValue)
+    case x: java.lang.Long => builder.long(x.longValue)
+    case x: java.lang.Double => builder.double(x.doubleValue)
+    case x: java.lang.Float => builder.float(x.floatValue)
+    case x: java.lang.Byte => builder.byte(x.byteValue)
+    case x: java.lang.Boolean => builder.boolean(x.booleanValue)
+    case x: java.lang.Short => builder.short(x.shortValue)
     case x: java.math.BigDecimal => builder.bigDecimal(x)
     case x: Date => builder.string(formats.dateFormat.format(x))
     case x: Symbol => builder.string(x.name)
@@ -718,8 +718,8 @@ object Extraction {
       case JDouble(x) if (targetType == classOf[Number]) => x
       case JDouble(x) if (targetType == classOf[BigDecimal]) => BigDecimal(x)
       case JDouble(x) if (targetType == classOf[JavaBigDecimal]) => BigDecimal(x).bigDecimal
-      case JDecimal(x) if (targetType == classOf[Double]) => x.doubleValue()
-      case JDecimal(x) if (targetType == classOf[JavaDouble]) => JavaDouble.valueOf(x.doubleValue())
+      case JDecimal(x) if (targetType == classOf[Double]) => x.doubleValue
+      case JDecimal(x) if (targetType == classOf[JavaDouble]) => JavaDouble.valueOf(x.doubleValue)
       case JDecimal(x) if (targetType == classOf[BigDecimal]) => x
       case JDecimal(x) if (targetType == classOf[JavaBigDecimal]) => x.bigDecimal
       case JDecimal(x) if (targetType == classOf[Float]) => x.floatValue
