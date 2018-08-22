@@ -36,7 +36,7 @@ object BigDecimalMode extends Implicits with BigDecimalMode
 trait DoubleMode { self: Implicits ⇒
   implicit def double2jvalue(x: Double): JValue = JDouble(x)
   implicit def float2jvalue(x: Float): JValue = JDouble(x.toDouble)
-  implicit def bigdecimal2jvalue(x: BigDecimal): JValue = JDouble(x.doubleValue())
+  implicit def bigdecimal2jvalue(x: BigDecimal): JValue = JDouble(x.doubleValue)
 
 }
 object DoubleMode extends Implicits with DoubleMode
