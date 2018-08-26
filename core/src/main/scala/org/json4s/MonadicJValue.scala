@@ -191,27 +191,55 @@ class MonadicJValue(jv: JValue) {
   /**
    * Return a new JValue resulting from replacing the value at the specified field
    * path with the replacement value provided. This has no effect if the path is empty
-   * or if the value is not a JObject instance.
+   * or if the value is not a JObject or JArray instance.
+   * If the path is a JArray you must use the following annotation "foo[]", each element, or foo[index], one element.
    * <p>
    * Example:<pre>
    * JObject(List(JField("foo", JObject(List(JField("bar", JInt(1))))))).replace("foo" :: "bar" :: Nil, JString("baz"))
    * // returns JObject(List(JField("foo", JObject(List(JField("bar", JString("baz")))))))
    * </pre>
+   *<pre>
+   * JObject(List(JField("foo", JArray(List(JObject(List(JField("bar", JInt(1)))), JObject(List(JField("bar", JInt(2))))))))).replace("foo[]" :: "bar" :: Nil, JString("baz"))
+   * // returns JObject(List((foo,JArray(List(JObject(List((bar,JString(baz)))), JObject(List((bar,JString(baz)))))))))
+   * </pre>
+   * <pre>
+   * JObject(List(JField("foo", JArray(List(JObject(List(JField("bar", JInt(1)))), JObject(List(JField("bar", JInt(2))))))))).replace("foo[0]" :: "bar" :: Nil, JString("baz"))
+   * // returns JObject(List((foo,JArray(List(JObject(List((bar,JString(baz)))), JObject(List((bar,JInt(2)))))))))
    */
   def replace(l: List[String], replacement: JValue): JValue = {
-    def rep(l: List[String], in: JValue): JValue = {
-      l match {
-        case x :: xs ⇒ in match {
-          case JObject(fields) ⇒ JObject(
-            fields.map {
-              case JField(`x`, value) ⇒ JField(x, if (xs == Nil) replacement else rep(xs, value))
-              case field ⇒ field
-            })
-          case other ⇒ other
-        }
 
-        case Nil ⇒ in
+    def rep(l: List[String], in: JValue): JValue = {
+
+      (l, in) match {
+
+        // "foo[0]" or "foo[0]"."bar"
+        case (ArrayIndex(name, index) :: xs, JObject(fields)) => JObject(
+          fields.map {
+            case JField(`name`, JArray(array)) if array.length > index => JField(name, JArray(array.updated(index, if(xs == Nil) replacement else rep(xs, array(index)))))
+            case field => field
+          }
+        )
+
+        // "foo[]" or "foo[]"."bar"
+        case (ArrayEach(name) :: xs, JObject(fields)) => JObject(
+          fields.map {
+            case JField(`name`, JArray(array)) => JField(name, JArray(array.map( elem => if(xs == Nil) replacement else rep(xs, elem))))
+            case field => field
+          }
+        )
+
+        // "foo" or "foo"."bar"
+        case (x :: xs, JObject(fields)) => JObject(
+          fields.map {
+            case JField(`x`, value) ⇒ JField(x, if(xs == Nil) replacement else rep(xs, value))
+            case field ⇒ field
+          }
+        )
+
+        case _ => in
+
       }
+
     }
 
     rep(l, jv)
@@ -376,4 +404,26 @@ class MonadicJValue(jv: JValue) {
     case _ => false
   }
 
+}
+
+/**
+  * Extract path name from "foo[]"
+  */
+object ArrayIndex {
+  val R = """^([^\[]+)\[(\d+)\]""".r
+  def unapply(str: String): Option[(String, Int)] = str match {
+    case R(name, index) => Option(name, index.toInt)
+    case _ => None
+  }
+}
+
+/**
+  * Extract path and index from "foo[index]"
+  */
+object ArrayEach {
+  val R = """^([^\[]+)\[\]""".r
+  def unapply(str: String): Option[String] = str match {
+    case R(name) => Option(name)
+    case _ => None
+  }
 }
