@@ -11,15 +11,9 @@ matrix:
   - scala: 2.13.0-M5
     script:
     - sbt
-      'set resolvers in ThisBuild += "staging" at "https://oss.sonatype.org/content/repositories/staging"'
       "++${TRAVIS_SCALA_VERSION}!"
-      json4s-ast/compile
-      json4s-core/compile
-      json4s-native/compile
-      json4s-ext/compile
       json4s-examples/compile
-      json4s-jackson/compile
-      json4s-mongo/compile
+      json4s-scalaz/compile
 sudo: false
 cache:
   directories:
