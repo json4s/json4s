@@ -111,14 +111,12 @@ object JsonAstSpec extends Specification with JValueGen with ScalaCheck {
     "Replace one" in {
       val anyReplacement = (x: JValue, replacement: JObject) => {
         def findOnePath(jv: JValue, l: List[String]): List[String] = jv match {
-          case JObject(fl) => fl match {
-            case field :: _ => findOnePath(field._2, l)
-            case Nil => l
-          }
+          case JObject((fn, fv) :: _) => findOnePath(fv, fn :: l)
           case _ => l
         }
 
         val path = findOnePath(x, Nil).reverse
+
         val result = x.replace(path, replacement)
 
         def replaced(path: List[String], in: JValue): MatchResult[_] = {
@@ -141,6 +139,55 @@ object JsonAstSpec extends Specification with JValueGen with ScalaCheck {
 
       prop(fieldReplacement)
       prop(anyReplacement)
+
+    }
+
+    "Replace each element in JArray" in {
+
+      implicit val arbArray:Arbitrary[JField] = Arbitrary(genFieldArray)
+
+      prop { (field: JField, replacement: JObject) =>
+
+        val JField(fn, JArray(_)) = field
+
+        // ensure that we test a JObject with a JArray Field
+        val obj = JObject(field)
+
+        val result = obj.replace(s"$fn[]" :: Nil, replacement)
+
+        // checks that each element was replaced
+        result match {
+          case JObject((_, JArray(xs)) :: _) => forall(xs)(_ must_== replacement)
+        }
+
+      }
+
+    }
+
+    "Replace one element in JArray" in {
+
+      implicit def arbArray:Arbitrary[JField] = Arbitrary(genFieldArray)
+
+      prop { (field: JField, replacement: JObject) =>
+
+        val JField(fn, JArray(arr)) = field
+
+        // ensure that we test a JObject with a JArray Field
+        val obj = JObject(field)
+
+        val index = scala.util.Random.nextInt(arr.length)
+
+        val result = obj.replace(s"$fn[$index]" :: Nil, replacement)
+
+        // checks that only one element was replaced
+        result match {
+          case JObject((_, JArray(xs)) :: _) => {
+            foreach(xs.indices)(i => if(i == index) xs(i) must_== replacement else xs(i) must_== arr(i) )
+          }
+        }
+
+      }
+
     }
 
     "equals hashCode" in prop{ x: JObject =>
@@ -163,4 +210,6 @@ object JsonAstSpec extends Specification with JValueGen with ScalaCheck {
 
   implicit def arbJValue: Arbitrary[JValue] = Arbitrary(genJValue)
   implicit def arbJObject: Arbitrary[JObject] = Arbitrary(genObject)
+  implicit def arbJArray: Arbitrary[JArray] = Arbitrary(genArray)
+
 }
