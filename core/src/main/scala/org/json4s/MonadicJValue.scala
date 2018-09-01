@@ -5,6 +5,28 @@ import java.util.Locale.ENGLISH
 class MonadicJValue(jv: JValue) {
 
   /**
+    * Extract path name from "foo[]"
+    */
+  private object ArrayIndex {
+    val R = """^([^\[]+)\[(\d+)\]""".r
+    def unapply(str: String): Option[(String, Int)] = str match {
+      case R(name, index) => Option(name, index.toInt)
+      case _ => None
+    }
+  }
+
+  /**
+    * Extract path and index from "foo[index]"
+    */
+  private object ArrayEach {
+    val R = """^([^\[]+)\[\]""".r
+    def unapply(str: String): Option[String] = str match {
+      case R(name) => Option(name)
+      case _ => None
+    }
+  }
+
+  /**
    * XPath-like expression to query JSON fields by name. Matches only fields on
    * next level.
    * <p>
@@ -404,26 +426,4 @@ class MonadicJValue(jv: JValue) {
     case _ => false
   }
 
-}
-
-/**
-  * Extract path name from "foo[]"
-  */
-object ArrayIndex {
-  val R = """^([^\[]+)\[(\d+)\]""".r
-  def unapply(str: String): Option[(String, Int)] = str match {
-    case R(name, index) => Option(name, index.toInt)
-    case _ => None
-  }
-}
-
-/**
-  * Extract path and index from "foo[index]"
-  */
-object ArrayEach {
-  val R = """^([^\[]+)\[\]""".r
-  def unapply(str: String): Option[String] = str match {
-    case R(name) => Option(name)
-    case _ => None
-  }
 }
