@@ -22,7 +22,8 @@ case class ConstructorParamDescriptor(
   argType: ScalaType,
   defaultValue: Option[() => Any]) extends Descriptor {
 
-  lazy val isOptional = defaultValue.isDefined || argType.isOption
+  lazy val isOptional = argType.isOption
+  lazy val hasDefault = defaultValue.isDefined
 }
 
 case class ConstructorDescriptor(
@@ -49,10 +50,8 @@ case class ClassDescriptor(
 
   def bestMatching(argNames: List[String]): Option[ConstructorDescriptor] = {
     val names = Set(argNames: _*)
-    def countOptionals(args: List[ConstructorParamDescriptor]) =
-      args.foldLeft(0)((n, x) => {
-        if (x.isOptional) n+1 else n
-      })
+    def countOptionals(args: List[ConstructorParamDescriptor]) = args.count(_.isOptional)
+    def countDefaults(args: List[ConstructorParamDescriptor]) = args.count(_.hasDefault)
     def score(args: List[ConstructorParamDescriptor]) =
       args.foldLeft(0)((s, arg) =>
         if (names.contains(arg.name)) s+1
@@ -65,7 +64,8 @@ case class ClassDescriptor(
       val best = constructors.tail.foldLeft((constructors.head, score(constructors.head.params.toList))) { (best, c) =>
         val newScore = score(c.params.toList)
         val newIsBetter = {
-          (newScore == best._2 && countOptionals(c.params.toList) < countOptionals(best._1.params.toList)) ||
+          (newScore == best._2 && (countOptionals(c.params.toList) < countOptionals(best._1.params.toList))) ||
+          (newScore == best._2 && (countDefaults(c.params.toList) > countDefaults(best._1.params.toList))) ||
             newScore > best._2
         }
         if (newIsBetter) (c, newScore) else best
