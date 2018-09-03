@@ -398,6 +398,12 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
       parse("""{"values":[{"name":"Bob","gender":"male"}]}""").extract[WithDefaultValueHolder](
         DefaultFormats, Manifest.classType(classOf[WithDefaultValueHolder])) must_== (res)
     }
+
+    "#537 Example with a Seq and default Seq value should be extracted from empty json" in {
+      val res = SeqWithDefaultSeq(values = Nil)
+      parse("""{ }""").extract[SeqWithDefaultSeq] must_== res
+    }
+
   }
 
   val testJson =
@@ -576,6 +582,8 @@ case object EmptyLeaf extends LeafTree[Nothing]
 
 case class WithDefaultValueHolder(values: Seq[WithDefaultValue])
 case class WithDefaultValue(name: String, gender: String = "male")
+
+case class SeqWithDefaultSeq(values:Seq[String], values2:Seq[String] = Seq("1", "2", "3"))
 
 case class Pair(a: String, b: String)
 
