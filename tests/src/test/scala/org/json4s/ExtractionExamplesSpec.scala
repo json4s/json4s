@@ -294,11 +294,6 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
       json.extract[collection.mutable.ListBuffer[Name]] must_== collection.mutable.ListBuffer(Name("Mary"), Name("Mazy"))
     }
 
-    "Mutable Stack extraction example" in {
-      val json = parse(testJson) \ "children"
-      json.extract[collection.mutable.Stack[Name]] must_== collection.mutable.Stack(Name("Mary"), Name("Mazy"))
-    }
-
     "ArraySeq extraction example" in {
       val scalaV = scala.util.Properties.versionNumberString
       if (scalaV.startsWith("2.11") || scalaV.startsWith("2.12")) {
