@@ -47,10 +47,10 @@ class JValueDeserializer(klass: Class[_]) extends JsonDeserializer[Object] {
         }
         JObject(fields.toList)
 
-      case _ => throw ctxt.mappingException(classOf[JValue])
+      case _ => ctxt.handleUnexpectedToken(classOf[JValue], jp)
     }
 
-    if (!klass.isAssignableFrom(value.getClass)) throw ctxt.mappingException(klass)
+    if (!klass.isAssignableFrom(value.getClass)) ctxt.handleUnexpectedToken(klass, jp)
 
     value
   }
