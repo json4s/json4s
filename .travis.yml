@@ -13,6 +13,7 @@ matrix:
     - sbt
       "++${TRAVIS_SCALA_VERSION}!"
       json4s-examples/compile
+      json4s-xml/compile
       json4s-scalaz/compile
 sudo: false
 cache:
