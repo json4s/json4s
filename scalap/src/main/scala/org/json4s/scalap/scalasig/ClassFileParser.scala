@@ -51,7 +51,7 @@ class ByteCode(val bytes: Array[Byte], val pos: Int, val length: Int) {
     result
   }
 
-  override def toString = length + " bytes"
+  override def toString = s"${length}bytes"
 
   def toInt = fold(0) { (x, b) => (x << 8) + (b & 0xFF)}
   def toLong = fold(0L) { (x, b) => (x << 8) + (b & 0xFF)}
