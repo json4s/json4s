@@ -216,7 +216,7 @@ object Reflector {
       def getActualTypeArguments = typeArgs.toArray
       def getOwnerType = owner
       def getRawType = rawClassOf(owner)
-      override def toString = getOwnerType + "[" + getActualTypeArguments.mkString(",") + "]"
+      override def toString = getOwnerType.toString + "[" + getActualTypeArguments.mkString(",") + "]"
     }
 
 }

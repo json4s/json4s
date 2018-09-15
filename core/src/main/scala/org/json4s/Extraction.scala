@@ -448,8 +448,8 @@ object Extraction {
     def result: Any = {
       val custom = formats.customDeserializer(formats)
       if (custom.isDefinedAt(tpe.typeInfo, json)) custom(tpe.typeInfo, json)
-      else if (tpe.erasure == classOf[List[_]]) mkCollection(a => List(a: _*))
-      else if (tpe.erasure == classOf[Set[_]]) mkCollection(a => Set(a: _*))
+      else if (tpe.erasure == classOf[List[_]]) mkCollection(_.toList)
+      else if (tpe.erasure == classOf[Set[_]]) mkCollection(_.toSet)
       else if (tpe.erasure == classOf[scala.collection.mutable.Set[_]]) mkCollection(a => scala.collection.mutable.Set(a: _*))
       else if (tpe.erasure == classOf[scala.collection.mutable.Seq[_]]) mkCollection(a => scala.collection.mutable.Seq(a: _*))
       else if (tpe.erasure == classOf[java.util.ArrayList[_]]) mkCollection(a => new java.util.ArrayList[Any](a.toList.asJavaCollection))
