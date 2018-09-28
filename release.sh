@@ -3,7 +3,7 @@ sbt ++2.10.7 \
     publishSigned \
     ++2.11.12 \
     publishSigned \
-    ++2.12.6 \
+    ++2.12.7 \
     publishSigned \
     ++2.13.0-M5 \
     json4s-ast/publishSigned \
