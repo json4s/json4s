@@ -7,7 +7,7 @@ scala:
 matrix:
   include:
   - scala: 2.12.6
-    jdk: oraclejdk10
+    jdk: oraclejdk11
   - scala: 2.13.0-M5
     script:
     - sbt
