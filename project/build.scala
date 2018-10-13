@@ -58,7 +58,7 @@ object build {
   val json4sSettings = mavenCentralFrouFrou ++ Def.settings(
     organization := "org.json4s",
     scalaVersion := "2.12.7",
-    crossScalaVersions := Seq("2.11.12", "2.12.7", "2.13.0-M4"),
+    crossScalaVersions := Seq("2.11.12", "2.12.7", "2.13.0-M5"),
     scalacOptions ++= Seq("-Ywarn-unused", "-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps", "-Xfuture"),
     scalacOptions in (Compile, doc) ++= {
       val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
