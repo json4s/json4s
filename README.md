@@ -654,7 +654,7 @@ scala> val json = parse("""{"first_name":"Mary"}""")
 scala> case class Person(firstName: String)
 
 scala> json.camelizeKeys.extract[Person]
-res0: Person = Person(Mazy)
+res0: Person = Person(Mary)
 ```
 See the "Serialization" section below for details on converting a class with camel-case fields into json with snake case keys.
 
