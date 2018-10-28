@@ -336,6 +336,17 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       actual must_== expected
     }
 
+    "#545 snake support with case classes and uuid keys" in {
+      implicit val f = DefaultFormats
+      val caseClass = Issue545CamelCaseClassWithUUID(Map("565b2803-fdb9-4359-8c39-da1a347d76ca" -> "awesome"))
+      val expected = """{"my_map":{"565b2803-fdb9-4359-8c39-da1a347d76ca":"awesome"}}"""
+      val unexpected = """{"my_map":{"565b2803_fdb9_4359_8c39_da1a347d76ca":"awesome"}}"""
+      val future = compact(render(Extraction.decompose(caseClass).underscoreCamelCaseKeysOnly))
+      val actual = compact(render(Extraction.decompose(caseClass).underscoreKeys))
+      actual must_== unexpected
+      future must_== expected
+    }
+
     "Camelize should not fail on json with empty keys." in {
       implicit val f = DefaultFormats
       val json = """{"full_name": "Kazuhiro Sera", "github_account_name": "seratch", "" : ""}"""
@@ -345,4 +356,5 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
     }
   }
 }
+private case class Issue545CamelCaseClassWithUUID(myMap: Map[String, String])
 private case class Issue146CamelCaseClass(fullName: String, githubAccountName: Option[String])

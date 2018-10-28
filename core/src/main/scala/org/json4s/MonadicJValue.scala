@@ -330,15 +330,19 @@ class MonadicJValue(jv: JValue) {
     (lst.headOption.map(s ⇒ s.substring(0, 1).toUpperCase(ENGLISH) + s.substring(1)).get ::
       lst.tail.map(s ⇒ s.substring(0, 1).toUpperCase + s.substring(1))).mkString("")
   }
-  private[this] def underscore(word: String): String = {
-    val spacesPattern = "[-\\s]".r
+  private[this] def underscoreCamelCasesOnly(word: String): String = {
     val firstPattern = "([A-Z]+)([A-Z][a-z])".r
     val secondPattern = "([a-z\\d])([A-Z])".r
     val replacementPattern = "$1_$2"
-    spacesPattern.replaceAllIn(
-      secondPattern.replaceAllIn(
-        firstPattern.replaceAllIn(
-          word, replacementPattern), replacementPattern), "_").toLowerCase
+    secondPattern
+      .replaceAllIn(
+        firstPattern.replaceAllIn(word, replacementPattern),
+        replacementPattern
+      ).toLowerCase
+  }
+  private[this] def underscore(word: String): String = {
+    val spacesPattern = "[-\\s]".r
+    spacesPattern.replaceAllIn(underscoreCamelCasesOnly(word), "_")
   }
 
   /**
@@ -356,6 +360,11 @@ class MonadicJValue(jv: JValue) {
    */
   def snakizeKeys: JValue = rewriteJsonAST(this.underscore)
 
+
+  /**
+    * Underscore the camel cased only keys in this [[org.json4s.JsonAST.JValue]]
+    */
+  def underscoreCamelCaseKeysOnly = rewriteJsonAST(underscoreCamelCasesOnly)
 
   /**
    * Underscore all the keys in this org.json4s.JsonAST.JValue
