@@ -76,7 +76,7 @@ object build {
           Nil
       }
     },
-    version := "3.6.2-SNAPSHOT",
+    version := "3.6.2",
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
     Seq(Compile, Test).map { scope =>
       unmanagedSourceDirectories in scope += {
