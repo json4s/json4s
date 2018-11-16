@@ -106,7 +106,7 @@ object Examples {
 }
 """
 
-  val nulls = ("f1" -> null) ~ ("f2" -> List(null, "s"))
+  val nulls = JObject("f1" -> null) ~ ("f2" -> List(null, "s"))
   val quoted = """["foo \" \n \t \r bar"]"""
   val symbols = ("f1" -> 'foo) ~ ("f2" -> 'bar)
 }
