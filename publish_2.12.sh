@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sbt ++2.12.6 javaVersionCheck publishSigned
+sbt ++2.12.7 javaVersionCheck publishSigned
