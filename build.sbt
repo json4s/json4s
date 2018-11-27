@@ -96,7 +96,7 @@ lazy val mongo = Project(
 ).settings(
   json4sSettings,
   libraryDependencies ++= Seq(
-    "org.mongodb" % "mongo-java-driver" % "3.9.0"
+    "org.mongodb" % "mongo-java-driver" % "3.9.1"
   ),
 ) dependsOn(core % "compile;test->test")
 
