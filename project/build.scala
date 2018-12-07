@@ -55,10 +55,12 @@ object build {
     }
   )
 
+  val Scala212 = "2.12.8"
+
   val json4sSettings = mavenCentralFrouFrou ++ Def.settings(
     organization := "org.json4s",
-    scalaVersion := "2.12.7",
-    crossScalaVersions := Seq("2.11.12", "2.12.7", "2.13.0-M5"),
+    scalaVersion := Scala212,
+    crossScalaVersions := Seq("2.11.12", Scala212, "2.13.0-M5"),
     scalacOptions ++= Seq("-Ywarn-unused", "-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps", "-Xfuture"),
     scalacOptions in (Compile, doc) ++= {
       val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
