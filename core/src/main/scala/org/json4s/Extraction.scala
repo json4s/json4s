@@ -16,14 +16,16 @@
 
 package org.json4s
 
-import java.lang.{Integer => JavaInteger, Long => JavaLong, Short => JavaShort, Byte => JavaByte, Boolean => JavaBoolean, Double => JavaDouble, Float => JavaFloat}
+import java.lang.{Boolean => JavaBoolean, Byte => JavaByte, Double => JavaDouble, Float => JavaFloat, Integer => JavaInteger, Long => JavaLong, Short => JavaShort}
 import java.math.{BigDecimal => JavaBigDecimal}
 import java.util.Date
 import java.sql.Timestamp
+import org.json4s
 import reflect._
 import scala.reflect.Manifest
 import scala.reflect.NameTransformer.encode
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 /** Function to extract values from JSON AST using case classes.
  *
@@ -529,6 +531,24 @@ object Extraction {
             val JField(n, v) = (serializer.deserializer orElse idPf)(f)
             (n, (n, v))
           }).toMap
+
+
+
+          if(formats.strictFieldDeserialization){
+            val maybeRenamedFields = formats.fieldSerializers.find(_._1 == a.getClass).map { classSerializer =>
+              fields.map {
+                field => Try{ classSerializer._2.deserializer(field) }.getOrElse(field)
+              }
+            }
+
+            val setOfDeserializableFields: Set[String] = descr.properties.map(_.name).toSet
+
+            maybeRenamedFields.getOrElse(fields).foreach { case (propName: String, propValue: json4s.JValue) =>
+              if(!setOfDeserializableFields.contains(propName)){
+                throw new RuntimeException(s"Attempted to deserialize JField ${propName} into undefined property on target ClassDescriptor.")
+              }
+            }
+          }
 
           fieldsToSet foreach { prop =>
             jsonSerializers get prop.name foreach { case (_, v) =>

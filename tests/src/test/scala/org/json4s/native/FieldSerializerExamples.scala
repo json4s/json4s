@@ -1,6 +1,7 @@
 package org.json4s
 import native.JsonMethods._
 import org.specs2.mutable.Specification
+import scala.util.Try
 
 object FieldSerializerExamples extends Specification {
   import native.Serialization.{read, write => swrite}
@@ -75,6 +76,32 @@ object FieldSerializerExamples extends Specification {
 
     val result = Extraction.extract[Dude](jv)
     result must_== dude
+  }
+
+  "Extract should fail when undefined fields are provided with strictFieldSerialialization on" in {
+    val customFormats = new DefaultFormats {
+      override val strictFieldDeserialization: Boolean = true
+    }
+
+    val dudeSerializer = FieldSerializer[Dude]()
+    implicit val formats = customFormats + dudeSerializer
+
+    val ser = parse("""{"name":"John", "friends":[], "lastName": "Smith"}""")
+
+    Try { Extraction.extract[Dude](ser) } must beFailedTry
+  }
+
+  "strictFieldSerialialization should not affect " in {
+    val customFormats = new DefaultFormats {
+      override val strictFieldDeserialization: Boolean = true
+    }
+
+    val dudeSerializer = FieldSerializer[Dude](renameTo("name", "nm"), renameFrom("nm", "name"))
+    implicit val formats = customFormats + dudeSerializer
+
+    val ser = parse("""{"nm":"John", "friends":[]}""")
+
+    Try { Extraction.extract[Dude](ser) } must beSuccessfulTry
   }
 
 }
