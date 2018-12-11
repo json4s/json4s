@@ -16,11 +16,10 @@
 
 package org.json4s
 
-import java.lang.{Boolean => JavaBoolean, Byte => JavaByte, Double => JavaDouble, Float => JavaFloat, Integer => JavaInteger, Long => JavaLong, Short => JavaShort}
+import java.lang.{Integer => JavaInteger, Long => JavaLong, Short => JavaShort, Byte => JavaByte, Boolean => JavaBoolean, Double => JavaDouble, Float => JavaFloat}
 import java.math.{BigDecimal => JavaBigDecimal}
 import java.util.Date
 import java.sql.Timestamp
-import org.json4s
 import reflect._
 import scala.reflect.Manifest
 import scala.reflect.NameTransformer.encode
@@ -543,7 +542,7 @@ object Extraction {
 
             val setOfDeserializableFields: Set[String] = descr.properties.map(_.name).toSet
 
-            maybeRenamedFields.getOrElse(fields).foreach { case (propName: String, propValue: json4s.JValue) =>
+            maybeRenamedFields.getOrElse(fields).foreach { case (propName: String, propValue: JValue) =>
               if(!setOfDeserializableFields.contains(propName)){
                 throw new RuntimeException(s"Attempted to deserialize JField ${propName} into undefined property on target ClassDescriptor.")
               }
