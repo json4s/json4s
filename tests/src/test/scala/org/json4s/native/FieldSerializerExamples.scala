@@ -91,7 +91,7 @@ object FieldSerializerExamples extends Specification {
     Try { Extraction.extract[Dude](ser) } must beFailedTry
   }
 
-  "strictFieldSerialialization should not affect " in {
+  "rename functionality should not break strictFieldSerialialization" in {
     val customFormats = new DefaultFormats {
       override val strictFieldDeserialization: Boolean = true
     }
