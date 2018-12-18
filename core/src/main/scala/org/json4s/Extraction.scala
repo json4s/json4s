@@ -20,6 +20,7 @@ import java.lang.{Integer => JavaInteger, Long => JavaLong, Short => JavaShort, 
 import java.math.{BigDecimal => JavaBigDecimal}
 import java.util.Date
 import java.sql.Timestamp
+import org.json4s
 import reflect._
 import scala.reflect.Manifest
 import scala.reflect.NameTransformer.encode
@@ -531,21 +532,25 @@ object Extraction {
             (n, (n, v))
           }).toMap
 
-
-
-          if(formats.strictFieldDeserialization){
-            val maybeRenamedFields = formats.fieldSerializers.find(_._1 == a.getClass).map { classSerializer =>
-              fields.map {
-                field => Try{ classSerializer._2.deserializer(field) }.getOrElse(field)
+          if (formats.strictFieldDeserialization) {
+            val renamedFields: Seq[(String, json4s.JValue)] = {
+              val maybeClassSerializer: Option[(Class[_], FieldSerializer[_])] = {
+                formats.fieldSerializers.find { case (clazz, _) => clazz == a.getClass }
+              }
+              maybeClassSerializer match {
+                case Some((clazz@_, fieldSerializer)) => fields.map { field =>
+                  Try { fieldSerializer.deserializer.apply(field) }.getOrElse(field)
+                }
+                case _ => fields
               }
             }
 
             val setOfDeserializableFields: Set[String] = descr.properties.map(_.name).toSet
 
-            maybeRenamedFields.getOrElse(fields).foreach { case (propName: String, propValue: JValue) =>
-              if(!setOfDeserializableFields.contains(propName)){
-                throw new RuntimeException(s"Attempted to deserialize JField ${propName} into undefined property on target ClassDescriptor.")
-              }
+            renamedFields.foreach {
+              case (propName: String, _: JValue) if (!setOfDeserializableFields.contains(propName)) =>
+                fail(s"Attempted to deserialize JField ${propName} into undefined property on target ClassDescriptor.")
+              case _ =>
             }
           }
 
