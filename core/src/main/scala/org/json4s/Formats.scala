@@ -51,6 +51,7 @@ trait Formats extends Serializable { self: Formats =>
   def strictOptionParsing: Boolean = false
   def strictArrayExtraction: Boolean = false
   def alwaysEscapeUnicode: Boolean = false
+  def strictFieldDeserialization: Boolean = false
 
   /**
    * The name of the field in JSON where type hints are added (jsonClass by default)
@@ -80,7 +81,8 @@ trait Formats extends Serializable { self: Formats =>
                     wStrictOptionParsing: Boolean = self.strictOptionParsing,
                     wStrictArrayExtraction: Boolean = self.strictArrayExtraction,
                     wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
-                    wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy): Formats =
+                    wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy,
+                    wStrictFieldDeserialization: Boolean = self.strictFieldDeserialization): Formats =
     new Formats {
       def dateFormat: DateFormat = wDateFormat
       override def typeHintFieldName: String = wTypeHintFieldName
@@ -98,6 +100,7 @@ trait Formats extends Serializable { self: Formats =>
       override def strictArrayExtraction: Boolean = wStrictArrayExtraction
       override def alwaysEscapeUnicode: Boolean = wAlwaysEscapeUnicode
       override def emptyValueStrategy: EmptyValueStrategy = wEmptyValueStrategy
+      override def strictFieldDeserialization: Boolean = wStrictFieldDeserialization
     }
 
   def withBigInt: Formats = copy(wWantsBigInt = true)
@@ -129,6 +132,8 @@ trait Formats extends Serializable { self: Formats =>
   def nonStrict: Formats = copy(wStrictOptionParsing = false, wStrictArrayExtraction = false)
   
   def disallowNull: Formats = copy(wAllowNull = false)
+
+  def withStrictFieldDeserialization: Formats = copy(wStrictFieldDeserialization = true)
 
   /**
    * Adds the specified type hints to this formats.
@@ -367,6 +372,8 @@ trait DefaultFormats extends Formats {
   override val strictOptionParsing: Boolean = false
   override val emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
   override val allowNull: Boolean = true
+  override def strictFieldDeserialization: Boolean = false
+
 
   val dateFormat: DateFormat = new DateFormat {
     def parse(s: String) = try {
