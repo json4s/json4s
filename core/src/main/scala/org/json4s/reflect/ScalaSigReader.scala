@@ -187,7 +187,7 @@ object ScalaSigReader {
 
   val ModuleFieldName = "MODULE$"
   val OuterFieldName = "$outer"
-  val ClassLoaders = Vector(this.getClass.getClassLoader)
+  val ClassLoaders = Vector(this.getClass.getClassLoader, Thread.currentThread().getContextClassLoader)
 
   def companions(t: String, companion: Option[AnyRef] = None, classLoaders: Iterable[ClassLoader] = ClassLoaders) = {
     def path(tt: String) = if (tt.endsWith("$")) tt else (tt + "$")
