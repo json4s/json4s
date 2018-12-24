@@ -48,7 +48,7 @@ package object reflect {
 
   private[reflect] val ConstructorDefaultValuePattern = "$lessinit$greater$default$%d"
   private[reflect] val ModuleFieldName = "MODULE$"
-  private[reflect] val ClassLoaders = Vector(getClass.getClassLoader)
+  private[reflect] val ClassLoaders = Vector(getClass.getClassLoader, Thread.currentThread().getContextClassLoader)
   private[this] val paranamer = new CachingParanamer(new BytecodeReadingParanamer)
 
 
