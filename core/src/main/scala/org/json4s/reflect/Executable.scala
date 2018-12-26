@@ -62,11 +62,13 @@ class Executable private (val method: Method, val constructor: Constructor[_], i
   }
 
   def getMarkedAsPrimary(): Boolean = {
-    if (method == null) {
+    val markedByAnnotation = if (method == null) {
       constructor.isAnnotationPresent(classOf[PrimaryConstructor])
     } else {
       false
     }
+
+    markedByAnnotation || isPrimaryCtor
   }
 
   override def toString =
