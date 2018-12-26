@@ -20,6 +20,7 @@ object WithPrimitiveAlias {
 case class WithPrimitiveAlias(foo: Seq[WithPrimitiveAlias.MyDouble])
 
 object ExtractionBugs {
+
   case class Response(data: List[Map[String, Int]])
 
   case class OptionOfInt(opt: Option[Int])
@@ -119,6 +120,12 @@ object ExtractionBugs {
   }
 
   case class CaseClassWithCompanion(value: String, other: String)
+
+  case class CompanionSample(s: String, i: Int)
+
+  object CompanionSample {
+    def apply(str: String, i1: Int, i2: Int): CompanionSample = CompanionSample(str, i1 + i2)
+  }
 
   /** Custom serializer for MapImplementation
    *  This is used to show that custom (strange) serialisations were once broken.
@@ -284,6 +291,12 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
 
     "An implementation of Map should deserialize with a CustomSerializer" in {
       Extraction.extract[MapImplementation](MapImplementationSerializer.strangeSerialization) must_== new MapImplementation()
+    }
+
+    "Apply can't be mostComprehensive" in {
+      val obj = CompanionSample("hello", 1, 2)
+      val json = Extraction.decompose(obj)
+      json mustEqual JObject("s" -> JString("hello"), "i" -> JInt(3))
     }
   }
 }
