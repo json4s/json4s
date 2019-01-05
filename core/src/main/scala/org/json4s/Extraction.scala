@@ -609,7 +609,18 @@ object Extraction {
         case other: JValue => other
       }
 
-      val args = constructor.params.map(a => buildCtorArg(deserializedJson \ a.name, a))
+      val paramsWithOriginalTypes = constructor.params.zip(jconstructor.getParameterTypes())
+
+      val args = paramsWithOriginalTypes.collect {
+        case (param, clazz) =>
+          val rawArg = buildCtorArg(deserializedJson \ param.name, param)
+          (rawArg, clazz) match {
+            case (arg:BigDecimal,tt) if tt == classOf[java.math.BigDecimal] => arg.bigDecimal
+            case (arg:BigInt, tt) if tt == classOf[java.math.BigInteger] => arg.bigInteger
+            case (arg, _) => arg
+          }
+      }
+
       try {
         if (jconstructor.getDeclaringClass == classOf[java.lang.Object]) {
           deserializedJson match {

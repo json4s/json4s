@@ -56,6 +56,10 @@ object ExtractionBugs {
 
   case class ABigDecimal(num: BigDecimal)
 
+  case class AJBigDecimal(num:java.math.BigDecimal)
+
+  case class AJBigInteger(num:java.math.BigInteger)
+
   trait Content {
     def id: String
     def name: String
@@ -266,6 +270,30 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       val expected = CaseClassWithCompanion("Foo")
       json.extract[CaseClassWithCompanion] must_== expected
     }
+
+    "Parse 0 as java BigDecimal" in {
+      val bjd = AJBigDecimal(BigDecimal("0").bigDecimal)
+      parse("""{"num":0}""",useBigDecimalForDouble = true).extract[AJBigDecimal] must_== bjd
+      parse("""{"num":0}""").extract[AJBigDecimal] must_== bjd
+    }
+
+    "Extract a java BigDecimal from a decimal value" in {
+      val jbd = AJBigDecimal(BigDecimal("12.305").bigDecimal)
+      parse("""{"num": 12.305}""", useBigDecimalForDouble = true).extract[AJBigDecimal] must_== jbd
+      parse("""{"num": 12.305}""").extract[AJBigDecimal] must_== jbd
+    }
+
+    "Parse 0 as java BigInteger" in {
+      val bji = AJBigInteger(BigInt("0").bigInteger)
+      parse("""{"num":0}""").extract[AJBigInteger] must_== bji
+    }
+
+
+    "Extract a java BigInteger from a long value" in {
+      val bji = AJBigInteger(BigInt(Long.MaxValue).bigInteger)
+      parse(s"""{"num": ${Long.MaxValue}}""").extract[AJBigInteger] must_== bji
+    }
+
 
     "Parse 0 as BigDecimal" in {
       val bd = ABigDecimal(BigDecimal("0"))
