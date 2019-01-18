@@ -4,6 +4,7 @@ import org.specs2.mutable.Specification
 import reflect.{ClassDescriptor, PrimaryConstructor, Reflector}
 import org.json4s.native.Document
 import java.util
+import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
 
 object NativeExtractionBugs extends ExtractionBugs[Document]("Native") with native.JsonMethods
 object JacksonExtractionBugs extends ExtractionBugs[JValue]("Jackson") with jackson.JsonMethods
@@ -56,9 +57,9 @@ object ExtractionBugs {
 
   case class ABigDecimal(num: BigDecimal)
 
-  case class AJBigDecimal(num:java.math.BigDecimal)
+  case class AJavaBigDecimal(num: JavaBigDecimal)
 
-  case class AJBigInteger(num:java.math.BigInteger)
+  case class AJavaBigInteger(num: JavaBigInteger)
 
   trait Content {
     def id: String
@@ -271,27 +272,27 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       json.extract[CaseClassWithCompanion] must_== expected
     }
 
-    "Parse 0 as java BigDecimal" in {
-      val bjd = AJBigDecimal(BigDecimal("0").bigDecimal)
-      parse("""{"num":0}""",useBigDecimalForDouble = true).extract[AJBigDecimal] must_== bjd
-      parse("""{"num":0}""").extract[AJBigDecimal] must_== bjd
+    "Parse 0 as JavaBigDecimal" in {
+      val bjd = AJavaBigDecimal(BigDecimal("0").bigDecimal)
+      parse("""{"num": 0}""",useBigDecimalForDouble = true).extract[AJavaBigDecimal] must_== bjd
+      parse("""{"num": 0}""").extract[AJavaBigDecimal] must_== bjd
     }
 
-    "Extract a java BigDecimal from a decimal value" in {
-      val jbd = AJBigDecimal(BigDecimal("12.305").bigDecimal)
-      parse("""{"num": 12.305}""", useBigDecimalForDouble = true).extract[AJBigDecimal] must_== jbd
-      parse("""{"num": 12.305}""").extract[AJBigDecimal] must_== jbd
+    "Extract a JavaBigDecimal from a decimal value" in {
+      val jbd = AJavaBigDecimal(BigDecimal("12.305").bigDecimal)
+      parse("""{"num": 12.305}""", useBigDecimalForDouble = true).extract[AJavaBigDecimal] must_== jbd
+      parse("""{"num": 12.305}""").extract[AJavaBigDecimal] must_== jbd
     }
 
     "Parse 0 as java BigInteger" in {
-      val bji = AJBigInteger(BigInt("0").bigInteger)
-      parse("""{"num":0}""").extract[AJBigInteger] must_== bji
+      val bji = AJavaBigInteger(BigInt("0").bigInteger)
+      parse("""{"num": 0}""").extract[AJavaBigInteger] must_== bji
     }
 
 
     "Extract a java BigInteger from a long value" in {
-      val bji = AJBigInteger(BigInt(Long.MaxValue).bigInteger)
-      parse(s"""{"num": ${Long.MaxValue}}""").extract[AJBigInteger] must_== bji
+      val bji = AJavaBigInteger(BigInt(Long.MaxValue).bigInteger)
+      parse(s"""{"num": ${Long.MaxValue}}""").extract[AJavaBigInteger] must_== bji
     }
 
 

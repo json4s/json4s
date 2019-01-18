@@ -17,7 +17,7 @@
 package org.json4s
 
 import java.lang.{Integer => JavaInteger, Long => JavaLong, Short => JavaShort, Byte => JavaByte, Boolean => JavaBoolean, Double => JavaDouble, Float => JavaFloat}
-import java.math.{BigDecimal => JavaBigDecimal}
+import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
 import java.util.Date
 import java.sql.Timestamp
 import org.json4s
@@ -615,8 +615,8 @@ object Extraction {
         case (param, clazz) =>
           val rawArg = buildCtorArg(deserializedJson \ param.name, param)
           (rawArg, clazz) match {
-            case (arg:BigDecimal,tt) if tt == classOf[java.math.BigDecimal] => arg.bigDecimal
-            case (arg:BigInt, tt) if tt == classOf[java.math.BigInteger] => arg.bigInteger
+            case (arg: BigDecimal, tt) if tt == classOf[JavaBigDecimal] => arg.bigDecimal
+            case (arg: BigInt, tt) if tt == classOf[JavaBigInteger] => arg.bigInteger
             case (arg, _) => arg
           }
       }
