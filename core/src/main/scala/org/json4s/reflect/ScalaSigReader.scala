@@ -151,9 +151,16 @@ object ScalaSigReader {
   }
 
   private def findArgTypeForField(s: MethodSymbol, typeArgIdx: Int): Class[_] = {
-    val t = s.infoType match {
-      case NullaryMethodType(TypeRefType(_, _, args)) => args(typeArgIdx)
+    @tailrec def getType(symbol: SymbolInfoSymbol):Type = {
+      symbol.infoType match {
+        case NullaryMethodType(TypeRefType(_, alias: AliasSymbol, _)) => getType(alias)
+        case NullaryMethodType(TypeRefType(_, _, args)) => args(typeArgIdx)
+        case TypeRefType(_, alias: AliasSymbol, _) => getType(alias)
+        case TypeRefType(_, _, args) => args(typeArgIdx)
+      }
     }
+
+    val t = getType(s)
 
     def findPrimitive(t: Type): Symbol = t match {
       case TypeRefType(ThisType(_), symbol, _) => symbol

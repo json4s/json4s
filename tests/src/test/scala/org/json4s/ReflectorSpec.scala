@@ -31,6 +31,10 @@ case object TheObject
 
 object PathTypes {
 
+  type T = Map[String, Double]
+
+  case class TypeAliasOfGenericType(p: T)
+
   trait WithCaseClass {
 
     case class FromTrait(name: String)
@@ -154,6 +158,11 @@ class ReflectorSpec extends Specification {
       Reflector.describe[String] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[String])
       Reflector.describe[Date] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Date])
       Reflector.describe[Timestamp] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Timestamp])
+    }
+
+    "Describe a case class with Type Alias of Genric Types" in {
+      val desc = Reflector.describe[PathTypes.TypeAliasOfGenericType].asInstanceOf[ClassDescriptor]
+      desc.properties(0).returnType must_== Reflector.scalaTypeOf[Map[String, Double]]
     }
 
     def genericCheckCaseClass(desc: ObjectDescriptor)(params: Seq[ConstructorParamDescriptor] => MatchResult[Any]): MatchResult[Any] = {
