@@ -24,8 +24,40 @@ import java.lang.reflect.Type
 import org.json4s.prefs.EmptyValueStrategy
 
 object Formats {
+
   def read[T](json: JValue)(implicit reader: Reader[T]): T = reader.read(json)
+
   def write[T](obj: T)(implicit writer: Writer[T]): JValue = writer.write(obj)
+
+  // ---------------------------------
+  // internal utilities
+
+  private[json4s] def customSerializer(a: Any)(
+    implicit format: Formats): PartialFunction[Any, JValue] = {
+    format.customSerializers
+      .collectFirst { case (x) if x.serialize.isDefinedAt(a) => x.serialize }
+      .getOrElse(PartialFunction.empty[Any, JValue])
+  }
+
+  private[json4s] def customDeserializer(a: (TypeInfo, JValue))(
+    implicit format: Formats): PartialFunction[(TypeInfo, JValue), Any] = {
+    format.customSerializers
+      .collectFirst { case (x) if x.deserialize.isDefinedAt(a) => x.deserialize }
+      .getOrElse(PartialFunction.empty[(TypeInfo, JValue), Any])
+  }
+
+  private[json4s] def customKeySerializer(a: Any)(
+    implicit format: Formats): PartialFunction[Any, String] =
+    format.customKeySerializers
+      .collectFirst { case (x) if x.serialize.isDefinedAt(a) => x.serialize }
+      .getOrElse(PartialFunction.empty[Any, String])
+
+  private[json4s] def customKeyDeserializer(a: (TypeInfo, String))(
+    implicit format: Formats): PartialFunction[(TypeInfo, String), Any] =
+    format.customKeySerializers
+      .collectFirst { case (x) if x.deserialize.isDefinedAt(a) => x.deserialize }
+      .getOrElse(PartialFunction.empty[(TypeInfo, String), Any])
+  // ---------------------------------
 }
 
 /** Formats to use when converting JSON.
@@ -179,21 +211,25 @@ trait Formats extends Serializable { self: Formats =>
     }
   }
 
+  @deprecated(message = "Use the internal methods in the companion object instead.", since = "3.6.4")
   def customSerializer(implicit format: Formats): PartialFunction[Any, JValue] =
     customSerializers.foldLeft(Map(): PartialFunction[Any, JValue]) { (acc, x) =>
       acc.orElse(x.serialize)
     }
 
+  @deprecated(message = "Use the internal methods in the companion object instead.", since = "3.6.4")
   def customDeserializer(implicit format: Formats): PartialFunction[(TypeInfo, JValue), Any] =
     customSerializers.foldLeft(Map(): PartialFunction[(TypeInfo, JValue), Any]) { (acc, x) =>
       acc.orElse(x.deserialize)
     }
 
+  @deprecated(message = "Use the internal methods in the companion object instead.", since = "3.6.4")
   def customKeySerializer(implicit format: Formats): PartialFunction[Any, String] =
     customKeySerializers.foldLeft(Map(): PartialFunction[Any, String]) { (acc, x) =>
       acc.orElse(x.serialize)
     }
 
+  @deprecated(message = "Use the internal methods in the companion object instead.", since = "3.6.4")
   def customKeyDeserializer(implicit format: Formats): PartialFunction[(TypeInfo, String), Any] =
     customKeySerializers.foldLeft(Map(): PartialFunction[(TypeInfo, String), Any]) { (acc, x) =>
       acc.orElse(x.deserialize)

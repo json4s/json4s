@@ -144,8 +144,9 @@ object Extraction {
       obj.endObject()
     }
 
-    if (formats.customSerializer(formats).isDefinedAt(a)) {
-      current addJValue formats.customSerializer(formats)(a)
+    val custom = Formats.customSerializer(a)(formats)
+    if (custom.isDefinedAt(a)) {
+      current addJValue custom(a)
     } else if (!serializer.isDefinedAt(a)) {
       val k = if (any != null) any.getClass else null
 
@@ -173,8 +174,8 @@ object Extraction {
             case (k: JavaLong, v) => addField(k.toString, v, obj)
             case (k: Short, v) => addField(k.toString, v, obj)
             case (k: JavaShort, v) => addField(k.toString, v, obj)
-            case (k, v) => {
-              val customKeySerializer = formats.customKeySerializer(formats)
+            case (k: Any, v) => {
+              val customKeySerializer: PartialFunction[Any, String] = Formats.customKeySerializer(k)(formats)
               if(customKeySerializer.isDefinedAt(k)) {
                 addField(customKeySerializer(k), v, obj)
               } else {
@@ -446,7 +447,7 @@ object Extraction {
     }
 
     def result: Any = {
-      val custom = formats.customDeserializer(formats)
+      val custom = Formats.customDeserializer(tpe.typeInfo, json)(formats)
       if (custom.isDefinedAt(tpe.typeInfo, json)) custom(tpe.typeInfo, json)
       else if (tpe.erasure == classOf[List[_]]) mkCollection(_.toList)
       else if (tpe.erasure == classOf[Set[_]]) mkCollection(_.toSet)
@@ -652,8 +653,8 @@ object Extraction {
   }
 
   private[this] def customOrElse(target: ScalaType, json: JValue)(thunk: JValue => Any)(implicit formats: Formats): Any = {
-    val custom = formats.customDeserializer(formats)
     val targetType = target.typeInfo
+    val custom = Formats.customDeserializer(targetType, json)(formats)
     custom.applyOrElse((targetType, json), (t: (TypeInfo, JValue)) => thunk(t._2))
   }
 
@@ -672,8 +673,8 @@ object Extraction {
       case tt if tt == classOf[Date] => formatDate(key, formats)
       case tt if tt == classOf[Timestamp] => formatTimestamp(key, formats)
       case _ =>
-        val deserializer = formats.customKeyDeserializer(formats)
         val typeInfo = TypeInfo(targetType, None)
+        val deserializer = Formats.customKeyDeserializer(typeInfo, key)(formats)
         if(deserializer.isDefinedAt((typeInfo, key))) {
           deserializer((typeInfo, key))
         } else {
@@ -754,8 +755,8 @@ object Extraction {
       case JNothing =>
         default map (_.apply()) getOrElse fail("Did not find value which can be converted into " + targetType.getName)
       case _ =>
-        val custom = formats.customDeserializer(formats)
         val typeInfo = target.typeInfo
+        val custom = Formats.customDeserializer(typeInfo, json)(formats)
         if (custom.isDefinedAt(typeInfo, json)) custom(typeInfo, json)
         else fail("Do not know how to convert " + json + " into " + targetType)
     }
