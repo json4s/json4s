@@ -184,25 +184,25 @@ trait Formats extends Serializable { self: Formats =>
     }
   }
 
-  def customSerializer(implicit format: Formats): PartialFunction[Any, JValue] =
-    customSerializers.foldLeft(Map(): PartialFunction[Any, JValue]) { (acc, x) =>
-      acc.orElse(x.serialize)
-    }
+  def customSerializer(a: Any)(implicit format: Formats): PartialFunction[Any, JValue] =
+    customSerializers
+      .collectFirst { case (x) if x.serialize.isDefinedAt(a) => x.serialize }
+      .getOrElse(PartialFunction.empty[Any, JValue])
 
-  def customDeserializer(implicit format: Formats): PartialFunction[(TypeInfo, JValue), Any] =
-    customSerializers.foldLeft(Map(): PartialFunction[(TypeInfo, JValue), Any]) { (acc, x) =>
-      acc.orElse(x.deserialize)
-    }
+  def customDeserializer(a: (TypeInfo, JValue))(implicit format: Formats): PartialFunction[(TypeInfo, JValue), Any] =
+    customSerializers
+      .collectFirst { case (x) if x.deserialize.isDefinedAt(a) => x.deserialize }
+      .getOrElse(PartialFunction.empty[(TypeInfo, JValue), Any])
 
-  def customKeySerializer(implicit format: Formats): PartialFunction[Any, String] =
-    customKeySerializers.foldLeft(Map(): PartialFunction[Any, String]) { (acc, x) =>
-      acc.orElse(x.serialize)
-    }
+  def customKeySerializer(a: Any)(implicit format: Formats): PartialFunction[Any, String] =
+    customKeySerializers
+      .collectFirst { case (x) if x.serialize.isDefinedAt(a) => x.serialize }
+      .getOrElse(PartialFunction.empty[Any, String])
 
-  def customKeyDeserializer(implicit format: Formats): PartialFunction[(TypeInfo, String), Any] =
-    customKeySerializers.foldLeft(Map(): PartialFunction[(TypeInfo, String), Any]) { (acc, x) =>
-      acc.orElse(x.deserialize)
-    }
+  def customKeyDeserializer(a: (TypeInfo, String))(implicit format: Formats): PartialFunction[(TypeInfo, String), Any] =
+    customKeySerializers
+      .collectFirst { case (x) if x.deserialize.isDefinedAt(a) => x.deserialize }
+      .getOrElse(PartialFunction.empty[(TypeInfo, String), Any])
 }
 
 trait Serializer[A] {
