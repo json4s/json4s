@@ -211,7 +211,7 @@ res0: org.json4s.JsonAST.JValue =
       JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
 
 scala> parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
-res1: org.json4s.package.JValue = 
+res1: org.json4s.package.JValue =
       JObject(List((name,JString(Toy)), (price,JDecimal(35.35))))
 ```
 
@@ -226,7 +226,7 @@ res0: org.json4s.JsonAST.JValue =
       JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
 
 scala> parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
-res1: org.json4s.package.JValue = 
+res1: org.json4s.package.JValue =
       JObject(List((name,JString(Toy)), (price,JDecimal(35.35))))
 ```
 
@@ -488,7 +488,7 @@ scala> import org.json4s._
 scala> import org.json4s.native.JsonMethods._
 ```
 
-or 
+or
 
 ```scala
 scala> import org.json4s.jackson.JsonMethods._
@@ -765,7 +765,7 @@ scala> read[Child](ser)
 res1: Child = Child(Mary,5,None)
 ```
 
-If you're using jackson instead of the native one: 
+If you're using jackson instead of the native one:
 
 ```scala
 scala> import org.json4s._
@@ -791,7 +791,7 @@ Serialization supports:
 * Recursive types
 * Serialization of fields of a class (see below)
 * Custom serializer functions for types that are not supported (see below)
- 
+
 If the class contains camel-case fields (i.e: firstLetterLowercaseAndNextWordsCapitalized) but you want to produce a json string with snake casing (i.e., separated_by_underscores), you can use the `snakizeKeys` method:
 
 ```scala
@@ -800,7 +800,7 @@ ser: String = {"firstName":"Mary"}
 
 scala> compact(render(parse(ser).snakizeKeys))
 res0: String = {"first_name":"Mary"}
-``` 
+```
 
 Serializing polymorphic Lists
 -----------------------------
@@ -829,7 +829,7 @@ classname. Other strategies can be implemented by extending the TypeHints trait.
 Serializing fields of a class
 -----------------------------
 
-To enable serialization of fields, a FieldSerializer can be added for some type:
+To enable serialization of fields, a single FieldSerializer can be added for each type:
 
 ```scala
 implicit val formats = DefaultFormats + FieldSerializer[WildDog]()
@@ -855,6 +855,22 @@ val dogSerializer = FieldSerializer[WildDog](
 implicit val formats = DefaultFormats + dogSerializer
 ```
 
+Support for renaming multiple fields is accomplished by chaining the PFs like so:
+(do not add more than one FieldSerializer per type)
+
+```json
+{"id": "a244", "start-time": 12314545, "end-time": -1}
+```
+
+```scala
+case class Log(id: String, startTime: Long, endTime: Long)
+val logSerializer = FieldSerializer[Log](
+  renameTo("startTime", "start-time") orElse renameTo("endTime", "end-time"),
+  renameFrom("start-time", "startTime") orElse renameFrom("end-time", "endTime"))
+
+implicit val formats = DefaultFormats + logSerializer
+```
+
 Serializing classes defined in traits or classes
 ------------------------------------------------
 
@@ -862,7 +878,7 @@ We've added support for case classes defined in a trait. But they do need custom
 
 ##### Why?
 
-For classes defined in a trait it's a bit difficult to get to their companion object, which is needed to provide default values.  We could punt on those but that brings us to the next problem, that the compiler generates an extra field in the constructor of such case classes.  The first field in the constructor of those case classes is called `$outer` and is of type of the *defining trait*.  So somehow we need to get an instance of that object, naively we could scan all classes and collect the ones that are implementing the trait, but when there are more than one: which one to take?
+For classes defined in a trait it's a bit difficult to get to their companion object, which is needed to provide default values. We could punt on those but that brings us to the next problem, that the compiler generates an extra field in the constructor of such case classes. The first field in the constructor of those case classes is called `$outer` and is of type of the *defining trait*. So somehow we need to get an instance of that object, naively we could scan all classes and collect the ones that are implementing the trait, but when there are more than one: which one to take?
 
 ##### How?
 
@@ -1027,8 +1043,8 @@ scala> val postalCode = parse(json, parser)
 postalCode: BigInt = 10021
 ```
 
-The pull parser is a function `Parser => A`; in this example it is concretely `Parser => BigInt`. 
-The constructed parser recursively reads tokens until it finds a `FieldStart("postalCode")` token. 
+The pull parser is a function `Parser => A`; in this example it is concretely `Parser => BigInt`.
+The constructed parser recursively reads tokens until it finds a `FieldStart("postalCode")` token.
 After that the next token must be `IntVal`; otherwise parsing fails. It returns the parsed integer value and stops parsing immediately.
 
 Kudos
