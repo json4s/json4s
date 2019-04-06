@@ -31,7 +31,7 @@ lazy val xml = Project(
   base = file("xml"),
 ).settings(
   json4sSettings,
-  libraryDependencies += scalaXml,
+  libraryDependencies += scalaXml.value,
 ) dependsOn(core)
 
 lazy val core = Project(
