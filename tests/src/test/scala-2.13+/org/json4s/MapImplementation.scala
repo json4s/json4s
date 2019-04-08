@@ -11,7 +11,7 @@ class MapImplementation extends Map[List[String], Unit] {
   def iterator: Iterator[(List[String], Unit)] = Iterator[(List[String], Unit)]((MapImplementation.content, ()))
   override def empty: MapImplementation = new MapImplementation
   def updated[V1 >: Unit](key: List[String], value: V1): MapImplementation = empty
-  def remove(key: List[String]): MapImplementation = empty
+  def removed(key: List[String]): MapImplementation = empty
 }
 
 object MapImplementation {
