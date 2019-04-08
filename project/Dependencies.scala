@@ -17,8 +17,6 @@ object Dependencies {
   lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "2.24.0" % "test"
 
   lazy val scalaXml     = Def.setting {
-    val v = if (scalaVersion.value == "2.13.0-M5") "1.1.1" else "1.2.0"
-
-    "org.scala-lang.modules" %% "scala-xml" % v
+    "org.scala-lang.modules" %% "scala-xml" % "1.2.0"
   }
 }
