@@ -53,9 +53,9 @@ object JsonAST {
      * </pre>
      */
     def children: List[JValue] = this match {
-      case JObject(l) ⇒ l map (_._2)
-      case JArray(l) ⇒ l
-      case _ ⇒ Nil
+      case JObject(l) => l map (_._2)
+      case JArray(l) => l
+      case _ => Nil
     }
 
 
@@ -81,12 +81,12 @@ object JsonAST {
      */
     def ++(other: JValue) = {
       def append(value1: JValue, value2: JValue): JValue = (value1, value2) match {
-        case (JNothing, x) ⇒ x
-        case (x, JNothing) ⇒ x
-        case (JArray(xs), JArray(ys)) ⇒ JArray(xs ::: ys)
-        case (JArray(xs), v: JValue) ⇒ JArray(xs ::: List(v))
-        case (v: JValue, JArray(xs)) ⇒ JArray(v :: xs)
-        case (x, y) ⇒ JArray(x :: y :: Nil)
+        case (JNothing, x) => x
+        case (x, JNothing) => x
+        case (JArray(xs), JArray(ys)) => JArray(xs ::: ys)
+        case (JArray(xs), v: JValue) => JArray(xs ::: List(v))
+        case (v: JValue, JArray(xs)) => JArray(v :: xs)
+        case (x, y) => JArray(x :: y :: Nil)
       }
       append(this, other)
     }
@@ -96,8 +96,8 @@ object JsonAST {
      * When it has a value it will return [[scala.Some]]
      */
     def toOption: Option[JValue] = this match {
-      case JNothing | JNull ⇒ None
-      case json ⇒ Some(json)
+      case JNothing | JNull => None
+      case json => Some(json)
     }
 
     /**
@@ -150,11 +150,11 @@ object JsonAST {
 
   case class JObject(obj: List[JField]) extends JValue {
     type Values = Map[String, Any]
-    def values = obj.map { case (n, v) ⇒ (n, v.values) } toMap
+    def values = obj.map { case (n, v) => (n, v.values) } toMap
 
     override def equals(that: Any): Boolean = that match {
-      case o: JObject ⇒ obj.toSet == o.obj.toSet
-      case _ ⇒ false
+      case o: JObject => obj.toSet == o.obj.toSet
+      case _ => false
     }
 
     override def hashCode = obj.toSet[JField].hashCode
@@ -176,8 +176,8 @@ object JsonAST {
     def values = set
 
     override def equals(o: Any): Boolean = o match {
-      case o: JSet ⇒ o.values == values
-      case _ ⇒ false
+      case o: JSet => o.values == values
+      case _ => false
     }
 
     def intersect(o: JSet): JSet = JSet(o.values.intersect(values))
