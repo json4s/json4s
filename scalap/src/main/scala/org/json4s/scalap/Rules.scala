@@ -12,8 +12,6 @@
 
 package org.json4s.scalap
 
-import language.postfixOps
-
 trait Name {
   def name: String
   override def toString = name
@@ -27,7 +25,6 @@ trait Name {
   */
 trait Rules {
 
-  import scala.language.implicitConversions
   implicit def rule[In, Out, A, X](f: In => Result[Out, A, X]): Rule[In, Out, A, X] = new DefaultRule(f)
   implicit def inRule[In, Out, A, X](rule: Rule[In, Out, A, X]): InRule[In, Out, A, X] = new InRule(rule)
   implicit def seqRule[In, A, X](rule: Rule[In, In, A, X]): SeqRule[In, A, X] = new SeqRule(rule)

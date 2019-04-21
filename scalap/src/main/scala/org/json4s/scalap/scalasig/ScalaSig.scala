@@ -9,9 +9,6 @@
 package org.json4s.scalap
 package scalasig
 
-import scala.language.postfixOps
-import scala.language.implicitConversions
-
 import ClassFileParser._
 
 object ScalaSigParser {
