@@ -21,8 +21,8 @@ import java.lang.Enum
 
 class JavaEnumNameSerializer[E <: Enum[E]](
   implicit ct: Manifest[E]
-) extends CustomSerializer[E](_ ⇒ ({
-  case JString(name) ⇒ Enum.valueOf(ct.runtimeClass.asInstanceOf[Class[E]], name)
+) extends CustomSerializer[E](_ => ({
+  case JString(name) => Enum.valueOf(ct.runtimeClass.asInstanceOf[Class[E]], name)
 }, {
-  case dt: E ⇒ JString(dt.name())
+  case dt: E => JString(dt.name())
 }))
