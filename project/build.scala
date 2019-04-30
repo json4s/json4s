@@ -61,7 +61,7 @@ object build {
     organization := "org.json4s",
     scalaVersion := Scala212,
     crossScalaVersions := Seq("2.11.12", Scala212, "2.13.0-RC1"),
-    scalacOptions ++= Seq("-Ywarn-unused", "-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
     scalacOptions in (Compile, doc) ++= {
       val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
@@ -77,10 +77,10 @@ object build {
     },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, scalaMajor)) if scalaMajor >= 11 =>
-          Seq("-Ywarn-unused")
+        case Some((2, 11)) =>
+          Seq("-Ywarn-unused-import")
         case _ =>
-          Nil
+          Seq("-Ywarn-unused:imports")
       }
     },
     version := "3.7.0-SNAPSHOT",
