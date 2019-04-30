@@ -62,7 +62,7 @@ object SerializationExamples extends Specification {
   }
 
   "Primitive serialization example" in {
-    val primitives = Primitives(124, 123L, 126.5, 127.5.floatValue, "128", 's, 125, 129.byteValue, true)
+    val primitives = Primitives(124, 123L, 126.5, 127.5.floatValue, "128", Symbol("s"), 125, 129.byteValue, true)
     val ser = swrite(primitives)
     read[Primitives](ser) must_== primitives
   }
