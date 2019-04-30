@@ -61,11 +61,19 @@ object build {
     organization := "org.json4s",
     scalaVersion := Scala212,
     crossScalaVersions := Seq("2.11.12", Scala212, "2.13.0-RC1"),
-    scalacOptions ++= Seq("-Ywarn-unused", "-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps", "-Xfuture"),
+    scalacOptions ++= Seq("-Ywarn-unused", "-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
     scalacOptions in (Compile, doc) ++= {
       val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
       Seq("-sourcepath", base, "-doc-source-url", "https://github.com/json4s/json4s/tree/" + hash + "€{FILE_PATH}.scala")
+    },
+    scalacOptions ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, v)) if v <= 12 =>
+          Seq("-Xfuture")
+        case _ =>
+          Nil
+      }
     },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
