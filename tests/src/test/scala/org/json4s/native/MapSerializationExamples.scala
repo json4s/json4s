@@ -11,7 +11,7 @@ class MapSerializationExamples extends Specification {
   implicit val formats = native.Serialization.formats(NoTypeHints)
 
   "Map with Symbol key" in {
-    val pw = Map[Symbol, String]('a -> "hello", 'b -> "world")
+    val pw = Map[Symbol, String](Symbol("a") -> "hello", Symbol("b") -> "world")
     val ser = swrite(pw)
     ser must_== """{"a":"hello","b":"world"}"""
     read[Map[Symbol, String]](ser) must_== pw
