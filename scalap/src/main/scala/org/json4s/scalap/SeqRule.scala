@@ -12,8 +12,6 @@
 
 package org.json4s.scalap
 
-import language.postfixOps
-
 /**
  * A workaround for the difficulties of dealing with
  * a contravariant 'In' parameter type...

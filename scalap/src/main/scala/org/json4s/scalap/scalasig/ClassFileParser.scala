@@ -1,8 +1,6 @@
 package org.json4s.scalap
 package scalasig
 
-import language.postfixOps
-
 import java.io.IOException
 
 object ByteCode {
