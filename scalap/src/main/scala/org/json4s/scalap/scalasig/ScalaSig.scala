@@ -81,7 +81,7 @@ object ScalaSigAttributeParsers extends ByteCodeReader  {
   val scalaSig = nat ~ nat ~ symtab ^~~^ ScalaSig
 
   val utf8 = read(x => x.fromUTF8StringAndBytes.string)
-  val longValue = read(_ toLong)
+  val longValue = read(_.toLong)
 }
 
 case class ScalaSig(majorVersion: Int, minorVersion: Int, table: Seq[Int ~ ByteCode]) extends DefaultMemoisable {
@@ -173,7 +173,7 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
   lazy val typeRef = refTo(typeEntry)
   lazy val constantRef = refTo(literal)
 
-  val symbolInfo = nameRef ~ symbolRef ~ nat ~ (symbolRef?) ~ ref ~ get ^~~~~~^ SymbolInfo
+  val symbolInfo = nameRef ~ symbolRef ~ nat ~ (symbolRef.?) ~ ref ~ get ^~~~~~^ SymbolInfo
 
   def symHeader(key: Int): EntryParser[Any] = (key -~ none | (key + 64) -~ nat)
 
@@ -182,11 +182,11 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
   val noSymbol = 3 -^ NoSymbol
   val typeSymbol = symbolEntry(4) ^^ TypeSymbol as "typeSymbol"
   val aliasSymbol = symbolEntry(5) ^^ AliasSymbol as "alias"
-  val classSymbol = symbolEntry(6) ~ (ref?) ^~^ ClassSymbol as "class"
+  val classSymbol = symbolEntry(6) ~ (ref.?) ^~^ ClassSymbol as "class"
   val objectSymbol = symbolEntry(7) ^^ ObjectSymbol as "object"
-  val methodSymbol = symHeader(8) -~ /*(ref?) -~*/ symbolInfo ~ (ref?) ^~^ MethodSymbol as "method"
-  val extRef = 9 -~ nameRef ~ (symbolRef?) ~ get ^~~^ ExternalSymbol as "extRef"
-  val extModClassRef = 10 -~ nameRef ~ (symbolRef?) ~ get ^~~^ ExternalSymbol as "extModClassRef"
+  val methodSymbol = symHeader(8) -~ /*(ref?) -~*/ symbolInfo ~ (ref.?) ^~^ MethodSymbol as "method"
+  val extRef = 9 -~ nameRef ~ (symbolRef.?) ~ get ^~~^ ExternalSymbol as "extRef"
+  val extModClassRef = 10 -~ nameRef ~ (symbolRef.?) ~ get ^~~^ ExternalSymbol as "extModClassRef"
 
   lazy val symbol: EntryParser[Symbol] = oneOf(
       noSymbol,
@@ -209,19 +209,19 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
       13 -~ symbolRef ^^ ThisType,
       14 -~ typeRef ~ symbolRef ^~^ SingleType,
       15 -~ constantRef ^^ ConstantType,
-      16 -~ typeRef ~ symbolRef ~ (typeRef*) ^~~^ TypeRefType,
+      16 -~ typeRef ~ symbolRef ~ (typeRef.*) ^~~^ TypeRefType,
       17 -~ typeRef ~ typeRef ^~^ TypeBoundsType,
-      18 -~ classSymRef ~ (typeRef*) ^~^ RefinedType,
-      19 -~ symbolRef ~ (typeRef*) ^~^ ClassInfoType,
-      20 -~ typeRef ~ (symbolRef*) ^~^ MethodType,
-      21 -~ typeRef ~ (refTo(typeSymbol)+) ^~^ PolyType,
+      18 -~ classSymRef ~ (typeRef.*) ^~^ RefinedType,
+      19 -~ symbolRef ~ (typeRef.*) ^~^ ClassInfoType,
+      20 -~ typeRef ~ (symbolRef.*) ^~^ MethodType,
+      21 -~ typeRef ~ (refTo(typeSymbol).+) ^~^ PolyType,
       // TODO: make future safe for past by doing the same transformation as in the
       // full unpickler in case we're reading pre-2.9 classfiles
       21 -~ typeRef ^^ NullaryMethodType,
-      22 -~ typeRef ~ (symbolRef*) ^~^ MethodType,
-      42 -~ typeRef ~ (attribTreeRef*) ^~^ AnnotatedType,
-      51 -~ typeRef ~ symbolRef ~ (attribTreeRef*) ^~~^ AnnotatedWithSelfType,
-      48 -~ typeRef ~ (symbolRef*) ^~^ ExistentialType) as "type"
+      22 -~ typeRef ~ (symbolRef.*) ^~^ MethodType,
+      42 -~ typeRef ~ (attribTreeRef.*) ^~^ AnnotatedType,
+      51 -~ typeRef ~ symbolRef ~ (attribTreeRef.*) ^~~^ AnnotatedWithSelfType,
+      48 -~ typeRef ~ (symbolRef.*) ^~^ ExistentialType) as "type"
 
   lazy val literal: EntryParser[Any] = oneOf(
       24 -^ (()),
@@ -237,9 +237,9 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
       34 -^ null,
       35 -~ typeRef)
 
-  lazy val attributeInfo = 40 -~ symbolRef ~ typeRef ~ (constantRef?) ~ (nameRef ~ constantRef *) ^~~~^ AttributeInfo // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
-  lazy val children = 41 -~ (nat*) ^^ Children //sym_Ref {sym_Ref}
-  lazy val annotInfo = 43 -~ (nat*) ^^ AnnotInfo // attarg_Ref {constant_Ref attarg_Ref}
+  lazy val attributeInfo = 40 -~ symbolRef ~ typeRef ~ (constantRef.?) ~ ((nameRef ~ constantRef).*) ^~~~^ AttributeInfo // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
+  lazy val children = 41 -~ (nat.*) ^^ Children //sym_Ref {sym_Ref}
+  lazy val annotInfo = 43 -~ (nat.*) ^^ AnnotInfo // attarg_Ref {constant_Ref attarg_Ref}
 
   lazy val topLevelClass = classSymbol filter isTopLevelClass
   lazy val topLevelObject = objectSymbol filter isTopLevel
