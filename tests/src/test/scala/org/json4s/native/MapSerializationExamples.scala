@@ -25,7 +25,7 @@ class MapSerializationExamples extends Specification {
   }
 
   "Map with Long key" in {
-    val pw = Map[Long, String](1l -> "hello", 2l -> "world")
+    val pw = Map[Long, String](1L -> "hello", 2L -> "world")
     val ser = swrite(pw)
     ser must_== """{"1":"hello","2":"world"}"""
     read[Map[Long, String]](ser) must_== pw
