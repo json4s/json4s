@@ -45,7 +45,7 @@ object ValidationExample extends Specification {
     val json = native.JsonParser.parse(""" [{"s":10,"e":17},{"s":12,"e":13},{"s":11,"e":8}] """)
 
     val ascending = (x1: Int, x2: Int) => {
-      if (x1 > x2) Fail("asc", x1 + " > " + x2) else (x1, x2).success
+      if (x1 > x2) Fail("asc", s"${x1} > ${x2}") else (x1, x2).success
     }.disjunction
 
     // Valid range is a range having start <= end
