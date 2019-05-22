@@ -138,7 +138,21 @@ object Reflector {
           allCatch opt { paramNameReader.lookupParameterNames(ctor) } getOrElse Nil
         else
           Nil
-        val genParams = Vector(ctor.getGenericParameterTypes: _*)
+        val genParams: Seq[Type] = {
+          val types = ctor.getGenericParameterTypes()
+          val diff = ctorParameterNames.length - types.length
+          if (diff == 0) {
+            types.toVector
+          } else if (diff > 0){
+            // getGenericParameterTypes changed since Scala 2.13.0-RC2
+            // https://github.com/scala/bug/issues/11542
+            // https://github.com/scala/scala/commit/659dba63c37263e4d28bc9d4c9672d5af54d23ea
+            Vector.fill(diff)(null) ++ types.toVector
+          } else {
+            // maybe impossible
+            Vector.empty[Type]
+          }
+        }
         val ctorParams = ctorParameterNames.zipWithIndex map {
           case (ScalaSigReader.OuterFieldName, index) => {
             //            println("The result type of the $outer param: " + genParams(0))
