@@ -3,14 +3,11 @@ jdk: oraclejdk8
 scala:
   - 2.11.12
   - 2.12.8
-  - 2.13.0-RC2
+  - 2.13.0-RC3
 matrix:
   include:
   - scala: 2.12.8
     jdk: oraclejdk11
-  - scala: 2.13.0-RC3
-    script:
-    - sbt "++ ${TRAVIS_SCALA_VERSION}!" "all json4s-examples/compile json4s-scalaz/compile json4s-xml/compile"
 sudo: false
 cache:
   directories:
