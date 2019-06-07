@@ -25,7 +25,7 @@ import JsonAST._
  * JObject(JField("name", "joe") :: Nil) == JObject(JField("name", JString("joe")) :: Nil)
  * </pre>
  */
-trait BigDecimalMode { self: Implicits ⇒
+trait BigDecimalMode { self: Implicits =>
 
   implicit def double2jvalue(x: Double): JValue = JDecimal(x)
   implicit def float2jvalue(x: Float): JValue = JDecimal(x.toDouble)
@@ -33,7 +33,7 @@ trait BigDecimalMode { self: Implicits ⇒
 
 }
 object BigDecimalMode extends Implicits with BigDecimalMode
-trait DoubleMode { self: Implicits ⇒
+trait DoubleMode { self: Implicits =>
   implicit def double2jvalue(x: Double): JValue = JDouble(x)
   implicit def float2jvalue(x: Float): JValue = JDouble(x.toDouble)
   implicit def bigdecimal2jvalue(x: BigDecimal): JValue = JDouble(x.doubleValue)
@@ -68,14 +68,14 @@ object JsonDSL extends JsonDSL with DoubleMode {
 trait JsonDSL extends Implicits {
 
   implicit def seq2jvalue[A](s: Traversable[A])(implicit ev: A => JValue) =
-    JArray(s.toList.map { a ⇒ val v: JValue = a; v })
+    JArray(s.toList.map { a => val v: JValue = a; v })
 
   implicit def map2jvalue[A](m: Map[String, A])(implicit ev: A => JValue) =
-    JObject(m.toList.map { case (k, v) ⇒ JField(k, v) })
+    JObject(m.toList.map { case (k, v) => JField(k, v) })
 
   implicit def option2jvalue[A](opt: Option[A])(implicit ev: A => JValue): JValue = opt match {
-    case Some(x) ⇒ x
-    case None ⇒ JNothing
+    case Some(x) => x
+    case None => JNothing
   }
 
   implicit def symbol2jvalue(x: Symbol) = JString(x.name)

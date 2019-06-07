@@ -55,7 +55,7 @@ class ExtractableJsonAstNode(jv: JValue) {
    * JNothing.extractOrElse(Person("joe")) == Person("joe")
    * </pre>
    */
-  def extractOrElse[A](default: ⇒ A)(implicit formats: Formats, mf: scala.reflect.Manifest[A]): A =
+  def extractOrElse[A](default: => A)(implicit formats: Formats, mf: scala.reflect.Manifest[A]): A =
     Extraction.extractOpt(jv)(formats, mf).getOrElse(default)
 
   /**
@@ -88,7 +88,7 @@ class ExtractableJsonAstNode(jv: JValue) {
    */
   def getAs[A](implicit reader: Reader[A], mf: scala.reflect.Manifest[A]): Option[A] = try {
     Option(reader.read(jv))
-  } catch { case _: Throwable ⇒ None }
+  } catch { case _: Throwable => None }
 
   /**
    * Given that an implicit reader of type `A` is in scope
@@ -104,7 +104,7 @@ class ExtractableJsonAstNode(jv: JValue) {
    *   JObject(JField("name", JString("Joe")) :: Nil).getAsOrElse(Person("Tom"))
    * }}}
    */
-  def getAsOrElse[A](default: ⇒ A)(implicit reader: Reader[A], mf: Manifest[A]): A =
+  def getAsOrElse[A](default: => A)(implicit reader: Reader[A], mf: Manifest[A]): A =
     getAs(reader, mf) getOrElse default
 }
 

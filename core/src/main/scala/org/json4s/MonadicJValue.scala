@@ -16,29 +16,29 @@ class MonadicJValue(jv: JValue) {
     case JArray(xs) => JArray(findDirectByName(xs, nameToFind))
     case _ =>
       findDirectByName(List(jv), nameToFind) match {
-        case Nil ⇒ JNothing
-        case x :: Nil ⇒ x
-        case x ⇒ JArray(x)
+        case Nil => JNothing
+        case x :: Nil => x
+        case x => JArray(x)
       }
   }
 
   private[this] def findDirectByName(xs: List[JValue], name: String): List[JValue] = xs.flatMap {
-    case JObject(l) ⇒ l.filter {
-      case (n, _) if n == name ⇒ true
-      case _ ⇒ false
+    case JObject(l) => l.filter {
+      case (n, _) if n == name => true
+      case _ => false
     } map (_._2)
-    case JArray(l) ⇒ findDirectByName(l, name)
-    case _ ⇒ Nil
+    case JArray(l) => findDirectByName(l, name)
+    case _ => Nil
   }
 
-  private[this] def findDirect(xs: List[JValue], p: JValue ⇒ Boolean): List[JValue] = xs.flatMap {
-    case JObject(l) ⇒ l.filter {
-      case (n, x) if p(x) ⇒ true
-      case _ ⇒ false
+  private[this] def findDirect(xs: List[JValue], p: JValue => Boolean): List[JValue] = xs.flatMap {
+    case JObject(l) => l.filter {
+      case (n, x) if p(x) => true
+      case _ => false
     } map (_._2)
-    case JArray(l) ⇒ findDirect(l, p)
-    case x if p(x) ⇒ x :: Nil
-    case _ ⇒ Nil
+    case JArray(l) => findDirect(l, p)
+    case x if p(x) => x :: Nil
+    case _ => Nil
   }
 
   /**
@@ -50,16 +50,16 @@ class MonadicJValue(jv: JValue) {
    */
   def \\(nameToFind: String): JValue = {
     def find(json: JValue): List[JField] = json match {
-      case JObject(l) ⇒ l.foldLeft(List[JField]()) {
-        case (a, (name, value)) ⇒
+      case JObject(l) => l.foldLeft(List[JField]()) {
+        case (a, (name, value)) =>
           if (name == nameToFind) a ::: List((name, value)) ::: find(value) else a ::: find(value)
       }
-      case JArray(l) ⇒ l.foldLeft(List[JField]())((a, json) ⇒ a ::: find(json))
-      case _ ⇒ Nil
+      case JArray(l) => l.foldLeft(List[JField]())((a, json) => a ::: find(json))
+      case _ => Nil
     }
     find(jv) match {
-      case (_, x) :: Nil ⇒ x
-      case xs ⇒ JObject(xs)
+      case (_, x) :: Nil => x
+      case xs => JObject(xs)
     }
   }
 
@@ -85,21 +85,21 @@ class MonadicJValue(jv: JValue) {
     (jv filter typePredicate(clazz) _).asInstanceOf[List[A]] map { _.values }
 
   private def typePredicate[A <: JValue](clazz: Class[A])(json: JValue) = json match {
-    case x if x.getClass == clazz ⇒ true
-    case _ ⇒ false
+    case x if x.getClass == clazz => true
+    case _ => false
   }
 
   /**
    * Return a combined value by folding over JSON by applying a function <code>f</code>
    * for each element. The initial value is <code>z</code>.
    */
-  def fold[A](z: A)(f: (A, JValue) ⇒ A): A = {
+  def fold[A](z: A)(f: (A, JValue) => A): A = {
     def rec(acc: A, v: JValue) = {
       val newAcc = f(acc, v)
       v match {
-        case JObject(l) ⇒ l.foldLeft(newAcc) { case (a, (name, value)) ⇒ value.fold(a)(f) }
-        case JArray(l) ⇒ l.foldLeft(newAcc)((a, e) ⇒ e.fold(a)(f))
-        case _ ⇒ newAcc
+        case JObject(l) => l.foldLeft(newAcc) { case (a, (name, value)) => value.fold(a)(f) }
+        case JArray(l) => l.foldLeft(newAcc)((a, e) => e.fold(a)(f))
+        case _ => newAcc
       }
     }
     rec(z, jv)
@@ -109,14 +109,14 @@ class MonadicJValue(jv: JValue) {
    * Return a combined value by folding over JSON by applying a function <code>f</code>
    * for each field. The initial value is <code>z</code>.
    */
-  def foldField[A](z: A)(f: (A, JField) ⇒ A): A = {
+  def foldField[A](z: A)(f: (A, JField) => A): A = {
     def rec(acc: A, v: JValue) = {
       v match {
-        case JObject(l) ⇒ l.foldLeft(acc) {
-          case (a, field @ (name, value)) ⇒ value.foldField(f(a, field))(f)
+        case JObject(l) => l.foldLeft(acc) {
+          case (a, field @ (name, value)) => value.foldField(f(a, field))(f)
         }
-        case JArray(l) ⇒ l.foldLeft(acc)((a, e) ⇒ e.foldField(a)(f))
-        case _ ⇒ acc
+        case JArray(l) => l.foldLeft(acc)((a, e) => e.foldField(a)(f))
+        case _ => acc
       }
     }
     rec(z, jv)
@@ -133,11 +133,11 @@ class MonadicJValue(jv: JValue) {
    * }
    * </pre>
    */
-  def map(f: JValue ⇒ JValue): JValue = {
+  def map(f: JValue => JValue): JValue = {
     def rec(v: JValue): JValue = v match {
-      case JObject(l) ⇒ f(JObject(l.map { case (n, va) ⇒ (n, rec(va)) }))
-      case JArray(l) ⇒ f(JArray(l.map(rec)))
-      case x ⇒ f(x)
+      case JObject(l) => f(JObject(l.map { case (n, va) => (n, rec(va)) }))
+      case JArray(l) => f(JArray(l.map(rec)))
+      case x => f(x)
     }
     rec(jv)
   }
@@ -153,11 +153,11 @@ class MonadicJValue(jv: JValue) {
    * }
    * </pre>
    */
-  def mapField(f: JField ⇒ JField): JValue = {
+  def mapField(f: JField => JField): JValue = {
     def rec(v: JValue): JValue = v match {
-      case JObject(l) ⇒ JObject(l.map { case (n, va) ⇒ f(n -> rec(va)) })
-      case JArray(l) ⇒ JArray(l.map(rec))
-      case x ⇒ x
+      case JObject(l) => JObject(l.map { case (n, va) => f(n -> rec(va)) })
+      case JArray(l) => JArray(l.map(rec))
+      case x => x
     }
     rec(jv)
   }
@@ -172,7 +172,7 @@ class MonadicJValue(jv: JValue) {
    * }
    * </pre>
    */
-  def transformField(f: PartialFunction[JField, JField]): JValue = mapField { x ⇒
+  def transformField(f: PartialFunction[JField, JField]): JValue = mapField { x =>
     if (f.isDefinedAt(x)) f(x) else x
   }
 
@@ -184,7 +184,7 @@ class MonadicJValue(jv: JValue) {
    * JArray(JInt(1) :: JInt(2) :: Nil) transform { case JInt(x) => JInt(x+1) }
    * </pre>
    */
-  def transform(f: PartialFunction[JValue, JValue]): JValue = map { x ⇒
+  def transform(f: PartialFunction[JValue, JValue]): JValue = map { x =>
     if (f.isDefinedAt(x)) f(x) else x
   }
 
@@ -201,16 +201,16 @@ class MonadicJValue(jv: JValue) {
   def replace(l: List[String], replacement: JValue): JValue = {
     def rep(l: List[String], in: JValue): JValue = {
       l match {
-        case x :: xs ⇒ in match {
-          case JObject(fields) ⇒ JObject(
+        case x :: xs => in match {
+          case JObject(fields) => JObject(
             fields.map {
-              case JField(`x`, value) ⇒ JField(x, if (xs == Nil) replacement else rep(xs, value))
-              case field ⇒ field
+              case JField(`x`, value) => JField(x, if (xs == Nil) replacement else rep(xs, value))
+              case field => field
             })
-          case other ⇒ other
+          case other => other
         }
 
-        case Nil ⇒ in
+        case Nil => in
       }
     }
 
@@ -224,12 +224,12 @@ class MonadicJValue(jv: JValue) {
    * JObject(("age", JInt(2))) findField { case (n, v) => n == "age" }
    * </pre>
    */
-  def findField(p: JField ⇒ Boolean): Option[JField] = {
+  def findField(p: JField => Boolean): Option[JField] = {
     def find(json: JValue): Option[JField] = json match {
-      case JObject(fs) if (fs find p).isDefined ⇒ fs find p
-      case JObject(fs) ⇒ fs.flatMap { case (n, v) ⇒ find(v) }.headOption
-      case JArray(l) ⇒ l.flatMap(find _).headOption
-      case _ ⇒ None
+      case JObject(fs) if (fs find p).isDefined => fs find p
+      case JObject(fs) => fs.flatMap { case (n, v) => find(v) }.headOption
+      case JArray(l) => l.flatMap(find _).headOption
+      case _ => None
     }
     find(jv)
   }
@@ -241,13 +241,13 @@ class MonadicJValue(jv: JValue) {
    * JArray(JInt(1) :: JInt(2) :: Nil) find { _ == JInt(2) } == Some(JInt(2))
    * </pre>
    */
-  def find(p: JValue ⇒ Boolean): Option[JValue] = {
+  def find(p: JValue => Boolean): Option[JValue] = {
     def find(json: JValue): Option[JValue] = {
       if (p(json)) return Some(json)
       json match {
-        case JObject(fs) ⇒ fs.flatMap { case (n, v) ⇒ find(v) }.headOption
-        case JArray(l) ⇒ l.flatMap(find _).headOption
-        case _ ⇒ None
+        case JObject(fs) => fs.flatMap { case (n, v) => find(v) }.headOption
+        case JArray(l) => l.flatMap(find _).headOption
+        case _ => None
       }
     }
     find(jv)
@@ -263,8 +263,8 @@ class MonadicJValue(jv: JValue) {
    * }
    * </pre>
    */
-  def filterField(p: JField ⇒ Boolean): List[JField] =
-    foldField(List[JField]())((acc, e) ⇒ if (p(e)) e :: acc else acc).reverse
+  def filterField(p: JField => Boolean): List[JField] =
+    foldField(List[JField]())((acc, e) => if (p(e)) e :: acc else acc).reverse
 
   /**
    * Return a List of all values which matches the given predicate.
@@ -273,8 +273,8 @@ class MonadicJValue(jv: JValue) {
    * JArray(JInt(1) :: JInt(2) :: Nil) filter { case JInt(x) => x > 1; case _ => false }
    * </pre>
    */
-  def filter(p: JValue ⇒ Boolean): List[JValue] =
-    fold(List[JValue]())((acc, e) ⇒ if (p(e)) e :: acc else acc).reverse
+  def filter(p: JValue => Boolean): List[JValue] =
+    fold(List[JValue]())((acc, e) => if (p(e)) e :: acc else acc).reverse
 
   def withFilter(p: JValue => Boolean) = new JValueWithFilter(jv, p)
   class JValueWithFilter(self: JValue, p: JValue => Boolean) {
@@ -298,7 +298,7 @@ class MonadicJValue(jv: JValue) {
    * }
    * </pre>
    */
-  def removeField(p: JField ⇒ Boolean): JValue = jv transform {
+  def removeField(p: JField => Boolean): JValue = jv transform {
     case JObject(l) => JObject(l.filterNot(p))
   }
 
@@ -309,10 +309,10 @@ class MonadicJValue(jv: JValue) {
    * JArray(JInt(1) :: JInt(2) :: JNull :: Nil) remove { _ == JNull }
    * </pre>
    */
-  def remove(p: JValue ⇒ Boolean): JValue = {
+  def remove(p: JValue => Boolean): JValue = {
     if(p(jv)) JNothing
     else jv transform {
-      case JObject(l) => JObject(l.filterNot(f ⇒ p(f._2)))
+      case JObject(l) => JObject(l.filterNot(f => p(f._2)))
       case JArray(l) => JArray(l.filterNot(p))
     }
   }
@@ -327,8 +327,8 @@ class MonadicJValue(jv: JValue) {
   }
   private[this] def pascalize(word: String): String = {
     val lst = word.split("_").toList
-    (lst.headOption.map(s ⇒ s.substring(0, 1).toUpperCase(ENGLISH) + s.substring(1)).get ::
-      lst.tail.map(s ⇒ s.substring(0, 1).toUpperCase + s.substring(1))).mkString("")
+    (lst.headOption.map(s => s.substring(0, 1).toUpperCase(ENGLISH) + s.substring(1)).get ::
+      lst.tail.map(s => s.substring(0, 1).toUpperCase + s.substring(1))).mkString("")
   }
   private[this] def underscore(word: String): String = {
     val spacesPattern = "[-\\s]".r
@@ -359,7 +359,7 @@ class MonadicJValue(jv: JValue) {
 
   private[this] def rewriteJsonAST(camelize: Boolean): JValue =
     transformField {
-      case JField(nm, x) if !nm.startsWith("_") ⇒ JField(if (camelize) this.camelize(nm) else underscore(nm), x)
+      case JField(nm, x) if !nm.startsWith("_") => JField(if (camelize) this.camelize(nm) else underscore(nm), x)
     }
 
   /**

@@ -99,7 +99,7 @@ object Api {
       def parse(s: String) = try {
         Option(Iso8601Date.parseDateTime(s).toDate)
       } catch {
-        case scala.util.control.NonFatal(_) ⇒ None
+        case scala.util.control.NonFatal(_) => None
       }
       def timezone = TimeZone.getTimeZone("UTC")
     }
@@ -122,7 +122,7 @@ object SwaggerSerializers {
   class HttpMethodSerializer extends CustomSerializer[HttpMethod](formats => ({
     case JString(meth) => HttpMethod(meth)
   }, {
-    case x: HttpMethod ⇒ JString(x.toString)
+    case x: HttpMethod => JString(x.toString)
   }))
 
   private[this] val simpleTypeList: List[String] = List("string", "number", "int", "boolean", "object", "Array", "null", "any")
@@ -221,11 +221,11 @@ object SwaggerSerializers {
         case _ => AllowableValues.AnyValue
       }
   },{
-    case AllowableValues.AnyValue ⇒ JNothing
-    case AllowableValues.AllowableValuesList(values)  ⇒
+    case AllowableValues.AnyValue => JNothing
+    case AllowableValues.AllowableValuesList(values)  =>
       implicit val fmts = formats
       ("valueType" -> "LIST") ~ ("values" -> Extraction.decompose(values))
-    case AllowableValues.AllowableRangeValues(range)  ⇒ ("valueType" -> "RANGE") ~ ("min" -> range.start) ~ ("max" -> range.end)
+    case AllowableValues.AllowableRangeValues(range)  => ("valueType" -> "RANGE") ~ ("min" -> range.start) ~ ("max" -> range.end)
   }))
 }
 
