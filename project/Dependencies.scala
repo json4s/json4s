@@ -26,7 +26,7 @@ object Dependencies {
   def scalaXml(scalaVersion: String) = {
     PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion)){
       case Some((2, v)) if v >= 13 =>
-        Seq("org.scala-lang.modules" %% "scala-xml" % "1.1.0")
+        Seq("org.scala-lang.modules" %% "scala-xml" % "1.2.0")
       case Some((2, v)) if v >= 11 =>
         Seq("org.scala-lang.modules" %% "scala-xml" % "1.0.6")
     }.toList.flatten
