@@ -1,5 +1,6 @@
 language: scala
-jdk: oraclejdk8
+dist: xenial
+jdk: openjdk8
 scala:
   - 2.10.7
   - 2.11.12
@@ -8,7 +9,7 @@ scala:
 matrix:
   include:
   - scala: 2.12.8
-    jdk: oraclejdk11
+    jdk: openjdk11
 sudo: false
 cache:
   directories:
