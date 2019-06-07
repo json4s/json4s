@@ -73,8 +73,10 @@ object build {
     },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, scalaMajor)) if scalaMajor >= 11 =>
-          Seq("-Ywarn-unused")
+        case Some((2, scalaMajor)) if scalaMajor >= 12 =>
+          Seq("-Ywarn-unused:imports")
+        case Some((2, 11)) =>
+          Seq("-Ywarn-unused", "-Ywarn-unused-import")
         case _ =>
           Nil
       }
