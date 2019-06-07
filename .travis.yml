@@ -10,7 +10,7 @@ matrix:
     jdk: openjdk11
   - scala: 2.13.0
     script:
-    - sbt "++ ${TRAVIS_SCALA_VERSION}!" "json4s-examples/compile"
+    - sbt "++ ${TRAVIS_SCALA_VERSION}!" "all json4s-examples/compile json4s-scalaz/compile"
 sudo: false
 cache:
   directories:
