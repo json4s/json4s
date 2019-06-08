@@ -89,7 +89,7 @@ object build {
           Nil
       }
     },
-    version := "3.5.5",
+    version := "3.5.6-SNAPSHOT",
     javacOptions ++= {
       val jdk = CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, scalaMajor)) if scalaMajor <= 11 =>
