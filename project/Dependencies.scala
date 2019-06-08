@@ -18,7 +18,7 @@ object Dependencies {
         // specs2 4.x does not support Scala 2.10
         Seq("org.specs2" %% "specs2-scalacheck" % "3.9.4" % "test")
       case _ =>
-        Seq("org.specs2" %% "specs2-scalacheck" % "4.3.5" % "test")
+        Seq("org.specs2" %% "specs2-scalacheck" % "4.5.1" % "test")
     }
   }
   lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "2.7.22" % "test"
