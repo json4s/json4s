@@ -13,7 +13,13 @@ object Dependencies {
   )
   lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.27"
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.8"
-  lazy val specs        = "org.specs2"                   %% "specs2-scalacheck"    % "4.5.1" % "test"
+  lazy val specs        = Def.setting(
+    // TODO https://github.com/etorreborre/specs2/issues/745
+    if (scalaBinaryVersion.value == "2.13")
+      "org.specs2" %  "specs2-scalacheck_2.13.0-RC3" % "4.5.1" % "test"
+    else
+      "org.specs2" %% "specs2-scalacheck"            % "4.5.1" % "test"
+  )
   lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "2.28.2" % "test"
 
   lazy val scalaXml     = Def.setting {

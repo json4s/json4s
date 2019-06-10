@@ -106,7 +106,7 @@ lazy val json4sTests = Project(
 ).settings(
   json4sSettings,
   noPublish,
-  libraryDependencies ++= Seq(specs, mockito, jaxbApi),
+  libraryDependencies ++= Seq(specs.value, mockito, jaxbApi),
   initialCommands in (Test, console) :=
     """
       |import org.json4s._
