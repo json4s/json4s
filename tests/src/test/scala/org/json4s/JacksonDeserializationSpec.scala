@@ -4,7 +4,6 @@ import org.specs2.mutable.Specification
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.json4s.jackson.Json4sScalaModule
-import org.json4s._
 
 // fix https://github.com/json4s/json4s/issues/603
 class JacksonDeserializationSpec extends Specification {
