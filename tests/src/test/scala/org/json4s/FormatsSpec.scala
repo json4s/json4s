@@ -28,5 +28,15 @@ class FormatsSpec extends Specification {
     }
   }
 
-
+  // https://github.com/json4s/json4s/issues/550
+  // https://github.com/scala/bug/issues/9948
+  "issue#550 avoid scalac bug" in {
+    val a = new TypeHints {
+      override val hints: List[Class[_]] = List.empty
+      override def hintFor(clazz: Class[_]): String = ""
+      override def classFor(hint: String): Option[Class[_]] = None
+    }
+    a + a
+    success
+  }
 }
