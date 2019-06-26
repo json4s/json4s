@@ -271,7 +271,6 @@ trait KeySerializer[A] {
  * </pre>
  */
 trait TypeHints {
-  import ClassDelta._
 
   val hints: List[Class[_]]
 
@@ -295,9 +294,13 @@ trait TypeHints {
   /**
    * Adds the specified type hints to this type hints.
    */
-  def + (hints: TypeHints): TypeHints = CompositeTypeHints(hints.components ::: components)
+  def + (hints: TypeHints): TypeHints = TypeHints.CompositeTypeHints(hints.components ::: components)
 
-  private[TypeHints] case class CompositeTypeHints(override val components: List[TypeHints]) extends TypeHints {
+}
+
+private[json4s] object TypeHints {
+
+  private case class CompositeTypeHints(override val components: List[TypeHints]) extends TypeHints {
     val hints: List[Class[_]] = components.flatMap(_.hints)
 
     /**
@@ -307,7 +310,7 @@ trait TypeHints {
       (components.reverse
         filter (_.containsHint(clazz))
         map (th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error("hintFor/classFor not invertible for " + th))))
-        sortWith ((x, y) => (delta(x._2, clazz) - delta(y._2, clazz)) <= 0)).head._1
+        sortWith((x, y) => (ClassDelta.delta(x._2, clazz) - ClassDelta.delta(y._2, clazz)) <= 0)).head._1
     }
 
     def classFor(hint: String): Option[Class[_]] = {
@@ -315,7 +318,7 @@ trait TypeHints {
         scala.util.control.Exception.allCatch opt (h.classFor(hint)) map (_.isDefined) getOrElse(false)
 
       components find (hasClass) flatMap (_.classFor(hint))
-  }
+    }
 
     override def deserialize: PartialFunction[(String, JObject), Any] = components.foldLeft[PartialFunction[(String, JObject),Any]](Map()) {
       (result, cur) => result.orElse(cur.deserialize)
@@ -325,6 +328,7 @@ trait TypeHints {
       (result, cur) => result.orElse(cur.serialize)
     }
   }
+
 }
 
 private[json4s] object ClassDelta {
