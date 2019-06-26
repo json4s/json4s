@@ -290,8 +290,9 @@ trait TypeHints {
   /**
    * Adds the specified type hints to this type hints.
    */
-  def + (hints: TypeHints): TypeHints = CompositeTypeHints(hints.components ::: components)
+  def + (hints: TypeHints): TypeHints = TypeHints.CompositeTypeHints2(hints.components ::: components)
 
+  @deprecated("will be removed due to https://github.com/json4s/json4s/issues/550", "3.6.7")
   private[TypeHints] case class CompositeTypeHints(override val components: List[TypeHints]) extends TypeHints {
     val hints: List[Class[_]] = components.flatMap(_.hints)
 
@@ -320,6 +321,40 @@ trait TypeHints {
       (result, cur) => result.orElse(cur.serialize)
     }
   }
+
+}
+
+private[json4s] object TypeHints {
+
+  private case class CompositeTypeHints2(override val components: List[TypeHints]) extends TypeHints {
+    val hints: List[Class[_]] = components.flatMap(_.hints)
+
+    /**
+     * Chooses most specific class.
+     */
+    def hintFor(clazz: Class[_]): String = {
+      (components.reverse
+        filter (_.containsHint(clazz))
+        map (th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error("hintFor/classFor not invertible for " + th))))
+        sortWith((x, y) => (ClassDelta.delta(x._2, clazz) - ClassDelta.delta(y._2, clazz)) <= 0)).head._1
+    }
+
+    def classFor(hint: String): Option[Class[_]] = {
+      def hasClass(h: TypeHints) =
+        scala.util.control.Exception.allCatch opt (h.classFor(hint)) map (_.isDefined) getOrElse(false)
+
+      components find (hasClass) flatMap (_.classFor(hint))
+    }
+
+    override def deserialize: PartialFunction[(String, JObject), Any] = components.foldLeft[PartialFunction[(String, JObject),Any]](Map()) {
+      (result, cur) => result.orElse(cur.deserialize)
+    }
+
+    override def serialize: PartialFunction[Any, JObject] = components.foldLeft[PartialFunction[Any, JObject]](Map()) {
+      (result, cur) => result.orElse(cur.serialize)
+    }
+  }
+
 }
 
 private[json4s] object ClassDelta {
