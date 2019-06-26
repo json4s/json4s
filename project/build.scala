@@ -86,7 +86,7 @@ object build {
           Seq("-Ywarn-unused:imports")
       }
     },
-    version := "3.6.7-SNAPSHOT",
+    version := "3.6.7",
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
     Seq(Compile, Test).map { scope =>
       unmanagedSourceDirectories in scope += {
