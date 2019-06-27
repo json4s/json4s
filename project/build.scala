@@ -92,7 +92,7 @@ object build {
       unmanagedSourceDirectories in scope += {
         val base = (sourceDirectory in scope).value.getParentFile / Defaults.nameForSrc(scope.name)
         CrossVersion.partialVersion(scalaVersion.value) match {
-          case Some((2, v)) if v >= 13 && scalaVersion.value != "2.13.0-M3" =>
+          case Some((2, v)) if v >= 13 =>
             base / s"scala-2.13+"
           case _ =>
             base / s"scala-2.13-"
