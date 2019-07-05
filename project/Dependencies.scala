@@ -5,7 +5,7 @@ object Dependencies {
   lazy val jaxbApi = "javax.xml.bind" % "jaxb-api" % "2.3.1" % "test"
 
   lazy val jodaTime     = Seq(
-    "joda-time" % "joda-time"    % "2.10.2",
+    "joda-time" % "joda-time"    % "2.10.3",
     "org.joda"  % "joda-convert" % "2.2.1"
   )
   lazy val jackson      = Seq(
