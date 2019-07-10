@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 import xml.Group
 import MimaSettings.mimaSettings
-import com.typesafe.tools.mima.plugin.MimaKeys.mimaPreviousArtifacts
+import com.typesafe.tools.mima.plugin.MimaKeys.{mimaPreviousArtifacts, mimaReportBinaryIssues}
 
 object build {
   import Dependencies._
@@ -106,6 +106,7 @@ object build {
   )
 
   val noPublish = Seq(
+    mimaReportBinaryIssues := {},
     mimaPreviousArtifacts := Set(),
     publishArtifact := false,
     publish := {},
