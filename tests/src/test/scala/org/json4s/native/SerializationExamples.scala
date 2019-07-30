@@ -240,6 +240,26 @@ object ShortTypeHintExamples extends TypeHintExamples {
   }
 }
 
+object MappedHintExamples extends TypeHintExamples {
+  implicit val formats = native.Serialization.formats(MappedTypeHints(Map(classOf[Fish] -> "fish", classOf[Dog] -> "dog")))
+
+  "Serialization provides no type hint when not mapped" in {
+    val animals = Animals(Dog("pluto") :: Fish(1.2) :: Turtle(103) :: Nil, Dog("pluto"))
+    val ser = native.Serialization.write(animals)
+    ser must_== """{"animals":[{"jsonClass":"dog","name":"pluto"},{"jsonClass":"fish","weight":1.2},{"age":103}],"pet":{"jsonClass":"dog","name":"pluto"}}"""
+  }
+
+  "Deserialization fails when type is not mapped" in {
+    val ser = """{"animals":[],"pet":{"age":103,"jsonClass":"turtle"}}"""
+    native.Serialization.read[Animals](ser) must throwA[MappingException]
+  }
+
+  "Deserialization succeeds when a field name matching typeHintFieldName exists" in {
+    val ser = """{"jsonClass":"turtle"}"""
+    native.Serialization.read[NotTypeHint](ser) must_== NotTypeHint("turtle")
+  }
+}
+
 object FullTypeHintExamples extends TypeHintExamples {
   import native.Serialization.{read, write => swrite}
 
@@ -332,6 +352,7 @@ case class Animals(animals: List[Animal], pet: Animal)
 trait Animal
 case class Dog(name: String) extends Animal
 case class Fish(weight: Double) extends Animal
+case class Turtle(age: Int) extends Animal
 
 case class Objs(objects: List[Obj[_]])
 case class Obj[A](a: A)
