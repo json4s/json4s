@@ -7,10 +7,10 @@ class FormatsBugs extends Specification {
   "Formats" should {
     "retain 'allowNull' setting over updates" in {
       val f = new DefaultFormats {
-        override val allowNull: Boolean = false
+        override def allowNull(targetType: Class[_]) = false
       }
       val fModified = f.withBigDecimal
-      fModified.allowNull must beFalse
+      fModified.allowNull(classOf[String]) must beFalse
     }
   }
 

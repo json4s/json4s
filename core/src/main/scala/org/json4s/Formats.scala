@@ -79,7 +79,7 @@ trait Formats extends Serializable { self: Formats =>
   def wantsBigDecimal: Boolean = false
   def primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
   def companions: List[(Class[_], AnyRef)] = Nil
-  def allowNull: Boolean = true
+  def allowNull(targetType: Class[_]): Boolean = true
   def strictOptionParsing: Boolean = false
   def strictArrayExtraction: Boolean = false
   def alwaysEscapeUnicode: Boolean = false
@@ -109,7 +109,7 @@ trait Formats extends Serializable { self: Formats =>
                     wWantsBigDecimal: Boolean = self.wantsBigDecimal,
                     withPrimitives: Set[Type] = self.primitives,
                     wCompanions: List[(Class[_], AnyRef)] = self.companions,
-                    wAllowNull: Boolean = self.allowNull,
+                    wAllowNull: Class[_] => Boolean = self.allowNull,
                     wStrictOptionParsing: Boolean = self.strictOptionParsing,
                     wStrictArrayExtraction: Boolean = self.strictArrayExtraction,
                     wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
@@ -127,7 +127,7 @@ trait Formats extends Serializable { self: Formats =>
       override def wantsBigDecimal: Boolean = wWantsBigDecimal
       override def primitives: Set[Type] = withPrimitives
       override def companions: List[(Class[_], AnyRef)] = wCompanions
-      override def allowNull: Boolean = wAllowNull
+      override def allowNull(targetType: Class[_]): Boolean = wAllowNull(targetType)
       override def strictOptionParsing: Boolean = wStrictOptionParsing
       override def strictArrayExtraction: Boolean = wStrictArrayExtraction
       override def alwaysEscapeUnicode: Boolean = wAlwaysEscapeUnicode
@@ -163,7 +163,7 @@ trait Formats extends Serializable { self: Formats =>
 
   def nonStrict: Formats = copy(wStrictOptionParsing = false, wStrictArrayExtraction = false)
   
-  def disallowNull: Formats = copy(wAllowNull = false)
+  def disallowNull: Formats = copy(wAllowNull = _ => false)
 
   def withStrictFieldDeserialization: Formats = copy(wStrictFieldDeserialization = true)
 
@@ -411,7 +411,7 @@ trait DefaultFormats extends Formats {
   override val companions: List[(Class[_], AnyRef)] = Nil
   override val strictOptionParsing: Boolean = false
   override val emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
-  override val allowNull: Boolean = true
+  override def allowNull(targetType: Class[_]): Boolean = super.allowNull(targetType)
   override def strictFieldDeserialization: Boolean = false
 
 

@@ -668,8 +668,8 @@ object Extraction {
 
     def result: Any =
       json match {
-        case JNull if formats.allowNull => null
-        case JNull if !formats.allowNull =>
+        case JNull if formats.allowNull(descr.erasure.erasure) => null
+        case JNull if !formats.allowNull(descr.erasure.erasure) =>
           fail("Did not find value which can be converted into " + descr.fullName)
         case JObject(TypeHint(t, fs)) => mkWithTypeHint(t, fs, descr.erasure)
         case _ => instantiate
@@ -773,8 +773,8 @@ object Extraction {
       case j: JValue if (targetType == classOf[JValue]) => j
       case j: JObject if (targetType == classOf[JObject]) => j
       case j: JArray if (targetType == classOf[JArray]) => j
-      case JNull if formats.allowNull => null
-      case JNull if !formats.allowNull =>
+      case JNull if formats.allowNull(targetType) => null
+      case JNull if !formats.allowNull(targetType) =>
         fail("Did not find value which can be converted into " + targetType.getName)
       case JNothing =>
         default map (_.apply()) getOrElse fail("Did not find value which can be converted into " + targetType.getName)
