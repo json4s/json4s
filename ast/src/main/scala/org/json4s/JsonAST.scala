@@ -150,7 +150,7 @@ object JsonAST {
 
   case class JObject(obj: List[JField]) extends JValue {
     type Values = Map[String, Any]
-    def values = obj.map { case (n, v) => (n, v.values) } toMap
+    def values = obj.iterator.map { case (n, v) => (n, v.values) }.toMap
 
     override def equals(that: Any): Boolean = that match {
       case o: JObject => obj.toSet == o.obj.toSet
