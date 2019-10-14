@@ -78,7 +78,7 @@ object build {
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 11)) =>
-          Seq("-Ywarn-unused-import")
+          Seq("-Ywarn-unused-import", "-Xsource:2.12")
         case _ =>
           Seq("-Ywarn-unused:imports")
       }

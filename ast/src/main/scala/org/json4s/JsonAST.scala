@@ -144,8 +144,9 @@ object JsonAST {
     def values = value
   }
   object JBool {
-    val True = JBool(true)
-    val False = JBool(false)
+    def apply(value: Boolean): JBool = if (value) True else False
+    val True = new JBool(true)
+    val False = new JBool(false)
   }
 
   case class JObject(obj: List[JField]) extends JValue {
