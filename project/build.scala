@@ -3,6 +3,9 @@ import Keys._
 import xml.Group
 import MimaSettings.mimaSettings
 import com.typesafe.tools.mima.plugin.MimaKeys.{mimaPreviousArtifacts, mimaReportBinaryIssues}
+import sbtrelease.ReleasePlugin.autoImport._
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+import xerial.sbt.Sonatype.autoImport._
 
 object build {
   import Dependencies._
@@ -24,12 +27,7 @@ object build {
   }
 
   val mavenCentralFrouFrou = Seq(
-    publishTo := Some(
-      if (isSnapshot.value)
-        Opts.resolver.sonatypeSnapshots
-      else
-        Opts.resolver.sonatypeStaging
-    ),
+    publishTo := sonatypePublishToBundle.value,
     homepage := Some(new URL("https://github.com/json4s/json4s")),
     startYear := Some(2009),
     licenses := Seq(("Apache-2.0", new URL("http://www.apache.org/licenses/LICENSE-2.0"))),
@@ -86,7 +84,6 @@ object build {
           Seq("-Ywarn-unused:imports")
       }
     },
-    version := "3.6.8-SNAPSHOT",
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
     Seq(Compile, Test).map { scope =>
       unmanagedSourceDirectories in scope += {
@@ -99,6 +96,20 @@ object build {
         }
       }
     },
+    releaseProcess := Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      runTest,
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      releaseStepCommandAndRemaining("+publishSigned"),
+      releaseStepCommandAndRemaining("sonatypeBundleRelease"),
+      setNextVersion,
+      commitNextVersion,
+      pushChanges
+    ),
     parallelExecution in Test := false,
     manifestSetting,
     crossVersion := CrossVersion.binary
