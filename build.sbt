@@ -2,6 +2,8 @@ import xml.Group
 import Dependencies._
 import build._
 
+Global / onChangedBuildSource := ReloadOnSourceChanges
+
 lazy val root = Project(
   id = "json4s",
   base = file("."),
