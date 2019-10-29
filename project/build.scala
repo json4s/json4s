@@ -98,7 +98,6 @@ object build {
     },
     parallelExecution in Test := false,
     manifestSetting,
-    resolvers ++= Seq(Opts.resolver.sonatypeReleases),
     crossVersion := CrossVersion.binary
   )
 
