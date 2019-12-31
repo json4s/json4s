@@ -145,6 +145,16 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
       parse("""{"value": 1}""").extract[OptionValue](fm, mf) must_== OptionValue(Some(1))
     }
 
+    "Option extraction example with strictOptionParsing...fix #641" in {
+      implicit val formats = new DefaultFormats {
+        override val strictOptionParsing: Boolean = true
+      }
+
+      val json = parse("""{ "value": "not an int" }""")
+      json.extract[OptionValue] must throwA(MappingException("No usable value for value\nDo not know how to convert JString(not an int) into int", null))
+    }
+
+
     "Missing JSON array extracted as an empty List (no default value) when strictArrayExtraction is false" in {
       parse(missingChildren).extract[Person](nonStrictFormats, implicitly[Manifest[Person]]) must_== Person("joe", Address("Bulevard", "Helsinki"), Nil)
     }

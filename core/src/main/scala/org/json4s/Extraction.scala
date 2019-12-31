@@ -572,6 +572,16 @@ object Extraction {
     private[this] def buildCtorArg(json: JValue, descr: ConstructorParamDescriptor) = {
       val default = descr.defaultValue
       def defv(v: Any) = if (default.isDefined) default.get() else v
+
+      // Test that uses custom serialize for null to give None for optional values
+      def nullCheck(j: JValue): Boolean = {
+        try {
+          extract(j, ScalaType[Null](implicitly)) == null
+        } catch {
+          case _: Throwable => false
+        }
+      }
+
       if (descr.isOptional && json == JNothing) defv(None)
       else {
         try {
@@ -587,8 +597,7 @@ object Extraction {
           else x
         } catch {
           case e @ MappingException(msg, _) =>
-            if (descr.isOptional &&
-                (!formats.strictOptionParsing || extract(json, ScalaType[Null](implicitly)) == null))
+            if (descr.isOptional && (!formats.strictOptionParsing || nullCheck(json)))
               defv(None)
             else fail("No usable value for " + descr.name + "\n" + msg, e)
         }
