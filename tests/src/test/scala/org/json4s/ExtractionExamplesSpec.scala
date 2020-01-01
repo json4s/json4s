@@ -198,6 +198,12 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
       Extraction.unflatten(m) must_== JObject(List(JField("foo", JArray(List(JInt(0), JInt(1), JInt(2))))))
     }
 
+    "Unflatten example with field name is prefix of the other field name" in {
+      val m = Map(".data" -> "5", ".data_type" -> "6")
+
+      Extraction.unflatten(m) must_== JObject(JField("data", JInt(5)), JField("data_type", JInt(6)))
+    }
+
     "Flatten and unflatten are symmetric" in {
       val parsed = parse(testJson)
 
