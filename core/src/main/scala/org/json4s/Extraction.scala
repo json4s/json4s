@@ -328,14 +328,20 @@ object Extraction {
         else JString(ParserUtil.unquote(value.substring(1)))
     }
 
-    def submap(prefix: String): Map[String, String] =
-      map.withFilter(t => t._1.startsWith(prefix)).map(
-        t => (t._1.substring(prefix.length), t._2)
-      )
-
     val ArrayProp = new Regex("""^(\.([^\.\[]+))\[(\d+)\].*$""")
     val ArrayElem = new Regex("""^(\[(\d+)\]).*$""")
     val OtherProp = new Regex("""^(\.([^\.\[]+)).*$""")
+
+    def submap(prefix: String): Map[String, String] = {
+      map.withFilter { t =>
+        t._1 match {
+          case ArrayProp(p, _, _) if p == prefix => true
+          case ArrayElem(p, _)    if p == prefix => true
+          case OtherProp(p, _)    if p == prefix => true
+          case _                  => false
+        }
+      } map { t => (t._1.substring(prefix.length), t._2) }
+    }
 
     val uniquePaths = map.keys.foldLeft[Set[String]](Set()) {
       (set, key) =>
