@@ -578,7 +578,7 @@ object Extraction {
         try {
           extract(j, ScalaType[Null](implicitly)) == null
         } catch {
-          case _: Throwable => false
+          case scala.util.control.NonFatal(_) => false
         }
       }
 
