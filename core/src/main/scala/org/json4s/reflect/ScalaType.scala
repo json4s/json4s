@@ -89,7 +89,7 @@ object ScalaType {
   /* end optimization */
 }
 
-class ScalaType(private val manifest: Manifest[_]) extends Equals {
+class ScalaType(val manifest: Manifest[_]) extends Equals {
 
   import ScalaType.{ types, CopiedScalaType }
   val erasure: Class[_] = manifest.runtimeClass
