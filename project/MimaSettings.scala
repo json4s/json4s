@@ -1,4 +1,6 @@
-import sbt._, Keys._
+import sbt._
+import Keys._
+import com.typesafe.tools.mima.core.{ProblemFilters, ReversedMissingMethodProblem}
 import com.typesafe.tools.mima.plugin.MimaPlugin
 import com.typesafe.tools.mima.plugin.MimaKeys._
 
@@ -27,6 +29,12 @@ object MimaSettings {
         case _ => Set.empty
       }
     },
+    mimaBinaryIssueFilters ++= Seq(
+      ProblemFilters.exclude[ReversedMissingMethodProblem]("org.json4s.Formats.keyTransformation"),
+      ProblemFilters.exclude[ReversedMissingMethodProblem]("org.json4s.Formats.withCamelSnakeTransformation"),
+      ProblemFilters.exclude[ReversedMissingMethodProblem]("org.json4s.DefaultFormats.keyTransformation"),
+      ProblemFilters.exclude[ReversedMissingMethodProblem]("org.json4s.DefaultFormats.org$json4s$DefaultFormats$_setter_$keyTransformation_=")
+    ),
     test in Test := {
       mimaReportBinaryIssues.value
       (test in Test).value
