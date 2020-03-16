@@ -3,11 +3,11 @@ dist: xenial
 jdk: openjdk8
 scala:
   - 2.11.12
-  - 2.12.10
+  - 2.12.11
   - 2.13.1
 matrix:
   include:
-  - scala: 2.12.10
+  - scala: 2.12.11
     jdk: openjdk11
 sudo: false
 cache:

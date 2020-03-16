@@ -53,7 +53,7 @@ object build {
     }
   )
 
-  val Scala212 = "2.12.10"
+  val Scala212 = "2.12.11"
 
   val json4sSettings = mavenCentralFrouFrou ++ Def.settings(
     organization := "org.json4s",
