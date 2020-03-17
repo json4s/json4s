@@ -231,6 +231,15 @@ scala> compact(render(json))
 res2: String = {"name":"joe","age":35}
 ```
 
+* ~~ operator works the same as ~ and is useful in situations where ~ is shadowed, eg. when using Spray or akka-http.
+
+```scala
+scala> val json = ("name" -> "joe") ~~ ("age" -> 35)
+
+scala> compact(render(json))
+res2: String = {"name":"joe","age":35}
+```
+
 * Any value can be optional. The field and value are completely removed when it doesn't have a value.
 
 ```scala
