@@ -894,9 +894,6 @@ Extensions
 Module json4s-ext contains extensions to extraction and serialization. The following types are supported.
 
 ```scala
-// Lift's box
-implicit val formats = org.json4s.DefaultFormats + new org.json4s.native.ext.JsonBoxSerializer
-
 // Scala enums
 implicit val formats = org.json4s.DefaultFormats + new org.json4s.ext.EnumSerializer(MyEnum)
 // or
