@@ -163,3 +163,4 @@ case class BadSpec(item2: Int, item3: Int, isVisited: Boolean = false)
 case object BadSpec {
   def apply(item1: Int, item2: Int, item3: Int): BadSpec = BadSpec(item2, item3)
 }
+
