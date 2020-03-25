@@ -56,6 +56,7 @@ case class ClassDescriptor(
       args.foldLeft(0)((s, arg) =>
         if (names.contains(arg.name)) s+1
         else if (arg.isOptional) s
+        else if (arg.hasDefault) s
         else -100
       )
 
