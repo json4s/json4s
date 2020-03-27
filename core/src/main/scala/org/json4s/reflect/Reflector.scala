@@ -42,18 +42,26 @@ object Reflector {
     stringTypes(name, ScalaSigReader.resolveClass[AnyRef](_, ClassLoaders) map (c => scalaTypeOf(c)))
 
   def describe[T](implicit mf: Manifest[T], formats: Formats = DefaultFormats): ObjectDescriptor =
-    describe(scalaTypeDescribable(scalaTypeOf[T])(formats))
+    describe2(scalaTypeDescribable(scalaTypeOf[T]))
 
+  @deprecated("Use describe[T] or describe2 instead", "3.6.8")
   def describe(st: ReflectorDescribable[_]): ObjectDescriptor =
-    descriptors(st.scalaType, createDescriptor(_, st.paranamer, st.companionClasses))
+    descriptors(st.scalaType, createDescriptor2(_, st.paranamer, st.companionClasses)(DefaultFormats))
 
+  def describe2(st: ReflectorDescribable[_])(implicit formats: Formats): ObjectDescriptor =
+    descriptors(st.scalaType, createDescriptor2(_, st.paranamer, st.companionClasses))
 
+  @deprecated("Use createDescriptor2", "3.6.8")
   def createDescriptor(tpe: ScalaType, paramNameReader: ParameterNameReader = ParanamerReader, companionMappings: List[(Class[_], AnyRef)] = Nil): ObjectDescriptor = {
+    createDescriptor2(tpe, paramNameReader, companionMappings)(DefaultFormats)
+  }
+
+  def createDescriptor2(tpe: ScalaType, paramNameReader: ParameterNameReader = ParanamerReader, companionMappings: List[(Class[_], AnyRef)] = Nil)(implicit formats: Formats): ObjectDescriptor = {
     if (tpe.isPrimitive) PrimitiveDescriptor(tpe)
     else new ClassDescriptorBuilder(tpe, paramNameReader, companionMappings).result
   }
 
-  private class ClassDescriptorBuilder(tpe: ScalaType, paramNameReader: ParameterNameReader = ParanamerReader, companionMappings: List[(Class[_], AnyRef)] = Nil) {
+  private class ClassDescriptorBuilder(tpe: ScalaType, paramNameReader: ParameterNameReader = ParanamerReader, companionMappings: List[(Class[_], AnyRef)] = Nil)(implicit formats: Formats) {
     var companion: Option[SingletonDescriptor] = None
     var triedCompanion = false
 
@@ -125,14 +133,16 @@ object Reflector {
         }
       }
       val constructorDescriptors = createConstructorDescriptors(ccs)
-      companion = findCompanion(checkCompanionMapping = false)
-      val applyMethods: scala.Array[Method] = companion match {
-        case Some(singletonDescriptor) =>
-          singletonDescriptor.instance.getClass.getMethods.filter { method => method.getName == "apply" && method.getReturnType == er }
-        case None => scala.Array[Method]()
-      }
-      val applyExecutables = applyMethods.map{ m => new Executable(m) }
-      constructorDescriptors ++ createConstructorDescriptors(applyExecutables)
+      if (constructorDescriptors.isEmpty || formats.alwaysConsiderCompanionConstructors) {
+        companion = findCompanion(checkCompanionMapping = false)
+        val applyMethods: scala.Array[Method] = companion match {
+          case Some(singletonDescriptor) =>
+            singletonDescriptor.instance.getClass.getMethods.filter { method => method.getName == "apply" && method.getReturnType == er }
+          case None => scala.Array[Method]()
+        }
+        val applyExecutables = applyMethods.map { m => new Executable(m) }
+        constructorDescriptors ++ createConstructorDescriptors(applyExecutables)
+      } else constructorDescriptors
     }
 
     def createConstructorDescriptors(ccs: Iterable[Executable]): Seq[ConstructorDescriptor] = {

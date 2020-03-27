@@ -1,6 +1,7 @@
 import sbt._, Keys._
 import com.typesafe.tools.mima.plugin.MimaPlugin
 import com.typesafe.tools.mima.plugin.MimaKeys._
+import com.typesafe.tools.mima.core._
 
 object MimaSettings {
 
@@ -27,6 +28,10 @@ object MimaSettings {
         case _ => Set.empty
       }
     },
+    mimaBinaryIssueFilters ++= Seq(
+      // Change to private class constructor is safe
+      ProblemFilters.exclude[DirectMissingMethodProblem]("org.json4s.reflect.Reflector#ClassDescriptorBuilder.this")
+    ),
     test in Test := {
       mimaReportBinaryIssues.value
       (test in Test).value
