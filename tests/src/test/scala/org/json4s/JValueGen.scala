@@ -30,18 +30,22 @@ trait JValueGen {
     arbitrary[Boolean].map(JBool(_)),
     arbitrary[String].map(JString(_)))
 
-  def genArray: Gen[JValue] = for (l <- genList) yield JArray(l)
+  def genArray: Gen[JArray] = for (l <- genList) yield JArray(l)
   def genObject: Gen[JObject] = for (l <- genFieldList) yield JObject(l)
 
   def genList = Gen.containerOfN[List, JValue](listSize, genJValue)
-  def genFieldList = Gen.containerOfN[List, JField](listSize, genField)
-  def genField = for (name <- identifier; value <- genJValue; id <- choose(0, 1000000)) yield JField(name+id, value)
+  def genFieldList = Gen.containerOfN[List, JField](fieldsSize, genField)
+
+  def genField(genValue:Gen[JValue]):Gen[JField] = for (name <- identifier; value <- genValue; id <- choose(0, 1000000)) yield JField(name+id, value)
+  def genField:Gen[JField] = genField(genJValue)
+  def genFieldArray:Gen[JField] = genField(genArray)
 
   def genJValueClass: Gen[Class[_ <: JValue]] = oneOf(
     JNull.getClass.asInstanceOf[Class[JValue]], JNothing.getClass.asInstanceOf[Class[JValue]], classOf[JInt],
     classOf[JDouble], classOf[JBool], classOf[JString], classOf[JArray], classOf[JObject], classOf[JSet])
 
-  def listSize = choose(0, 5).sample.get
+  def listSize = choose(1, 5).sample.get
+  def fieldsSize = choose(0, 5).sample.get
 
   implicit val jValueCogen: Cogen[JValue] =
     Cogen[JValue] {

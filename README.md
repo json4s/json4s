@@ -1,5 +1,4 @@
-# JSON4S [![Build Status](https://travis-ci.org/json4s/json4s.svg?branch=3.6)](https://travis-ci.org/json4s/json4s)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.json4s/json4s-core_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.json4s/json4s-core_2.12)
+# JSON4S [![Maven Central](https://img.shields.io/maven-central/v/org.json4s/json4s-core_2.12.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:org.json4s%20AND%20a:json4s-core_2.12) [![Build Status](https://travis-ci.org/json4s/json4s.svg?branch=master)](https://travis-ci.org/json4s/json4s)
 
 [![Join the chat at https://gitter.im/json4s/json4s](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/json4s/json4s?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -74,7 +73,7 @@ All features are implemented in terms of the above AST. Functions are used to tr
 the AST itself, or to transform the AST between different formats. Common transformations
 are summarized in a following picture.
 
-![Json AST](https://raw.github.com/json4s/json4s/3.6/core/json.png)
+![Json AST](https://raw.github.com/json4s/json4s/master/core/json.png)
 
 Summary of the features:
 
@@ -96,7 +95,7 @@ You can add the json4s as a dependency in following ways. Note, replace {latestV
 
 You can find available versions here:
 
-http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.json4s%22
+https://search.maven.org/search?q=org.json4s
 
 ### SBT users
 
@@ -137,65 +136,14 @@ For the jackson support add the following dependency to your pom:
 Extras
 ------
 
-* [ext](https://github.com/json4s/json4s/tree/3.6/ext)
+* [ext](https://github.com/json4s/json4s/tree/master/ext)
 
 Support for Enum, Joda-Time, ...
 
-* [scalaz](https://github.com/json4s/json4s/tree/3.6/scalaz)
+* [scalaz](https://github.com/json4s/json4s/tree/master/scalaz)
 
 Applicative style parsing with Scalaz
 
-Migration from older versions
-=============================
-
-3.3.0 ->
---------
-
-json4s 3.3 basically should be source code compatible with 3.2.x. Since json4s 3.3.0, We've started using [MiMa](https://github.com/typesafehub/migration-manager) for binary compatibility verification not to repeat the bin compatibility issue described [here](https://github.com/json4s/json4s/issues/225).
-
-The behavior of `.toOption` on JValue has changed. Now both `JNothing` and `JNull` return None.
-For the old behavior you can use `toSome` which will only turn a `JNothing` into a None.
-
-All the merged pull requests:
-https://github.com/json4s/json4s/pulls?q=is%3Apr+is%3Aclosed+milestone%3A3.3
-
-3.0.0 ->
---------
-
-JField is no longer a JValue. This means more type safety since it is no longer possible
-to create invalid JSON where JFields are added directly into JArrays for instance. The most
-noticeable consequence of this change are that map, transform, find and filter come in
-two versions:
-
-```scala
-def map(f: JValue => JValue): JValue
-def mapField(f: JField => JField): JValue
-def transform(f: PartialFunction[JValue, JValue]): JValue
-def transformField(f: PartialFunction[JField, JField]): JValue
-def find(p: JValue => Boolean): Option[JValue]
-def findField(p: JField => Boolean): Option[JField]
-//...
-```
-
-Use *Field functions to traverse fields in the JSON, and use the functions without 'Field'
-in the name to traverse values in the JSON.
-
-2.2 ->
-------
-
-Path expressions were changed after version 2.2. Previous versions returned JField, which
-unnecessarily complicated the use of the expressions. If you have used path expressions
-with pattern matching like:
-
-```scala
-val JField("bar", JInt(x)) = json \ "foo" \ "bar"
-```
-
-it is now required to change that to:
-
-```scala
-val JInt(x) = json \ "foo" \ "bar"
-```
 
 Parsing JSON
 ============
@@ -212,7 +160,7 @@ res0: org.json4s.JsonAST.JValue =
       JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
 
 scala> parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
-res1: org.json4s.package.JValue = 
+res1: org.json4s.package.JValue =
       JObject(List((name,JString(Toy)), (price,JDecimal(35.35))))
 ```
 
@@ -227,7 +175,7 @@ res0: org.json4s.JsonAST.JValue =
       JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
 
 scala> parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
-res1: org.json4s.package.JValue = 
+res1: org.json4s.package.JValue =
       JObject(List((name,JString(Toy)), (price,JDecimal(35.35))))
 ```
 
@@ -278,6 +226,15 @@ res1: String = {"name":"joe"}
 
 ```scala
 scala> val json = ("name" -> "joe") ~ ("age" -> 35)
+
+scala> compact(render(json))
+res2: String = {"name":"joe","age":35}
+```
+
+* ~~ operator works the same as ~ and is useful in situations where ~ is shadowed, eg. when using Spray or akka-http.
+
+```scala
+scala> val json = ("name" -> "joe") ~~ ("age" -> 35)
 
 scala> compact(render(json))
 res2: String = {"name":"joe","age":35}
@@ -489,7 +446,7 @@ scala> import org.json4s._
 scala> import org.json4s.native.JsonMethods._
 ```
 
-or 
+or
 
 ```scala
 scala> import org.json4s.jackson.JsonMethods._
@@ -655,7 +612,7 @@ scala> val json = parse("""{"first_name":"Mary"}""")
 scala> case class Person(firstName: String)
 
 scala> json.camelizeKeys.extract[Person]
-res0: Person = Person(Mazy)
+res0: Person = Person(Mary)
 ```
 See the "Serialization" section below for details on converting a class with camel-case fields into json with snake case keys.
 
@@ -800,7 +757,7 @@ scala> read[Child](ser)
 res1: Child = Child(Mary,5,None)
 ```
 
-If you're using jackson instead of the native one: 
+If you're using jackson instead of the native one:
 
 ```scala
 scala> import org.json4s._
@@ -864,7 +821,7 @@ classname. Other strategies can be implemented by extending the TypeHints trait.
 Serializing fields of a class
 -----------------------------
 
-To enable serialization of fields, a FieldSerializer can be added for some type:
+To enable serialization of fields, a single FieldSerializer can be added for each type:
 
 ```scala
 implicit val formats = DefaultFormats + FieldSerializer[WildDog]()
@@ -890,6 +847,22 @@ val dogSerializer = FieldSerializer[WildDog](
 implicit val formats = DefaultFormats + dogSerializer
 ```
 
+Support for renaming multiple fields is accomplished by chaining the PFs like so:
+(do not add more than one FieldSerializer per type)
+
+```json
+{"id": "a244", "start-time": 12314545, "end-time": -1}
+```
+
+```scala
+case class Log(id: String, startTime: Long, endTime: Long)
+val logSerializer = FieldSerializer[Log](
+  renameTo("startTime", "start-time") orElse renameTo("endTime", "end-time"),
+  renameFrom("start-time", "startTime") orElse renameFrom("end-time", "endTime"))
+
+implicit val formats = DefaultFormats + logSerializer
+```
+
 Serializing classes defined in traits or classes
 ------------------------------------------------
 
@@ -897,7 +870,7 @@ We've added support for case classes defined in a trait. But they do need custom
 
 ##### Why?
 
-For classes defined in a trait it's a bit difficult to get to their companion object, which is needed to provide default values.  We could punt on those but that brings us to the next problem, that the compiler generates an extra field in the constructor of such case classes.  The first field in the constructor of those case classes is called `$outer` and is of type of the *defining trait*.  So somehow we need to get an instance of that object, naively we could scan all classes and collect the ones that are implementing the trait, but when there are more than one: which one to take?
+For classes defined in a trait it's a bit difficult to get to their companion object, which is needed to provide default values. We could punt on those but that brings us to the next problem, that the compiler generates an extra field in the constructor of such case classes. The first field in the constructor of those case classes is called `$outer` and is of type of the *defining trait*. So somehow we need to get an instance of that object, naively we could scan all classes and collect the ones that are implementing the trait, but when there are more than one: which one to take?
 
 ##### How?
 
@@ -955,9 +928,6 @@ Extensions
 Module json4s-ext contains extensions to extraction and serialization. The following types are supported.
 
 ```scala
-// Lift's box
-implicit val formats = org.json4s.DefaultFormats + new org.json4s.native.ext.JsonBoxSerializer
-
 // Scala enums
 implicit val formats = org.json4s.DefaultFormats + new org.json4s.ext.EnumSerializer(MyEnum)
 // or
@@ -1062,8 +1032,8 @@ scala> val postalCode = parse(json, parser)
 postalCode: BigInt = 10021
 ```
 
-The pull parser is a function `Parser => A`; in this example it is concretely `Parser => BigInt`. 
-The constructed parser recursively reads tokens until it finds a `FieldStart("postalCode")` token. 
+The pull parser is a function `Parser => A`; in this example it is concretely `Parser => BigInt`.
+The constructed parser recursively reads tokens until it finds a `FieldStart("postalCode")` token.
 After that the next token must be `IntVal`; otherwise parsing fails. It returns the parsed integer value and stops parsing immediately.
 
 Kudos

@@ -3,6 +3,9 @@ import Keys._
 import xml.Group
 import MimaSettings.mimaSettings
 import com.typesafe.tools.mima.plugin.MimaKeys.mimaPreviousArtifacts
+import sbtrelease.ReleasePlugin.autoImport._
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+import xerial.sbt.Sonatype.autoImport._
 
 object build {
   import Dependencies._
@@ -24,12 +27,7 @@ object build {
   }
 
   val mavenCentralFrouFrou = Seq(
-    publishTo := Some(
-      if (isSnapshot.value)
-        Opts.resolver.sonatypeSnapshots
-      else
-        Opts.resolver.sonatypeStaging
-    ),
+    publishTo := sonatypePublishToBundle.value,
     homepage := Some(new URL("https://github.com/json4s/json4s")),
     startYear := Some(2009),
     licenses := Seq(("Apache-2.0", new URL("http://www.apache.org/licenses/LICENSE-2.0"))),
@@ -55,14 +53,13 @@ object build {
     }
   )
 
-  val json4sSettings = mavenCentralFrouFrou ++ mimaSettings ++ Def.settings(
+  val Scala212 = "2.12.11"
+
+  val json4sSettings = mavenCentralFrouFrou ++ Def.settings(
     organization := "org.json4s",
-    scalaVersion := "2.12.8",
-    crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.8", "2.13.0"),
-    scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
-    scalacOptions ++= PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion.value)) {
-      case Some((2, 10)) => "-optimize"
-    }.toList,
+    scalaVersion := Scala212,
+    crossScalaVersions := Seq("2.11.12", Scala212, "2.13.1"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds"),
     scalacOptions in (Compile, doc) ++= {
       val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
@@ -78,30 +75,40 @@ object build {
     },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, v)) if v <= 10 =>
-          Nil
         case Some((2, 11)) =>
-          Seq("-Ywarn-unused-import")
+          Seq("-Ywarn-unused-import", "-Xsource:2.12")
         case _ =>
           Seq("-Ywarn-unused:imports")
       }
     },
-    version := "3.6.7",
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
     Seq(Compile, Test).map { scope =>
       unmanagedSourceDirectories in scope += {
         val base = (sourceDirectory in scope).value.getParentFile / Defaults.nameForSrc(scope.name)
         CrossVersion.partialVersion(scalaVersion.value) match {
-          case Some((2, v)) if v >= 13 && scalaVersion.value != "2.13.0-M3" =>
+          case Some((2, v)) if v >= 13 =>
             base / s"scala-2.13+"
           case _ =>
             base / s"scala-2.13-"
         }
       }
     },
+    releaseProcess := Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      runTest,
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      releaseStepCommandAndRemaining("+publishSigned"),
+      releaseStepCommandAndRemaining("sonatypeBundleRelease"),
+      setNextVersion,
+      commitNextVersion,
+      pushChanges
+    ),
     parallelExecution in Test := false,
     manifestSetting,
-    resolvers ++= Seq(Opts.resolver.sonatypeReleases),
     crossVersion := CrossVersion.binary
   )
 

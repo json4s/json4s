@@ -1,6 +1,8 @@
-import xml.Group
+import scala.xml.Group
 import Dependencies._
 import build._
+
+Global / onChangedBuildSource := ReloadOnSourceChanges
 
 lazy val root = Project(
   id = "json4s",
@@ -31,7 +33,7 @@ lazy val xml = Project(
   base = file("xml"),
 ).settings(
   json4sSettings,
-  libraryDependencies ++= scalaXml(scalaVersion.value),
+  libraryDependencies += scalaXml.value,
 ) dependsOn(core)
 
 lazy val core = Project(
@@ -96,7 +98,7 @@ lazy val mongo = Project(
 ).settings(
   json4sSettings,
   libraryDependencies ++= Seq(
-    "org.mongodb" % "mongo-java-driver" % "3.8.2"
+    "org.mongodb" % "mongo-java-driver" % "3.12.3"
   ),
 ) dependsOn(core % "compile;test->test")
 
@@ -106,7 +108,7 @@ lazy val json4sTests = Project(
 ).settings(
   json4sSettings,
   noPublish,
-  libraryDependencies ++= (specs.value :+ mockito :+ jaxbApi),
+  libraryDependencies ++= Seq(specs.value, mockito, jaxbApi),
   initialCommands in (Test, console) :=
     """
       |import org.json4s._

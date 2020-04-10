@@ -198,6 +198,12 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
       Extraction.unflatten(m) must_== JObject(List(JField("foo", JArray(List(JInt(0), JInt(1), JInt(2))))))
     }
 
+    "Unflatten example with field name is prefix of the other field name" in {
+      val m = Map(".data" -> "5", ".data_type" -> "6")
+
+      Extraction.unflatten(m) must_== JObject(JField("data", JInt(5)), JField("data_type", JInt(6)))
+    }
+
     "Flatten and unflatten are symmetric" in {
       val parsed = parse(testJson)
 
@@ -301,7 +307,7 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
 
     "ArraySeq extraction example" in {
       val scalaV = scala.util.Properties.versionNumberString
-      if (scalaV.startsWith("2.10") || scalaV.startsWith("2.11") || scalaV.startsWith("2.12")) {
+      if (scalaV.startsWith("2.11") || scalaV.startsWith("2.12")) {
         val json = parse(testJson) \ "children"
         json.extract[collection.mutable.ArraySeq[Name]] must_== collection.mutable.ArraySeq(Name("Mary"), Name("Mazy"))
       } else {
@@ -385,11 +391,11 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
       parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](notNullFormats + CustomNull, Manifest.classType(classOf[OChild])) must_== new OChild(None, 22, None, None)
     }
 
-    "simple case objects should be sucessfully extracted as a singleton instance" in {
+    "simple case objects should be successfully extracted as a singleton instance" in {
       parse(emptyTree).extract[LeafTree[Int]](treeFormats, Manifest.classType(classOf[LeafTree[Int]])) must_== LeafTree.empty
     }
 
-    "case objects in a complex structure should be sucessfully extracted as a singleton instance" in {
+    "case objects in a complex structure should be successfully extracted as a singleton instance" in {
       parse(tree).extract[LeafTree[Int]](treeFormats[Int], Manifest.classType(classOf[LeafTree[Int]])) must_== Node(List[LeafTree[Int]](EmptyLeaf, Node(List.empty), Leaf(1), Leaf(2)))
     }
 

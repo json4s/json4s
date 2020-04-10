@@ -200,6 +200,11 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       compact(render(parse(objArray2) \ "children" \ "name")) must_== """["Mary"]"""
     }
 
+    // https://github.com/json4s/json4s/issues/562
+    "Object array example 3" in {
+      parse("{\"a\" : []}") \ "a" \ "c" must_== JNothing
+    }
+
     "Unbox values using XPath-like type expression" in {
       parse(objArray) \ "children" \\ classOf[JInt] must_== List(5, 3)
       parse(lotto) \ "lotto" \ "winning-numbers" \ classOf[JInt] must_== List(2, 45, 34, 23, 7, 5, 3)
