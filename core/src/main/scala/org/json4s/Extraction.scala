@@ -20,10 +20,12 @@ import java.lang.{Integer => JavaInteger, Long => JavaLong, Short => JavaShort, 
 import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
 import java.util.Date
 import java.sql.Timestamp
+import org.json4s
 import reflect._
 import scala.reflect.Manifest
 import scala.reflect.NameTransformer.encode
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 /** Function to extract values from JSON AST using case classes.
  *
@@ -328,14 +330,20 @@ object Extraction {
         else JString(ParserUtil.unquote(value.substring(1)))
     }
 
-    def submap(prefix: String): Map[String, String] =
-      map.withFilter(t => t._1.startsWith(prefix)).map(
-        t => (t._1.substring(prefix.length), t._2)
-      )
-
     val ArrayProp = new Regex("""^(\.([^\.\[]+))\[(\d+)\].*$""")
     val ArrayElem = new Regex("""^(\[(\d+)\]).*$""")
     val OtherProp = new Regex("""^(\.([^\.\[]+)).*$""")
+
+    def submap(prefix: String): Map[String, String] = {
+      map.withFilter { t =>
+        t._1 match {
+          case ArrayProp(p, _, _) if p == prefix => true
+          case ArrayElem(p, _)    if p == prefix => true
+          case OtherProp(p, _)    if p == prefix => true
+          case _                  => false
+        }
+      } map { t => (t._1.substring(prefix.length), t._2) }
+    }
 
     val uniquePaths = map.keys.foldLeft[Set[String]](Set()) {
       (set, key) =>
@@ -448,7 +456,9 @@ object Extraction {
 
     def result: Any = {
       val custom = Formats.customDeserializer(tpe.typeInfo, json)(formats)
+      lazy val customRich = Formats.customRichDeserializer(tpe, json)(formats)
       if (custom.isDefinedAt(tpe.typeInfo, json)) custom(tpe.typeInfo, json)
+      else if (customRich.isDefinedAt(tpe, json)) customRich(tpe, json)
       else if (tpe.erasure == classOf[List[_]]) mkCollection(_.toList)
       else if (tpe.erasure == classOf[Set[_]]) mkCollection(_.toSet)
       else if (tpe.erasure == classOf[scala.collection.mutable.Set[_]]) mkCollection(a => scala.collection.mutable.Set(a: _*))
@@ -464,7 +474,7 @@ object Extraction {
               None
           }
           c.flatMap { _ =>
-            reflect.ScalaSigReader.companions(tpe.erasure.getName).flatMap(_._2) 
+            reflect.ScalaSigReader.companions(tpe.erasure.getName).flatMap(_._2)
           }
         }
 
@@ -531,6 +541,28 @@ object Extraction {
             (n, (n, v))
           }).toMap
 
+          if (formats.strictFieldDeserialization) {
+            val renamedFields: Seq[(String, json4s.JValue)] = {
+              val maybeClassSerializer: Option[(Class[_], FieldSerializer[_])] = {
+                formats.fieldSerializers.find { case (clazz, _) => clazz == a.getClass }
+              }
+              maybeClassSerializer match {
+                case Some((clazz@_, fieldSerializer)) => fields.map { field =>
+                  Try { fieldSerializer.deserializer.apply(field) }.getOrElse(field)
+                }
+                case _ => fields
+              }
+            }
+
+            val setOfDeserializableFields: Set[String] = descr.properties.map(_.name).toSet
+
+            renamedFields.foreach {
+              case (propName: String, _: JValue) if (!setOfDeserializableFields.contains(propName)) =>
+                fail(s"Attempted to deserialize JField ${propName} into undefined property on target ClassDescriptor.")
+              case _ =>
+            }
+          }
+
           fieldsToSet foreach { prop =>
             jsonSerializers get prop.name foreach { case (_, v) =>
               val vv = extract(v, prop.returnType)
@@ -563,10 +595,9 @@ object Extraction {
           else x
         } catch {
           case e @ MappingException(msg, _) =>
-            if (descr.isOptional &&
-                (!formats.strictOptionParsing || extract(json, ScalaType[Null](implicitly)) == null))
+            if (descr.isOptional && !formats.strictOptionParsing) {
               defv(None)
-            else fail("No usable value for " + descr.name + "\n" + msg, e)
+            } else fail("No usable value for " + descr.name + "\n" + msg, e)
         }
       }
     }
@@ -655,7 +686,12 @@ object Extraction {
   private[this] def customOrElse(target: ScalaType, json: JValue)(thunk: JValue => Any)(implicit formats: Formats): Any = {
     val targetType = target.typeInfo
     val custom = Formats.customDeserializer(targetType, json)(formats)
-    custom.applyOrElse((targetType, json), (t: (TypeInfo, JValue)) => thunk(t._2))
+    val customRich = Formats.customRichDeserializer(target, json)(formats)
+    if (customRich.isDefinedAt(target, json)) {
+      customRich(target, json)
+    } else {
+      custom.applyOrElse((targetType, json), (t: (TypeInfo, JValue)) => thunk(t._2))
+    }
   }
 
   private[this] def convert(key: String, target: ScalaType, formats: Formats): Any = {

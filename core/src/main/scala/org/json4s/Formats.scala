@@ -18,9 +18,12 @@ package org.json4s
 
 
 import java.util.{Date, TimeZone}
-import reflect.Reflector
+
+import reflect.{Reflector, ScalaType}
+
 import annotation.implicitNotFound
 import java.lang.reflect.Type
+
 import org.json4s.prefs.EmptyValueStrategy
 
 object Formats {
@@ -37,6 +40,13 @@ object Formats {
     format.customSerializers
       .collectFirst { case (x) if x.serialize.isDefinedAt(a) => x.serialize }
       .getOrElse(PartialFunction.empty[Any, JValue])
+  }
+
+  private[json4s] def customRichDeserializer(a: (ScalaType, JValue))(
+    implicit format: Formats): PartialFunction[(ScalaType, JValue), Any] = {
+    format.richSerializers
+      .collectFirst { case (x) if x.deserialize.isDefinedAt(a) => x.deserialize }
+      .getOrElse(PartialFunction.empty[(ScalaType, JValue), Any])
   }
 
   private[json4s] def customDeserializer(a: (TypeInfo, JValue))(
@@ -73,6 +83,7 @@ trait Formats extends Serializable { self: Formats =>
   def dateFormat: DateFormat
   def typeHints: TypeHints = NoTypeHints
   def customSerializers: List[Serializer[_]] = Nil
+  def richSerializers: List[RichSerializer[_]] = Nil
   def customKeySerializers: List[KeySerializer[_]] = Nil
   def fieldSerializers: List[(Class[_], FieldSerializer[_])] = Nil
   def wantsBigInt: Boolean = true
@@ -83,6 +94,7 @@ trait Formats extends Serializable { self: Formats =>
   def strictOptionParsing: Boolean = false
   def strictArrayExtraction: Boolean = false
   def alwaysEscapeUnicode: Boolean = false
+  def strictFieldDeserialization: Boolean = false
 
   /**
    * Setting to false preserves library's behavior prior to 3.6, where companion object constructors were only
@@ -112,6 +124,7 @@ trait Formats extends Serializable { self: Formats =>
                     wCustomSerializers: List[Serializer[_]] = self.customSerializers,
                     wCustomKeySerializers: List[KeySerializer[_]] = self.customKeySerializers,
                     wFieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers,
+                    wRichSerializers: List[RichSerializer[_]] = List.empty,
                     wWantsBigInt: Boolean = self.wantsBigInt,
                     wWantsBigDecimal: Boolean = self.wantsBigDecimal,
                     withPrimitives: Set[Type] = self.primitives,
@@ -121,13 +134,15 @@ trait Formats extends Serializable { self: Formats =>
                     wStrictArrayExtraction: Boolean = self.strictArrayExtraction,
                     wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
                     wAlwaysConsiderCompanionConstructors: Boolean = self.alwaysConsiderCompanionConstructors,
-                    wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy): Formats =
+                    wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy,
+                    wStrictFieldDeserialization: Boolean = self.strictFieldDeserialization): Formats =
     new Formats {
       def dateFormat: DateFormat = wDateFormat
       override def typeHintFieldName: String = wTypeHintFieldName
       override def parameterNameReader: reflect.ParameterNameReader = wParameterNameReader
       override def typeHints: TypeHints = wTypeHints
       override def customSerializers: List[Serializer[_]] = wCustomSerializers
+      override def richSerializers: List[RichSerializer[_]] = wRichSerializers
       override val customKeySerializers: List[KeySerializer[_]] = wCustomKeySerializers
       override def fieldSerializers: List[(Class[_], FieldSerializer[_])] = wFieldSerializers
       override def wantsBigInt: Boolean = wWantsBigInt
@@ -140,6 +155,7 @@ trait Formats extends Serializable { self: Formats =>
       override def alwaysEscapeUnicode: Boolean = wAlwaysEscapeUnicode
       override def alwaysConsiderCompanionConstructors: Boolean = wAlwaysConsiderCompanionConstructors
       override def emptyValueStrategy: EmptyValueStrategy = wEmptyValueStrategy
+      override def strictFieldDeserialization: Boolean = wStrictFieldDeserialization
     }
 
   def withBigInt: Formats = copy(wWantsBigInt = true)
@@ -178,13 +194,20 @@ trait Formats extends Serializable { self: Formats =>
   def strict: Formats = copy(wStrictOptionParsing = true, wStrictArrayExtraction = true)
 
   def nonStrict: Formats = copy(wStrictOptionParsing = false, wStrictArrayExtraction = false)
-  
+
   def disallowNull: Formats = copy(wAllowNull = false)
+
+  def withStrictFieldDeserialization: Formats = copy(wStrictFieldDeserialization = true)
 
   /**
    * Adds the specified type hints to this formats.
    */
   def + (extraHints: TypeHints): Formats = copy(wTypeHints = self.typeHints + extraHints)
+
+  /**
+   * Adds the specified custom serializer to this formats.
+   */
+  def + (newSerializer: RichSerializer[_]): Formats = copy(wRichSerializers = newSerializer :: self.richSerializers)
 
   /**
    * Adds the specified custom serializer to this formats.
@@ -255,6 +278,11 @@ trait Formats extends Serializable { self: Formats =>
     }
 }
 
+trait RichSerializer[A] {
+  def deserialize(implicit format: Formats): PartialFunction[(ScalaType, JValue), A]
+  def serialize(implicit format: Formats): PartialFunction[Any, JValue]
+}
+
 trait Serializer[A] {
   def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), A]
   def serialize(implicit format: Formats): PartialFunction[Any, JValue]
@@ -285,7 +313,6 @@ trait KeySerializer[A] {
  * </pre>
  */
 trait TypeHints {
-  import ClassDelta._
 
   val hints: List[Class[_]]
 
@@ -309,43 +336,13 @@ trait TypeHints {
   /**
    * Adds the specified type hints to this type hints.
    */
-  def + (hints: TypeHints): TypeHints = TypeHints.CompositeTypeHints2(hints.components ::: components)
-
-  @deprecated("will be removed due to https://github.com/json4s/json4s/issues/550", "3.6.7")
-  private[TypeHints] case class CompositeTypeHints(override val components: List[TypeHints]) extends TypeHints {
-    val hints: List[Class[_]] = components.flatMap(_.hints)
-
-    /**
-     * Chooses most specific class.
-     */
-    def hintFor(clazz: Class[_]): String = {
-      (components.reverse
-        filter (_.containsHint(clazz))
-        map (th => (th.hintFor(clazz), th.classFor(th.hintFor(clazz)).getOrElse(sys.error("hintFor/classFor not invertible for " + th))))
-        sortWith ((x, y) => (delta(x._2, clazz) - delta(y._2, clazz)) <= 0)).head._1
-    }
-
-    def classFor(hint: String): Option[Class[_]] = {
-      def hasClass(h: TypeHints) =
-        scala.util.control.Exception.allCatch opt (h.classFor(hint)) map (_.isDefined) getOrElse(false)
-
-      components find (hasClass) flatMap (_.classFor(hint))
-  }
-
-    override def deserialize: PartialFunction[(String, JObject), Any] = components.foldLeft[PartialFunction[(String, JObject),Any]](Map()) {
-      (result, cur) => result.orElse(cur.deserialize)
-    }
-
-    override def serialize: PartialFunction[Any, JObject] = components.foldLeft[PartialFunction[Any, JObject]](Map()) {
-      (result, cur) => result.orElse(cur.serialize)
-    }
-  }
+  def + (hints: TypeHints): TypeHints = TypeHints.CompositeTypeHints(hints.components ::: components)
 
 }
 
 private[json4s] object TypeHints {
 
-  private case class CompositeTypeHints2(override val components: List[TypeHints]) extends TypeHints {
+  private case class CompositeTypeHints(override val components: List[TypeHints]) extends TypeHints {
     val hints: List[Class[_]] = components.flatMap(_.hints)
 
     /**
@@ -418,6 +415,18 @@ case class FullTypeHints(hints: List[Class[_]]) extends TypeHints {
   }
 }
 
+/** Use a map of keys as type hints.  Values may not be mapped by multiple keys
+  */
+case class MappedTypeHints(hintMap: Map[Class[_], String]) extends TypeHints {
+  require(hintMap.size == hintMap.values.toList.distinct.size, "values in type hint mapping must be distinct")
+
+  override val hints: List[Class[_]] = hintMap.keys.toList
+  private val lookup: Map[String, Class[_]] = hintMap.map(_.swap)
+
+  def hintFor(clazz: Class[_]) = hintMap.get(clazz).get  // will throw exception if not present
+  def classFor(hint: String) = lookup.get(hint)
+}
+
 /** Default date format is UTC time.
  */
 object DefaultFormats extends DefaultFormats {
@@ -457,6 +466,8 @@ trait DefaultFormats extends Formats {
   override val strictOptionParsing: Boolean = false
   override val emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
   override val allowNull: Boolean = true
+  override def strictFieldDeserialization: Boolean = false
+
 
   val dateFormat: DateFormat = new DateFormat {
     def parse(s: String) = try {

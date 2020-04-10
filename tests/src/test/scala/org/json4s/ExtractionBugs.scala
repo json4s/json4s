@@ -327,5 +327,30 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       val json = Extraction.decompose(obj)
       json mustEqual JObject("s" -> JString("hello"), "i" -> JInt(3))
     }
+
+    "Extract error should preserve error message when strict option parsing is enabled" in {
+      implicit val formats = new DefaultFormats {
+        override val strictOptionParsing: Boolean = true
+      }
+
+      val obj = parse("""{"opt": "not an int"}""".stripMargin)
+
+      Extraction.extract[OptionOfInt](obj) must throwA(
+        new MappingException(
+          """
+            |No usable value for opt
+            |Do not know how to convert JString(not an int) into int
+            |""".stripMargin.trim))
+    }
+
+    "Extract should succeed for optional field with null value" in {
+      val obj = parse("""{"opt":null}""".stripMargin)
+      Extraction.extract[OptionOfInt](obj) must_== OptionOfInt(None)
+    }
+
+    "Extract should succeed for missing optional field" in {
+      val obj = parse("""{}""".stripMargin)
+      Extraction.extract[OptionOfInt](obj) must_== OptionOfInt(None)
+    }
   }
 }

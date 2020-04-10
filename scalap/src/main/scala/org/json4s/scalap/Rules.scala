@@ -12,8 +12,6 @@
 
 package org.json4s.scalap
 
-import language.postfixOps
-
 trait Name {
   def name: String
   override def toString = name
@@ -27,7 +25,6 @@ trait Name {
   */
 trait Rules {
 
-  import scala.language.implicitConversions
   implicit def rule[In, Out, A, X](f: In => Result[Out, A, X]): Rule[In, Out, A, X] = new DefaultRule(f)
   implicit def inRule[In, Out, A, X](rule: Rule[In, Out, A, X]): InRule[In, Out, A, X] = new InRule(rule)
   implicit def seqRule[In, A, X](rule: Rule[In, In, A, X]): SeqRule[In, A, X] = new SeqRule(rule)
@@ -127,7 +124,7 @@ trait StateRules {
   /** Create a rule that succeeds with a list of all the provided rules that succeed.
       @param rules the rules to apply in sequence.
   */
-  def anyOf[A, X](rules: Seq[Rule[A, X]]) = allOf(rules.map(_ ?)) ^^ { opts => opts.flatMap(x => x) }
+  def anyOf[A, X](rules: Seq[Rule[A, X]]) = allOf(rules.map(_.?)) ^^ { opts => opts.flatMap(x => x) }
 
   /** Repeatedly apply a rule from initial value until finished condition is met. */
   def repeatUntil[T, X](rule: Rule[T => T, X])(finished: T => Boolean)(initial: T) = apply {

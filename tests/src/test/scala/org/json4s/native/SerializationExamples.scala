@@ -170,9 +170,7 @@ object SerializationExamples extends Specification {
   }
 
   "Generic Map with simple values example" in {
-    // TODO use Map.apply instead of "new Map.Map2" when 2.13.0-M5 released
-    // https://github.com/scala/scala/commit/6a570b6f1f59222cae4f55aa25d48e3d4c22ea59
-    val pw = PlayerWithGenericMap("zortan", new Map.Map2("1", "asd", "a", 3))
+    val pw = PlayerWithGenericMap("zortan", Map("1" -> "asd", "a" -> 3))
     val ser = swrite(pw)
     ser must_== """{"name":"zortan","infomap":{"1":"asd","a":3}}"""
     read[PlayerWithGenericMap](ser) must_== pw
@@ -180,9 +178,7 @@ object SerializationExamples extends Specification {
 
   "Generic Map with case class and type hint example" in {
     implicit val formats = native.Serialization.formats(ShortTypeHints(List(classOf[Player])))
-    // TODO use Map.apply instead of "new Map.Map3" when 2.13.0-M5 released
-    // https://github.com/scala/scala/commit/6a570b6f1f59222cae4f55aa25d48e3d4c22ea59
-    val pw = PlayerWithGenericMap("zortan", new Map.Map3("1", "asd", "a", 3, "friend", Player("joe")))
+    val pw = PlayerWithGenericMap("zortan", Map("1" -> "asd", "a" -> 3, "friend" -> Player("joe")))
     val ser = swrite(pw)
     ser must_== """{"name":"zortan","infomap":{"1":"asd","a":3,"friend":{"jsonClass":"Player","name":"joe"}}}"""
     read[PlayerWithGenericMap](ser) must_== pw
@@ -241,6 +237,26 @@ object ShortTypeHintExamples extends TypeHintExamples {
   "Deserialization succeeds when a field name matching typeHintFieldName exists" in {
     val ser = """{"jsonClass":"Dog"}"""
     native.Serialization.read[NotTypeHint](ser) must_== NotTypeHint("Dog")
+  }
+}
+
+object MappedHintExamples extends TypeHintExamples {
+  implicit val formats = native.Serialization.formats(MappedTypeHints(Map(classOf[Fish] -> "fish", classOf[Dog] -> "dog")))
+
+  "Serialization provides no type hint when not mapped" in {
+    val animals = Animals(Dog("pluto") :: Fish(1.2) :: Turtle(103) :: Nil, Dog("pluto"))
+    val ser = native.Serialization.write(animals)
+    ser must_== """{"animals":[{"jsonClass":"dog","name":"pluto"},{"jsonClass":"fish","weight":1.2},{"age":103}],"pet":{"jsonClass":"dog","name":"pluto"}}"""
+  }
+
+  "Deserialization fails when type is not mapped" in {
+    val ser = """{"animals":[],"pet":{"age":103,"jsonClass":"turtle"}}"""
+    native.Serialization.read[Animals](ser) must throwA[MappingException]
+  }
+
+  "Deserialization succeeds when a field name matching typeHintFieldName exists" in {
+    val ser = """{"jsonClass":"turtle"}"""
+    native.Serialization.read[NotTypeHint](ser) must_== NotTypeHint("turtle")
   }
 }
 
@@ -336,6 +352,7 @@ case class Animals(animals: List[Animal], pet: Animal)
 trait Animal
 case class Dog(name: String) extends Animal
 case class Fish(weight: Double) extends Animal
+case class Turtle(age: Int) extends Animal
 
 case class Objs(objects: List[Obj[_]])
 case class Obj[A](a: A)

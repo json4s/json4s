@@ -224,7 +224,7 @@ object JsonParser {
       try { x.asInstanceOf[A] } catch { case _: ClassCastException => parser.fail(s"unexpected $x") }
     }
 
-    def peekOption = if (stack isEmpty) None else Some(stack.peek)
+    def peekOption = if (stack.isEmpty) None else Some(stack.peek)
   }
 
   class Parser(buf: Buffer, useBigDecimalForDouble: Boolean, useBigIntForLong: Boolean) {
