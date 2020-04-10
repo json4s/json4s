@@ -748,6 +748,40 @@ Both these settings (`strictOptionParsing` and `strictArrayExtraction`) can be e
 val formats: Formats = DefaultFormats.strict
 ```
 
+Json 3.6 expands the `strictOptionParsing` behavior to throw a MappingException even when `extractOpt` is called on a missing optional attribute.  This behavior might not be desirable if you have a large code base that was using `extractOpt` prior to Json 3.6.  If you prefer to maintain the pre-3.6 `extractOpt` behavior, you can specify the format option `strictOptionParsingPre36`
+
+```scala
+val formats: Formats = new DefaultFormats {
+  override val strictOptionParsingPre36: Boolean = true
+}
+```
+
+Note the following examples:
+
+### Pre-3.6 behavior
+
+```scala
+val formats: Formats = new DefaultFormats {
+  override val strictOptionParsingPre36: Boolean = true
+}
+case class SerializationSpec(someInt: Int, someString: Option[String])
+val json = parse("""{ "someInt": 123 }""")
+// someString is None
+val someString = (json \ "someString").extractOpt[String]
+```
+
+### Post-3.6 behavior
+
+```scala
+val formats: Formats = new DefaultFormats {
+  override val strictOptionParsing: Boolean = true
+}
+case class SerializationSpec(someInt: Int, someString: Option[String])
+val json = parse("""{ "someInt": 123 }""")
+// throws MappingException.
+val someString = (json \ "someString").extractOpt[String]
+```
+
 Serialization
 =============
 
@@ -792,7 +826,7 @@ Serialization supports:
 * Recursive types
 * Serialization of fields of a class (see below)
 * Custom serializer functions for types that are not supported (see below)
- 
+
 If the class contains camel-case fields (i.e: firstLetterLowercaseAndNextWordsCapitalized) but you want to produce a json string with snake casing (i.e., separated_by_underscores), you can use the `snakizeKeys` method:
 
 ```scala
@@ -801,7 +835,7 @@ ser: String = {"firstName":"Mary"}
 
 scala> compact(render(parse(ser).snakizeKeys))
 res0: String = {"first_name":"Mary"}
-``` 
+```
 
 Serializing polymorphic Lists
 -----------------------------

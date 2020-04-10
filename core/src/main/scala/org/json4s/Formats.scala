@@ -81,6 +81,7 @@ trait Formats extends Serializable { self: Formats =>
   def companions: List[(Class[_], AnyRef)] = Nil
   def allowNull: Boolean = true
   def strictOptionParsing: Boolean = false
+  def strictOptionParsingPre36: Boolean = false
   def strictArrayExtraction: Boolean = false
   def alwaysEscapeUnicode: Boolean = false
 
@@ -110,6 +111,7 @@ trait Formats extends Serializable { self: Formats =>
                     wCompanions: List[(Class[_], AnyRef)] = self.companions,
                     wAllowNull: Boolean = self.allowNull,
                     wStrictOptionParsing: Boolean = self.strictOptionParsing,
+                    wStrictOptionParsingPre36: Boolean = self.strictOptionParsingPre36,
                     wStrictArrayExtraction: Boolean = self.strictArrayExtraction,
                     wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
                     wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy): Formats =
@@ -127,6 +129,7 @@ trait Formats extends Serializable { self: Formats =>
       override def companions: List[(Class[_], AnyRef)] = wCompanions
       override def allowNull: Boolean = wAllowNull
       override def strictOptionParsing: Boolean = wStrictOptionParsing
+      override def strictOptionParsingPre36: Boolean = wStrictOptionParsingPre36
       override def strictArrayExtraction: Boolean = wStrictArrayExtraction
       override def alwaysEscapeUnicode: Boolean = wAlwaysEscapeUnicode
       override def emptyValueStrategy: EmptyValueStrategy = wEmptyValueStrategy

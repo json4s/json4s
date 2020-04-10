@@ -366,7 +366,7 @@ object Extraction {
         Right(extract(json, scalaType.typeArgs(1)))
       })).getOrElse(fail("Expected value but got " + json))
     } else if (scalaType.isOption) {
-      customOrElse(scalaType, json)(v => (if(formats.strictOptionParsing) v.toSome else v.toOption) flatMap (j => Option(extract(j, scalaType.typeArgs.head))))
+      customOrElse(scalaType, json)(v => (if(formats.strictOptionParsing || formats.strictOptionParsingPre36) v.toSome else v.toOption) flatMap (j => Option(extract(j, scalaType.typeArgs.head))))
     } else if (scalaType.isMap) {
       customOrElse(scalaType, json)({
         _ match {
@@ -564,7 +564,7 @@ object Extraction {
         } catch {
           case e @ MappingException(msg, _) =>
             if (descr.isOptional &&
-                (!formats.strictOptionParsing || extract(json, ScalaType[Null](implicitly)) == null))
+                (!(formats.strictOptionParsing || formats.strictOptionParsingPre36) || extract(json, ScalaType[Null](implicitly)) == null))
               defv(None)
             else fail("No usable value for " + descr.name + "\n" + msg, e)
         }
