@@ -595,7 +595,7 @@ object Extraction {
           else x
         } catch {
           case e @ MappingException(msg, _) =>
-            if (descr.isOptional && !(formats.strictOptionParsing || || formats.strictOptionParsingPre36)) {
+            if (descr.isOptional && !(formats.strictOptionParsing || formats.strictOptionParsingPre36)) {
               defv(None)
             } else fail("No usable value for " + descr.name + "\n" + msg, e)
         }
