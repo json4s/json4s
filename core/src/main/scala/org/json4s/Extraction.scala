@@ -118,7 +118,7 @@ object Extraction {
 
     def decomposeObject(k: Class[_]) = {
       val klass = Reflector.scalaTypeOf(k)
-      val descriptor = Reflector.describe(klass).asInstanceOf[reflect.ClassDescriptor]
+      val descriptor = Reflector.describe2(klass).asInstanceOf[reflect.ClassDescriptor]
       val ctorParams = descriptor.mostComprehensive.map(_.name)
       val methods = k.getMethods.toSeq.map(_.getName)
       val iter = descriptor.properties.iterator
@@ -408,7 +408,7 @@ object Extraction {
       }
     } else {
       customOrElse(scalaType, json) { _ =>
-        Reflector.describe(scalaType) match {
+        Reflector.describe2(scalaType) match {
           case PrimitiveDescriptor(tpe, default) => convert(json, tpe, formats, default)
           case o: ClassDescriptor if o.erasure.isSingleton =>
             if (json == JObject(List.empty))

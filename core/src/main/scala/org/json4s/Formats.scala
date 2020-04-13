@@ -97,6 +97,14 @@ trait Formats extends Serializable { self: Formats =>
   def strictFieldDeserialization: Boolean = false
 
   /**
+   * Setting to false preserves library's behavior prior to 3.6, where companion object constructors were only
+   * considered when deserializing if there were no primary constructors. Setting to true preserves the
+   * backwards-incompatible change made in 3.6 to always consider companion object constructors when deserializing
+   * (https://github.com/json4s/json4s/pull/487).
+   */
+  def alwaysConsiderCompanionConstructors: Boolean = true
+
+  /**
    * The name of the field in JSON where type hints are added (jsonClass by default)
    */
   def typeHintFieldName: String = "jsonClass"
@@ -125,6 +133,7 @@ trait Formats extends Serializable { self: Formats =>
                     wStrictOptionParsing: Boolean = self.strictOptionParsing,
                     wStrictArrayExtraction: Boolean = self.strictArrayExtraction,
                     wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
+                    wAlwaysConsiderCompanionConstructors: Boolean = self.alwaysConsiderCompanionConstructors,
                     wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy,
                     wStrictFieldDeserialization: Boolean = self.strictFieldDeserialization): Formats =
     new Formats {
@@ -144,6 +153,7 @@ trait Formats extends Serializable { self: Formats =>
       override def strictOptionParsing: Boolean = wStrictOptionParsing
       override def strictArrayExtraction: Boolean = wStrictArrayExtraction
       override def alwaysEscapeUnicode: Boolean = wAlwaysEscapeUnicode
+      override def alwaysConsiderCompanionConstructors: Boolean = wAlwaysConsiderCompanionConstructors
       override def emptyValueStrategy: EmptyValueStrategy = wEmptyValueStrategy
       override def strictFieldDeserialization: Boolean = wStrictFieldDeserialization
     }
@@ -171,6 +181,15 @@ trait Formats extends Serializable { self: Formats =>
   def withStrictOptionParsing: Formats = copy(wStrictOptionParsing = true)
 
   def withStrictArrayExtraction: Formats = copy(wStrictArrayExtraction = true)
+
+  /**
+   * Prior to 3.6 companion object constructors were only considered when deserializing if there were no primary
+   * constructors. A backwards-incompatible change was made in 3.6 to always consider companion object constructors
+   * when deserializing (https://github.com/json4s/json4s/pull/487), and is the default setting
+   * (alwaysConsiderCompanionConstructors = true). This changes the setting to false to preserve pre-3.6
+   * deserialization behavior.
+   */
+  def withPre36DeserializationBehavior: Formats = copy(wAlwaysConsiderCompanionConstructors = false)
 
   def strict: Formats = copy(wStrictOptionParsing = true, wStrictArrayExtraction = true)
 
