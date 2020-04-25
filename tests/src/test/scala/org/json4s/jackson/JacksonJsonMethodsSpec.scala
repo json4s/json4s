@@ -3,7 +3,7 @@ package jackson
 
 import org.specs2.mutable.Specification
 
-object JacksonJsonMethodsSpec extends Specification {
+class JacksonJsonMethodsSpec extends Specification {
 
   import org.json4s.JsonDSL._
   import JsonMethods._

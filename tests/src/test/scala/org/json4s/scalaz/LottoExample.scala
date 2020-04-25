@@ -7,7 +7,7 @@ import native.JsonMethods._
 
 import org.specs2.mutable.Specification
 
-object LottoExample extends Specification {
+class LottoExample extends Specification {
   case class Winner(winnerId: Long, numbers: List[Int])
   case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[String])
 

@@ -10,7 +10,7 @@ import scala.util.Try
 /**
 * System under specification for JSON Printing.
 */
-object JsonPrintingSpec extends Specification with JValueGen with ScalaCheck {
+class JsonPrintingSpec extends Specification with JValueGen with ScalaCheck {
   import native.Document
   import native.Printer
   import native.JsonMethods._

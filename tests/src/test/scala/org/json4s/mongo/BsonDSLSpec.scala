@@ -30,7 +30,7 @@ import org.specs2.mutable.Specification
 import com.mongodb.{BasicDBList, DBObject}
 import scala.collection.JavaConverters._
 
-object BsonDSLSpec extends Specification  {
+class BsonDSLSpec extends Specification  {
 
   "BsonDSL" should {
     "Convert ObjectId properly" in {

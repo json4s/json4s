@@ -19,8 +19,8 @@ package org.json4s
 import org.specs2.mutable.Specification
 import org.json4s.native.Document
 
-object NativeDiffExamples extends DiffExamples[Document]("Native") with native.JsonMethods
-object JacksonDiffExamples extends DiffExamples[JValue]("Jackson") with jackson.JsonMethods
+class NativeDiffExamples extends DiffExamples[Document]("Native") with native.JsonMethods
+class JacksonDiffExamples extends DiffExamples[JValue]("Jackson") with jackson.JsonMethods
 
 abstract class DiffExamples[T](mod: String) extends Specification with JsonMethods[T]  {
 

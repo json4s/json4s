@@ -23,7 +23,7 @@ import org.specs2.mutable.Specification
 import com.mongodb.DBObject
 import scala.util.control.Exception._
 
-object JObjectParserSpec extends Specification  {
+class JObjectParserSpec extends Specification  {
 
   title("JObjectParser Specification")
 

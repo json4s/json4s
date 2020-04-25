@@ -24,12 +24,12 @@ import org.joda.time._
 import org.specs2.mutable.Specification
 
 
-object NativeJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Native") {
+class NativeJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Native") {
   val s: Serialization = native.Serialization
   val m: JsonMethods[_] =  native.JsonMethods
 }
 
-object JacksonJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Jackson") {
+class JacksonJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Jackson") {
   val s: Serialization = jackson.Serialization
   val m: JsonMethods[_] =  jackson.JsonMethods
 }

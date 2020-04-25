@@ -18,7 +18,7 @@ object EitherTest {
 
 }
 
-object JacksonEitherTest extends EitherTest[JValue]("Native") with jackson.JsonMethods
+class JacksonEitherTest extends EitherTest[JValue]("Native") with jackson.JsonMethods
 
 abstract class EitherTest[T](mod: String) extends Specification with JsonMethods[T] {
 

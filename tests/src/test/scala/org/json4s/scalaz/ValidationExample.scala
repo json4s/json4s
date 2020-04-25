@@ -10,7 +10,7 @@ import org.json4s._
 
 import org.specs2.mutable.Specification
 
-object ValidationExample extends Specification {
+class ValidationExample extends Specification {
 
   case class Person(name: String, age: Int)
 

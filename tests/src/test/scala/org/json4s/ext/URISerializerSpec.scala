@@ -20,11 +20,11 @@ package ext
 import java.net.URI
 import org.specs2.mutable.Specification
 
-object NativeURISerializerSpec extends URISerializerSpec("Native") {
+class NativeURISerializerSpec extends URISerializerSpec("Native") {
   val s: Serialization = native.Serialization
 }
 
-object JacksonURISerializerSpec extends URISerializerSpec("Jackson") {
+class JacksonURISerializerSpec extends URISerializerSpec("Jackson") {
   val s: Serialization = jackson.Serialization
 }
 

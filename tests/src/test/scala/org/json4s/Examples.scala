@@ -20,7 +20,7 @@ import org.json4s.prefs.EmptyValueStrategy
 import org.specs2.mutable.Specification
 import org.json4s.native.Document
 
-object NativeExamples extends Examples[Document]("Native") with native.JsonMethods {
+class NativeExamples extends Examples[Document]("Native") with native.JsonMethods {
   import JsonDSL._
 
   "issue 482 Infinity" in {

@@ -4,7 +4,7 @@ import org.specs2.mutable.Specification
 import java.util.UUID
 import scala.collection.mutable
 
-object SerializationBugs extends Specification {
+class SerializationBugs extends Specification {
   import native.Serialization.{ read, write => swrite }
 
   implicit val formats = native.Serialization.formats(NoTypeHints)

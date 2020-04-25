@@ -3,7 +3,7 @@ package native
 
 import org.specs2.mutable.Specification
 
-object NativeJsonMethodsSpec extends Specification {
+class NativeJsonMethodsSpec extends Specification {
 
   import org.json4s.JsonDSL._
   import JsonMethods._

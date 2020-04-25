@@ -4,7 +4,7 @@ package org.json4s
 import util.control.Exception._
 import org.specs2.mutable.Specification
 
-object ParserBugs extends Specification {
+class ParserBugs extends Specification {
   import native.JsonParser
   import native.JsonMethods._
 
