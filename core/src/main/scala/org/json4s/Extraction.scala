@@ -26,12 +26,28 @@ import scala.reflect.Manifest
 import scala.reflect.NameTransformer.encode
 import scala.collection.JavaConverters._
 import scala.util.Try
+import scala.util.Properties
+import scala.util.control.NonFatal
 
 /** Function to extract values from JSON AST using case classes.
  *
  *  See: ExtractionExamples.scala
  */
 object Extraction {
+
+  private[this] val scala213: Double = 2.13
+
+  private[this] val currentScalaVersion: Double = 2.13
+
+  private[this] val scalaVersion: Double = try {
+    Properties.scalaPropOrNone("version.number").map {
+      _.split("""\.""").take(2).mkString(".").toDouble
+    }.getOrElse(currentScalaVersion)
+  } catch {
+    case NonFatal(e) =>
+      e.printStackTrace()
+      currentScalaVersion
+  }
 
   /** Extract a case class from JSON.
    * @see org.json4s.JsonAST.JValue#extract
@@ -481,7 +497,7 @@ object Extraction {
         import language.reflectiveCalls
 
         getCompanion("scala.collection.generic.GenericTraversableTemplate") match {
-          case Some(c) =>
+          case Some(c) if scalaVersion < scala213 =>
             val companion = c.asInstanceOf[{def apply(elems: collection.Seq[_]): Any}]
             mkCollection(a => companion(a.toSeq))
           case _ =>
