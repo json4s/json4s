@@ -26,28 +26,12 @@ import scala.reflect.Manifest
 import scala.reflect.NameTransformer.encode
 import scala.collection.JavaConverters._
 import scala.util.Try
-import scala.util.Properties
-import scala.util.control.NonFatal
 
 /** Function to extract values from JSON AST using case classes.
  *
  *  See: ExtractionExamples.scala
  */
 object Extraction {
-
-  private[this] val scala213: Double = 2.13
-
-  private[this] val currentScalaVersion: Double = 2.13
-
-  private[this] val scalaVersion: Double = try {
-    Properties.scalaPropOrNone("version.number").map {
-      _.split("""\.""").take(2).mkString(".").toDouble
-    }.getOrElse(currentScalaVersion)
-  } catch {
-    case NonFatal(e) =>
-      e.printStackTrace()
-      currentScalaVersion
-  }
 
   /** Extract a case class from JSON.
    * @see org.json4s.JsonAST.JValue#extract
@@ -482,36 +466,10 @@ object Extraction {
       else if (tpe.erasure == classOf[java.util.ArrayList[_]]) mkCollection(a => new java.util.ArrayList[Any](a.toList.asJavaCollection))
       else if (tpe.erasure.isArray) mkCollection(mkTypedArray)
       else {
-        def getCompanion(className: String): Option[Any] = {
-          val c = try {
-            Some(Class.forName(className).isAssignableFrom(tpe.erasure))
-          } catch {
-            case _: ClassNotFoundException =>
-              None
-          }
-          c.flatMap { _ =>
-            reflect.ScalaSigReader.companions(tpe.erasure.getName).flatMap(_._2)
-          }
-        }
-
-        import language.reflectiveCalls
-
-        getCompanion("scala.collection.generic.GenericTraversableTemplate") match {
-          case Some(c) if scalaVersion < scala213 =>
-            val companion = c.asInstanceOf[{def apply(elems: collection.Seq[_]): Any}]
-            mkCollection(a => companion(a.toSeq))
-          case _ =>
-            getCompanion("scala.collection.Factory") match {
-              case Some(c) =>
-                val companion = c.asInstanceOf[{def newBuilder: collection.mutable.Builder[Any, Any]}]
-                mkCollection{ a =>
-                  val b = companion.newBuilder
-                  b ++= a
-                  b.result
-                }
-              case _ =>
-                fail("Expected collection but got " + tpe)
-            }
+        mkCollection{ array =>
+          Compat.makeCollection(tpe.erasure, array).getOrElse(fail(
+            "Expected collection but got " + tpe
+          ))
         }
       }
     }
