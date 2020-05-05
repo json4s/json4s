@@ -68,7 +68,7 @@ object build {
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, v)) if v <= 12 =>
-          Seq("-Xfuture")
+          Seq("-Xfuture", "-Ypartial-unification")
         case _ =>
           Nil
       }
