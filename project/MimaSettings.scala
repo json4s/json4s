@@ -1,12 +1,12 @@
 import sbt._, Keys._
-import com.typesafe.tools.mima.plugin.MimaPlugin
 import com.typesafe.tools.mima.plugin.MimaKeys._
 
 object MimaSettings {
 
   val previousVersions = (0 to 8).toSet[Int].map(patch => s"3.6.$patch")
 
-  val mimaSettings = MimaPlugin.mimaDefaultSettings ++ Seq(
+  val mimaSettings = Seq(
+    ThisBuild / mimaReportSignatureProblems := true,
     mimaPreviousArtifacts := {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 13)) =>
