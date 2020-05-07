@@ -50,7 +50,7 @@ object ScalaSigReader {
       else {
         findField(current, name)
           .orElse(current.getInterfaces
-            .filter(c => c != classOf[java.io.Serializable])
+            .filterNot(_ == classOf[java.io.Serializable])
             .flatMap(findField(_, name)).headOption)
           .getOrElse(read(current.getSuperclass))
       }

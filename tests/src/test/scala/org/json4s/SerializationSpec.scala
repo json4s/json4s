@@ -129,20 +129,20 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
         */
       }
 
-      //      "#270 with expected json" in {
-      //        val expected = MyModel(Seq(MyId("alice")))
-      //        val json = """{"ids":["alice"]}"""
-      //        val actual = Extraction.extract[MyModel](jackson.parseJson(json))
-      //        actual must_== expected
-      //        /*
-      //[info]   x #270 with expected json
-      //[error]      'MyModel(List(alice))' is not equal to 'MyModel(List(MyId(alice)))' (SerializationSpec.scala:153)
-      //[info]
-      //[error] Expected: ...List([MyId(]al...))[)]
-      //[info]
-      //[error] Actual:   ...List([]al...))[]
-      //      */
-      //      }
+//      "#270 with expected json" in {
+//        val expected = MyModel(Seq(MyId("alice")))
+//        val json = """{"ids":["alice"]}"""
+//        val actual = Extraction.extract[MyModel](jackson.parseJson(json))
+//        actual must_== expected
+//        /*
+//[info]   x #270 with expected json
+//[error]      'MyModel(List(alice))' is not equal to 'MyModel(List(MyId(alice)))' (SerializationSpec.scala:153)
+//[info]
+//[error] Expected: ...List([MyId(]al...))[)]
+//[info]
+//[error] Actual:   ...List([]al...))[]
+//      */
+//      }
 
       "#270 works with single AnyVal" in {
         val expected = AnotherModel(MyId("alice"))
