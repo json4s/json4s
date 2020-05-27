@@ -132,7 +132,12 @@ object Reflector {
         case None => scala.Array[Method]()
       }
       val applyExecutables = applyMethods.map{ m => new Executable(m) }
-      constructorDescriptors ++ createConstructorDescriptors(applyExecutables)
+      val all = constructorDescriptors ++ createConstructorDescriptors(applyExecutables)
+
+      // https://github.com/json4s/json4s/issues/371 no actual requirements for the order are known, but
+      // deterministic ordering regardless of non-determinism by java.reflect is needed
+      all.toList.sortBy(c =>
+        (!c.isPrimary, c.constructor.constructor == null, -c.params.size, c.toString))
     }
 
     def createConstructorDescriptors(ccs: Iterable[Executable]): Seq[ConstructorDescriptor] = {
