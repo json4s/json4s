@@ -65,6 +65,17 @@ class DescriptorsSpec extends Specification {
       best.getParameterTypes() must_== Array(classOf[String], classOf[String], classOf[Person], classOf[Int])
     }
 
+    "pick the most specific one (i.e. skipping defaults) if values are given, and some extras are given" in {
+      // given
+      val descriptor: ClassDescriptor = describe(classOf[Company])
+
+      // when
+      val best = descriptor.bestMatching(List("name", "industry", "yearFounded", "nonExistingProperty")).get.constructor
+
+      // test
+      best.getParameterTypes() must_== Array(classOf[String], classOf[String], classOf[Person], classOf[Int])
+    }
+
     "pick the one using default value, not option if a value is not given" in {
       // given
       val descriptor: ClassDescriptor = describe(classOf[Company])
@@ -75,6 +86,29 @@ class DescriptorsSpec extends Specification {
       // test
       best.getParameterTypes() must_== Array(classOf[String], classOf[String], classOf[Person], classOf[Int])
     }
+
+    "pick the main one if not all values are provided" in {
+      // given
+      val descriptor: ClassDescriptor = describe(classOf[Citizen])
+
+      // when
+      val best = descriptor.bestMatching(List("firstName", "lastName")).get.constructor
+
+      // test
+      best.getParameterTypes() must_== Array(classOf[String], classOf[String], classOf[String])
+    }
+
+    "pick the main one if not all values are provided and some extras are provided" in {
+      // given
+      val descriptor: ClassDescriptor = describe(classOf[Citizen])
+
+      // when
+      val best = descriptor.bestMatching(List("firstName", "lastName", "newInfoWhichDoesNotExist")).get.constructor
+
+      // test
+      best.getParameterTypes() must_== Array(classOf[String], classOf[String], classOf[String])
+    }
+
   }
 
   private def describe(clazz: Class[_]) = {
