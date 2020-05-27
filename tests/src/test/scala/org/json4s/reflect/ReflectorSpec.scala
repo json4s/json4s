@@ -2,8 +2,7 @@ package org.json4s.reflect
 
 import org.json4s.reflect
 import org.specs2.mutable.Specification
-
-import ReflectorSpec.{Person, Dog, Cat}
+import ReflectorSpec.{Cat, Dog, Person}
 
 object ReflectorSpec {
   case class Person(firstName: String, lastName: String) {
@@ -46,6 +45,8 @@ class ReflectorSpec extends Specification {
       // the only human-visible constructor is visible as two - the constructor and the apply method
       descriptor.constructors.size must_== 2
       descriptor.constructors.count(_.isPrimary) must_== 1
+      descriptor.constructors(0).isPrimary must_== true
+      descriptor.constructors(1).isPrimary must_== false
     }
 
     "denote the annotated constructor as primary even if multiple exist" in {
@@ -54,6 +55,29 @@ class ReflectorSpec extends Specification {
 
       descriptor.constructors.size must_== 3
       descriptor.constructors.count(_.isPrimary) must_== 1
+    }
+
+    "retrieve constructors of a class in a deterministic order" in {
+      val klass = Reflector.scalaTypeOf(classOf[Person])
+      val descriptor = Reflector.describe(klass).asInstanceOf[reflect.ClassDescriptor]
+
+      descriptor.constructors.size must_== 4
+      val first = descriptor.constructors(0)
+      val second = descriptor.constructors(1)
+      val third = descriptor.constructors(2)
+      val fourth = descriptor.constructors(3)
+
+      first.params.map(_.name) must_== Seq("firstName", "lastName")
+      first.constructor.method must_== null
+      first.constructor.constructor must_!= null
+
+      second.params.map(_.name) must_== Seq("age")
+
+      third.params.map(_.name) must_== Seq("firstName", "lastName")
+      third.constructor.method must_!= null
+      third.constructor.constructor must_== null
+
+      fourth.params.map(_.name) must_== Seq("email")
     }
   }
 }
