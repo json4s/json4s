@@ -38,34 +38,34 @@ object Formats {
   private[json4s] def customSerializer(a: Any)(
     implicit format: Formats): PartialFunction[Any, JValue] = {
     format.customSerializers
-      .collectFirst { case (x) if x.serialize.isDefinedAt(a) => x.serialize }
+      .collectFirst { case x if x.serialize.isDefinedAt(a) => x.serialize }
       .getOrElse(PartialFunction.empty[Any, JValue])
   }
 
   private[json4s] def customRichDeserializer(a: (ScalaType, JValue))(
     implicit format: Formats): PartialFunction[(ScalaType, JValue), Any] = {
     format.richSerializers
-      .collectFirst { case (x) if x.deserialize.isDefinedAt(a) => x.deserialize }
+      .collectFirst { case x if x.deserialize.isDefinedAt(a) => x.deserialize }
       .getOrElse(PartialFunction.empty[(ScalaType, JValue), Any])
   }
 
   private[json4s] def customDeserializer(a: (TypeInfo, JValue))(
     implicit format: Formats): PartialFunction[(TypeInfo, JValue), Any] = {
     format.customSerializers
-      .collectFirst { case (x) if x.deserialize.isDefinedAt(a) => x.deserialize }
+      .collectFirst { case x if x.deserialize.isDefinedAt(a) => x.deserialize }
       .getOrElse(PartialFunction.empty[(TypeInfo, JValue), Any])
   }
 
   private[json4s] def customKeySerializer(a: Any)(
     implicit format: Formats): PartialFunction[Any, String] =
     format.customKeySerializers
-      .collectFirst { case (x) if x.serialize.isDefinedAt(a) => x.serialize }
+      .collectFirst { case x if x.serialize.isDefinedAt(a) => x.serialize }
       .getOrElse(PartialFunction.empty[Any, String])
 
   private[json4s] def customKeyDeserializer(a: (TypeInfo, String))(
     implicit format: Formats): PartialFunction[(TypeInfo, String), Any] =
     format.customKeySerializers
-      .collectFirst { case (x) if x.deserialize.isDefinedAt(a) => x.deserialize }
+      .collectFirst { case x if x.deserialize.isDefinedAt(a) => x.deserialize }
       .getOrElse(PartialFunction.empty[(TypeInfo, String), Any])
   // ---------------------------------
 }
@@ -338,9 +338,9 @@ private[json4s] object TypeHints {
 
     def classFor(hint: String): Option[Class[_]] = {
       def hasClass(h: TypeHints) =
-        scala.util.control.Exception.allCatch opt (h.classFor(hint)) map (_.isDefined) getOrElse(false)
+        scala.util.control.Exception.allCatch opt h.classFor(hint) map (_.isDefined) getOrElse false
 
-      components find (hasClass) flatMap (_.classFor(hint))
+      components find hasClass flatMap (_.classFor(hint))
     }
 
     override def deserialize: PartialFunction[(String, JObject), Any] = components.foldLeft[PartialFunction[(String, JObject),Any]](Map()) {
