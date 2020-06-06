@@ -178,7 +178,7 @@ object Extraction {
             case (k: JavaLong, v) => addField(k.toString, v, obj)
             case (k: Short, v) => addField(k.toString, v, obj)
             case (k: JavaShort, v) => addField(k.toString, v, obj)
-            case (k: Any, v) => {
+            case (k: Any, v) =>
               val customKeySerializer: PartialFunction[Any, String] = Formats.customKeySerializer(k)(formats)
               if(customKeySerializer.isDefinedAt(k)) {
                 addField(customKeySerializer(k), v, obj)
@@ -186,7 +186,6 @@ object Extraction {
                 fail("Do not know how to serialize key of type " + k.getClass + ". " +
                   "Consider implementing a CustomKeySerializer.")
               }
-            }
           }
         }
         obj.endObject()
@@ -376,24 +375,21 @@ object Extraction {
       customOrElse(scalaType, json)(v => (if(formats.strictOptionParsing) v.toSome else v.toOption) flatMap (j => Option(extract(j, scalaType.typeArgs.head))))
     } else if (scalaType.isMap) {
       customOrElse(scalaType, json)({
-        _ match {
-          case JObject(xs) => {
-            val kta = scalaType.typeArgs(0)
-            val ta = scalaType.typeArgs(1)
-            val values = xs.map {
-              case (key, value) =>
-                val convertedKey = convert(key, kta, formats)
-                val extractedValue = extractDetectingNonTerminal(value, ta)
-                convertedKey -> extractedValue
-            }
-            if (scalaType.isMutableMap) {
-              scala.collection.mutable.Map(values: _*)
-            } else {
-              values.toMap
-            }
+        case JObject(xs) =>
+          val kta = scalaType.typeArgs(0)
+          val ta = scalaType.typeArgs(1)
+          val values = xs.map {
+            case (key, value) =>
+              val convertedKey = convert(key, kta, formats)
+              val extractedValue = extractDetectingNonTerminal(value, ta)
+              convertedKey -> extractedValue
           }
-          case x => fail("Expected object but got " + x)
-        }
+          if (scalaType.isMutableMap) {
+            scala.collection.mutable.Map(values: _*)
+          } else {
+            values.toMap
+          }
+        case x => fail("Expected object but got " + x)
       })
     } else if (scalaType.isCollection) {
       customOrElse(scalaType, json)(new CollectionBuilder(_, scalaType).result)
@@ -531,7 +527,7 @@ object Extraction {
 
             renamedFields.foreach {
               case (propName: String, _: JValue) if (!setOfDeserializableFields.contains(propName)) =>
-                fail(s"Attempted to deserialize JField ${propName} into undefined property on target ClassDescriptor.")
+                fail(s"Attempted to deserialize JField $propName into undefined property on target ClassDescriptor.")
               case _ =>
             }
           }
