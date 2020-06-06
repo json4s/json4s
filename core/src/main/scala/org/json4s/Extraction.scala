@@ -316,7 +316,7 @@ object Extraction {
       case "true"  => JBool.True
       case "false" => JBool.False
       case "[]"    => JArray(Nil)
-      case x @ _   =>
+      case _ =>
         if (value.charAt(0).isDigit) {
           if (value.indexOf('.') == -1) {
             if (useBigIntForLong) JInt(BigInt(value))
@@ -347,18 +347,18 @@ object Extraction {
     val uniquePaths = map.keys.foldLeft[Set[String]](Set()) {
       (set, key) =>
         key match {
-          case ArrayProp(p, f@_, i@_) => set + p
-          case OtherProp(p, f@_)    => set + p
-          case ArrayElem(p, f@_)    => set + p
+          case ArrayProp(p, _, _) => set + p
+          case OtherProp(p, _)    => set + p
+          case ArrayElem(p, _)    => set + p
           case x @ _              => set + x
         }
     }.toList.sortWith(_ < _) // Sort is necessary to get array order right
 
     uniquePaths.foldLeft[JValue](JNothing) { (jvalue, key) =>
       jvalue.merge(key match {
-        case ArrayProp(p@_, f, i@_) => JObject(List(JField(f, unflatten(submap(key)))))
-        case ArrayElem(p@_, f@_)    => JArray(List(unflatten(submap(key))))
-        case OtherProp(p@_, f)    => JObject(List(JField(f, unflatten(submap(key)))))
+        case ArrayProp(_, f, _) => JObject(List(JField(f, unflatten(submap(key)))))
+        case ArrayElem(_, _)    => JArray(List(unflatten(submap(key))))
+        case OtherProp(_, f)    => JObject(List(JField(f, unflatten(submap(key)))))
         case ""                 => extractValue(map(key))
       })
     }
@@ -520,7 +520,7 @@ object Extraction {
                 formats.fieldSerializers.find { case (clazz, _) => clazz == a.getClass }
               }
               maybeClassSerializer match {
-                case Some((clazz@_, fieldSerializer)) => fields.map { field =>
+                case Some((_, fieldSerializer)) => fields.map { field =>
                   Try { fieldSerializer.deserializer.apply(field) }.getOrElse(field)
                 }
                 case _ => fields

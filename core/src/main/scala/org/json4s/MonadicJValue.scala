@@ -58,7 +58,7 @@ class MonadicJValue(jv: JValue) {
 
   private[this] def findDirect(xs: List[JValue], p: JValue => Boolean): List[JValue] = xs.flatMap {
     case JObject(l) => l.filter {
-      case (n@_, x) if p(x) => true
+      case (_, x) if p(x) => true
       case _ => false
     } map (_._2)
     case JArray(l) => findDirect(l, p)
@@ -122,7 +122,7 @@ class MonadicJValue(jv: JValue) {
     def rec(acc: A, v: JValue) = {
       val newAcc = f(acc, v)
       v match {
-        case JObject(l) => l.foldLeft(newAcc) { case (a, (name@_, value)) => value.fold(a)(f) }
+        case JObject(l) => l.foldLeft(newAcc) { case (a, (_, value)) => value.fold(a)(f) }
         case JArray(l) => l.foldLeft(newAcc)((a, e) => e.fold(a)(f))
         case _ => newAcc
       }
@@ -138,7 +138,7 @@ class MonadicJValue(jv: JValue) {
     def rec(acc: A, v: JValue) = {
       v match {
         case JObject(l) => l.foldLeft(acc) {
-          case (a, field @ (name@_, value)) => value.foldField(f(a, field))(f)
+          case (a, field @ (_, value)) => value.foldField(f(a, field))(f)
         }
         case JArray(l) => l.foldLeft(acc)((a, e) => e.foldField(a)(f))
         case _ => acc

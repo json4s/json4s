@@ -31,7 +31,7 @@ object ScalaSigReader {
     val cl = findClass(clazz.erasure)
     val cstr = findConstructor(cl, argNames)
 
-    val maybeArgType = cstr map { c =>
+    val maybeArgType = cstr map { _ =>
       findArgType(cstr.get, argNames.indexOf(argName), typeArgIndexes)
     } orElse {
       val companionClass = findCompanionObject(clazz.erasure)
