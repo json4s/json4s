@@ -201,7 +201,7 @@ object ScalaSigReader {
   val ClassLoaders = Vector(this.getClass.getClassLoader, Thread.currentThread().getContextClassLoader)
 
   def companions(t: String, companion: Option[AnyRef] = None, classLoaders: Iterable[ClassLoader] = ClassLoaders) = {
-    def path(tt: String) = if (tt.endsWith("$")) tt else (tt + "$")
+    def path(tt: String) = if (tt.endsWith("$")) tt else tt + "$"
     val cc: Option[Class[_]] = resolveClass(path(t), classLoaders) flatMap ((c: Class[_]) => resolveClass(path(Reflector.rawClassOf(c).getName), classLoaders))
     def safeField(ccc: Class[_]) =
       try { Option(ccc.getField(ModuleFieldName)).map(_.get(companion.orNull)) } catch { case _: Throwable => None }

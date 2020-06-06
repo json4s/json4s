@@ -8,7 +8,7 @@ private[json4s] trait DefaultReaders0 {
       def read(value: JValue): F[V] = value match {
         case JArray(items) =>
           val builder = cbf()
-          (items.foldLeft(builder) { (acc, i) => acc += valueReader.read(i); acc}).result()
+          items.foldLeft(builder) { (acc, i) => acc += valueReader.read(i); acc}.result()
         case x =>
           throw new MappingException("Can't convert %s to Iterable." format x)
       }

@@ -565,7 +565,7 @@ private sealed abstract class StreamingJsonWriter[T <: JWriter] extends JsonWrit
   protected def writePretty(outdent: Int = 0): Unit = {
     if (pretty) {
       nodes write '\n'
-      nodes.write((" " * (level * spaces - outdent)))
+      nodes.write(" " * (level * spaces - outdent))
     }
   }
 }
