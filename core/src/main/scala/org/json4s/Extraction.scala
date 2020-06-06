@@ -133,15 +133,17 @@ object Extraction {
 
         val fieldVal = prop.get(any)
         val n = prop.name
-        if (fs.isDefined) {
-          val fieldSerializer = fs.get
-          val ff = (fieldSerializer.serializer orElse Map((n, fieldVal) -> Some((n, fieldVal))))((n, fieldVal))
-          if (ff.isDefined) {
-            val Some((nn, vv)) = ff
-            val vvv = if (fieldSerializer.includeLazyVal) loadLazyValValue(a, nn, vv) else vv
-            addField(nn, vvv, obj)
-          }
-        } else if ((ctorParams contains prop.name) && (methods contains encode(prop.name))) addField(n, fieldVal, obj)
+        fs match {
+          case Some(fieldSerializer) =>
+            val ff = (fieldSerializer.serializer orElse Map((n, fieldVal) -> Some((n, fieldVal))))((n, fieldVal))
+            ff.foreach { case (nn, vv) =>
+              val vvv = if (fieldSerializer.includeLazyVal) loadLazyValValue(a, nn, vv) else vv
+              addField(nn, vvv, obj)
+            }
+          case None if (ctorParams contains prop.name) && (methods contains encode(prop.name)) =>
+            addField(n, fieldVal, obj)
+          case _ =>
+        }
       }
       obj.endObject()
     }
@@ -204,10 +206,7 @@ object Extraction {
         while(iter.hasNext) { internalDecomposeWithBuilder(iter.next(), arr) }
         arr.endArray()
       } else if (classOf[Option[_]].isAssignableFrom(k)) {
-        val v = any.asInstanceOf[Option[_]]
-        if (v.isDefined) {
-          internalDecomposeWithBuilder(v.get, current)
-        }
+        any.asInstanceOf[Option[_]].foreach(internalDecomposeWithBuilder(_, current))
       } else if (classOf[Either[_, _]].isAssignableFrom(k)) {
         val v = any.asInstanceOf[Either[_, _]]
         if (v.isLeft) {
@@ -553,7 +552,8 @@ object Extraction {
 
     private[this] def buildCtorArg(json: JValue, descr: ConstructorParamDescriptor) = {
       val default = descr.defaultValue
-      def defv(v: Any) = if (default.isDefined) default.get() else v
+      def defv(v: Any) = default.map(_()).getOrElse(v)
+
       if (descr.isOptional && json == JNothing) defv(None)
       else {
         try {

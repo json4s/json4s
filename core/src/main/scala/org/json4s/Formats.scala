@@ -404,7 +404,7 @@ case class MappedTypeHints(hintMap: Map[Class[_], String]) extends TypeHints {
   override val hints: List[Class[_]] = hintMap.keys.toList
   private val lookup: Map[String, Class[_]] = hintMap.map(_.swap)
 
-  def hintFor(clazz: Class[_]) = hintMap.get(clazz).get  // will throw exception if not present
+  def hintFor(clazz: Class[_]) = hintMap(clazz)  // will throw exception if not present
   def classFor(hint: String) = lookup.get(hint)
 }
 
