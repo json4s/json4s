@@ -68,6 +68,11 @@ class RichSerializerTest extends Specification {
       extracted._1.enclosedType shouldEqual manifest[TypeBearer[String]]
     }
 
+    "serialize with rich serializer logic" in {
+      implicit val formats: Formats = DefaultFormats + CustomTuple2Serializer
+      Extraction.decompose(("foo", 1)) shouldEqual JArray(List(JString("foo"), JInt(1)))
+    }
+
     "deserialize hash maps correctly" in {
       implicit val formats: Formats = DefaultFormats + HashMapDeserializer
       val json = """{"map":{"foo": null, "bar": 2}}"""
