@@ -49,6 +49,13 @@ object Formats {
       .getOrElse(PartialFunction.empty[(ScalaType, JValue), Any])
   }
 
+  private[json4s] def customRichSerializer(a: Any)(
+    implicit format: Formats): PartialFunction[Any, JValue] = {
+    format.richSerializers
+      .collectFirst { case (x) if x.serialize.isDefinedAt(a) => x.serialize }
+      .getOrElse(PartialFunction.empty[Any, JValue])
+  }
+
   private[json4s] def customDeserializer(a: (TypeInfo, JValue))(
     implicit format: Formats): PartialFunction[(TypeInfo, JValue), Any] = {
     format.customSerializers
@@ -116,7 +123,7 @@ trait Formats extends Serializable { self: Formats =>
                     wCustomSerializers: List[Serializer[_]] = self.customSerializers,
                     wCustomKeySerializers: List[KeySerializer[_]] = self.customKeySerializers,
                     wFieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers,
-                    wRichSerializers: List[RichSerializer[_]] = List.empty,
+                    wRichSerializers: List[RichSerializer[_]] = self.richSerializers,
                     wWantsBigInt: Boolean = self.wantsBigInt,
                     wWantsBigDecimal: Boolean = self.wantsBigDecimal,
                     withPrimitives: Set[Type] = self.primitives,
