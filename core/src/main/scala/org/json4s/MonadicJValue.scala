@@ -15,7 +15,7 @@ class MonadicJValue(jv: JValue) {
   def \(nameToFind: String): JValue = jv match {
     case JArray(xs) => JArray(findDirectByName(xs, nameToFind))
     case _ =>
-      findDirectByName(List(jv), nameToFind) match {
+      findDirectByName(jv :: Nil, nameToFind) match {
         case Nil => JNothing
         case x :: Nil => x
         case x => JArray(x)
