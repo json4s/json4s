@@ -23,19 +23,13 @@ class MonadicJValue(jv: JValue) {
   }
 
   private[this] def findDirectByName(xs: List[JValue], name: String): List[JValue] = xs.flatMap {
-    case JObject(l) => l.filter {
-      case (n, _) if n == name => true
-      case _ => false
-    } map (_._2)
+    case JObject(l) => l.collect { case (n, v) if n == name => v }
     case JArray(l) => findDirectByName(l, name)
     case _ => Nil
   }
 
   private[this] def findDirect(xs: List[JValue], p: JValue => Boolean): List[JValue] = xs.flatMap {
-    case JObject(l) => l.filter {
-      case (_, x) if p(x) => true
-      case _ => false
-    } map (_._2)
+    case JObject(l) => l.collect { case (_, x) if p(x) => x }
     case JArray(l) => findDirect(l, p)
     case x if p(x) => x :: Nil
     case _ => Nil
