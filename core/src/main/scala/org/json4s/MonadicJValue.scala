@@ -40,7 +40,7 @@ class MonadicJValue(jv: JValue) {
       case JArray(x)   => JArray(x)
     }
     case _ =>
-      findDirectByName(List(jv), nameToFind) match {
+      findDirectByName(jv :: Nil, nameToFind) match {
         case Nil => JNothing
         case x :: Nil => x
         case x => JArray(x)
