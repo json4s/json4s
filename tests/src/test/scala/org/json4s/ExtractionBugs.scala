@@ -363,13 +363,13 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       JObject(Nil),
       JArray(Nil)
     )) { obj =>
-      s"Extract should fail if when strictOptionParsing is on and extracting from ${obj.toString}" in {
+      s"Extract should fail when strictOptionParsing is on and extracting from ${obj.toString}" in {
         implicit val formats = new DefaultFormats {
           override val strictOptionParsing: Boolean = true
         }
 
         Extraction.extract[OptionOfInt](obj) must throwA(
-          new MappingException("with some meaningful text")
+          new MappingException("No value set for Option property: opt")
         )
       }
     }

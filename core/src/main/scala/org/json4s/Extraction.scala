@@ -16,15 +16,18 @@
 
 package org.json4s
 
-import java.lang.{Integer => JavaInteger, Long => JavaLong, Short => JavaShort, Byte => JavaByte, Boolean => JavaBoolean, Double => JavaDouble, Float => JavaFloat}
+import java.lang.{Boolean => JavaBoolean, Byte => JavaByte, Double => JavaDouble, Float => JavaFloat, Integer => JavaInteger, Long => JavaLong, Short => JavaShort}
 import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
-import java.util.Date
 import java.sql.Timestamp
+import java.util.Date
+
 import org.json4s
-import reflect._
+import org.json4s.reflect._
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.reflect.Manifest
 import scala.reflect.NameTransformer.encode
-import scala.collection.JavaConverters._
 import scala.util.Try
 
 /** Function to extract values from JSON AST using case classes.
@@ -501,10 +504,12 @@ object Extraction {
 
     private[this] def setFields(a: AnyRef) = json match {
       case JObject(fields) =>
+        val fieldsActuallySet = mutable.Buffer[String]()
+        val ctorArgs = constructor.params.map(_.name)
+        val fieldsToSet = descr.properties.filterNot(f => ctorArgs.contains(f.name))
+        val idPf: PartialFunction[JField, JField] = { case f => f }
+
         formats.fieldSerializer(a.getClass) foreach { serializer =>
-          val ctorArgs = constructor.params.map(_.name)
-          val fieldsToSet = descr.properties.filterNot(f => ctorArgs.contains(f.name))
-          val idPf: PartialFunction[JField, JField] = { case f => f }
           val jsonSerializers = (fields map { f =>
             val JField(n, v) = (serializer.deserializer orElse idPf)(f)
             (n, (n, v))
@@ -539,7 +544,15 @@ object Extraction {
               // This is to prevent the extracted value to be overwritten by the lazy val initialization.
               if (serializer.includeLazyVal) loadLazyValValue(a, prop.name, vv) else ()
               prop.set(a, vv)
+              fieldsActuallySet += prop.name
             }
+          }
+        }
+        if (formats.strictOptionParsing) {
+          val diff = fieldsToSet.filter(_.returnType.isOption).map(_.name).diff(fieldsActuallySet)
+
+          if (diff.nonEmpty) {
+            fail(s"No value set for Option properties: ${diff.mkString(", ")}")
           }
         }
         a
@@ -550,7 +563,12 @@ object Extraction {
       val default = descr.defaultValue
       def defv(v: Any) = default.map(_()).getOrElse(v)
 
-      if (descr.isOptional && json == JNothing) defv(None)
+      if (descr.isOptional && json == JNothing) {
+        if (formats.strictOptionParsing) {
+          fail(s"No value set for Option property: ${descr.name}")
+        }
+        defv(None)
+      }
       else {
         try {
           val x = if (json == JNothing && default.isDefined) default.get() else extract(json, descr.argType)
@@ -598,7 +616,6 @@ object Extraction {
             case (arg, _) => arg
           }
       }
-
       try {
         if (jconstructor.getDeclaringClass == classOf[java.lang.Object]) {
           deserializedJson match {
@@ -645,6 +662,8 @@ object Extraction {
 
     def result: Any =
       json match {
+        case JNull if formats.strictOptionParsing && descr.properties.exists(_.returnType.isOption) =>
+          fail(s"No value set for Option property: ${descr.properties.filter(_.returnType.isOption).map(_.name).mkString(", ")}")
         case JNull if formats.allowNull => null
         case JNull if !formats.allowNull =>
           fail("Did not find value which can be converted into " + descr.fullName)
