@@ -141,7 +141,7 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
       
       val mf   = implicitly[Manifest[OptionValue]]
       parse("""{"value": null}""").extract[OptionValue](fm, mf) must throwA[MappingException]
-      parse("""{}""").extract[OptionValue](fm, mf) must_== OptionValue(None)
+      parse("""{}""").extract[OptionValue](fm, mf) must throwA[MappingException]
       parse("""{"value": 1}""").extract[OptionValue](fm, mf) must_== OptionValue(Some(1))
     }
 
