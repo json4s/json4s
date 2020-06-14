@@ -18,12 +18,12 @@ class JValueSerializer extends JsonSerializer[JValue]{
         case JBool(v) => json.writeBoolean(v)
         case JArray(elements) =>
           json.writeStartArray()
-          elements filterNot (_ == JNothing) foreach (x => serialize(x, json, provider))
+          elements foreach (x => serialize(x, json, provider))
           json.writeEndArray()
 
         case JSet(elements) =>
           json.writeStartArray()
-          elements filterNot (_ == JNothing) foreach (x => serialize(x, json, provider))
+          elements foreach (x => serialize(x, json, provider))
           json.writeEndArray()
 
         case JObject(fields) => {
