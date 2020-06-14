@@ -26,15 +26,16 @@ class JValueSerializer extends JsonSerializer[JValue]{
           elements foreach (x => serialize(x, json, provider))
           json.writeEndArray()
 
-        case JObject(fields) => {
+        case JObject(fields) =>
           json.writeStartObject()
-          fields filterNot (_._2 == JNothing) foreach {
+          fields foreach {
+            case (_, JNothing) => ()
             case (n, v) =>
               json.writeFieldName(n)
               serialize(v, json, provider)
           }
           json.writeEndObject()
-        }
+
         case JNull => json.writeNull()
         case JNothing => ()
       }
