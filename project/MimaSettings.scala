@@ -3,7 +3,7 @@ import com.typesafe.tools.mima.plugin.MimaKeys._
 
 object MimaSettings {
 
-  val previousVersions = (0 to 8).toSet[Int].map(patch => s"3.6.$patch")
+  val previousVersions = (0 to 9).toSet[Int].map(patch => s"3.6.$patch")
 
   val mimaSettings = Seq(
     ThisBuild / mimaReportSignatureProblems := true,
