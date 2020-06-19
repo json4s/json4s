@@ -14,7 +14,7 @@ object Dependencies {
   lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.3.1"
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.8"
   lazy val specs        = Def.setting(
-    "org.specs2" %% "specs2-scalacheck"            % "4.9.4" % "test"
+    "org.specs2" %% "specs2-scalacheck"            % "4.10.0" % "test"
   )
   lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "3.3.3" % "test"
 
