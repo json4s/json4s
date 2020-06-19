@@ -1,4 +1,3 @@
-import scala.xml.Group
 import Dependencies._
 import build._
 
