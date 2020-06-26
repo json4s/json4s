@@ -247,8 +247,12 @@ object SerializationExamples extends Specification {
   }
 }
 
-object ShortTypeHintExamples extends TypeHintExamples {
-  implicit val formats = native.Serialization.formats(ShortTypeHints(classOf[Fish] :: classOf[Dog] :: Nil))
+object ShortTypeHintExamples {
+  val formats = native.Serialization.formats(ShortTypeHints(classOf[Fish] :: classOf[Dog] :: Nil))
+}
+
+class ShortTypeHintExamples extends TypeHintExamples {
+  implicit val formats = ShortTypeHintExamples.formats
 
   "Deserialization succeeds even if jsonClass is not the first field" in {
     val ser = """{"animals":[],"pet":{"name":"pluto","jsonClass":"Dog"}}"""
@@ -261,7 +265,7 @@ object ShortTypeHintExamples extends TypeHintExamples {
   }
 }
 
-object MappedHintExamples extends TypeHintExamples {
+class MappedHintExamples extends TypeHintExamples {
   implicit val formats = native.Serialization.formats(MappedTypeHints(Map(classOf[Fish] -> "fish", classOf[Dog] -> "dog")))
 
   "Serialization provides no type hint when not mapped" in {
@@ -281,10 +285,13 @@ object MappedHintExamples extends TypeHintExamples {
   }
 }
 
-object FullTypeHintExamples extends TypeHintExamples {
+object FullTypeHintExamples {
+  val formats = native.Serialization.formats(FullTypeHints(List[Class[_]](classOf[Animal], classOf[True], classOf[False], classOf[Falcon], classOf[Chicken])))
+}
+class FullTypeHintExamples extends TypeHintExamples {
   import native.Serialization.{read, write => swrite}
 
-  implicit val formats = native.Serialization.formats(FullTypeHints(List[Class[_]](classOf[Animal], classOf[True], classOf[False], classOf[Falcon], classOf[Chicken])))
+  implicit val formats = FullTypeHintExamples.formats
 
   "Ambiguous field decomposition example" in {
     val a = Ambiguous(False())
@@ -327,7 +334,7 @@ object FullTypeHintExamples extends TypeHintExamples {
   }
 }
 
-object CustomTypeHintFieldNameExample extends TypeHintExamples {
+class CustomTypeHintFieldNameExample extends TypeHintExamples {
   import native.Serialization.{write => swrite}
 
   implicit val formats = new Formats {
@@ -376,7 +383,7 @@ case class Turtle(age: Int) extends Animal
 
 case class Objs(objects: List[Obj[_]])
 case class Obj[A](a: A)
-object CustomSerializerExamples extends Specification {
+class CustomSerializerExamples extends Specification {
   import native.Serialization.{read, write => swrite}
   import JsonAST._
   import java.util.regex.Pattern
@@ -464,7 +471,7 @@ class Interval(start: Long, end: Long) {
   val endTime = end
 }
 
-object CustomClassWithTypeHintsExamples extends Specification {
+class CustomClassWithTypeHintsExamples extends Specification {
   import native.Serialization.{read, write => swrite}
   import JsonAST._
 

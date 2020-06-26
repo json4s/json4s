@@ -7,7 +7,7 @@ import org.specs2.mutable.Specification
 /**
 * System under specification for JSON Pull Parser.
 */
-object PullParserExamples extends Specification {
+class PullParserExamples extends Specification {
 
   import native.JsonParser
   import JsonParser._

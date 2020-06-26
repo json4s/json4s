@@ -6,11 +6,11 @@ import org.json4s._
 import org.specs2.mutable.Specification
 
 
-object NativeJavaDateTimeSerializerSpec extends JavaDateTimeSerializerSpec("Native") {
+class NativeJavaDateTimeSerializerSpec extends JavaDateTimeSerializerSpec("Native") {
   val s: Serialization = native.Serialization
 }
 
-object JacksonJavaDateTimeSerializerSpec extends JavaDateTimeSerializerSpec("Jackson") {
+class JacksonJavaDateTimeSerializerSpec extends JavaDateTimeSerializerSpec("Jackson") {
   val s: Serialization = jackson.Serialization
 }
 

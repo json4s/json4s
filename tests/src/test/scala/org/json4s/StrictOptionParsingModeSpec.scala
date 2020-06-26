@@ -3,8 +3,8 @@ package org.json4s
 import org.specs2.mutable.Specification
 import org.json4s.native.Document
 
-object NativeStrictOptionParsingModeSpec extends StrictOptionParsingModeSpec[Document]("Native") with native.JsonMethods
-object JacksonStrictOptionParsingModeSpec extends StrictOptionParsingModeSpec[JValue]("Jackson") with jackson.JsonMethods
+class NativeStrictOptionParsingModeSpec extends StrictOptionParsingModeSpec[Document]("Native") with native.JsonMethods
+class JacksonStrictOptionParsingModeSpec extends StrictOptionParsingModeSpec[JValue]("Jackson") with jackson.JsonMethods
 
 abstract class StrictOptionParsingModeSpec[T](mod: String) extends Specification with JsonMethods[T] {
 

@@ -31,7 +31,7 @@ object ScalaSigReader {
     val cl = findClass(clazz.erasure)
     val cstr = findConstructor(cl, argNames)
 
-    val maybeArgType = cstr map { c =>
+    val maybeArgType = cstr map { _ =>
       findArgType(cstr.get, argNames.indexOf(argName), typeArgIndexes)
     } orElse {
       val companionClass = findCompanionObject(clazz.erasure)
@@ -44,12 +44,16 @@ object ScalaSigReader {
 
   def readField(name: String, clazz: Class[_], typeArgIndex: Int): Class[_] = {
     def read(current: Class[_]): MethodSymbol = {
-      if (current == classOf[java.lang.Object])
+      if (current == classOf[java.lang.Object]) {
         fail("Can't find field " + name + " from " + clazz)
-      else
+      }
+      else {
         findField(current, name)
-          .orElse(current.getInterfaces.flatMap(findField(_, name)).headOption)
+          .orElse(current.getInterfaces
+            .filterNot(_ == classOf[java.io.Serializable])
+            .flatMap(findField(_, name)).headOption)
           .getOrElse(read(current.getSuperclass))
+      }
     }
 
     findArgTypeForField(read(clazz), typeArgIndex)
@@ -197,7 +201,7 @@ object ScalaSigReader {
   val ClassLoaders = Vector(this.getClass.getClassLoader, Thread.currentThread().getContextClassLoader)
 
   def companions(t: String, companion: Option[AnyRef] = None, classLoaders: Iterable[ClassLoader] = ClassLoaders) = {
-    def path(tt: String) = if (tt.endsWith("$")) tt else (tt + "$")
+    def path(tt: String) = if (tt.endsWith("$")) tt else tt + "$"
     val cc: Option[Class[_]] = resolveClass(path(t), classLoaders) flatMap ((c: Class[_]) => resolveClass(path(Reflector.rawClassOf(c).getName), classLoaders))
     def safeField(ccc: Class[_]) =
       try { Option(ccc.getField(ModuleFieldName)).map(_.get(companion.orNull)) } catch { case _: Throwable => None }

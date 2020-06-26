@@ -19,8 +19,8 @@ package org.json4s
 import org.specs2.mutable.Specification
 import org.json4s.native.Document
 
-object NativeJsonQueryExamples extends JsonQueryExamples[Document]("Native") with native.JsonMethods
-object JacksonJsonQueryExamples extends JsonQueryExamples[JValue]("Jackson") with jackson.JsonMethods
+class NativeJsonQueryExamples extends JsonQueryExamples[Document]("Native") with native.JsonMethods
+class JacksonJsonQueryExamples extends JsonQueryExamples[JValue]("Jackson") with jackson.JsonMethods
 
 /**
 * System under specification for JSON Query Examples.

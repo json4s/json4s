@@ -1,7 +1,8 @@
 package org.json4s.scalaz
 
 import scalaz._
-import scalaz.syntax.bind._
+import scalaz.syntax.apply0._
+import scalaz.syntax.bind0._
 import scalaz.syntax.traverse._
 import scalaz.std.list._
 import scalaz.syntax.validation._
@@ -10,7 +11,7 @@ import org.json4s._
 
 import org.specs2.mutable.Specification
 
-object ValidationExample extends Specification {
+class ValidationExample extends Specification {
 
   case class Person(name: String, age: Int)
 
@@ -44,14 +45,14 @@ object ValidationExample extends Specification {
   "Range filtering" should {
     val json = native.JsonParser.parse(""" [{"s":10,"e":17},{"s":12,"e":13},{"s":11,"e":8}] """)
 
-    val ascending = (x1: Int, x2: Int) => {
-      if (x1 > x2) Fail("asc", s"${x1} > ${x2}") else (x1, x2).success
-    }.disjunction
+    val ascending: (Int, Int) => (NonEmptyList[Error] \/ (Int, Int)) = (x1, x2) => {
+      if (x1 > x2) Fail[(Int, Int)]("asc", s"${x1} > ${x2}") else (x1, x2).successNel[Error]
+    }.toDisjunction
 
     // Valid range is a range having start <= end
     implicit def rangeJSON: JSONR[Range] = new JSONR[Range] {
       def read(json: JValue) =
-        (((field[Int]("s")(json) |@| field[Int]("e")(json))(ascending)).disjunction.join map Range.tupled).validation
+        ((field[Int]("s")(json) |@| field[Int]("e")(json))(ascending).toDisjunction.join map Range.tupled).toValidation
     }
 
     "fail if lists contains invalid ranges" in {

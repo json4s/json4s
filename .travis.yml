@@ -3,17 +3,18 @@ dist: xenial
 jdk: openjdk8
 scala:
   - 2.11.12
-  - 2.12.10
-  - 2.13.1
+  - 2.12.11
+  - 2.13.2
 matrix:
   include:
-  - scala: 2.12.10
+  - scala: 2.12.11
     jdk: openjdk11
 sudo: false
 cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/launchers
+    - $HOME/.cache/coursier/v1
 before_install:
   - export TZ=Australia/Canberra
 script:

@@ -56,6 +56,7 @@ case class ClassDescriptor(
       args.foldLeft(0)((s, arg) =>
         if (names.contains(arg.name)) s+1
         else if (arg.isOptional) s
+        else if (arg.hasDefault) s
         else -100
       )
 
@@ -84,7 +85,7 @@ case class ClassDescriptor(
           val primaryCtors = constructors.filter(_.isPrimary)
 
           if (primaryCtors.length > 1) {
-            throw new IllegalArgumentException(s"Two constructors annotated with PrimaryConstructor in `${fullName}`")
+            throw new IllegalArgumentException(s"Two constructors annotated with PrimaryConstructor in `$fullName`")
           }
 
           primaryCtors.headOption

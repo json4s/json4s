@@ -22,8 +22,8 @@ import org.json4s
 import org.specs2.mutable.Specification
 import org.json4s.native.Document
 
-object NativeExtractionExamples extends ExtractionExamples[Document]("Native", native.Serialization) with native.JsonMethods
-object JacksonExtractionExamples extends ExtractionExamples[JValue]("Jackson", jackson.Serialization) with jackson.JsonMethods
+class NativeExtractionExamples extends ExtractionExamples[Document]("Native", native.Serialization) with native.JsonMethods
+class JacksonExtractionExamples extends ExtractionExamples[JValue]("Jackson", jackson.Serialization) with jackson.JsonMethods
 
 abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) extends Specification with JsonMethods[T] {
 

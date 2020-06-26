@@ -53,12 +53,12 @@ object build {
     }
   )
 
-  val Scala212 = "2.12.10"
+  val Scala212 = "2.12.11"
 
   val json4sSettings = mavenCentralFrouFrou ++ Def.settings(
     organization := "org.json4s",
     scalaVersion := Scala212,
-    crossScalaVersions := Seq("2.11.12", Scala212, "2.13.1"),
+    crossScalaVersions := Seq("2.11.12", Scala212, "2.13.2"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds"),
     scalacOptions in (Compile, doc) ++= {
       val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
@@ -68,7 +68,7 @@ object build {
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, v)) if v <= 12 =>
-          Seq("-Xfuture")
+          Seq("-Xfuture", "-Ypartial-unification")
         case _ =>
           Nil
       }

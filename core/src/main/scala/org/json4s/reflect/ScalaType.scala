@@ -126,7 +126,7 @@ class ScalaType(val manifest: Manifest[_]) extends Equals {
   lazy val simpleName: String =
     rawSimpleName + (
       if (typeArgs.nonEmpty) typeArgs.map(_.simpleName).mkString("[", ", ", "]")
-      else (if (typeVars.nonEmpty) typeVars.map(_._2.simpleName).mkString("[", ", ", "]") else "")
+      else if (typeVars.nonEmpty) typeVars.map(_._2.simpleName).mkString("[", ", ", "]") else ""
       )
 
   lazy val fullName: String =

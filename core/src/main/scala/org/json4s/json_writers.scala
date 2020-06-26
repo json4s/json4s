@@ -554,7 +554,7 @@ private sealed abstract class StreamingJsonWriter[T <: JWriter] extends JsonWrit
     case JObject(flds) =>
       val obj = startObject()
       flds foreach {
-        case (k@_, v) if v == JNothing => this
+        case (_, v) if v == JNothing => this
         case (k, v) => obj.startField(k).addJValue(v)
       }
       obj.endObject()
@@ -565,7 +565,7 @@ private sealed abstract class StreamingJsonWriter[T <: JWriter] extends JsonWrit
   protected def writePretty(outdent: Int = 0): Unit = {
     if (pretty) {
       nodes write '\n'
-      nodes.write((" " * (level * spaces - outdent)))
+      nodes.write(" " * (level * spaces - outdent))
     }
   }
 }

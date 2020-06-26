@@ -1,7 +1,7 @@
 package org.json4s
 package native
 
-object NativeSerializationSpec
+class NativeSerializationSpec
   extends SerializationSpec(
     serialization = Serialization,
     baseFormats = Serialization.formats(NoTypeHints)

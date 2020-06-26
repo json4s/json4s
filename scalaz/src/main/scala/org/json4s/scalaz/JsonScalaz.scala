@@ -22,7 +22,7 @@ import std.option._
 
 
 trait Types {
-  type Result[+A] = ValidationNel[Error, A]
+  type Result[A] = ValidationNel[Error, A]
 
   sealed abstract class Error extends Product with Serializable
   case class UnexpectedJSONError(was: JValue, expected: Class[_ <: JValue]) extends Error
@@ -61,16 +61,16 @@ trait Types {
     case JObject(fs) =>
       fs.find(_._1 == name)
         .map(f => implicitly[JSONR[A]].read(f._2))
-        .orElse(implicitly[JSONR[A]].read(JNothing).fold(_ => none, x => some(Success(x))))
+        .orElse(implicitly[JSONR[A]].read(JNothing).fold(_ => none, x => some(Success(x): Result[A])))
         .getOrElse(Validation.failureNel(NoSuchFieldError(name, json)))
     case x =>
       Validation.failureNel(UnexpectedJSONError(x, classOf[JObject]))
   }
 
-  type EitherNel[+a] = NonEmptyList[Error] \/ a
-  def validate[A: JSONR](name: String) = Kleisli(field[A](name)).mapK[EitherNel, A](_.disjunction)
-  implicit def function2EitherNel[A](f: A => Result[A]): (A => EitherNel[A]) = (a: A) => f(a).disjunction
-  implicit def kleisli2Result[A](v: Kleisli[EitherNel, JValue, A]): JValue => Result[A] = v.run.andThen(_.validation)
+  type EitherNel[a] = NonEmptyList[Error] \/ a
+  def validate[A: JSONR](name: String): Kleisli[EitherNel, JValue, A] = Kleisli(field[A](name)).mapK[EitherNel, A](_.toDisjunction)
+  implicit def function2EitherNel[A](f: A => Result[A]): (A => EitherNel[A]) = (a: A) => f(a).toDisjunction
+  implicit def kleisli2Result[A](v: Kleisli[EitherNel, JValue, A]): JValue => Result[A] = v.run.andThen(_.toValidation)
 
   def makeObj(fields: Iterable[(String, JValue)]): JObject =
     JObject(fields.toList.map { case (n, v) => JField(n, v) })
