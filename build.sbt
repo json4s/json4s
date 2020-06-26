@@ -1,4 +1,3 @@
-import scala.xml.Group
 import Dependencies._
 import build._
 
@@ -98,7 +97,7 @@ lazy val mongo = Project(
 ).settings(
   json4sSettings,
   libraryDependencies ++= Seq(
-    "org.mongodb" % "mongo-java-driver" % "3.12.4"
+    "org.mongodb" % "mongo-java-driver" % "3.12.5"
   ),
 ) dependsOn(core % "compile;test->test")
 

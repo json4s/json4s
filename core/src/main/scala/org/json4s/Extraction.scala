@@ -105,8 +105,10 @@ object Extraction {
    */
   def internalDecomposeWithBuilder[T](a: Any, builder: JsonWriter[T])(implicit formats: Formats):Unit = {
     val current = builder
-    def prependTypeHint(clazz: Class[_], o: JObject) =
-      JObject(JField(formats.typeHintFieldName, JString(formats.typeHints.hintFor(clazz))) :: o.obj)
+    def prependTypeHint(clazz: Class[_], o: JObject) = for {
+      hint <- formats.typeHints.hintFor(clazz)
+      typeHintFieldName <- formats.typeHints.typeHintFieldNameForHint(hint)
+    } yield JObject(JField(typeHintFieldName, JString(hint)) :: o.obj)
 
     def addField(name: String, v: Any, obj: JsonWriter[T]): Unit = v match {
       case None => formats.emptyValueStrategy.noneValReplacement foreach (internalDecomposeWithBuilder(_, obj.startField(name)))
@@ -123,25 +125,29 @@ object Extraction {
       val methods = k.getMethods.toSeq.map(_.getName)
       val iter = descriptor.properties.iterator
       val obj = current.startObject()
-      if (formats.typeHints.containsHint(k)) {
-        val f = obj.startField(formats.typeHintFieldName)
-        f.string(formats.typeHints.hintFor(k))
-      }
+
+      for {
+        hintName <- formats.typeHints.typeHintFieldNameForClass(k)
+        hintValue <- formats.typeHints.hintFor(k)
+      } obj.startField(hintName).string(hintValue)
+
       val fs = formats.fieldSerializer(k)
       while(iter.hasNext) {
         val prop = iter.next()
 
         val fieldVal = prop.get(any)
         val n = prop.name
-        if (fs.isDefined) {
-          val fieldSerializer = fs.get
-          val ff = (fieldSerializer.serializer orElse Map((n, fieldVal) -> Some((n, fieldVal))))((n, fieldVal))
-          if (ff.isDefined) {
-            val Some((nn, vv)) = ff
-            val vvv = if (fieldSerializer.includeLazyVal) loadLazyValValue(a, nn, vv) else vv
-            addField(nn, vvv, obj)
-          }
-        } else if ((ctorParams contains prop.name) && (methods contains encode(prop.name))) addField(n, fieldVal, obj)
+        fs match {
+          case Some(fieldSerializer) =>
+            val ff = (fieldSerializer.serializer orElse Map((n, fieldVal) -> Some((n, fieldVal))))((n, fieldVal))
+            ff.foreach { case (nn, vv) =>
+              val vvv = if (fieldSerializer.includeLazyVal) loadLazyValValue(a, nn, vv) else vv
+              addField(nn, vvv, obj)
+            }
+          case None if (ctorParams contains prop.name) && (methods contains encode(prop.name)) =>
+            addField(n, fieldVal, obj)
+          case _ =>
+        }
       }
       obj.endObject()
     }
@@ -176,7 +182,7 @@ object Extraction {
             case (k: JavaLong, v) => addField(k.toString, v, obj)
             case (k: Short, v) => addField(k.toString, v, obj)
             case (k: JavaShort, v) => addField(k.toString, v, obj)
-            case (k: Any, v) => {
+            case (k: Any, v) =>
               val customKeySerializer: PartialFunction[Any, String] = Formats.customKeySerializer(k)(formats)
               if(customKeySerializer.isDefinedAt(k)) {
                 addField(customKeySerializer(k), v, obj)
@@ -184,7 +190,6 @@ object Extraction {
                 fail("Do not know how to serialize key of type " + k.getClass + ". " +
                   "Consider implementing a CustomKeySerializer.")
               }
-            }
           }
         }
         obj.endObject()
@@ -204,10 +209,7 @@ object Extraction {
         while(iter.hasNext) { internalDecomposeWithBuilder(iter.next(), arr) }
         arr.endArray()
       } else if (classOf[Option[_]].isAssignableFrom(k)) {
-        val v = any.asInstanceOf[Option[_]]
-        if (v.isDefined) {
-          internalDecomposeWithBuilder(v.get, current)
-        }
+        any.asInstanceOf[Option[_]].foreach(internalDecomposeWithBuilder(_, current))
       } else if (classOf[Either[_, _]].isAssignableFrom(k)) {
         val v = any.asInstanceOf[Either[_, _]]
         if (v.isLeft) {
@@ -232,7 +234,7 @@ object Extraction {
       } else {
         decomposeObject(k)
       }
-    } else current addJValue prependTypeHint(any.getClass, serializer(any))
+    } else prependTypeHint(any.getClass, serializer(any)).foreach(current.addJValue)
   }
 
   /** Decompose a case class into JSON.
@@ -317,7 +319,7 @@ object Extraction {
       case "true"  => JBool.True
       case "false" => JBool.False
       case "[]"    => JArray(Nil)
-      case x @ _   =>
+      case _ =>
         if (value.charAt(0).isDigit) {
           if (value.indexOf('.') == -1) {
             if (useBigIntForLong) JInt(BigInt(value))
@@ -348,18 +350,18 @@ object Extraction {
     val uniquePaths = map.keys.foldLeft[Set[String]](Set()) {
       (set, key) =>
         key match {
-          case ArrayProp(p, f@_, i@_) => set + p
-          case OtherProp(p, f@_)    => set + p
-          case ArrayElem(p, f@_)    => set + p
+          case ArrayProp(p, _, _) => set + p
+          case OtherProp(p, _)    => set + p
+          case ArrayElem(p, _)    => set + p
           case x @ _              => set + x
         }
     }.toList.sortWith(_ < _) // Sort is necessary to get array order right
 
     uniquePaths.foldLeft[JValue](JNothing) { (jvalue, key) =>
       jvalue.merge(key match {
-        case ArrayProp(p@_, f, i@_) => JObject(List(JField(f, unflatten(submap(key)))))
-        case ArrayElem(p@_, f@_)    => JArray(List(unflatten(submap(key))))
-        case OtherProp(p@_, f)    => JObject(List(JField(f, unflatten(submap(key)))))
+        case ArrayProp(_, f, _) => JObject(List(JField(f, unflatten(submap(key)))))
+        case ArrayElem(_, _)    => JArray(List(unflatten(submap(key))))
+        case OtherProp(_, f)    => JObject(List(JField(f, unflatten(submap(key)))))
         case ""                 => extractValue(map(key))
       })
     }
@@ -377,24 +379,21 @@ object Extraction {
       customOrElse(scalaType, json)(v => (if(formats.strictOptionParsing) v.toSome else v.toOption) flatMap (j => Option(extract(j, scalaType.typeArgs.head))))
     } else if (scalaType.isMap) {
       customOrElse(scalaType, json)({
-        _ match {
-          case JObject(xs) => {
-            val kta = scalaType.typeArgs(0)
-            val ta = scalaType.typeArgs(1)
-            val values = xs.map {
-              case (key, value) =>
-                val convertedKey = convert(key, kta, formats)
-                val extractedValue = extractDetectingNonTerminal(value, ta)
-                convertedKey -> extractedValue
-            }
-            if (scalaType.isMutableMap) {
-              scala.collection.mutable.Map(values: _*)
-            } else {
-              values.toMap
-            }
+        case JObject(xs) =>
+          val kta = scalaType.typeArgs(0)
+          val ta = scalaType.typeArgs(1)
+          val values = xs.map {
+            case (key, value) =>
+              val convertedKey = convert(key, kta, formats)
+              val extractedValue = extractDetectingNonTerminal(value, ta)
+              convertedKey -> extractedValue
           }
-          case x => fail("Expected object but got " + x)
-        }
+          if (scalaType.isMutableMap) {
+            scala.collection.mutable.Map(values: _*)
+          } else {
+            values.toMap
+          }
+        case x => fail("Expected object but got " + x)
       })
     } else if (scalaType.isCollection) {
       customOrElse(scalaType, json)(new CollectionBuilder(_, scalaType).result)
@@ -426,7 +425,11 @@ object Extraction {
   private[this] def extractDetectingNonTerminal(jvalue: JValue, typeArg: ScalaType)(implicit formats: Formats) = jvalue match {
     case subArr: JArray if typeArg.erasure == Manifest.Object.runtimeClass =>
       extract(subArr, Reflector.scalaTypeOf[List[Object]])
-    case subObj: JObject if typeArg.erasure == Manifest.Object.runtimeClass && subObj.obj.exists(_._1 == formats.typeHintFieldName) =>
+    case subObj: JObject
+        if typeArg.erasure == Manifest.Object.runtimeClass && subObj.obj
+          .exists(
+            _._1 == formats.typeHints.typeHintFieldName
+          ) =>
       extract(subObj, Reflector.scalaTypeOf[Object])
     case subObj: JObject if typeArg.erasure == Manifest.Object.runtimeClass =>
       extract(subObj, Reflector.scalaTypeOf[Map[String, Object]])
@@ -481,7 +484,7 @@ object Extraction {
       def unapply(fs: List[JField]): Option[(String, List[JField])] =
         if (!formats.typeHints.shouldExtractHints(descr.erasure.erasure)) None
         else {
-          fs.partition(_._1 == formats.typeHintFieldName) match {
+          fs.partition(formats.typeHints.isTypeHintField) match {
             case (Nil, _) => None
             case (t, f) => Some((t.head._2.values.toString, f))
           }
@@ -521,7 +524,7 @@ object Extraction {
                 formats.fieldSerializers.find { case (clazz, _) => clazz == a.getClass }
               }
               maybeClassSerializer match {
-                case Some((clazz@_, fieldSerializer)) => fields.map { field =>
+                case Some((_, fieldSerializer)) => fields.map { field =>
                   Try { fieldSerializer.deserializer.apply(field) }.getOrElse(field)
                 }
                 case _ => fields
@@ -531,8 +534,8 @@ object Extraction {
             val setOfDeserializableFields: Set[String] = descr.properties.map(_.name).toSet
 
             renamedFields.foreach {
-              case (propName: String, _: JValue) if (!setOfDeserializableFields.contains(propName)) =>
-                fail(s"Attempted to deserialize JField ${propName} into undefined property on target ClassDescriptor.")
+              case (propName: String, _: JValue) if !setOfDeserializableFields.contains(propName) =>
+                fail(s"Attempted to deserialize JField $propName into undefined property on target ClassDescriptor.")
               case _ =>
             }
           }
@@ -553,7 +556,8 @@ object Extraction {
 
     private[this] def buildCtorArg(json: JValue, descr: ConstructorParamDescriptor) = {
       val default = descr.defaultValue
-      def defv(v: Any) = if (default.isDefined) default.get() else v
+      def defv(v: Any) = default.map(_()).getOrElse(v)
+
       if (descr.isOptional && json == JNothing) defv(None)
       else {
         try {
@@ -639,7 +643,7 @@ object Extraction {
     }
 
     private[this] def mkWithTypeHint(typeHint: String, fields: List[JField], typeInfo: ScalaType) = {
-      val obj = JObject(fields filterNot (_._1 == formats.typeHintFieldName))
+      val obj = JObject(fields filterNot formats.typeHints.isTypeHintField)
       val deserializer = formats.typeHints.deserialize
       if (!deserializer.isDefinedAt(typeHint, obj)) {
         val concreteClass = formats.typeHints.classFor(typeHint) getOrElse fail("Do not know how to deserialize '" + typeHint + "'")
@@ -696,69 +700,69 @@ object Extraction {
   private[this] def convert(json: JValue, target: ScalaType, formats: Formats, default: Option[() => Any]): Any = {
     val targetType = target.erasure
     json match {
-      case JInt(x) if (targetType == classOf[Int]) => x.intValue
-      case JInt(x) if (targetType == classOf[JavaInteger]) => JavaInteger.valueOf(x.intValue)
-      case JInt(x) if (targetType == classOf[BigInt]) => x
-      case JInt(x) if (targetType == classOf[Long]) => x.longValue
-      case JInt(x) if (targetType == classOf[JavaLong]) => JavaLong.valueOf(x.longValue)
-      case JInt(x) if (targetType == classOf[Double]) => x.doubleValue
-      case JInt(x) if (targetType == classOf[JavaDouble]) => JavaDouble.valueOf(x.doubleValue)
-      case JInt(x) if (targetType == classOf[Float]) => x.floatValue
-      case JInt(x) if (targetType == classOf[JavaFloat]) => JavaFloat.valueOf(x.floatValue)
-      case JInt(x) if (targetType == classOf[Short]) => x.shortValue
-      case JInt(x) if (targetType == classOf[JavaShort]) => JavaShort.valueOf(x.shortValue)
-      case JInt(x) if (targetType == classOf[Byte]) => x.byteValue
-      case JInt(x) if (targetType == classOf[JavaByte]) => JavaByte.valueOf(x.byteValue)
-      case JInt(x) if (targetType == classOf[String]) => x.toString
-      case JInt(x) if (targetType == classOf[Number]) => x.longValue
-      case JInt(x) if (targetType == classOf[BigDecimal]) => BigDecimal(x)
-      case JInt(x) if (targetType == classOf[JavaBigDecimal]) => BigDecimal(x).bigDecimal
-      case JLong(x) if (targetType == classOf[Int]) => x.intValue
-      case JLong(x) if (targetType == classOf[JavaInteger]) => JavaInteger.valueOf(x.intValue)
-      case JLong(x) if (targetType == classOf[BigInt]) => x
-      case JLong(x) if (targetType == classOf[Long]) => x.longValue
-      case JLong(x) if (targetType == classOf[JavaLong]) => JavaLong.valueOf(x)
-      case JLong(x) if (targetType == classOf[Double]) => x.doubleValue
-      case JLong(x) if (targetType == classOf[JavaDouble]) => JavaDouble.valueOf(x.doubleValue)
-      case JLong(x) if (targetType == classOf[Float]) => x.floatValue
-      case JLong(x) if (targetType == classOf[JavaFloat]) => JavaFloat.valueOf(x.floatValue)
-      case JLong(x) if (targetType == classOf[Short]) => x.shortValue
-      case JLong(x) if (targetType == classOf[JavaShort]) => JavaShort.valueOf(x.shortValue)
-      case JLong(x) if (targetType == classOf[Byte]) => x.byteValue
-      case JLong(x) if (targetType == classOf[JavaByte]) => JavaByte.valueOf(x.byteValue)
-      case JLong(x) if (targetType == classOf[String]) => x.toString
-      case JLong(x) if (targetType == classOf[Number]) => x.longValue
-      case JLong(x) if (targetType == classOf[BigDecimal]) => BigDecimal(x)
-      case JLong(x) if (targetType == classOf[JavaBigDecimal]) => BigDecimal(x).bigDecimal
-      case JDouble(x) if (targetType == classOf[Double]) => x
-      case JDouble(x) if (targetType == classOf[JavaDouble]) => JavaDouble.valueOf(x)
-      case JDouble(x) if (targetType == classOf[Float]) => x.floatValue
-      case JDouble(x) if (targetType == classOf[JavaFloat]) => JavaFloat.valueOf(x.floatValue)
-      case JDouble(x) if (targetType == classOf[String]) => x.toString
-      case JDouble(x) if (targetType == classOf[Int]) => x.intValue
-      case JDouble(x) if (targetType == classOf[Long]) => x.longValue
-      case JDouble(x) if (targetType == classOf[Number]) => x
-      case JDouble(x) if (targetType == classOf[BigDecimal]) => BigDecimal(x)
-      case JDouble(x) if (targetType == classOf[JavaBigDecimal]) => BigDecimal(x).bigDecimal
-      case JDecimal(x) if (targetType == classOf[Double]) => x.doubleValue
-      case JDecimal(x) if (targetType == classOf[JavaDouble]) => JavaDouble.valueOf(x.doubleValue)
-      case JDecimal(x) if (targetType == classOf[BigDecimal]) => x
-      case JDecimal(x) if (targetType == classOf[JavaBigDecimal]) => x.bigDecimal
-      case JDecimal(x) if (targetType == classOf[Float]) => x.floatValue
-      case JDecimal(x) if (targetType == classOf[JavaFloat]) => JavaFloat.valueOf(x.floatValue)
-      case JDecimal(x) if (targetType == classOf[String]) => x.toString
-      case JDecimal(x) if (targetType == classOf[Int]) => x.intValue
-      case JDecimal(x) if (targetType == classOf[Long]) => x.longValue
-      case JDecimal(x) if (targetType == classOf[Number]) => x
-      case JString(s) if (targetType == classOf[String]) => s
-      case JString(s) if (targetType == classOf[Symbol]) => Symbol(s)
-      case JString(s) if (targetType == classOf[Date]) => formatDate(s, formats)
-      case JString(s) if (targetType == classOf[Timestamp]) => formatTimestamp(s, formats)
-      case JBool(x) if (targetType == classOf[Boolean]) => x
-      case JBool(x) if (targetType == classOf[JavaBoolean]) => JavaBoolean.valueOf(x)
-      case j: JValue if (targetType == classOf[JValue]) => j
-      case j: JObject if (targetType == classOf[JObject]) => j
-      case j: JArray if (targetType == classOf[JArray]) => j
+      case JInt(x) if targetType == classOf[Int] => x.intValue
+      case JInt(x) if targetType == classOf[JavaInteger] => JavaInteger.valueOf(x.intValue)
+      case JInt(x) if targetType == classOf[BigInt] => x
+      case JInt(x) if targetType == classOf[Long] => x.longValue
+      case JInt(x) if targetType == classOf[JavaLong] => JavaLong.valueOf(x.longValue)
+      case JInt(x) if targetType == classOf[Double] => x.doubleValue
+      case JInt(x) if targetType == classOf[JavaDouble] => JavaDouble.valueOf(x.doubleValue)
+      case JInt(x) if targetType == classOf[Float] => x.floatValue
+      case JInt(x) if targetType == classOf[JavaFloat] => JavaFloat.valueOf(x.floatValue)
+      case JInt(x) if targetType == classOf[Short] => x.shortValue
+      case JInt(x) if targetType == classOf[JavaShort] => JavaShort.valueOf(x.shortValue)
+      case JInt(x) if targetType == classOf[Byte] => x.byteValue
+      case JInt(x) if targetType == classOf[JavaByte] => JavaByte.valueOf(x.byteValue)
+      case JInt(x) if targetType == classOf[String] => x.toString
+      case JInt(x) if targetType == classOf[Number] => x.longValue
+      case JInt(x) if targetType == classOf[BigDecimal] => BigDecimal(x)
+      case JInt(x) if targetType == classOf[JavaBigDecimal] => BigDecimal(x).bigDecimal
+      case JLong(x) if targetType == classOf[Int] => x.intValue
+      case JLong(x) if targetType == classOf[JavaInteger] => JavaInteger.valueOf(x.intValue)
+      case JLong(x) if targetType == classOf[BigInt] => x
+      case JLong(x) if targetType == classOf[Long] => x.longValue
+      case JLong(x) if targetType == classOf[JavaLong] => JavaLong.valueOf(x)
+      case JLong(x) if targetType == classOf[Double] => x.doubleValue
+      case JLong(x) if targetType == classOf[JavaDouble] => JavaDouble.valueOf(x.doubleValue)
+      case JLong(x) if targetType == classOf[Float] => x.floatValue
+      case JLong(x) if targetType == classOf[JavaFloat] => JavaFloat.valueOf(x.floatValue)
+      case JLong(x) if targetType == classOf[Short] => x.shortValue
+      case JLong(x) if targetType == classOf[JavaShort] => JavaShort.valueOf(x.shortValue)
+      case JLong(x) if targetType == classOf[Byte] => x.byteValue
+      case JLong(x) if targetType == classOf[JavaByte] => JavaByte.valueOf(x.byteValue)
+      case JLong(x) if targetType == classOf[String] => x.toString
+      case JLong(x) if targetType == classOf[Number] => x.longValue
+      case JLong(x) if targetType == classOf[BigDecimal] => BigDecimal(x)
+      case JLong(x) if targetType == classOf[JavaBigDecimal] => BigDecimal(x).bigDecimal
+      case JDouble(x) if targetType == classOf[Double] => x
+      case JDouble(x) if targetType == classOf[JavaDouble] => JavaDouble.valueOf(x)
+      case JDouble(x) if targetType == classOf[Float] => x.floatValue
+      case JDouble(x) if targetType == classOf[JavaFloat] => JavaFloat.valueOf(x.floatValue)
+      case JDouble(x) if targetType == classOf[String] => x.toString
+      case JDouble(x) if targetType == classOf[Int] => x.intValue
+      case JDouble(x) if targetType == classOf[Long] => x.longValue
+      case JDouble(x) if targetType == classOf[Number] => x
+      case JDouble(x) if targetType == classOf[BigDecimal] => BigDecimal(x)
+      case JDouble(x) if targetType == classOf[JavaBigDecimal] => BigDecimal(x).bigDecimal
+      case JDecimal(x) if targetType == classOf[Double] => x.doubleValue
+      case JDecimal(x) if targetType == classOf[JavaDouble] => JavaDouble.valueOf(x.doubleValue)
+      case JDecimal(x) if targetType == classOf[BigDecimal] => x
+      case JDecimal(x) if targetType == classOf[JavaBigDecimal] => x.bigDecimal
+      case JDecimal(x) if targetType == classOf[Float] => x.floatValue
+      case JDecimal(x) if targetType == classOf[JavaFloat] => JavaFloat.valueOf(x.floatValue)
+      case JDecimal(x) if targetType == classOf[String] => x.toString
+      case JDecimal(x) if targetType == classOf[Int] => x.intValue
+      case JDecimal(x) if targetType == classOf[Long] => x.longValue
+      case JDecimal(x) if targetType == classOf[Number] => x
+      case JString(s) if targetType == classOf[String] => s
+      case JString(s) if targetType == classOf[Symbol] => Symbol(s)
+      case JString(s) if targetType == classOf[Date] => formatDate(s, formats)
+      case JString(s) if targetType == classOf[Timestamp] => formatTimestamp(s, formats)
+      case JBool(x) if targetType == classOf[Boolean] => x
+      case JBool(x) if targetType == classOf[JavaBoolean] => JavaBoolean.valueOf(x)
+      case j: JValue if targetType == classOf[JValue] => j
+      case j: JObject if targetType == classOf[JObject] => j
+      case j: JArray if targetType == classOf[JArray] => j
       case JNull if formats.allowNull => null
       case JNull if !formats.allowNull =>
         fail("Did not find value which can be converted into " + targetType.getName)
