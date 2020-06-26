@@ -1,9 +1,11 @@
 package org.json4s
 
-import org.json4s.jackson.{JsonMethods, Serialization}
-import org.json4s.reflect.ScalaType
 import org.json4s.Extraction._
+import org.json4s.jackson.JsonMethods
+import org.json4s.reflect.{ManifestFactory, ScalaType}
 import org.specs2.mutable.Specification
+
+import scala.collection.immutable.HashMap
 
 class RichSerializerTest extends Specification {
 
@@ -32,6 +34,31 @@ class RichSerializerTest extends Specification {
     override def serialize(implicit format: Formats): PartialFunction[Any, JValue] = ???
   }
 
+  object HashMapDeserializer extends RichSerializer[HashMap[String, _]] {
+
+    override def deserialize(implicit format: Formats): PartialFunction[(ScalaType, JValue), HashMap[String, _]] = {
+      case (scalaType, JObject(fields)) if classOf[HashMap[_, _]] == scalaType.erasure =>
+        scalaType.manifest.typeArguments match {
+          case List(_, vType) =>
+            HashMap(
+              fields.map {
+                case (k, v) => k -> extract(v)(format, vType)
+              }: _*
+            )
+        }
+    }
+
+    override def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
+      case map: HashMap[_, _] =>
+        JObject {
+          map.map {
+            case (k: String, v) => k -> decompose(v)
+            case (k, _) => throw new MappingException(s"Expected String key but got $k")
+          }.toList
+        }
+    }
+  }
+
   "it" should {
     "deserialize types which have type params" in {
       implicit val formats: Formats = DefaultFormats + CustomTuple2Serializer + TypeBearerDeserializer
@@ -40,11 +67,33 @@ class RichSerializerTest extends Specification {
       extracted._2.enclosedType shouldEqual manifest[Int]
       extracted._1.enclosedType shouldEqual manifest[TypeBearer[String]]
     }
-  }
 
+    "serialize with rich serializer logic" in {
+      implicit val formats: Formats = DefaultFormats + CustomTuple2Serializer
+      Extraction.decompose(("foo", 1)) shouldEqual JArray(List(JString("foo"), JInt(1)))
+    }
+
+    "deserialize hash maps correctly" in {
+      implicit val formats: Formats = DefaultFormats + HashMapDeserializer
+      val json = """{"map":{"foo": null, "bar": 2}}"""
+      val extracted = JsonMethods.parse(json).extract[HashMapHaver]
+      extracted shouldEqual HashMapHaver(HashMap("foo" -> None, "bar" -> Some(2)))
+    }
+
+    "be compatible with type hints" in {
+      implicit val formats: Formats = DefaultFormats.withTypeHintFieldName("hint") + HashMapDeserializer + MappedTypeHints(Map(classOf[HashMapHaver] -> "map_haver"))
+      val json = """{"map":{"foo": null, "bar": 2}, "hint": "map_haver"}"""
+      val expected = HashMapHaver(HashMap("foo" -> None, "bar" -> Some(2)))
+      val extracted = JsonMethods.parse(json).extract[SomeTrait]
+      extracted shouldEqual expected
+    }
+  }
 }
 
 case class TypeBearer[T: Manifest](name: String) {
   def enclosedType: Manifest[T] = manifest[T]
 }
 
+trait SomeTrait
+
+case class HashMapHaver(map: HashMap[String, Option[Int]]) extends SomeTrait

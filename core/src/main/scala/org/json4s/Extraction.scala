@@ -152,9 +152,12 @@ object Extraction {
       obj.endObject()
     }
 
+    lazy val richCustom = Formats.customRichSerializer(a)(formats)
     val custom = Formats.customSerializer(a)(formats)
     if (custom.isDefinedAt(a)) {
       current addJValue custom(a)
+    } else if (richCustom.isDefinedAt(a)) {
+      current addJValue richCustom(a)
     } else if (!serializer.isDefinedAt(a)) {
       val k = if (any != null) any.getClass else null
 
@@ -647,6 +650,7 @@ object Extraction {
       val deserializer = formats.typeHints.deserialize
       if (!deserializer.isDefinedAt(typeHint, obj)) {
         val concreteClass = formats.typeHints.classFor(typeHint) getOrElse fail("Do not know how to deserialize '" + typeHint + "'")
+
         extract(obj, typeInfo.copy(erasure = concreteClass))
       } else deserializer(typeHint, obj)
     }
@@ -771,7 +775,9 @@ object Extraction {
       case _ =>
         val typeInfo = target.typeInfo
         val custom = Formats.customDeserializer(typeInfo, json)(formats)
+        lazy val richCustom = Formats.customRichDeserializer(target, json)(formats)
         if (custom.isDefinedAt(typeInfo, json)) custom(typeInfo, json)
+        else if (richCustom.isDefinedAt(target, json)) richCustom(target, json)
         else fail("Do not know how to convert " + json + " into " + targetType)
     }
   }
