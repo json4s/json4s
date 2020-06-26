@@ -304,8 +304,8 @@ trait TypeHints {
 
   def isTypeHintField(f: JField): Boolean = f match {
     case (key, JString(value)) =>
-      val a = typeHintFieldNameForHint(value)
-      key == typeHintFieldName && a.isDefined
+      val hint = typeHintFieldNameForHint(value)
+      key == typeHintFieldName && hint.isDefined
     case _ => false
   }
   def typeHintFieldNameForHint(hint: String): Option[String] =
