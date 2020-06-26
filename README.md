@@ -710,7 +710,7 @@ With Json4s 3.6 and higher, `apply` functions in companion objects will be evalu
 val formats: Formats = new DefaultFormats { override val alwaysConsiderCompanionConstructors = false }
 ```
 
-When this option is disbled, only primary and secondary constructors will be evaluated for use during extraction.
+When this option is disabled, only primary and secondary constructors will be evaluated for use during extraction.
 
 Serialization
 =============
