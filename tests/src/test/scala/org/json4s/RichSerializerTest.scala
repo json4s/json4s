@@ -2,7 +2,7 @@ package org.json4s
 
 import org.json4s.Extraction._
 import org.json4s.jackson.JsonMethods
-import org.json4s.reflect.{ManifestFactory, ScalaType}
+import org.json4s.reflect.ScalaType
 import org.specs2.mutable.Specification
 
 import scala.collection.immutable.HashMap
@@ -81,8 +81,8 @@ class RichSerializerTest extends Specification {
     }
 
     "be compatible with type hints" in {
-      implicit val formats: Formats = DefaultFormats.withTypeHintFieldName("hint") + HashMapDeserializer + MappedTypeHints(Map(classOf[HashMapHaver] -> "map_haver"))
-      val json = """{"map":{"foo": null, "bar": 2}, "hint": "map_haver"}"""
+      implicit val formats: Formats = DefaultFormats + HashMapDeserializer + MappedTypeHints(Map(classOf[HashMapHaver] -> "map_haver"))
+      val json = """{"map":{"foo": null, "bar": 2}, "jsonClass": "map_haver"}"""
       val expected = HashMapHaver(HashMap("foo" -> None, "bar" -> Some(2)))
       val extracted = JsonMethods.parse(json).extract[SomeTrait]
       extracted shouldEqual expected
