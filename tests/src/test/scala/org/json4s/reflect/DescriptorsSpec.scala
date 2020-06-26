@@ -108,7 +108,6 @@ class DescriptorsSpec extends Specification {
       // test
       best.getParameterTypes() must_== Array(classOf[String], classOf[String], classOf[String])
     }
-
   }
 
   private def describe(clazz: Class[_]) = {
