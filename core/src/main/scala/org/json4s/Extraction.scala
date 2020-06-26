@@ -108,7 +108,7 @@ object Extraction {
     def prependTypeHint(clazz: Class[_], o: JObject) = for {
       hint <- formats.typeHints.hintFor(clazz)
       typeHintFieldName <- formats.typeHints.typeHintFieldNameForHint(hint)
-    } yield  JObject(JField(typeHintFieldName, JString(hint)) :: o.obj)
+    } yield JObject(JField(typeHintFieldName, JString(hint)) :: o.obj)
 
     def addField(name: String, v: Any, obj: JsonWriter[T]): Unit = v match {
       case None => formats.emptyValueStrategy.noneValReplacement foreach (internalDecomposeWithBuilder(_, obj.startField(name)))
