@@ -134,7 +134,7 @@ object JsonParser {
     } catch {
       case e: ParseException => throw e
       case e: Exception => throw new ParseException("parsing failed", e)
-    } finally { buf.release }
+    } finally { buf.release() }
   }
 
 
@@ -258,7 +258,7 @@ object JsonParser {
             s.append(c)
           } else if (!(Character.isDigit(c) || c == '.' || c == 'e' || c == 'E' || c == '-' || c == '+')) {
             wasInt = false
-            buf.back
+            buf.back()
           } else s.append(c)
         }
         val value = s.toString
@@ -315,7 +315,7 @@ object JsonParser {
           case ' ' | '\n' | ',' | '\r' | '\t' =>
           case c =>
             if(EOF == c){
-              buf.automaticClose
+              buf.automaticClose()
               return End
             }else if(Character.isDigit(c) || c == '-' || c == '+'){
               fieldNameMode = true
@@ -325,7 +325,7 @@ object JsonParser {
             }
         }
       }
-      buf.automaticClose
+      buf.automaticClose()
       End
     }
 
