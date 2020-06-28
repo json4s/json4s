@@ -611,7 +611,7 @@ object Extraction {
       }
 
       try {
-        if (jconstructor.getDeclaringClass == classOf[java.lang.Object]) {
+        if (jconstructor.getDeclaringClass() == classOf[java.lang.Object]) {
           deserializedJson match {
             case JObject(TypeHint(t, fs)) => mkWithTypeHint(t: String, fs: List[JField], descr.erasure)
             case v: JValue => v.values

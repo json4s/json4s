@@ -142,7 +142,7 @@ object Reflector {
 
     def createConstructorDescriptors(ccs: Iterable[Executable]): Seq[ConstructorDescriptor] = {
       Option(ccs).map(_.toSeq).getOrElse(Nil) map { ctor =>
-        val ctorParameterNames = if (Modifier.isPublic(ctor.getModifiers) && ctor.getParameterTypes.length > 0)
+        val ctorParameterNames = if (Modifier.isPublic(ctor.getModifiers()) && ctor.getParameterTypes().length > 0)
           allCatch opt { paramNameReader.lookupParameterNames(ctor) } getOrElse Nil
         else
           Nil
@@ -233,7 +233,7 @@ object Reflector {
       def getActualTypeArguments = typeArgs.toArray
       def getOwnerType = owner
       def getRawType = rawClassOf(owner)
-      override def toString = getOwnerType.toString + "[" + getActualTypeArguments.mkString(",") + "]"
+      override def toString = getOwnerType().toString + "[" + getActualTypeArguments().mkString(",") + "]"
     }
 
 }
