@@ -12,7 +12,7 @@ class TypeHintTest extends Specification {
 
     "fail when the type hint is incompatible with the requested type" in {
       val dump = Serialization.write(Foo(1))
-      (JsonMethods.parse(dump).extract[Bar]: Any) must throwA[MappingException]
+      (JsonMethods.parse(dump).extract[Bar]: MyTrait) must throwA[MappingException]
     }
 
     "succeed when the type hint is compatible with the requested type" in {
