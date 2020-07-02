@@ -650,6 +650,9 @@ object Extraction {
       val deserializer = formats.typeHints.deserialize
       if (!deserializer.isDefinedAt(typeHint, obj)) {
         val concreteClass = formats.typeHints.classFor(typeHint) getOrElse fail("Do not know how to deserialize '" + typeHint + "'")
+        if (!typeInfo.erasure.isAssignableFrom(concreteClass)) {
+          fail(s"Type hint $typeHint which refers to class ${concreteClass.getName} cannot be extracted as an instance of ${typeInfo.erasure.getName}")
+        }
 
         extract(obj, typeInfo.copy(erasure = concreteClass))
       } else deserializer(typeHint, obj)
