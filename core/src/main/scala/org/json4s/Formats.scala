@@ -50,6 +50,13 @@ object Formats {
       .getOrElse(PartialFunction.empty[(ScalaType, JValue), Any])
   }
 
+  private[json4s] def customRichSerializer(a: Any)(
+    implicit format: Formats): PartialFunction[Any, JValue] = {
+    format.richSerializers
+      .collectFirst { case (x) if x.serialize.isDefinedAt(a) => x.serialize }
+      .getOrElse(PartialFunction.empty[Any, JValue])
+  }
+
   private[json4s] def customDeserializer(a: (TypeInfo, JValue))(
     implicit format: Formats): PartialFunction[(TypeInfo, JValue), Any] = {
     format.customSerializers
@@ -111,7 +118,7 @@ trait Formats extends Serializable { self: Formats =>
                     wCustomSerializers: List[Serializer[_]] = self.customSerializers,
                     wCustomKeySerializers: List[KeySerializer[_]] = self.customKeySerializers,
                     wFieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers,
-                    wRichSerializers: List[RichSerializer[_]] = List.empty,
+                    wRichSerializers: List[RichSerializer[_]] = self.richSerializers,
                     wWantsBigInt: Boolean = self.wantsBigInt,
                     wWantsBigDecimal: Boolean = self.wantsBigDecimal,
                     withPrimitives: Set[Type] = self.primitives,
@@ -433,7 +440,8 @@ case class FullTypeHints(hints: List[Class[_]],
 
 /** Use a map of keys as type hints.  Values may not be mapped by multiple keys
   */
-case class MappedTypeHints(hintMap: Map[Class[_], String]) extends TypeHints {
+case class MappedTypeHints(hintMap: Map[Class[_], String],
+                           override val typeHintFieldName: String = "jsonClass") extends TypeHints {
   require(hintMap.size == hintMap.values.toList.distinct.size, "values in type hint mapping must be distinct")
 
   override val hints: List[Class[_]] = hintMap.keys.toList
@@ -461,7 +469,7 @@ object DefaultFormats extends DefaultFormats {
 
 private[json4s] class ThreadLocal[A](init: => A) extends java.lang.ThreadLocal[A] with (() => A) {
   override def initialValue = init
-  def apply = get
+  def apply() = get
 }
 trait DefaultFormats extends Formats {
   import java.text.{ParseException, SimpleDateFormat}

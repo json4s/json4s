@@ -84,7 +84,7 @@ object ParserUtil {
     }
 
     buf.eofIsFailure = true
-    buf.mark
+    buf.mark()
     var c = buf.next
     while (c != '"') {
       if (c == '\\') {

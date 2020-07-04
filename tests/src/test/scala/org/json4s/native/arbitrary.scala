@@ -73,12 +73,12 @@ object ArbitraryJson4s {
     implicit val arb = Arbitrary(genJValue)
     private[this] implicit val arbObj = arbGenJObject
 
-    def genJValue: Gen[JValue] = Gen frequency (
+    def genJValue: Gen[JValue] = Gen.frequency(
       (75, genJValueSansFloat),
       (25, if (decimalMode) genJDecimal else genJDouble)
     )
 
-    def genJValueSansFloat: Gen[JValue] = Gen frequency (
+    def genJValueSansFloat: Gen[JValue] = Gen.frequency(
       (15, genJNull),
       (15, genJString),
       (15, genJInt),
