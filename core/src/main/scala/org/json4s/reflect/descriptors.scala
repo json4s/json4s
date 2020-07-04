@@ -49,33 +49,29 @@ case class ClassDescriptor(
   properties: Seq[PropertyDescriptor]) extends ObjectDescriptor {
 
   def bestMatching(argNames: List[String]): Option[ConstructorDescriptor] = {
-    case class Score(detailed: Int, optionalCount: Int, defaultCount: Int) {
-      def isBetterThan(other: Score) = {
-          (this.detailed == other.detailed && (this.optionalCount < other.optionalCount)) ||
-          (this.detailed == other.detailed && (this.defaultCount > other.defaultCount)) ||
-          this.detailed > other.detailed
-      }
-    }
-
     val names = Set(argNames: _*)
-    def score(args: List[ConstructorParamDescriptor]): Score =
-      Score(detailed = args.foldLeft(0)((s, arg) =>
+    def countOptionals(args: List[ConstructorParamDescriptor]) = args.count(_.isOptional)
+    def countDefaults(args: List[ConstructorParamDescriptor]) = args.count(_.hasDefault)
+    def score(args: List[ConstructorParamDescriptor]) =
+      args.foldLeft(0)((s, arg) =>
         if (names.contains(arg.name)) s+1
         else if (arg.isOptional) s
         else if (arg.hasDefault) s
         else -100
-      ),
-        optionalCount = args.count(_.isOptional),
-        defaultCount = args.count(_.hasDefault)
       )
 
     if (constructors.isEmpty) None
     else {
-      val best = constructors.tail.foldLeft((constructors.head, score(constructors.head.params.toList))) {
-        (best: (ConstructorDescriptor, Score), c: ConstructorDescriptor) =>
-          val newScore: Score = score(c.params.toList)
-          if (newScore.isBetterThan(best._2)) (c, newScore) else best
+      val best = constructors.tail.foldLeft((constructors.head, score(constructors.head.params.toList))) { (best, c) =>
+        val newScore = score(c.params.toList)
+        val newIsBetter = {
+          (newScore == best._2 && (countOptionals(c.params.toList) < countOptionals(best._1.params.toList))) ||
+          (newScore == best._2 && (countDefaults(c.params.toList) > countDefaults(best._1.params.toList))) ||
+            newScore > best._2
+        }
+        if (newIsBetter) (c, newScore) else best
       }
+
       Some(best._1)
     }
   }
