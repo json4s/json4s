@@ -469,7 +469,7 @@ object DefaultFormats extends DefaultFormats {
 
 private[json4s] class ThreadLocal[A](init: => A) extends java.lang.ThreadLocal[A] with (() => A) {
   override def initialValue = init
-  def apply = get
+  def apply() = get
 }
 trait DefaultFormats extends Formats {
   import java.text.{ParseException, SimpleDateFormat}
