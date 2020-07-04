@@ -59,7 +59,7 @@ object Reflector {
 
     def fields(clazz: Class[_]): List[PropertyDescriptor] = {
       val lb = new mutable.ListBuffer[PropertyDescriptor]()
-      val ls = allCatch.withApply(_ => fail("Case classes defined in function bodies are not supported.")) { clazz.getDeclaredFields.toIterator }
+      val ls = allCatch.withApply(_ => fail("Case classes defined in function bodies are not supported.")) { clazz.getDeclaredFields.iterator }
       while (ls.hasNext) {
         val f = ls.next()
         val mod = f.getModifiers
