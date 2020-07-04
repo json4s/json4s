@@ -16,10 +16,10 @@ object DescriptorsSpec {
   }
 
   case class Company(name: String, industry: String = "IT", ceo: Person = new Person("My", "Self"), yearFounded: Int) {
-    def this(name: String, industry: String, ceo: Person) {
+    def this(name: String, industry: String, ceo: Person) = {
       this(name, industry, ceo, 2000)
     }
-    def this(name: String, industry: String, ceo: Person, yearFounded: Option[Int]) {
+    def this(name: String, industry: String, ceo: Person, yearFounded: Option[Int]) = {
       this(name, industry, ceo, yearFounded.getOrElse(2010))
     }
   }
