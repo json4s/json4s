@@ -48,7 +48,7 @@
 
 All the pull requests must pass the Travis CI jobs before merging them.
 
-https://travis-ci.org/json4s/json4s
+https://travis-ci.com/json4s/json4s
 
 Testing with default settings is required when push changes:
 
