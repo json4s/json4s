@@ -9,7 +9,7 @@ private[json4s] object Compat {
         .asInstanceOf[ {def newBuilder: collection.mutable.Builder[Any, Any]}]
         .newBuilder
       builder ++= array
-      builder.result
+      builder.result()
     }
   }
 }

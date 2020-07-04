@@ -89,7 +89,7 @@ case class ClassDescriptor(
           val primaryCtors = constructors.filter(_.isPrimary)
 
           if (primaryCtors.length > 1) {
-            throw new IllegalArgumentException(s"Two constructors annotated with PrimaryConstructor in `${fullName}`")
+            throw new IllegalArgumentException(s"Two constructors annotated with PrimaryConstructor in `$fullName`")
           }
 
           primaryCtors.headOption

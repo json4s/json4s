@@ -59,7 +59,7 @@ object Reflector {
 
     def fields(clazz: Class[_]): List[PropertyDescriptor] = {
       val lb = new mutable.ListBuffer[PropertyDescriptor]()
-      val ls = allCatch.withApply(_ => fail("Case classes defined in function bodies are not supported.")) { clazz.getDeclaredFields.toIterator }
+      val ls = allCatch.withApply(_ => fail("Case classes defined in function bodies are not supported.")) { clazz.getDeclaredFields.iterator }
       while (ls.hasNext) {
         val f = ls.next()
         val mod = f.getModifiers
@@ -142,7 +142,7 @@ object Reflector {
 
     def createConstructorDescriptors(ccs: Iterable[Executable]): Seq[ConstructorDescriptor] = {
       Option(ccs).map(_.toSeq).getOrElse(Nil) map { ctor =>
-        val ctorParameterNames = if (Modifier.isPublic(ctor.getModifiers) && ctor.getParameterTypes.length > 0)
+        val ctorParameterNames = if (Modifier.isPublic(ctor.getModifiers()) && ctor.getParameterTypes().length > 0)
           allCatch opt { paramNameReader.lookupParameterNames(ctor) } getOrElse Nil
         else
           Nil
@@ -162,15 +162,14 @@ object Reflector {
           }
         }
         val ctorParams = ctorParameterNames.zipWithIndex map {
-          case (ScalaSigReader.OuterFieldName, index) => {
+          case (ScalaSigReader.OuterFieldName, index) =>
             //            println("The result type of the $outer param: " + genParams(0))
             if (tpe.erasure.getDeclaringClass == null) fail("Classes defined in method bodies are not supported.")
             companion = findCompanion(checkCompanionMapping = true)
             val default = companionMappings.find(_._1 == tpe.erasure).map(_._2).map(() => _)
             val tt = scalaTypeOf(tpe.erasure.getDeclaringClass)
             ConstructorParamDescriptor(ScalaSigReader.OuterFieldName, ScalaSigReader.OuterFieldName, index, tt, default)
-          }
-          case (paramName, index) => {
+          case (paramName, index) =>
             companion = findCompanion(checkCompanionMapping = false)
             val decoded = unmangleName(paramName)
             val default = (companion, ctor.defaultValuePattern) match {
@@ -181,7 +180,6 @@ object Reflector {
             //println(s"$paramName $index $tpe $ctorParameterNames ${genParams(index)}")
             val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.filterNot(_ == ScalaSigReader.OuterFieldName).toList, genParams(index))
             ConstructorParamDescriptor(decoded, paramName, index, theType, default)
-          }
         }
         ConstructorDescriptor(ctorParams, ctor, isPrimary = ctor.getMarkedAsPrimary())
       }
@@ -225,7 +223,7 @@ object Reflector {
   def rawClassOf(t: Type): Class[_] = rawClasses(t, {
     case c: Class[_] => c
     case p: ParameterizedType => rawClassOf(p.getRawType)
-    case x => sys.error(s"Raw type of ${x} not known")
+    case x => sys.error(s"Raw type of $x not known")
   })
 
   def unmangleName(name: String) = unmangledNames(name, scala.reflect.NameTransformer.decode)
@@ -235,7 +233,7 @@ object Reflector {
       def getActualTypeArguments = typeArgs.toArray
       def getOwnerType = owner
       def getRawType = rawClassOf(owner)
-      override def toString = getOwnerType.toString + "[" + getActualTypeArguments.mkString(",") + "]"
+      override def toString = getOwnerType().toString + "[" + getActualTypeArguments().mkString(",") + "]"
     }
 
 }
