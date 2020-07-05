@@ -1,25 +1,25 @@
 package org.json4s.reflect
 
-import org.json4s.reflect.DescriptorsSpec.{Company, Citizen, Person}
+import org.json4s.reflect.DescriptorsSpec.{Company, Citizen, Human}
 import org.specs2.mutable.Specification
 
 object DescriptorsSpec {
-  case class Person(firstName: String, lastName: String) {
+  case class Human(firstName: String, lastName: String) {
     def this(age: Int) = this("John", "Doe")
   }
-  object Person {
-    def apply(email: String) = new Person("Russell", "Westbrook")
+  object Human {
+    def apply(email: String) = new Human("Russell", "Westbrook")
   }
 
   case class Citizen(firstName: String, lastName: String, id: String) {
     def this(firstName: String, lastName: String, idAsANumber: Int) = this(firstName, lastName, idAsANumber.toString)
   }
 
-  case class Company(name: String, industry: String = "IT", ceo: Person = new Person("My", "Self"), yearFounded: Int) {
-    def this(name: String, industry: String, ceo: Person) = {
+  case class Company(name: String, industry: String = "IT", ceo: Human = new Human("My", "Self"), yearFounded: Int) {
+    def this(name: String, industry: String, ceo: Human) = {
       this(name, industry, ceo, 2000)
     }
-    def this(name: String, industry: String, ceo: Person, yearFounded: Option[Int]) = {
+    def this(name: String, industry: String, ceo: Human, yearFounded: Option[Int]) = {
       this(name, industry, ceo, yearFounded.getOrElse(2010))
     }
   }
@@ -30,7 +30,7 @@ class DescriptorsSpec extends Specification {
   "descriptors.bestMatching" should {
     "pick the natural one if arg names match exactly" in {
       // given
-      val descriptor: ClassDescriptor = describe(classOf[Person])
+      val descriptor: ClassDescriptor = describe(classOf[Human])
 
       // when
       val best = descriptor.bestMatching(List("firstName", "lastName")).get.constructor
@@ -62,7 +62,7 @@ class DescriptorsSpec extends Specification {
       val best = descriptor.bestMatching(List("name", "industry", "yearFounded")).get.constructor
 
       // test
-      best.getParameterTypes() must_== Array(classOf[String], classOf[String], classOf[Person], classOf[Int])
+      best.getParameterTypes() must_== Array(classOf[String], classOf[String], classOf[Human], classOf[Int])
     }
 
     "pick the most specific one (i.e. skipping defaults) if values are given, and some extras are given" in {
@@ -73,7 +73,7 @@ class DescriptorsSpec extends Specification {
       val best = descriptor.bestMatching(List("name", "industry", "yearFounded", "nonExistingProperty")).get.constructor
 
       // test
-      best.getParameterTypes() must_== Array(classOf[String], classOf[String], classOf[Person], classOf[Int])
+      best.getParameterTypes() must_== Array(classOf[String], classOf[String], classOf[Human], classOf[Int])
     }
 
     "pick the one using default value, not option if a value is not given" in {
@@ -84,7 +84,7 @@ class DescriptorsSpec extends Specification {
       val best = descriptor.bestMatching(List("name", "industry")).get.constructor
 
       // test
-      best.getParameterTypes() must_== Array(classOf[String], classOf[String], classOf[Person], classOf[Int])
+      best.getParameterTypes() must_== Array(classOf[String], classOf[String], classOf[Human], classOf[Int])
     }
 
     "pick the main one if not all values are provided" in {
