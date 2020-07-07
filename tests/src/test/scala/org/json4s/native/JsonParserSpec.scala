@@ -121,7 +121,7 @@ class JsonParserSpec extends Specification with JValueGen with ScalaCheck {
     val existingSize = ParserUtil.Segments.segmentSize
     try {
       ParserUtil.Segments.segmentSize = bufSize
-      ParserUtil.Segments.clear
+      ParserUtil.Segments.clear()
       JsonParser.parse(compact(render(json)))
     } finally {
       ParserUtil.Segments.segmentSize = existingSize

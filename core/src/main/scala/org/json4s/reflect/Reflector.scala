@@ -67,7 +67,7 @@ object Reflector {
 
     def fields(clazz: Class[_]): List[PropertyDescriptor] = {
       val lb = new mutable.ListBuffer[PropertyDescriptor]()
-      val ls = allCatch.withApply(_ => fail("Case classes defined in function bodies are not supported.")) { clazz.getDeclaredFields.toIterator }
+      val ls = allCatch.withApply(_ => fail("Case classes defined in function bodies are not supported.")) { clazz.getDeclaredFields.iterator }
       while (ls.hasNext) {
         val f = ls.next()
         val mod = f.getModifiers
@@ -155,7 +155,7 @@ object Reflector {
 
     def createConstructorDescriptors(ccs: Iterable[Executable]): Seq[ConstructorDescriptor] = {
       Option(ccs).map(_.toSeq).getOrElse(Nil) map { ctor =>
-        val ctorParameterNames = if (Modifier.isPublic(ctor.getModifiers) && ctor.getParameterTypes.length > 0)
+        val ctorParameterNames = if (Modifier.isPublic(ctor.getModifiers()) && ctor.getParameterTypes().length > 0)
           allCatch opt { paramNameReader.lookupParameterNames(ctor) } getOrElse Nil
         else
           Nil
@@ -246,7 +246,7 @@ object Reflector {
       def getActualTypeArguments = typeArgs.toArray
       def getOwnerType = owner
       def getRawType = rawClassOf(owner)
-      override def toString = getOwnerType.toString + "[" + getActualTypeArguments.mkString(",") + "]"
+      override def toString = getOwnerType().toString + "[" + getActualTypeArguments().mkString(",") + "]"
     }
 
 }
