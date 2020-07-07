@@ -132,9 +132,9 @@ class ReflectorSpec extends Specification {
       inst.methodWithClosure must throwA[MappingException]
     }
     "describe a case object" in {
-      val descr = Reflector.describe(TheObject.getClass).asInstanceOf[ClassDescriptor]
+      val descr = Reflector.describeWithFormats(TheObject.getClass).asInstanceOf[ClassDescriptor]
       val res = descr.mostComprehensive must not(throwAn[Exception])
-      println(Reflector.describe(TheObject.getClass))
+      println(Reflector.describeWithFormats(TheObject.getClass))
       res
     }
 

@@ -1,6 +1,6 @@
 package org.json4s.reflect
 
-import org.json4s.reflect
+import org.json4s.{DefaultFormats, reflect}
 import org.specs2.mutable.Specification
 import ReflectorSpec.{Cat, Dog, Person}
 
@@ -20,11 +20,11 @@ object ReflectorSpec {
 }
 
 class ReflectorSpec extends Specification {
-
+  implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
   "Reflector" should {
     "discover all constructors, incl. the ones from companion object" in {
       val klass = Reflector.scalaTypeOf(classOf[Person])
-      val descriptor = Reflector.describe(klass).asInstanceOf[reflect.ClassDescriptor]
+      val descriptor = Reflector.describeWithFormats(klass).asInstanceOf[reflect.ClassDescriptor]
 
       // the main one (with firstName, lastName Strings) is seen as two distinct ones:
       // as a constructor and an apply method
@@ -33,14 +33,14 @@ class ReflectorSpec extends Specification {
 
     "denote no constructor as primary if there are multiple competing" in {
       val klass = Reflector.scalaTypeOf(classOf[Person])
-      val descriptor = Reflector.describe(klass).asInstanceOf[reflect.ClassDescriptor]
+      val descriptor = Reflector.describeWithFormats(klass).asInstanceOf[reflect.ClassDescriptor]
 
       descriptor.constructors.count(_.isPrimary) must_== 0
     }
 
     "denote the only constructor as primary if only one exists" in {
       val klass = Reflector.scalaTypeOf(classOf[Dog])
-      val descriptor = Reflector.describe(klass).asInstanceOf[reflect.ClassDescriptor]
+      val descriptor = Reflector.describeWithFormats(klass).asInstanceOf[reflect.ClassDescriptor]
 
       // the only human-visible constructor is visible as two - the constructor and the apply method
       descriptor.constructors.size must_== 2
@@ -51,7 +51,7 @@ class ReflectorSpec extends Specification {
 
     "denote the annotated constructor as primary even if multiple exist" in {
       val klass = Reflector.scalaTypeOf(classOf[Cat])
-      val descriptor = Reflector.describe(klass).asInstanceOf[reflect.ClassDescriptor]
+      val descriptor = Reflector.describeWithFormats(klass).asInstanceOf[reflect.ClassDescriptor]
 
       descriptor.constructors.size must_== 3
       descriptor.constructors.count(_.isPrimary) must_== 1
@@ -59,7 +59,7 @@ class ReflectorSpec extends Specification {
 
     "retrieve constructors of a class in a deterministic order" in {
       val klass = Reflector.scalaTypeOf(classOf[Person])
-      val descriptor = Reflector.describe(klass).asInstanceOf[reflect.ClassDescriptor]
+      val descriptor = Reflector.describeWithFormats(klass).asInstanceOf[reflect.ClassDescriptor]
 
       descriptor.constructors.size must_== 4
       val first = descriptor.constructors(0)
