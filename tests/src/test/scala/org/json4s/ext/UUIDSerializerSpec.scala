@@ -21,11 +21,11 @@ import java.util.UUID
 import org.specs2.mutable.Specification
 
 
-object NativeUUIDSerializerSpec extends UUIDSerializerSpec("Native") {
+class NativeUUIDSerializerSpec extends UUIDSerializerSpec("Native") {
   val s: Serialization = native.Serialization
 }
 
-object JacksonUUIDSerializerSpec extends UUIDSerializerSpec("Jackson") {
+class JacksonUUIDSerializerSpec extends UUIDSerializerSpec("Jackson") {
   val s: Serialization = jackson.Serialization
 }
 

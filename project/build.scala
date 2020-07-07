@@ -58,8 +58,8 @@ object build {
   val json4sSettings = mavenCentralFrouFrou ++ Def.settings(
     organization := "org.json4s",
     scalaVersion := Scala212,
-    crossScalaVersions := Seq("2.11.12", Scala212, "2.13.1"),
-    scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds"),
+    crossScalaVersions := Seq("2.11.12", Scala212, "2.13.3"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-Xsource:3"),
     scalacOptions in (Compile, doc) ++= {
       val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
@@ -68,7 +68,7 @@ object build {
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, v)) if v <= 12 =>
-          Seq("-Xfuture")
+          Seq("-Xfuture", "-Ypartial-unification")
         case _ =>
           Nil
       }

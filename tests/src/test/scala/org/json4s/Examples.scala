@@ -20,7 +20,7 @@ import org.json4s.prefs.EmptyValueStrategy
 import org.specs2.mutable.Specification
 import org.json4s.native.Document
 
-object NativeExamples extends Examples[Document]("Native") with native.JsonMethods {
+class NativeExamples extends Examples[Document]("Native") with native.JsonMethods {
   import JsonDSL._
 
   "issue 482 Infinity" in {
@@ -281,8 +281,9 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
     "List[Animal] example" in {
 //      case class Dog(name: String) extends Animal
 //      case class Fish(weight: Double) extends Animal
-      implicit val fmts = DefaultFormats + ShortTypeHints(List[Class[_]](classOf[Dog], classOf[Fish]))
-      val json = parse(s"""[{"name":"pluto","${fmts.typeHintFieldName}":"Dog"},{"weight":1.3,"${fmts.typeHintFieldName}":"Fish"}]""")
+      val typeHints = ShortTypeHints(List[Class[_]](classOf[Dog], classOf[Fish]))
+      implicit val fmts = DefaultFormats + typeHints
+      val json = parse(s"""[{"name":"pluto","${typeHints.typeHintFieldName}":"Dog"},{"weight":1.3,"${typeHints.typeHintFieldName}":"Fish"}]""")
       Extraction.extract[List[Animal]](json) must_== Dog("pluto") :: Fish(1.3) :: Nil
     }
 
@@ -359,7 +360,59 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       val actual = Extraction.extract[Issue146CamelCaseClass](jackson.parseJson(json).camelizeKeys)
       actual must_== expected
     }
+
+    "Multiple type hint field names should be possible" in {
+      implicit val f = DefaultFormats +
+        ShortTypeHints(classOf[Cherry] :: classOf[Oak] :: Nil, "wood") +
+        ShortTypeHints(classOf[Iron] :: classOf[IronMaiden] :: Nil, "metal")
+
+      val json =
+        """
+          |{
+          |  "woods": [
+          |    {
+          |      "wood": "Cherry",
+          |      "hardness": 3
+          |    },
+          |    {
+          |      "wood": "Oak",
+          |      "hardness": 8
+          |    }
+          |  ],
+          |  "metals": [
+          |    {
+          |      "metal": "Iron",
+          |      "origin": "USA"
+          |    },
+          |    {
+          |      "metal": "IronMaiden",
+          |      "origin": "UK"
+          |    }
+          |  ]
+          |}
+        """.stripMargin
+
+      val actual = parse(json).extract[Materials]
+      val expected = Materials(
+        List(Cherry(3), Oak(8)),
+        List(Iron("USA"), IronMaiden("UK")))
+
+
+      actual must_== expected
+    }
+
   }
 }
 private case class Issue545CamelCaseClassWithUUID(myMap: Map[String, String])
 private case class Issue146CamelCaseClass(fullName: String, githubAccountName: Option[String])
+
+trait Wood
+case class Cherry(hardness: Int) extends Wood
+case class Oak(hardness: Int) extends Wood
+
+trait Metal
+case class Iron(origin: String) extends Metal
+case class IronMaiden(origin: String) extends Metal
+
+case class Materials(woods: List[Wood], metals: List[Metal])
+

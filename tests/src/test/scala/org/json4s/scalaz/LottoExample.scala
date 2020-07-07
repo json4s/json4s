@@ -7,15 +7,19 @@ import native.JsonMethods._
 
 import org.specs2.mutable.Specification
 
-object LottoExample extends Specification {
+class LottoExample extends Specification {
   case class Winner(winnerId: Long, numbers: List[Int])
   case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[String])
 
   val json = parse("""{"id":5,"winning-numbers":[2,45,34,23,7,5],"winners":[{"winner-id":23,"numbers":[2,45,34,23,3,5]},{"winner-id":54,"numbers":[52,3,12,11,18,22]}]}""")
 
-  def len(x: Int) = (xs: List[Int]) => {
-    if (xs.length != x) Fail("len", s"${xs.length} != $x") else Success(xs)
-  }.disjunction
+  def len(x: Int): List[Int] => NonEmptyList[Error] \/ List[Int] = xs => {
+    if (xs.length != x) {
+      Fail[List[Int]]("len", s"${xs.length} != $x")
+    } else {
+      Success[NonEmptyList[Error], List[Int]](xs)
+    }
+  }.toDisjunction
 
   implicit def winnerJSON: JSONR[Winner] =
     Winner.applyJSON(field[Long]("winner-id"), validate[List[Int]]("numbers") >==> len(6))

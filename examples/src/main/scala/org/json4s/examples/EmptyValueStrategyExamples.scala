@@ -16,10 +16,10 @@ object EmptyValueTreatmentExamples {
   private[this] val eventAsCaseClass = EventAsCaseClass("dinner")
 
   def main(args: Array[String]): Unit = {
-    jacksonWaySkippingNulls
-    jacksonWayPreservingNulls
-    nativeWaySkippingNulls
-    nativeWayPreservingNulls
+    jacksonWaySkippingNulls()
+    jacksonWayPreservingNulls()
+    nativeWaySkippingNulls()
+    nativeWayPreservingNulls()
   }
 
   def jacksonWaySkippingNulls(): Unit = {

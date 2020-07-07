@@ -5,7 +5,7 @@ import java.io._
 import java.util.jar.JarFile
 import scala.collection.JavaConverters._
 
-object ClassFileParserSpec extends Specification {
+class ClassFileParserSpec extends Specification {
   "ClassFileParser" should {
     "parse ConstantPackage and ConstantModule" in {
       if (scala.util.Properties.isJavaAtLeast("9")) {

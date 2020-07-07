@@ -9,7 +9,7 @@ import org.json4s.jackson.JsonMethods._
 /**
 * System under specification for JSON Parser.
 */
-object JsonParserSpec extends Specification with JValueGen with ScalaCheck {
+class JsonParserSpec extends Specification with JValueGen with ScalaCheck {
   import native.{JsonParser,Printer}
   import native.JsonMethods._
 
@@ -121,7 +121,7 @@ object JsonParserSpec extends Specification with JValueGen with ScalaCheck {
     val existingSize = ParserUtil.Segments.segmentSize
     try {
       ParserUtil.Segments.segmentSize = bufSize
-      ParserUtil.Segments.clear
+      ParserUtil.Segments.clear()
       JsonParser.parse(compact(render(json)))
     } finally {
       ParserUtil.Segments.segmentSize = existingSize

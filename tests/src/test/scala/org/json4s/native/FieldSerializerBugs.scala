@@ -1,8 +1,9 @@
 package org.json4s
 
 import org.specs2.mutable.Specification
+import FieldSerializerBugs._
 
-object FieldSerializerBugs extends Specification {
+class FieldSerializerBugs extends Specification {
   import native.Serialization
   import Serialization.{read, write => swrite}
 
@@ -47,7 +48,9 @@ object FieldSerializerBugs extends Specification {
     Extraction.decompose(Type1(123)) must_== (expected1)
     Extraction.decompose(Type2(456)) must_== (expected2)
   }
+}
 
+object FieldSerializerBugs {
   case class WithSymbol(`a-b*c`: Int)
 
   class ClassWithOption {

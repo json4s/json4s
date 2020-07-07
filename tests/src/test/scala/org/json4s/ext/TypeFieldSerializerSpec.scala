@@ -4,11 +4,11 @@ package ext
 import org.specs2.matcher.Matchers
 import org.specs2.mutable.Specification
 
-object NativeTypeFieldSerializerSpec extends TypeFieldSerializerSpec("Native") {
+class NativeTypeFieldSerializerSpec extends TypeFieldSerializerSpec("Native") {
   val s: Serialization = native.Serialization
 }
 
-object JacksonTypeFieldSerializerSpec extends TypeFieldSerializerSpec("Jackson") {
+class JacksonTypeFieldSerializerSpec extends TypeFieldSerializerSpec("Jackson") {
   val s: Serialization = jackson.Serialization
 }
 

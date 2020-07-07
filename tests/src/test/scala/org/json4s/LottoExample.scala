@@ -19,14 +19,14 @@ package org.json4s
 import org.specs2.mutable.Specification
 import org.json4s.native.Document
 
-object NativeLottoExample extends LottoExample[Document]("Native") with native.JsonMethods {
+class NativeLottoExample extends LottoExample[Document]("Native") with native.JsonMethods {
   import LottoExample._
   implicit val formats = DefaultFormats
   def extractWinner(jv: JValue): Winner = jv.extract[Winner]
 
   def extractLotto(jv: JValue): Lotto = jv.extract[Lotto]
 }
-object JacksonLottoExample extends LottoExample[JValue]("Jackson") with jackson.JsonMethods {
+class JacksonLottoExample extends LottoExample[JValue]("Jackson") with jackson.JsonMethods {
   import LottoExample._
   implicit val formats = DefaultFormats
   def extractWinner(jv: JValue): Winner = jv.extract[Winner]
