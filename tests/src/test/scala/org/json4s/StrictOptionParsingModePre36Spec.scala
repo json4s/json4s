@@ -25,7 +25,7 @@ class EnumSpecSerializer extends CustomSerializer[EnumSpec](
 
 abstract class StrictOptionParsingModePre36Spec[T](mod: String) extends Specification with JsonMethods[T] {
 
-  implicit lazy val formats: Formats = new DefaultFormats { override val strictOptionParsingPre36: Boolean = true } + new EnumSpecSerializer()
+  implicit lazy val formats: Formats = new DefaultFormats { override val strictOptionParsingIgnoreMissing: Boolean = true } + new EnumSpecSerializer()
 
   val complexTypeSpec1 = """{ "someInt": 123, "someString": "Foo", "someEnum": "MI" }"""
   val complexTypeSpec3 = """{ "someInt": 123, "someString": "Foo", "someEnum": "XX" }"""

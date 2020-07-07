@@ -705,11 +705,11 @@ Both these settings (`strictOptionParsing` and `strictArrayExtraction`) can be e
 val formats: Formats = DefaultFormats.strict
 ```
 
-Json 3.6 expands the `strictOptionParsing` behavior to throw a MappingException even when `extractOpt` is called on a missing optional attribute.  This behavior might not be desirable if you have a large code base that was using `extractOpt` prior to Json 3.6.  If you prefer to maintain the pre-3.6 `extractOpt` behavior, you can specify the format option `strictOptionParsingPre36`
+Json 3.6 expands the `strictOptionParsing` behavior to throw a MappingException even when `extractOpt` is called on a missing optional attribute.  This behavior might not be desirable if you have a large code base that was using `extractOpt` prior to Json 3.6.  If you prefer to maintain the pre-3.6 `extractOpt` behavior, you can specify the format option `strictOptionParsingIgnoreMissing`
 
 ```scala
 val formats: Formats = new DefaultFormats {
-  override val strictOptionParsingPre36: Boolean = true
+  override val strictOptionParsingIgnoreMissing: Boolean = true
 }
 ```
 
@@ -719,7 +719,7 @@ Note the following examples:
 
 ```scala
 val formats: Formats = new DefaultFormats {
-  override val strictOptionParsingPre36: Boolean = true
+  override val strictOptionParsingIgnoreMissing: Boolean = true
 }
 case class SerializationSpec(someInt: Int, someString: Option[String])
 val json = parse("""{ "someInt": 123 }""")
