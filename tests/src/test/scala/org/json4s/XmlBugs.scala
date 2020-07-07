@@ -19,8 +19,8 @@ package org.json4s
 import org.specs2.mutable.Specification
 import org.json4s.native.Document
 
-object NativeXmlBugs extends XmlBugs[Document]("Native") with native.JsonMethods
-object JacksonXmlBugs extends XmlBugs[JValue]("Jackson") with jackson.JsonMethods
+class NativeXmlBugs extends XmlBugs[Document]("Native") with native.JsonMethods
+class JacksonXmlBugs extends XmlBugs[JValue]("Jackson") with jackson.JsonMethods
 abstract class XmlBugs[T](mod: String) extends Specification with JsonMethods[T]{
   import Xml._
 

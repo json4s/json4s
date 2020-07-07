@@ -21,7 +21,7 @@ object IgnoreWithTypeParamSpec {
 
 abstract class IgnoreCompanionConstructors[T](mod: String, ser: json4s.Serialization) extends Specification with JsonMethods[T] {
 
-  implicit lazy val formats = new DefaultFormats { override val alwaysConsiderCompanionConstructors = false }
+  implicit lazy val formats = new DefaultFormats { override val considerCompanionConstructors = false }
 
   val ignoreCtorSpec1 = """{ "someString": "Foo", "someInt": 123 }"""
   val ignoreCtorSpec2 = """{ "someString": "Foo", "someInt": 123, "someDouble": 456.1 }"""

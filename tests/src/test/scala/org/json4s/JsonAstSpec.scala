@@ -22,7 +22,7 @@ import org.scalacheck.Prop.forAllNoShrink
 import org.specs2.ScalaCheck
 import org.specs2.matcher.MatchResult
 
-object JsonAstSpec extends Specification with JValueGen with ScalaCheck {
+class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
 
   ("JSON AST Specification") should {
     "Functor identity" in {

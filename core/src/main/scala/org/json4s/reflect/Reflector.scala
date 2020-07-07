@@ -42,21 +42,21 @@ object Reflector {
     stringTypes(name, ScalaSigReader.resolveClass[AnyRef](_, ClassLoaders) map (c => scalaTypeOf(c)))
 
   def describe[T](implicit mf: Manifest[T], formats: Formats = DefaultFormats): ObjectDescriptor =
-    describe2(scalaTypeDescribable(scalaTypeOf[T]))
+    describeWithFormats(scalaTypeDescribable(scalaTypeOf[T]))
 
-  @deprecated("Use describe[T] or describe2 instead", "3.6.8")
+  @deprecated("Use describe[T] or describeWithFormats instead", "3.6.8")
   def describe(st: ReflectorDescribable[_]): ObjectDescriptor =
-    descriptors(st.scalaType, createDescriptor2(_, st.paranamer, st.companionClasses)(DefaultFormats))
+    descriptors(st.scalaType, createDescriptorWithFormats(_, st.paranamer, st.companionClasses)(DefaultFormats))
 
-  def describe2(st: ReflectorDescribable[_])(implicit formats: Formats): ObjectDescriptor =
-    descriptors(st.scalaType, createDescriptor2(_, st.paranamer, st.companionClasses))
+  def describeWithFormats(st: ReflectorDescribable[_])(implicit formats: Formats): ObjectDescriptor =
+    descriptors(st.scalaType, createDescriptorWithFormats(_, st.paranamer, st.companionClasses))
 
-  @deprecated("Use createDescriptor2", "3.6.8")
+  @deprecated("Use createDescriptorWithFormats", "3.6.8")
   def createDescriptor(tpe: ScalaType, paramNameReader: ParameterNameReader = ParanamerReader, companionMappings: List[(Class[_], AnyRef)] = Nil): ObjectDescriptor = {
-    createDescriptor2(tpe, paramNameReader, companionMappings)(DefaultFormats)
+    createDescriptorWithFormats(tpe, paramNameReader, companionMappings)(DefaultFormats)
   }
 
-  def createDescriptor2(tpe: ScalaType, paramNameReader: ParameterNameReader = ParanamerReader, companionMappings: List[(Class[_], AnyRef)] = Nil)(implicit formats: Formats): ObjectDescriptor = {
+  def createDescriptorWithFormats(tpe: ScalaType, paramNameReader: ParameterNameReader = ParanamerReader, companionMappings: List[(Class[_], AnyRef)] = Nil)(implicit formats: Formats): ObjectDescriptor = {
     if (tpe.isPrimitive) PrimitiveDescriptor(tpe)
     else new ClassDescriptorBuilder(tpe, paramNameReader, companionMappings).result
   }
@@ -132,17 +132,25 @@ object Reflector {
           case None => ctors.map(new Executable(_, false))
         }
       }
+
       val constructorDescriptors = createConstructorDescriptors(ccs)
-      if (constructorDescriptors.isEmpty || formats.alwaysConsiderCompanionConstructors) {
-        companion = findCompanion(checkCompanionMapping = false)
-        val applyMethods: scala.Array[Method] = companion match {
-          case Some(singletonDescriptor) =>
-            singletonDescriptor.instance.getClass.getMethods.filter { method => method.getName == "apply" && method.getReturnType == er }
-          case None => scala.Array[Method]()
+      val all = {
+        if (constructorDescriptors.isEmpty || formats.considerCompanionConstructors) {
+          companion = findCompanion(checkCompanionMapping = false)
+          val applyMethods: scala.Array[Method] = companion match {
+            case Some(singletonDescriptor) =>
+              singletonDescriptor.instance.getClass.getMethods.filter { method => method.getName == "apply" && method.getReturnType == er }
+            case None => scala.Array[Method]()
+          }
+          val applyExecutables = applyMethods.map { m => new Executable(m) }
+          constructorDescriptors ++ createConstructorDescriptors(applyExecutables)
         }
-        val applyExecutables = applyMethods.map { m => new Executable(m) }
-        constructorDescriptors ++ createConstructorDescriptors(applyExecutables)
-      } else constructorDescriptors
+          else constructorDescriptors
+      }
+      // https://github.com/json4s/json4s/issues/371 no actual requirements for the order are known, but
+      // deterministic ordering regardless of non-determinism by java.reflect is needed
+      all.toList.sortBy(c =>
+        (!c.isPrimary, c.constructor.constructor == null, -c.params.size, c.toString))
     }
 
     def createConstructorDescriptors(ccs: Iterable[Executable]): Seq[ConstructorDescriptor] = {
@@ -167,15 +175,14 @@ object Reflector {
           }
         }
         val ctorParams = ctorParameterNames.zipWithIndex map {
-          case (ScalaSigReader.OuterFieldName, index) => {
+          case (ScalaSigReader.OuterFieldName, index) =>
             //            println("The result type of the $outer param: " + genParams(0))
             if (tpe.erasure.getDeclaringClass == null) fail("Classes defined in method bodies are not supported.")
             companion = findCompanion(checkCompanionMapping = true)
             val default = companionMappings.find(_._1 == tpe.erasure).map(_._2).map(() => _)
             val tt = scalaTypeOf(tpe.erasure.getDeclaringClass)
             ConstructorParamDescriptor(ScalaSigReader.OuterFieldName, ScalaSigReader.OuterFieldName, index, tt, default)
-          }
-          case (paramName, index) => {
+          case (paramName, index) =>
             companion = findCompanion(checkCompanionMapping = false)
             val decoded = unmangleName(paramName)
             val default = (companion, ctor.defaultValuePattern) match {
@@ -186,7 +193,6 @@ object Reflector {
             //println(s"$paramName $index $tpe $ctorParameterNames ${genParams(index)}")
             val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.filterNot(_ == ScalaSigReader.OuterFieldName).toList, genParams(index))
             ConstructorParamDescriptor(decoded, paramName, index, theType, default)
-          }
         }
         ConstructorDescriptor(ctorParams, ctor, isPrimary = ctor.getMarkedAsPrimary())
       }
@@ -230,7 +236,7 @@ object Reflector {
   def rawClassOf(t: Type): Class[_] = rawClasses(t, {
     case c: Class[_] => c
     case p: ParameterizedType => rawClassOf(p.getRawType)
-    case x => sys.error(s"Raw type of ${x} not known")
+    case x => sys.error(s"Raw type of $x not known")
   })
 
   def unmangleName(name: String) = unmangledNames(name, scala.reflect.NameTransformer.decode)

@@ -12,15 +12,15 @@ class JacksonJsonFormatsSpec extends JsonFormatsSpec[JValue]("Jackson") with jac
 abstract class JsonFormatsSpec[T](mod: String) extends Specification with TypeHintExamples with JsonMethods[T] {
   implicit val formats = ShortTypeHintExamples.formats + FullTypeHintExamples.formats.typeHints
 
-  val hintsForFish   = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Fish])
-  val hintsForDog    = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Dog])
-  val hintsForAnimal = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Animal])
+  val hintsForFish   = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Fish]).get
+  val hintsForDog    = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Dog]).get
+  val hintsForAnimal = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Animal]).get
 
   (mod+" JsonFormats Specification") should {
     "hintsFor across composite formats" in {
-      formats.typeHints.hintFor(classOf[Fish])   must_== (hintsForFish)
-      formats.typeHints.hintFor(classOf[Dog])    must_== (hintsForDog)
-      formats.typeHints.hintFor(classOf[Animal]) must_== (hintsForAnimal)
+      formats.typeHints.hintFor(classOf[Fish]) must beSome(hintsForFish)
+      formats.typeHints.hintFor(classOf[Dog])    must beSome(hintsForDog)
+      formats.typeHints.hintFor(classOf[Animal]) must beSome(hintsForAnimal)
     }
 
     "classFor across composite formats" in {

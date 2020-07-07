@@ -3,7 +3,7 @@ package org.json4s
 import org.specs2.mutable.Specification
 import org.specs2.ScalaCheck
 
-object JsonDSLSpec extends Specification with JValueGen with ScalaCheck {
+class JsonDSLSpec extends Specification with JValueGen with ScalaCheck {
 
   ("JSON DSL Specification") should {
     "build Json" in {

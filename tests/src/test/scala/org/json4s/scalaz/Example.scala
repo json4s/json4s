@@ -9,7 +9,7 @@ import JsonScalaz._
 
 import org.specs2.mutable.Specification
 
-object Example extends Specification {
+class Example extends Specification {
 
   case class Address(street: String, zipCode: String)
   case class Person(name: String, age: Int, address: Address)

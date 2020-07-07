@@ -3,7 +3,7 @@ import native.JsonMethods._
 import org.specs2.mutable.Specification
 import scala.util.Try
 
-object FieldSerializerExamples extends Specification {
+class FieldSerializerExamples extends Specification {
   import native.Serialization.{read, write => swrite}
   import FieldSerializer._
 
