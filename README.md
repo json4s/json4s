@@ -738,6 +738,12 @@ val json = parse("""{ "someInt": 123 }""")
 // throws MappingException.
 val someString = (json \ "someString").extractOpt[String]
 ```
+With Json4s 3.6 and higher, `apply` functions in companion objects will be evaluated for use during extraction.  If this behavior is not desired, you can disable it using the `considerCompanionConstructors` on a custom `Formats` object:
+```scala 
+val formats: Formats = new DefaultFormats { override val considerCompanionConstructors = false }
+```
+
+When this option is disabled, only primary and secondary constructors will be evaluated for use during extraction.
 
 Serialization
 =============
