@@ -712,6 +712,14 @@ val formats: Formats = new DefaultFormats { override val considerCompanionConstr
 
 When this option is disabled, only primary and secondary constructors will be evaluated for use during extraction.
 
+Handling `null`
+-------------
+
+`null` values of `Option`s are always extracted as `None`. For other types you can control the behaviour by setting the `nullExtractionStrategy` of the `Formats` used during extraction. There are three options:
+* `Keep`: Leaves null values as they are.
+* `Disallow`: Fails extraction when a `null` value is encountered.
+* `TreatAsAbsent`: Treats `null` values as if they were not present at all.
+
 Serialization
 =============
 
