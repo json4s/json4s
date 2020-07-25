@@ -21,6 +21,7 @@ import org.json4s
 
 import org.specs2.mutable.Specification
 import org.json4s.native.Document
+import org.json4s.prefs.ExtractionNullStrategy
 
 class NativeExtractionExamples extends ExtractionExamples[Document]("Native", native.Serialization) with native.JsonMethods
 class JacksonExtractionExamples extends ExtractionExamples[JValue]("Jackson", jackson.Serialization) with jackson.JsonMethods
@@ -30,7 +31,11 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
   implicit lazy val formats = DefaultFormats
 
   val notNullFormats = new DefaultFormats {
-    override val allowNull = false
+    override val extractionNullStrategy = ExtractionNullStrategy.Disallow
+  }
+
+  val nullAsAbsentFormats = new DefaultFormats {
+    override val extractionNullStrategy = ExtractionNullStrategy.TreatAsAbsent
   }
 
   val strictFormats = formats.strict
@@ -384,19 +389,47 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
       parse("""{"a":[{"b":"c"}]}""").extract[Map[String, List[Map[String, String]]]] must_== Map("a" -> List(Map("b" -> "c")))
     }
 
-    "allowNull format set to false should disallow null values in extraction for class types" in {
+    "format nullExtractionStrategy set to Disallow should disallow null values in extraction for class types" in {
       parse("""{"name":"foobar","address":null}""").extract[SimplePerson](notNullFormats, Manifest.classType(classOf[SimplePerson])) must throwA(MappingException("No usable value for address\nDid not find value which can be converted into org.json4s.Address", null))
     }
 
-    "allowNull format set to false should disallow null values in extraction for primitive types" in {
+    "format nullExtractionStrategy set to TreatAsAbsent should disallow null values in extraction for class types without default values" in {
+      parse("""{"name":"foobar","address":null}""").extract[SimplePerson](nullAsAbsentFormats, Manifest.classType(classOf[SimplePerson])) must throwA(MappingException("No usable value for address\nExpected value but got null", null))
+    }
+
+    "format nullExtractionStrategy set to Disallow should disallow null values in extraction for primitive types" in {
       parse("""{"name":null}""").extract[Name](notNullFormats, Manifest.classType(classOf[Name])) must throwA(MappingException("No usable value for name\nDid not find value which can be converted into java.lang.String", null))
     }
 
-    "allowNull format set to false should extract a null Option[T] as None" in {
+    "format nullExtractionStrategy set to TreatAsAbsent should disallow null values in extraction for primitive types without default values" in {
+      parse("""{"name":null}""").extract[Name](nullAsAbsentFormats, Manifest.classType(classOf[Name])) must throwA(MappingException("No usable value for name\nExpected value but got null", null))
+    }
+
+    "format nullExtractionStrategy set to Disallow should extract a null Option[T] as None" in {
       parse("""{"name":null,"age":22}""").extract[OChild](notNullFormats, Manifest.classType(classOf[OChild])) must_== new OChild(None, 22, None, None)
     }
 
-    "allowNull format set to false should use custom null serializer to set Option[T] as None" in {
+    "format nullExtractionStrategy set to TreatAsAbsent should extract a null Option[T] as None" in {
+      parse("""{"name":null,"age":22}""").extract[OChild](nullAsAbsentFormats, Manifest.classType(classOf[OChild])) must_== new OChild(None, 22, None, None)
+    }
+
+    "format nullExtractionStrategy set to Disallow should disallow null values in extraction for class types with default values" in {
+      parse("""{"name":"foobar","address":null}""").extract[PersonWithDefaultValues](notNullFormats, Manifest.classType(classOf[PersonWithDefaultValues])) must throwA(MappingException("No usable value for address\nDid not find value which can be converted into org.json4s.Address", null))
+    }
+
+    "format nullExtractionStrategy set to TreatAsAbsent should ignore null values in extraction for class types with default values" in {
+      parse("""{"name":null}""").extract[PersonWithDefaultValues](nullAsAbsentFormats, Manifest.classType(classOf[PersonWithDefaultValues])) must_== PersonWithDefaultValues()
+    }
+
+    "format nullExtractionStrategy set to Disallow should disallow null values in extraction for collection types" in {
+      parse("""[1,null,3]""").extract[Seq[Int]](notNullFormats, implicitly) must throwA(MappingException("Did not find value which can be converted into int", null))
+    }
+
+    "format nullExtractionStrategy set to TreatAsAbsent should ignore null values in extraction for class types with default values" in {
+      parse("""[1,null,3]""").extract[Seq[Int]](nullAsAbsentFormats, implicitly) must_== Seq(1, 3)
+    }
+
+    "format nullExtractionStrategy set to Disallow should use custom null serializer to set Option[T] as None" in {
       object CustomNull extends CustomSerializer[Null](_ => ( {
         case JNothing => null
         case JNull => null
@@ -405,6 +438,17 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
         case _ => JString("")
       }))
       parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](notNullFormats + CustomNull, Manifest.classType(classOf[OChild])) must_== new OChild(None, 22, None, None)
+    }
+
+    "format nullExtractionStrategy set to TreatAsAbsent should use custom null serializer to set Option[T] as None" in {
+      object CustomNull extends CustomSerializer[Null](_ => ( {
+        case JNothing => null
+        case JNull => null
+        case JString("") => null
+      }, {
+        case _ => JString("")
+      }))
+      parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](nullAsAbsentFormats + CustomNull, Manifest.classType(classOf[OChild])) must_== new OChild(None, 22, None, None)
     }
 
     "simple case objects should be successfully extracted as a singleton instance" in {
@@ -578,6 +622,7 @@ case class Child(name: String, age: Int, birthdate: Option[java.util.Date])
 
 case class SimplePerson(name: String, address: Address)
 
+case class PersonWithDefaultValues(name: String = "No name", address: Address = Address("No street", "No city"))
 case class PersonWithMap(name: String, address: Map[String, String])
 case class PersonWithDefaultEmptyMap(name: String, address: Map[String, String] = Map.empty)
 case class PersonWithAddresses(name: String, addresses: Map[String, Address])
