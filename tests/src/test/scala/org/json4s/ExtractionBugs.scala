@@ -355,9 +355,18 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       Extraction.extract[OptionOfInt](obj) must_== OptionOfInt(None)
     }
 
+    "Extract should fail when strictOptionParsing is on and extracting from JNull" in {
+      implicit val formats = new DefaultFormats {
+        override val strictOptionParsing: Boolean = true
+      }
+
+      Extraction.extract[OptionOfInt](JNull) must throwA(
+        new MappingException("No value set for Option property: opt")
+      )
+    }
+
     Fragments.foreach(Seq[JValue](
       JNothing,
-      JNull,
       JInt(5),
       JString("---"),
       JObject(Nil),
@@ -369,7 +378,7 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
         }
 
         Extraction.extract[OptionOfInt](obj) must throwA(
-          new MappingException("No value set for Option property: opt")
+          new MappingException("No usable value for opt\nNo value set for Option property: opt")
         )
       }
     }
