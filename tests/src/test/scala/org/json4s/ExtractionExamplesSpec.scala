@@ -166,6 +166,22 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
       parse(missingChildren).extract[PersonNoKids](strictFormats, implicitly[Manifest[PersonNoKids]]) must_== PersonNoKids("joe", Address("Bulevard", "Helsinki"), Nil)
     }
 
+    "Missing JSON object extracted as an empty Map (no default value) when strictMapExtraction is false" in {
+      parse(noAddress).extract[PersonWithMap](nonStrictFormats, implicitly[Manifest[PersonWithMap]]) must_== PersonWithMap("joe", Map())
+    }
+
+    "Missing JSON object extracted as an empty Map (has default value) when strictMapExtraction is false" in {
+      parse(noAddress).extract[PersonWithDefaultEmptyMap](nonStrictFormats, implicitly[Manifest[PersonWithDefaultEmptyMap]]) must_== PersonWithDefaultEmptyMap("joe", Map())
+    }
+
+    "Missing JSON object fails extraction (no default value) when strictMapExtraction is true" in {
+      parse(noAddress).extract[PersonWithMap](strictFormats, implicitly[Manifest[PersonWithMap]]) must throwA[MappingException]
+    }
+
+    "Missing JSON object extracted as an empty Map (has default value) when strictMapExtraction is true" in {
+      parse(noAddress).extract[PersonWithDefaultEmptyMap](strictFormats, implicitly[Manifest[PersonWithDefaultEmptyMap]]) must_== PersonWithDefaultEmptyMap("joe", Map())
+    }
+
     "Multidimensional array extraction example" in {
       parse(multiDimensionalArrays).extract[MultiDim] must_== MultiDim(
         List(List(List(1, 2), List(3)), List(List(4), List(5, 6))),
@@ -497,6 +513,14 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
 }
 """
 
+  val noAddress =
+"""
+{
+  "name": "joe"
+}
+"""
+
+
   val twoAddresses =
 """
 {
@@ -600,6 +624,7 @@ case class SimplePerson(name: String, address: Address)
 
 case class PersonWithDefaultValues(name: String = "No name", address: Address = Address("No street", "No city"))
 case class PersonWithMap(name: String, address: Map[String, String])
+case class PersonWithDefaultEmptyMap(name: String, address: Map[String, String] = Map.empty)
 case class PersonWithAddresses(name: String, addresses: Map[String, Address])
 
 case class Name(name: String)

@@ -102,6 +102,7 @@ trait Formats extends Serializable { self: Formats =>
   def extractionNullStrategy: ExtractionNullStrategy = ExtractionNullStrategy.Keep
   def strictOptionParsing: Boolean = false
   def strictArrayExtraction: Boolean = false
+  def strictMapExtraction: Boolean = false
   def alwaysEscapeUnicode: Boolean = false
   def strictFieldDeserialization: Boolean = false
 
@@ -135,6 +136,7 @@ trait Formats extends Serializable { self: Formats =>
                     wExtractionNullStrategy: ExtractionNullStrategy = self.extractionNullStrategy,
                     wStrictOptionParsing: Boolean = self.strictOptionParsing,
                     wStrictArrayExtraction: Boolean = self.strictArrayExtraction,
+                    wStrictMapExtraction: Boolean = self.strictMapExtraction,
                     wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
                     wConsiderCompanionConstructors: Boolean = self.considerCompanionConstructors,
                     wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy,
@@ -154,6 +156,7 @@ trait Formats extends Serializable { self: Formats =>
       override def extractionNullStrategy: ExtractionNullStrategy = wExtractionNullStrategy
       override def strictOptionParsing: Boolean = wStrictOptionParsing
       override def strictArrayExtraction: Boolean = wStrictArrayExtraction
+      override def strictMapExtraction: Boolean = wStrictMapExtraction
       override def alwaysEscapeUnicode: Boolean = wAlwaysEscapeUnicode
       override def considerCompanionConstructors: Boolean = wConsiderCompanionConstructors
       override def emptyValueStrategy: EmptyValueStrategy = wEmptyValueStrategy
@@ -182,6 +185,8 @@ trait Formats extends Serializable { self: Formats =>
 
   def withStrictArrayExtraction: Formats = copy(wStrictArrayExtraction = true)
 
+  def withStrictMapExtraction: Formats = copy(wStrictMapExtraction = true)
+
   /**
    * Prior to 3.6 companion object constructors were only considered when deserializing if there were no primary
    * constructors. A backwards-incompatible change was made in 3.6 to always consider companion object constructors
@@ -191,9 +196,9 @@ trait Formats extends Serializable { self: Formats =>
    */
   def withPre36DeserializationBehavior: Formats = copy(wConsiderCompanionConstructors = false)
 
-  def strict: Formats = copy(wStrictOptionParsing = true, wStrictArrayExtraction = true)
+  def strict: Formats = copy(wStrictOptionParsing = true, wStrictArrayExtraction = true, wStrictMapExtraction = true)
 
-  def nonStrict: Formats = copy(wStrictOptionParsing = false, wStrictArrayExtraction = false)
+  def nonStrict: Formats = copy(wStrictOptionParsing = false, wStrictArrayExtraction = false, wStrictMapExtraction = false)
 
   @deprecated(message = "Use withNullExtractionStrategy instead", since = "3.7.0")
   def disallowNull: Formats = copy(wExtractionNullStrategy = ExtractionNullStrategy.Disallow)

@@ -684,7 +684,8 @@ val formats: Formats = new DefaultFormats {
 }
 ```
 
-Same happens with collections, the default behavior of `extract` is to return an empty instance of the collection.
+Same happens with collections(for example, List and Map...), the default behavior of `extract`
+is to return an empty instance of the collection. 
 You can make it fail with a [MappingException] by using a custom `Formats` object:
 
 ```scala
@@ -699,7 +700,19 @@ val formats: Formats = new DefaultFormats {
 }
 ```
 
-Both these settings (`strictOptionParsing` and `strictArrayExtraction`) can be enabled with
+```scala
+val formats: Formats = DefaultFormats.withStrictMapExtraction
+```
+
+or
+
+```scala
+val formats: Formats = new DefaultFormats {
+  override val strictMapExtraction: Boolean = true
+}
+```
+
+These settings (`strictOptionParsing`, `strictArrayExtraction` and `strictMapExtraction`) can be enabled with
 
 ```scala
 val formats: Formats = DefaultFormats.strict

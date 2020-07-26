@@ -400,6 +400,9 @@ object Extraction {
           } else {
             values.toMap
           }
+        case JNothing | JNull if !formats.strictMapExtraction => {
+          if (scalaType.isMutableMap) scala.collection.mutable.Map.empty else Map.empty
+        }
         case x => fail("Expected object but got " + x)
       })
     } else if (scalaType.isCollection) {
