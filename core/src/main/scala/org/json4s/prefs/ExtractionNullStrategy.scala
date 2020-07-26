@@ -18,4 +18,4 @@ object ExtractionNullStrategy {
   case object TreatAsAbsent extends ExtractionNullStrategy
 }
 
-sealed trait ExtractionNullStrategy
+sealed abstract class ExtractionNullStrategy extends Product with Serializable
