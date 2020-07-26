@@ -10,7 +10,6 @@ matrix:
   include:
   - scala: 2.12.12
     jdk: openjdk11
-sudo: false
 cache:
   directories:
     - $HOME/.ivy2/cache
