@@ -104,6 +104,6 @@ object Diff {
     /** Return a diff.
      * @see org.json4s.Diff#diff
      */
-    def diff(other: JValue) = Diff.diff(this, other)
+    def diff(other: JValue): Diff = Diff.diff(this, other)
   }
 }

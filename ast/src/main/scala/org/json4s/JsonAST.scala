@@ -25,7 +25,7 @@ object JsonAST {
    * concat(JInt(1), JInt(2)) == JArray(List(JInt(1), JInt(2)))
    * </pre>
    */
-  def concat(xs: JValue*) = xs.foldLeft(JNothing: JValue)(_ ++ _)
+  def concat(xs: JValue*): JValue = xs.foldLeft(JNothing: JValue)(_ ++ _)
 
   object JValue extends Merge.Mergeable
 
@@ -150,14 +150,14 @@ object JsonAST {
 
   case class JObject(obj: List[JField]) extends JValue {
     type Values = Map[String, Any]
-    def values = obj.iterator.map { case (n, v) => (n, v.values) }.toMap
+    def values: Map[String,Any] = obj.iterator.map { case (n, v) => (n, v.values) }.toMap
 
     override def equals(that: Any): Boolean = that match {
       case o: JObject => obj.toSet == o.obj.toSet
       case _ => false
     }
 
-    override def hashCode = obj.toSet[JField].hashCode
+    override def hashCode: Int = obj.toSet[JField].hashCode
   }
   case object JObject {
     def apply(fs: JField*): JObject = JObject(fs.toList)
@@ -165,7 +165,7 @@ object JsonAST {
 
   case class JArray(arr: List[JValue]) extends JValue {
     type Values = List[Any]
-    def values = arr.map(_.values)
+    def values: Values = arr.map(_.values)
     override def apply(i: Int): JValue = arr(i)
   }
 
@@ -188,7 +188,7 @@ object JsonAST {
 
   type JField = (String, JValue)
   object JField {
-    def apply(name: String, value: JValue) = (name, value)
+    def apply(name: String, value: JValue): (String, JValue) = (name, value)
     def unapply(f: JField): Option[(String, JValue)] = Some(f)
   }
 }
