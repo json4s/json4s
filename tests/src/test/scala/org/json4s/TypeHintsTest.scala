@@ -19,8 +19,7 @@ class TypeHintTest extends Specification {
 
     "fail when the type hint of a nested field is incompatible with the requested type" in {
       val json = """{"t": [{"baz": "a string", "jsonClass": "baz"}, 2]}"""
-      def doExtract[A: Manifest](): A = JsonMethods.parse(json).extract[A]
-      doExtract[Container]() must throwA[MappingException]
+      (JsonMethods.parse(json).extract[Container]) must throwA[MappingException]
     }
 
     "succeed when the type hint is compatible with the requested type" in {
