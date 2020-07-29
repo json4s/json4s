@@ -8,11 +8,19 @@ class TypeHintTest extends Specification {
 
   "deserialization with type hints" should {
 
-    implicit val formats: Formats = DefaultFormats + MappedTypeHints(Map(classOf[Foo] -> "foo", classOf[Bar] -> "bar"))
+    implicit val formats: Formats = DefaultFormats + CustomTuple2Serializer + MappedTypeHints(
+      Map(classOf[Foo] -> "foo", classOf[Bar] -> "bar", classOf[Baz] -> "baz"))
 
     "fail when the type hint is incompatible with the requested type" in {
       val dump = Serialization.write(Foo(1))
+      // : MyTrait is important for reproducing the behavior reported in https://github.com/json4s/json4s/issues/617
       (JsonMethods.parse(dump).extract[Bar]: MyTrait) must throwA[MappingException]
+    }
+
+    "fail when the type hint of a nested field is incompatible with the requested type" in {
+      val json = """{"t": [{"baz": "a string", "jsonClass": "baz"}, 2]}"""
+      def doExtract[A: Manifest](): A = JsonMethods.parse(json).extract[A]
+      doExtract[Container]() must throwA[MappingException]
     }
 
     "succeed when the type hint is compatible with the requested type" in {
@@ -27,4 +35,6 @@ object TypeHintsTest {
   trait MyTrait
   case class Foo(foo: Int) extends MyTrait
   case class Bar(bar: String) extends MyTrait
+  case class Baz(baz: String)
+  case class Container(t: (MyTrait, Int))
 }
