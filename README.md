@@ -1,4 +1,4 @@
-# JSON4S [![Maven Central](https://img.shields.io/maven-central/v/org.json4s/json4s-core_2.12.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:org.json4s%20AND%20a:json4s-core_2.12) [![Build Status](https://travis-ci.org/json4s/json4s.svg?branch=master)](https://travis-ci.org/json4s/json4s)
+# JSON4S [![Maven Central](https://img.shields.io/maven-central/v/org.json4s/json4s-core_2.12.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:org.json4s%20AND%20a:json4s-core_2.12) [![Build Status](https://travis-ci.com/json4s/json4s.svg?branch=master)](https://travis-ci.com/json4s/json4s)
 
 [![Join the chat at https://gitter.im/json4s/json4s](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/json4s/json4s?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -684,7 +684,8 @@ val formats: Formats = new DefaultFormats {
 }
 ```
 
-Same happens with collections, the default behavior of `extract` is to return an empty instance of the collection.
+Same happens with collections(for example, List and Map...), the default behavior of `extract`
+is to return an empty instance of the collection. 
 You can make it fail with a [MappingException] by using a custom `Formats` object:
 
 ```scala
@@ -699,11 +700,38 @@ val formats: Formats = new DefaultFormats {
 }
 ```
 
-Both these settings (`strictOptionParsing` and `strictArrayExtraction`) can be enabled with
+```scala
+val formats: Formats = DefaultFormats.withStrictMapExtraction
+```
+
+or
+
+```scala
+val formats: Formats = new DefaultFormats {
+  override val strictMapExtraction: Boolean = true
+}
+```
+
+These settings (`strictOptionParsing`, `strictArrayExtraction` and `strictMapExtraction`) can be enabled with
 
 ```scala
 val formats: Formats = DefaultFormats.strict
 ```
+
+With Json4s 3.6 and higher, `apply` functions in companion objects will be evaluated for use during extraction.  If this behavior is not desired, you can disable it using the `considerCompanionConstructors` on a custom `Formats` object:
+```scala 
+val formats: Formats = new DefaultFormats { override val considerCompanionConstructors = false }
+```
+
+When this option is disabled, only primary and secondary constructors will be evaluated for use during extraction.
+
+Handling `null`
+-------------
+
+`null` values of `Option`s are always extracted as `None`. For other types you can control the behaviour by setting the `nullExtractionStrategy` of the `Formats` used during extraction. There are three options:
+* `Keep`: Leaves null values as they are.
+* `Disallow`: Fails extraction when a `null` value is encountered.
+* `TreatAsAbsent`: Treats `null` values as if they were not present at all.
 
 Serialization
 =============

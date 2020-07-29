@@ -23,6 +23,7 @@ import reflect.ScalaType
 import java.lang.reflect.Type
 
 import org.json4s.prefs.EmptyValueStrategy
+import org.json4s.prefs.ExtractionNullStrategy
 import org.json4s.reflect.Reflector
 
 import scala.annotation.implicitNotFound
@@ -98,11 +99,20 @@ trait Formats extends Serializable { self: Formats =>
   def wantsBigDecimal: Boolean = false
   def primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
   def companions: List[(Class[_], AnyRef)] = Nil
-  def allowNull: Boolean = true
+  def extractionNullStrategy: ExtractionNullStrategy = ExtractionNullStrategy.Keep
   def strictOptionParsing: Boolean = false
   def strictArrayExtraction: Boolean = false
+  def strictMapExtraction: Boolean = false
   def alwaysEscapeUnicode: Boolean = false
   def strictFieldDeserialization: Boolean = false
+
+  /**
+   * Setting to false preserves library's behavior prior to 3.6, where companion object constructors were only
+   * considered when deserializing if there were no primary constructors. Setting to true preserves the
+   * backwards-incompatible change made in 3.6 to always consider companion object constructors when deserializing
+   * (https://github.com/json4s/json4s/pull/487).
+   */
+  def considerCompanionConstructors: Boolean = true
 
   /**
    * Parameter name reading strategy. By default 'paranamer' is used.
@@ -123,10 +133,12 @@ trait Formats extends Serializable { self: Formats =>
                     wWantsBigDecimal: Boolean = self.wantsBigDecimal,
                     withPrimitives: Set[Type] = self.primitives,
                     wCompanions: List[(Class[_], AnyRef)] = self.companions,
-                    wAllowNull: Boolean = self.allowNull,
+                    wExtractionNullStrategy: ExtractionNullStrategy = self.extractionNullStrategy,
                     wStrictOptionParsing: Boolean = self.strictOptionParsing,
                     wStrictArrayExtraction: Boolean = self.strictArrayExtraction,
+                    wStrictMapExtraction: Boolean = self.strictMapExtraction,
                     wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
+                    wConsiderCompanionConstructors: Boolean = self.considerCompanionConstructors,
                     wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy,
                     wStrictFieldDeserialization: Boolean = self.strictFieldDeserialization): Formats =
     new Formats {
@@ -141,10 +153,12 @@ trait Formats extends Serializable { self: Formats =>
       override def wantsBigDecimal: Boolean = wWantsBigDecimal
       override def primitives: Set[Type] = withPrimitives
       override def companions: List[(Class[_], AnyRef)] = wCompanions
-      override def allowNull: Boolean = wAllowNull
+      override def extractionNullStrategy: ExtractionNullStrategy = wExtractionNullStrategy
       override def strictOptionParsing: Boolean = wStrictOptionParsing
       override def strictArrayExtraction: Boolean = wStrictArrayExtraction
+      override def strictMapExtraction: Boolean = wStrictMapExtraction
       override def alwaysEscapeUnicode: Boolean = wAlwaysEscapeUnicode
+      override def considerCompanionConstructors: Boolean = wConsiderCompanionConstructors
       override def emptyValueStrategy: EmptyValueStrategy = wEmptyValueStrategy
       override def strictFieldDeserialization: Boolean = wStrictFieldDeserialization
     }
@@ -171,11 +185,25 @@ trait Formats extends Serializable { self: Formats =>
 
   def withStrictArrayExtraction: Formats = copy(wStrictArrayExtraction = true)
 
-  def strict: Formats = copy(wStrictOptionParsing = true, wStrictArrayExtraction = true)
+  def withStrictMapExtraction: Formats = copy(wStrictMapExtraction = true)
 
-  def nonStrict: Formats = copy(wStrictOptionParsing = false, wStrictArrayExtraction = false)
+  /**
+   * Prior to 3.6 companion object constructors were only considered when deserializing if there were no primary
+   * constructors. A backwards-incompatible change was made in 3.6 to always consider companion object constructors
+   * when deserializing (https://github.com/json4s/json4s/pull/487), and is the default setting
+   * (considerCompanionConstructors = true). This changes the setting to false to preserve pre-3.6
+   * deserialization behavior.
+   */
+  def withPre36DeserializationBehavior: Formats = copy(wConsiderCompanionConstructors = false)
 
-  def disallowNull: Formats = copy(wAllowNull = false)
+  def strict: Formats = copy(wStrictOptionParsing = true, wStrictArrayExtraction = true, wStrictMapExtraction = true)
+
+  def nonStrict: Formats = copy(wStrictOptionParsing = false, wStrictArrayExtraction = false, wStrictMapExtraction = false)
+
+  @deprecated(message = "Use withNullExtractionStrategy instead", since = "3.7.0")
+  def disallowNull: Formats = copy(wExtractionNullStrategy = ExtractionNullStrategy.Disallow)
+
+  def withExtractionNullStrategy(strategy: ExtractionNullStrategy): Formats = copy(wExtractionNullStrategy = strategy)
 
   def withStrictFieldDeserialization: Formats = copy(wStrictFieldDeserialization = true)
 
@@ -469,7 +497,7 @@ object DefaultFormats extends DefaultFormats {
 
 private[json4s] class ThreadLocal[A](init: => A) extends java.lang.ThreadLocal[A] with (() => A) {
   override def initialValue = init
-  def apply = get
+  def apply() = get
 }
 trait DefaultFormats extends Formats {
   import java.text.{ParseException, SimpleDateFormat}
@@ -487,7 +515,7 @@ trait DefaultFormats extends Formats {
   override val companions: List[(Class[_], AnyRef)] = Nil
   override val strictOptionParsing: Boolean = false
   override val emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
-  override val allowNull: Boolean = true
+  override val extractionNullStrategy: ExtractionNullStrategy = ExtractionNullStrategy.Keep
   override def strictFieldDeserialization: Boolean = false
 
   val dateFormat: DateFormat = new DateFormat {

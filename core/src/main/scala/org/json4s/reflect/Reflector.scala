@@ -42,24 +42,32 @@ object Reflector {
     stringTypes(name, ScalaSigReader.resolveClass[AnyRef](_, ClassLoaders) map (c => scalaTypeOf(c)))
 
   def describe[T](implicit mf: Manifest[T], formats: Formats = DefaultFormats): ObjectDescriptor =
-    describe(scalaTypeDescribable(scalaTypeOf[T])(formats))
+    describeWithFormats(scalaTypeDescribable(scalaTypeOf[T]))
 
+  @deprecated("Use describe[T] or describeWithFormats instead", "3.6.8")
   def describe(st: ReflectorDescribable[_]): ObjectDescriptor =
-    descriptors(st.scalaType, createDescriptor(_, st.paranamer, st.companionClasses))
+    descriptors(st.scalaType, createDescriptorWithFormats(_, st.paranamer, st.companionClasses)(DefaultFormats))
 
+  def describeWithFormats(st: ReflectorDescribable[_])(implicit formats: Formats): ObjectDescriptor =
+    descriptors(st.scalaType, createDescriptorWithFormats(_, st.paranamer, st.companionClasses))
 
+  @deprecated("Use createDescriptorWithFormats", "3.6.8")
   def createDescriptor(tpe: ScalaType, paramNameReader: ParameterNameReader = ParanamerReader, companionMappings: List[(Class[_], AnyRef)] = Nil): ObjectDescriptor = {
+    createDescriptorWithFormats(tpe, paramNameReader, companionMappings)(DefaultFormats)
+  }
+
+  def createDescriptorWithFormats(tpe: ScalaType, paramNameReader: ParameterNameReader = ParanamerReader, companionMappings: List[(Class[_], AnyRef)] = Nil)(implicit formats: Formats): ObjectDescriptor = {
     if (tpe.isPrimitive) PrimitiveDescriptor(tpe)
     else new ClassDescriptorBuilder(tpe, paramNameReader, companionMappings).result
   }
 
-  private class ClassDescriptorBuilder(tpe: ScalaType, paramNameReader: ParameterNameReader = ParanamerReader, companionMappings: List[(Class[_], AnyRef)] = Nil) {
+  private class ClassDescriptorBuilder(tpe: ScalaType, paramNameReader: ParameterNameReader = ParanamerReader, companionMappings: List[(Class[_], AnyRef)] = Nil)(implicit formats: Formats) {
     var companion: Option[SingletonDescriptor] = None
     var triedCompanion = false
 
     def fields(clazz: Class[_]): List[PropertyDescriptor] = {
       val lb = new mutable.ListBuffer[PropertyDescriptor]()
-      val ls = allCatch.withApply(_ => fail("Case classes defined in function bodies are not supported.")) { clazz.getDeclaredFields.toIterator }
+      val ls = allCatch.withApply(_ => fail("Case classes defined in function bodies are not supported.")) { clazz.getDeclaredFields.iterator }
       while (ls.hasNext) {
         val f = ls.next()
         val mod = f.getModifiers
@@ -124,16 +132,21 @@ object Reflector {
           case None => ctors.map(new Executable(_, false))
         }
       }
-      val constructorDescriptors = createConstructorDescriptors(ccs)
-      companion = findCompanion(checkCompanionMapping = false)
-      val applyMethods: scala.Array[Method] = companion match {
-        case Some(singletonDescriptor) =>
-          singletonDescriptor.instance.getClass.getMethods.filter { method => method.getName == "apply" && method.getReturnType == er }
-        case None => scala.Array[Method]()
-      }
-      val applyExecutables = applyMethods.map{ m => new Executable(m) }
-      val all = constructorDescriptors ++ createConstructorDescriptors(applyExecutables)
 
+      val constructorDescriptors = createConstructorDescriptors(ccs)
+      val all = {
+        if (constructorDescriptors.isEmpty || formats.considerCompanionConstructors) {
+          companion = findCompanion(checkCompanionMapping = false)
+          val applyMethods: scala.Array[Method] = companion match {
+            case Some(singletonDescriptor) =>
+              singletonDescriptor.instance.getClass.getMethods.filter { method => method.getName == "apply" && method.getReturnType == er }
+            case None => scala.Array[Method]()
+          }
+          val applyExecutables = applyMethods.map { m => new Executable(m) }
+          constructorDescriptors ++ createConstructorDescriptors(applyExecutables)
+        }
+          else constructorDescriptors
+      }
       // https://github.com/json4s/json4s/issues/371 no actual requirements for the order are known, but
       // deterministic ordering regardless of non-determinism by java.reflect is needed
       all.toList.sortBy(c =>

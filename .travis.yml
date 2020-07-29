@@ -3,13 +3,12 @@ dist: xenial
 jdk: openjdk8
 scala:
   - 2.11.12
-  - 2.12.11
+  - 2.12.12
   - 2.13.3
 matrix:
   include:
-  - scala: 2.12.11
+  - scala: 2.12.12
     jdk: openjdk11
-sudo: false
 cache:
   directories:
     - $HOME/.ivy2/cache

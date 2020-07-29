@@ -6,6 +6,8 @@ import org.json4s.native.Document
 import java.util
 import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
 
+import org.specs2.specification.core.Fragments
+
 object NativeExtractionBugs extends ExtractionBugs[Document]("Native") with native.JsonMethods
 object JacksonExtractionBugs extends ExtractionBugs[JValue]("Jackson") with jackson.JsonMethods
 
@@ -351,6 +353,34 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
     "Extract should succeed for missing optional field" in {
       val obj = parse("""{}""".stripMargin)
       Extraction.extract[OptionOfInt](obj) must_== OptionOfInt(None)
+    }
+
+    "Extract should fail when strictOptionParsing is on and extracting from JNull" in {
+      implicit val formats = new DefaultFormats {
+        override val strictOptionParsing: Boolean = true
+      }
+
+      Extraction.extract[OptionOfInt](JNull) must throwA(
+        new MappingException("No value set for Option property: opt")
+      )
+    }
+
+    Fragments.foreach(Seq[JValue](
+      JNothing,
+      JInt(5),
+      JString("---"),
+      JObject(Nil),
+      JArray(Nil)
+    )) { obj =>
+      s"Extract should fail when strictOptionParsing is on and extracting from ${obj.toString}" in {
+        implicit val formats = new DefaultFormats {
+          override val strictOptionParsing: Boolean = true
+        }
+
+        Extraction.extract[OptionOfInt](obj) must throwA(
+          new MappingException("No usable value for opt\nNo value set for Option property: opt")
+        )
+      }
     }
   }
 }
