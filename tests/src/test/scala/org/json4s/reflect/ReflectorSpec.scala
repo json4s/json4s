@@ -3,6 +3,12 @@ package org.json4s.reflect
 import org.json4s.reflect
 import org.specs2.mutable.Specification
 import ReflectorSpec.{Cat, Dog, Person}
+import org.json4s.{DefaultFormats, Formats, JInt, JObject, JString}
+
+object GenericCaseClassWithCompanion {
+  def apply[A](v: A): GenericCaseClassWithCompanion[A] = GenericCaseClassWithCompanion(v, "Bar")
+}
+case class GenericCaseClassWithCompanion[A](value: A, other: String)
 
 object ReflectorSpec {
   case class Person(firstName: String, lastName: String) {
@@ -22,6 +28,15 @@ object ReflectorSpec {
 class ReflectorSpec extends Specification {
 
   "Reflector" should {
+    "issue 507" in {
+      implicit val formats: Formats = DefaultFormats
+
+      val result = org.json4s.Extraction.decompose(
+        GenericCaseClassWithCompanion(3)
+      )
+      result must_== JObject(List(("value", JInt(3)), ("other", JString("Bar"))))
+    }
+
     "discover all constructors, incl. the ones from companion object" in {
       val klass = Reflector.scalaTypeOf(classOf[Person])
       val descriptor = Reflector.describe(klass).asInstanceOf[reflect.ClassDescriptor]
