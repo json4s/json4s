@@ -3,7 +3,7 @@ package org.json4s.reflect
 import java.sql.Timestamp
 import java.util.Date
 
-import org.json4s.{DateTime, DefaultFormats, Formats, MappingException, Obj, Objs, reflect}
+import org.json4s.{DateTime, DefaultFormats, Formats, JInt, JObject, JString, MappingException, Obj, Objs, reflect}
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable.Specification
 
@@ -98,6 +98,10 @@ case class Cat @PrimaryConstructor() (name: String) {
 
 
 
+object GenericCaseClassWithCompanion {
+  def apply[A](v: A): GenericCaseClassWithCompanion[A] = GenericCaseClassWithCompanion(v, "Bar")
+}
+case class GenericCaseClassWithCompanion[A](value: A, other: String)
 
 class ReflectorSpec extends Specification {
   implicit val formats: Formats = DefaultFormats.withCompanions(
@@ -108,6 +112,13 @@ class ReflectorSpec extends Specification {
   "Reflector" should {
 
     val inst = new PathTypes.ContainsCaseClass
+
+    "issue 507" in {
+      val result = org.json4s.Extraction.decompose(
+        GenericCaseClassWithCompanion(3)
+      )
+      result must_== JObject(List(("value", JInt(3)), ("other", JString("Bar"))))
+    }
 
     "describe a class defined in a class constructor" in {
       val fmts: Formats = formats.withCompanions(classOf[inst.InternalType] -> inst)
