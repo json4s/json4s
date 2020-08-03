@@ -23,7 +23,14 @@ object ScalaSigReader {
 
   def readConstructor(argName: String, clazz: ScalaType, typeArgIndex: Int, argNames: List[String]): Class[_] = {
     val cl = findClass(clazz.erasure)
-    val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
+    val cstr = findConstructor(cl, argNames).orElse{
+      val companionClass = findCompanionObject(clazz.erasure)
+      companionClass.children.collect {
+        case m: MethodSymbol if m.name == "apply" => m
+      }.find{
+        _.children.collect{ case x: MethodSymbol => x.name } == argNames
+      }
+    }.getOrElse(fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndex)
   }
 
@@ -113,11 +120,14 @@ object ScalaSigReader {
     (c.children collect { case m: MethodSymbol if m.name == name => m }).headOption
 
   def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndex: Int): Class[_] = {
-    def findPrimitive(t: Type): Symbol = {
+    def findPrimitive(t: Type): Option[Symbol] = {
       t match {
-        case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol) => symbol
-        case TypeRefType(_, _, TypeRefType(ThisType(_), symbol, _) :: _) => symbol
-        case TypeRefType(_, symbol, Nil) => symbol
+        case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol) =>
+          Some(symbol)
+        case TypeRefType(_, _, TypeRefType(ThisType(_), symbol, _) :: _) =>
+          Some(symbol)
+        case TypeRefType(_, symbol, Nil) =>
+          Some(symbol)
         case TypeRefType(_, _, args) if typeArgIndex >= args.length =>
           findPrimitive(args(0))
         case TypeRefType(_, _, args) =>
@@ -126,11 +136,13 @@ object ScalaSigReader {
             case ref@TypeRefType(_, _, _) => findPrimitive(ref)
             case x => fail("Unexpected type info " + x)
           }
+        case TypeBoundsType(_, _) =>
+          None
         case x => fail("Unexpected type info " + x)
       }
     }
 
-    toClass(findPrimitive(s.children(argIdx).asInstanceOf[SymbolInfoSymbol].infoType))
+    findPrimitive(s.children(argIdx).asInstanceOf[SymbolInfoSymbol].infoType).map(toClass).getOrElse(classOf[AnyRef])
   }
 
   def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndexes: List[Int]): Class[_] = {
