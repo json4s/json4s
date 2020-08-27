@@ -16,6 +16,7 @@ matrix:
     scala: 2.12.8
     jdk: openjdk11
     script:
+    - wget https://raw.githubusercontent.com/paulp/sbt-extras/4d558c88ae6ae240e7a5eedc0cf33cc9e7bd0e58/sbt && chmod +x ./sbt
     - ./sbt ++$TRAVIS_SCALA_VERSION test
 sudo: false
 cache:
