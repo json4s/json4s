@@ -319,7 +319,7 @@ class MonadicJValue(jv: JValue) {
     }
   }
   private[this] def pascalize(word: String): String = {
-    val lst = word.split("_").toList
+    val lst = word.split("_").filterNot(_.isEmpty).toList
     (lst.headOption.map(s => s.substring(0, 1).toUpperCase(ENGLISH) + s.substring(1)).get ::
       lst.tail.map(s => s.substring(0, 1).toUpperCase + s.substring(1))).mkString("")
   }
