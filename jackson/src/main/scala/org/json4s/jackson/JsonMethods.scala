@@ -18,8 +18,15 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
 
   def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): JValue = {
     var reader = mapper.readerFor(classOf[JValue])
-    if (useBigDecimalForDouble) reader = reader `with` USE_BIG_DECIMAL_FOR_FLOATS
-    if (useBigIntForLong) reader = reader `with` USE_BIG_INTEGER_FOR_INTS
+    if (useBigDecimalForDouble)
+      reader = reader `with` USE_BIG_DECIMAL_FOR_FLOATS
+    else
+      reader = reader `without` USE_BIG_DECIMAL_FOR_FLOATS
+
+    if (useBigIntForLong)
+      reader = reader `with` USE_BIG_INTEGER_FOR_INTS
+    else
+      reader = reader `without` USE_BIG_INTEGER_FOR_INTS
 
     in match {
 	    case StringInput(s) => reader.readValue(s)
