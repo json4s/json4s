@@ -9,7 +9,7 @@ object Dependencies {
     "org.joda"  % "joda-convert" % "2.2.1"
   )
   lazy val jackson      = Seq(
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.10.4"
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.10.6"
   )
   lazy val scalaz_core  = "org.scalaz"                   %% "scalaz-core"          % "7.2.30"
   lazy val paranamer    = "com.thoughtworks.paranamer"   %  "paranamer"            % "2.8"
@@ -21,7 +21,7 @@ object Dependencies {
         Seq("org.specs2" %% "specs2-scalacheck" % "4.9.4" % "test")
     }
   }
-  lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "3.3.3" % "test"
+  lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "3.5.13" % "test"
 
   def scalaXml(scalaVersion: String) = {
     PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion)){
