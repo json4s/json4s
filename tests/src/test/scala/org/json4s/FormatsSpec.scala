@@ -34,7 +34,7 @@ class FormatsSpec extends Specification {
     val a = new TypeHints {
       override val hints: List[Class[_]] = List.empty
       override def hintFor(clazz: Class[_]): Option[String] = None
-      override def classFor(hint: String): Option[Class[_]] = None
+      override def classFor(hint: String, parent: Class[_]): Option[Class[_]] = None
     }
     a + a
     success

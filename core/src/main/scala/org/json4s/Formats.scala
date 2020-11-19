@@ -330,23 +330,23 @@ trait TypeHints {
 
   /** Return type for given hint.
    */
-  def classFor(hint: String): Option[Class[_]]
+  def classFor(hint: String, parent: Class[_]): Option[Class[_]]
 
   /**
    * The name of the field in JSON where type hints are added (jsonClass by default)
    */
   def typeHintFieldName: String = "jsonClass"
 
-  def isTypeHintField(f: JField): Boolean = f match {
+  def isTypeHintField(f: JField, parent: Class[_]): Boolean = f match {
     case (key, JString(value)) =>
-      val hint = typeHintFieldNameForHint(value)
+      val hint = typeHintFieldNameForHint(value, parent)
       key == typeHintFieldName && hint.isDefined
     case _ => false
   }
-  def typeHintFieldNameForHint(hint: String): Option[String] =
-    classFor(hint) map (_ => typeHintFieldName)
+  def typeHintFieldNameForHint(hint: String, parent: Class[_]): Option[String] =
+    classFor(hint, parent) map (_ => typeHintFieldName)
   def typeHintFieldNameForClass(clazz: Class[_]): Option[String] =
-    hintFor(clazz).flatMap(typeHintFieldNameForHint)
+    hintFor(clazz).flatMap(typeHintFieldNameForHint(_, clazz))
   def containsHint(clazz: Class[_]): Boolean =
     hints exists (_ isAssignableFrom clazz)
   def shouldExtractHints(clazz: Class[_]): Boolean =
@@ -378,7 +378,7 @@ private[json4s] object TypeHints {
           val hint =  th.hintFor(clazz)
           (
             hint,
-            hint.flatMap(th.classFor)
+            hint.flatMap(th.classFor(_, clazz))
               .getOrElse(
                 sys.error("hintFor/classFor not invertible for " + th)
               )
@@ -387,18 +387,18 @@ private[json4s] object TypeHints {
         sortWith ((x, y) => (ClassDelta.delta(x._2, clazz) - ClassDelta.delta(y._2, clazz)) <= 0)).headOption.flatMap(_._1)
     }
 
-    def classFor(hint: String): Option[Class[_]] = {
+    def classFor(hint: String, parent: Class[_]): Option[Class[_]] = {
       def hasClass(h: TypeHints) =
-        scala.util.control.Exception.allCatch opt h.classFor(hint) map (_.isDefined) getOrElse false
+        scala.util.control.Exception.allCatch opt(h.classFor(hint, parent)) exists (_.isDefined)
 
-      components find hasClass flatMap (_.classFor(hint))
+      components find hasClass flatMap (_.classFor(hint, parent))
     }
 
-    override def isTypeHintField(f: JField): Boolean =
-      components exists (_.isTypeHintField(f))
+    override def isTypeHintField(f: JField, parent: Class[_]): Boolean =
+      components exists (_.isTypeHintField(f, parent))
 
-    override def typeHintFieldNameForHint(hint: String): Option[String] =
-      components.flatMap(_.typeHintFieldNameForHint(hint)).headOption
+    override def typeHintFieldNameForHint(hint: String, parent: Class[_]): Option[String] =
+      components.flatMap(_.typeHintFieldNameForHint(hint, parent)).headOption
 
     override def typeHintFieldNameForClass(clazz: Class[_]): Option[String] =
       components.flatMap(_.typeHintFieldNameForClass(clazz)).headOption
@@ -438,7 +438,7 @@ private[json4s] object ClassDelta {
 case object NoTypeHints extends TypeHints {
   val hints: List[Class[_]] = Nil
   def hintFor(clazz: Class[_])= None
-  def classFor(hint: String) = None
+  def classFor(hint: String, parent: Class[_]) = None
   override def shouldExtractHints(clazz: Class[_]) = false
 }
 
@@ -449,7 +449,7 @@ case class ShortTypeHints(hints: List[Class[_]],
     extends TypeHints {
   def hintFor(clazz: Class[_]) =
     Some(clazz.getName.substring(clazz.getName.lastIndexOf(".") + 1))
-  def classFor(hint: String) = hints find (hintFor(_).exists(_ == hint))
+  def classFor(hint: String, parent: Class[_]) = hints find (hintFor(_).exists(_ == hint))
 }
 
 /** Use full class name as a type hint.
@@ -458,7 +458,7 @@ case class FullTypeHints(hints: List[Class[_]],
                          override val typeHintFieldName: String = "jsonClass")
     extends TypeHints {
   def hintFor(clazz: Class[_]) = Some(clazz.getName)
-  def classFor(hint: String) = {
+  def classFor(hint: String, parent: Class[_]) = {
     Reflector
       .scalaTypeOf(hint)
       .find(h => hints.exists(l => l.isAssignableFrom(h.erasure)))
@@ -476,7 +476,7 @@ case class MappedTypeHints(hintMap: Map[Class[_], String],
   private val lookup: Map[String, Class[_]] = hintMap.map(_.swap)
 
   def hintFor(clazz: Class[_]) = hintMap.get(clazz)
-  def classFor(hint: String) = lookup.get(hint)
+  def classFor(hint: String, parent: Class[_]) = lookup.get(hint).filter(parent.isAssignableFrom)
 }
 
 /** Default date format is UTC time.
