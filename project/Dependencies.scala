@@ -16,7 +16,7 @@ object Dependencies {
   lazy val specs        = Def.setting(
     "org.specs2" %% "specs2-scalacheck"            % "4.10.5" % "test"
   )
-  lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "3.6.0" % "test"
+  lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "3.6.28" % "test"
 
   lazy val scalaXml     = Def.setting {
     "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
