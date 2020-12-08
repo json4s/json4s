@@ -12,7 +12,11 @@ jobs:
       matrix:
         include:
           - java: 8
+            scala: 2
+          - java: 8
+            scala: 3
           - java: 11
+            scala: 2
     steps:
     - uses: olafurpg/setup-scala@v10
       with:
@@ -21,4 +25,14 @@ jobs:
     - uses: coursier/cache-action@v5
     - run: |
         export TZ=Australia/Canberra
-        sbt -v "+ test"
+        case ${{ matrix.scala }} in
+          2)
+            sbt -v "+ test"
+            ;;
+          3)
+            sbt -v '++ 3.0.0-M2!' json4s-ast/test
+            ;;
+          *)
+            echo "unknown scala version"
+            exit 1
+        esac
