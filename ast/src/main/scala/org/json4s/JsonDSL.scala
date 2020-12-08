@@ -83,27 +83,26 @@ trait JsonDSL extends Implicits {
   implicit def list2jvalue(l: List[JField]): JObject = JObject(l)
   implicit def jobject2assoc(o: JObject): JsonListAssoc = new JsonListAssoc(o.obj)
   implicit def pair2Assoc[A](t: (String, A))(implicit ev: A => JValue): JsonAssoc[A] = new JsonAssoc(t)
+}
 
-  class JsonAssoc[A](left: (String, A))(implicit ev: A => JValue) {
-    def ~[B](right: (String, B))(implicit ev1: B => JValue) = {
-      val l: JValue = ev(left._2)
-      val r: JValue = ev1(right._2)
-      JObject(JField(left._1, l) :: JField(right._1, r) :: Nil)
-    }
-
-    def ~(right: JObject) = {
-      val l: JValue = ev(left._2)
-      JObject(JField(left._1, l) :: right.obj)
-    }
-    def ~~[B](right: (String, B))(implicit ev: B => JValue) = this.~(right)
-    def ~~(right: JObject) = this.~(right)
-
+final class JsonAssoc[A](private val left: (String, A)) extends AnyVal {
+  def ~[B](right: (String, B))(implicit ev1: A => JValue, ev2: B => JValue): JObject = {
+    val l: JValue = ev1(left._2)
+    val r: JValue = ev2(right._2)
+    JObject(JField(left._1, l) :: JField(right._1, r) :: Nil)
   }
 
-  class JsonListAssoc(left: List[JField]) {
-    def ~(right: (String, JValue)) = JObject(left ::: List(JField(right._1, right._2)))
-    def ~(right: JObject) = JObject(left ::: right.obj)
-    def ~~(right: (String, JValue)) = this.~(right)
-    def ~~(right: JObject) = this.~(right)
+  def ~(right: JObject)(implicit ev: A => JValue): JObject = {
+    val l: JValue = ev(left._2)
+    JObject(JField(left._1, l) :: right.obj)
   }
+  def ~~[B](right: (String, B))(implicit ev1: A => JValue, ev2: B => JValue): JObject = this.~(right)
+  def ~~(right: JObject)(implicit ev: A => JValue): JObject = this.~(right)
+}
+
+final class JsonListAssoc(private val left: List[JField]) extends AnyVal {
+  def ~(right: (String, JValue)): JObject = JObject(left ::: List(JField(right._1, right._2)))
+  def ~(right: JObject): JObject = JObject(left ::: right.obj)
+  def ~~(right: (String, JValue)): JObject = this.~(right)
+  def ~~(right: JObject): JObject = this.~(right)
 }
