@@ -18,10 +18,10 @@ object Dependencies {
       case Some((2, v)) if v <= 10 =>
         Seq("org.specs2" %% "specs2-scalacheck" % "3.10.0" % "test")
       case _ =>
-        Seq("org.specs2" %% "specs2-scalacheck" % "4.9.4" % "test")
+        Seq("org.specs2" %% "specs2-scalacheck" % "4.9.5" % "test")
     }
   }
-  lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "3.5.13" % "test"
+  lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "3.6.28" % "test"
 
   def scalaXml(scalaVersion: String) = {
     PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion)){
