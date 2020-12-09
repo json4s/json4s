@@ -17,6 +17,8 @@ object Dependencies {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, v)) if v <= 10 =>
         Seq("org.specs2" %% "specs2-scalacheck" % "3.10.0" % "test")
+      case Some((2, 11)) =>
+        Seq("org.specs2" %% "specs2-scalacheck" % "4.9.4" % "test")
       case _ =>
         Seq("org.specs2" %% "specs2-scalacheck" % "4.9.5" % "test")
     }
