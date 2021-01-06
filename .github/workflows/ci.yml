@@ -1,0 +1,38 @@
+name: ci
+on:
+  push:
+  pull_request:
+  schedule:
+  - cron: '0 2 * * *'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      matrix:
+        include:
+          - java: 8
+            scala: 2
+          - java: 8
+            scala: 3
+          - java: 11
+            scala: 2
+    steps:
+    - uses: olafurpg/setup-scala@v10
+      with:
+        java-version: "adopt@1.${{matrix.java}}"
+    - uses: actions/checkout@v2.3.4
+    - uses: coursier/cache-action@v5
+    - run: |
+        export TZ=Australia/Canberra
+        case ${{ matrix.scala }} in
+          2)
+            sbt -v "+ test"
+            ;;
+          3)
+            sbt -v '++ 3.0.0-M3!' json4s-ast/test
+            ;;
+          *)
+            echo "unknown scala version"
+            exit 1
+        esac

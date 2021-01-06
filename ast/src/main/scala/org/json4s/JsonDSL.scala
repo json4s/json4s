@@ -41,9 +41,9 @@ trait DoubleMode { self: Implicits =>
 }
 object DoubleMode extends Implicits with DoubleMode
 trait Implicits {
-  implicit def short2jvalue(x: Short): JValue = JInt(x)
-  implicit def byte2jvalue(x: Byte): JValue = JInt(x)
-  implicit def char2jvalue(x: Char): JValue = JInt(x)
+  implicit def short2jvalue(x: Short): JValue = JInt(x: Int)
+  implicit def byte2jvalue(x: Byte): JValue = JInt(x: Int)
+  implicit def char2jvalue(x: Char): JValue = JInt(x: Int)
   implicit def int2jvalue(x: Int): JValue = JInt(x)
   implicit def long2jvalue(x: Long): JValue = JInt(x)
   implicit def bigint2jvalue(x: BigInt): JValue = JInt(x)
@@ -67,43 +67,42 @@ object JsonDSL extends JsonDSL with DoubleMode {
 }
 trait JsonDSL extends Implicits {
 
-  implicit def seq2jvalue[A](s: Iterable[A])(implicit ev: A => JValue) =
-    JArray(s.toList.map { a => val v: JValue = a; v })
+  implicit def seq2jvalue[A](s: Iterable[A])(implicit ev: A => JValue): JArray =
+    JArray(s.toList.map(ev))
 
-  implicit def map2jvalue[A](m: Map[String, A])(implicit ev: A => JValue) =
-    JObject(m.toList.map { case (k, v) => JField(k, v) })
+  implicit def map2jvalue[A](m: Map[String, A])(implicit ev: A => JValue): JObject =
+    JObject(m.toList.map { case (k, v) => JField(k, ev(v)) })
 
   implicit def option2jvalue[A](opt: Option[A])(implicit ev: A => JValue): JValue = opt match {
-    case Some(x) => x
+    case Some(x) => ev(x)
     case None => JNothing
   }
 
-  implicit def symbol2jvalue(x: Symbol) = JString(x.name)
-  implicit def pair2jvalue[A](t: (String, A))(implicit ev: A => JValue) = JObject(List(JField(t._1, t._2)))
-  implicit def list2jvalue(l: List[JField]) = JObject(l)
-  implicit def jobject2assoc(o: JObject) = new JsonListAssoc(o.obj)
-  implicit def pair2Assoc[A](t: (String, A))(implicit ev: A => JValue) = new JsonAssoc(t)
+  implicit def symbol2jvalue(x: Symbol): JString = JString(x.name)
+  implicit def pair2jvalue[A](t: (String, A))(implicit ev: A => JValue): JObject = JObject(List(JField(t._1, ev(t._2))))
+  implicit def list2jvalue(l: List[JField]): JObject = JObject(l)
+  implicit def jobject2assoc(o: JObject): JsonListAssoc = new JsonListAssoc(o.obj)
+  implicit def pair2Assoc[A](t: (String, A))(implicit ev: A => JValue): JsonAssoc[A] = new JsonAssoc(t)
+}
 
-  class JsonAssoc[A](left: (String, A))(implicit ev: A => JValue) {
-    def ~[B](right: (String, B))(implicit ev1: B => JValue) = {
-      val l: JValue = left._2
-      val r: JValue = right._2
-      JObject(JField(left._1, l) :: JField(right._1, r) :: Nil)
-    }
-
-    def ~(right: JObject) = {
-      val l: JValue = left._2
-      JObject(JField(left._1, l) :: right.obj)
-    }
-    def ~~[B](right: (String, B))(implicit ev: B => JValue) = this.~(right)
-    def ~~(right: JObject) = this.~(right)
-
+final class JsonAssoc[A](private val left: (String, A)) extends AnyVal {
+  def ~[B](right: (String, B))(implicit ev1: A => JValue, ev2: B => JValue): JObject = {
+    val l: JValue = ev1(left._2)
+    val r: JValue = ev2(right._2)
+    JObject(JField(left._1, l) :: JField(right._1, r) :: Nil)
   }
 
-  class JsonListAssoc(left: List[JField]) {
-    def ~(right: (String, JValue)) = JObject(left ::: List(JField(right._1, right._2)))
-    def ~(right: JObject) = JObject(left ::: right.obj)
-    def ~~(right: (String, JValue)) = this.~(right)
-    def ~~(right: JObject) = this.~(right)
+  def ~(right: JObject)(implicit ev: A => JValue): JObject = {
+    val l: JValue = ev(left._2)
+    JObject(JField(left._1, l) :: right.obj)
   }
+  def ~~[B](right: (String, B))(implicit ev1: A => JValue, ev2: B => JValue): JObject = this.~(right)
+  def ~~(right: JObject)(implicit ev: A => JValue): JObject = this.~(right)
+}
+
+final class JsonListAssoc(private val left: List[JField]) extends AnyVal {
+  def ~(right: (String, JValue)): JObject = JObject(left ::: List(JField(right._1, right._2)))
+  def ~(right: JObject): JObject = JObject(left ::: right.obj)
+  def ~~(right: (String, JValue)): JObject = this.~(right)
+  def ~~(right: JObject): JObject = this.~(right)
 }

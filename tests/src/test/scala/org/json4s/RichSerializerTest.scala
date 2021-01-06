@@ -9,19 +9,6 @@ import scala.collection.immutable.HashMap
 
 class RichSerializerTest extends Specification {
 
-  object CustomTuple2Serializer extends RichSerializer[(_, _)] {
-
-    override def deserialize(implicit format: Formats): PartialFunction[(ScalaType, JValue), (_, _)] = {
-      case (scalaType, JArray(arr)) if classOf[(_, _)].isAssignableFrom(scalaType.erasure) =>
-        require(arr.size == 2)
-        (extract(arr.head, scalaType.typeArgs.head), extract(arr(1), scalaType.typeArgs(1)))
-    }
-
-    override def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-      case (x, y) => JArray(List(decompose(x), decompose(y)))
-    }
-  }
-
   object TypeBearerDeserializer extends RichSerializer[TypeBearer[_]] {
     override def deserialize(implicit format: Formats): PartialFunction[(ScalaType, JValue), TypeBearer[_]] = {
       case (scalaType, obj: JObject) if scalaType.erasure == classOf[TypeBearer[_]] =>
@@ -97,3 +84,16 @@ case class TypeBearer[T: Manifest](name: String) {
 trait SomeTrait
 
 case class HashMapHaver(map: HashMap[String, Option[Int]]) extends SomeTrait
+
+object CustomTuple2Serializer extends RichSerializer[(_, _)] {
+
+  override def deserialize(implicit format: Formats): PartialFunction[(ScalaType, JValue), (_, _)] = {
+    case (scalaType, JArray(arr)) if classOf[(_, _)].isAssignableFrom(scalaType.erasure) =>
+      require(arr.size == 2)
+      (extract(arr.head, scalaType.typeArgs.head), extract(arr(1), scalaType.typeArgs(1)))
+  }
+
+  override def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
+    case (x, y) => JArray(List(decompose(x), decompose(y)))
+  }
+}

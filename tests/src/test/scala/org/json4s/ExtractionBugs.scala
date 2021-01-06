@@ -59,6 +59,8 @@ object ExtractionBugs {
 
   case class ABigDecimal(num: BigDecimal)
 
+  case class AJavaDouble(num: Double)
+
   case class AJavaBigDecimal(num: JavaBigDecimal)
 
   case class AJavaBigInteger(num: JavaBigInteger)
@@ -291,6 +293,9 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       parse("""{"num": 0}""").extract[AJavaBigInteger] must_== bji
     }
 
+    "does not hang when parsing big integers" in {
+      parse(s"""{"num": ${"9" * 10000000}}""", useBigIntForLong = false) must throwAn[Exception]
+    }
 
     "Extract a java BigInteger from a long value" in {
       val bji = AJavaBigInteger(BigInt(Long.MaxValue).bigInteger)
@@ -355,9 +360,18 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       Extraction.extract[OptionOfInt](obj) must_== OptionOfInt(None)
     }
 
+    "Extract should fail when strictOptionParsing is on and extracting from JNull" in {
+      implicit val formats = new DefaultFormats {
+        override val strictOptionParsing: Boolean = true
+      }
+
+      Extraction.extract[OptionOfInt](JNull) must throwA(
+        new MappingException("No value set for Option property: opt")
+      )
+    }
+
     Fragments.foreach(Seq[JValue](
       JNothing,
-      JNull,
       JInt(5),
       JString("---"),
       JObject(Nil),
@@ -369,7 +383,7 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
         }
 
         Extraction.extract[OptionOfInt](obj) must throwA(
-          new MappingException("No value set for Option property: opt")
+          new MappingException("No usable value for opt\nNo value set for Option property: opt")
         )
       }
     }

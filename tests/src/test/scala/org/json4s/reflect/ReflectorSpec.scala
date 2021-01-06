@@ -3,7 +3,7 @@ package org.json4s.reflect
 import java.sql.Timestamp
 import java.util.Date
 
-import org.json4s.{DateTime, DefaultFormats, Formats, MappingException, Obj, Objs, reflect}
+import org.json4s.{DateTime, DefaultFormats, Formats, JInt, JObject, JString, MappingException, Obj, Objs, reflect}
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable.Specification
 
@@ -27,18 +27,6 @@ case class NestedType5(dat: List[Map[Double, Option[List[Map[Long, Option[Map[By
 
 case class NestedResType[T, S, V <: Option[S]](t: T, v: V, dat: List[Map[T, V]], lis: List[List[List[List[List[S]]]]])
 
-case class Person(firstName: String, lastName: String) {
-  def this(age: Int) = this("John", "Doe")
-}
-object Person {
-  def apply(email: String) = new Person("Russell", "Westbrook")
-}
-
-case class Dog(name: String)
-
-case class Cat @PrimaryConstructor() (name: String) {
-  def this(owner: Person) = this(s"${owner.firstName}'s favorite pet'")
-}
 
 case object TheObject
 
@@ -95,6 +83,26 @@ class NormalClass {
   val optPrimitive: Option[Int] = Some(3)
 }
 
+case class PetOwner(firstName: String, lastName: String) {
+  def this(age: Int) = this("John", "Doe")
+}
+object PetOwner {
+  def apply(email: String) = new PetOwner("Russell", "Westbrook")
+}
+
+case class Dog(name: String)
+
+case class Cat @PrimaryConstructor() (name: String) {
+  def this(owner: PetOwner) = this(s"${owner.firstName}'s favorite pet'")
+}
+
+
+
+object GenericCaseClassWithCompanion {
+  def apply[A](v: A): GenericCaseClassWithCompanion[A] = GenericCaseClassWithCompanion(v, "Bar")
+}
+case class GenericCaseClassWithCompanion[A](value: A, other: String)
+
 class ReflectorSpec extends Specification {
   implicit val formats: Formats = DefaultFormats.withCompanions(
     classOf[PathTypes.HasTrait.FromTrait] -> PathTypes.HasTrait,
@@ -104,6 +112,13 @@ class ReflectorSpec extends Specification {
   "Reflector" should {
 
     val inst = new PathTypes.ContainsCaseClass
+
+    "issue 507" in {
+      val result = org.json4s.Extraction.decompose(
+        GenericCaseClassWithCompanion(3)
+      )
+      result must_== JObject(List(("value", JInt(3)), ("other", JString("Bar"))))
+    }
 
     "describe a class defined in a class constructor" in {
       val fmts: Formats = formats.withCompanions(classOf[inst.InternalType] -> inst)
@@ -362,7 +377,7 @@ class ReflectorSpec extends Specification {
     }
 
     "discover all constructors, incl. the ones from companion object" in {
-      val klass = Reflector.scalaTypeOf(classOf[Person])
+      val klass = Reflector.scalaTypeOf(classOf[PetOwner])
       val descriptor = Reflector.describeWithFormats(klass).asInstanceOf[reflect.ClassDescriptor]
 
       // the main one (with firstName, lastName Strings) is seen as two distinct ones:
@@ -371,7 +386,7 @@ class ReflectorSpec extends Specification {
     }
 
     "denote no constructor as primary if there are multiple competing" in {
-      val klass = Reflector.scalaTypeOf(classOf[Person])
+      val klass = Reflector.scalaTypeOf(classOf[PetOwner])
       val descriptor = Reflector.describeWithFormats(klass).asInstanceOf[reflect.ClassDescriptor]
 
       descriptor.constructors.count(_.isPrimary) must_== 0
@@ -397,7 +412,7 @@ class ReflectorSpec extends Specification {
     }
 
     "retrieve constructors of a class in a deterministic order" in {
-      val klass = Reflector.scalaTypeOf(classOf[Person])
+      val klass = Reflector.scalaTypeOf(classOf[PetOwner])
       val descriptor = Reflector.describeWithFormats(klass).asInstanceOf[reflect.ClassDescriptor]
 
       descriptor.constructors.size must_== 4

@@ -22,6 +22,7 @@ import java.sql.Timestamp
 import java.util.Date
 
 import org.json4s
+import org.json4s.prefs.ExtractionNullStrategy
 import org.json4s.reflect._
 
 import scala.collection.JavaConverters._
@@ -399,6 +400,9 @@ object Extraction {
           } else {
             values.toMap
           }
+        case JNothing | JNull if !formats.strictMapExtraction => {
+          if (scalaType.isMutableMap) scala.collection.mutable.Map.empty else Map.empty
+        }
         case x => fail("Expected object but got " + x)
       })
     } else if (scalaType.isCollection) {
@@ -446,9 +450,15 @@ object Extraction {
     private[this] val typeArg = tpe.typeArgs.head
     private[this] def mkCollection(constructor: Array[_] => Any) = {
       val array: Array[_] = json match {
-        case JArray(arr)      => arr.map(extractDetectingNonTerminal(_, typeArg)).toArray
-        case JNothing | JNull if !formats.strictArrayExtraction => Array[AnyRef]()
-        case x                => fail("Expected collection but got " + x + " for root " + json + " and mapping " + tpe)
+        case JArray(arr) =>
+          arr.flatMap {
+            case JNull if formats.extractionNullStrategy == ExtractionNullStrategy.TreatAsAbsent => None
+            case el => Some(extractDetectingNonTerminal(el, typeArg))
+          }.toArray
+        case JNothing | JNull if !formats.strictArrayExtraction =>
+          Array[AnyRef]()
+        case x =>
+          fail("Expected collection but got " + x + " for root " + json + " and mapping " + tpe)
       }
 
       constructor(array)
@@ -571,35 +581,49 @@ object Extraction {
     }
 
     private[this] def buildCtorArg(json: JValue, descr: ConstructorParamDescriptor) = {
-      val default = descr.defaultValue
-      def defv(v: Any) = default.map(_()).getOrElse(v)
-
-      if (descr.isOptional && json == JNothing) {
-        if (formats.strictOptionParsing) {
-          fail(s"No value set for Option property: ${descr.name}")
+      try {
+        if(descr.isOptional) {
+          buildOptionalCtorArg(json, descr)
+        } else {
+          buildMandatoryCtorArg(json, descr)
         }
-        defv(None)
+      } catch {
+        case e @ MappingException(msg, _) =>
+          fail("No usable value for " + descr.name + "\n" + msg, e)
       }
-      else {
+    }
+
+    private[this] def buildOptionalCtorArg(json: JValue, descr: ConstructorParamDescriptor) = {
+      lazy val default = descr.defaultValue.map(_.apply()).getOrElse(None)
+      if(json == JNothing) {
+        if(formats.strictOptionParsing) fail(s"No value set for Option property: ${descr.name}") else default
+      } else {
         try {
-          val x = if (json == JNothing && default.isDefined) default.get() else extract(json, descr.argType)
-          if (descr.isOptional) { if (x == null) defv(None) else x }
-          else if (x == null) {
-            if(default.isEmpty && descr.argType <:< ScalaType(manifest[AnyVal])) {
-              throw new MappingException("Null invalid value for a sub-type of AnyVal")
-            } else {
-              defv(x)
-            }
-          }
-          else x
+          Option(extract(json, descr.argType)).getOrElse(default)
         } catch {
-          case e @ MappingException(msg, _) =>
-            if (descr.isOptional && !(formats.strictOptionParsing || formats.strictOptionParsingIgnoreMissing)) {
-              defv(None)
-            } else fail("No usable value for " + descr.name + "\n" + msg, e)
+          case _: MappingException if !formats.strictOptionParsing => default
         }
       }
     }
+
+    private[this] def buildMandatoryCtorArg(json: JValue, descr: ConstructorParamDescriptor) = {
+      lazy val default: Option[Any] = descr.defaultValue.map(_.apply())
+      if(json == JNothing) {
+        default.getOrElse(extract(json, descr.argType))
+      } else if(json == JNull && formats.extractionNullStrategy == ExtractionNullStrategy.TreatAsAbsent) {
+        default.getOrElse(throw new MappingException("Expected value but got null"))
+      } else {
+        Option(extract(json, descr.argType)) match {
+          case Some(value) =>
+            value
+          case None if descr.defaultValue.isEmpty && descr.argType <:< ScalaType(manifest[AnyVal]) =>
+            throw new MappingException("Null invalid value for a sub-type of AnyVal")
+          case None =>
+            default.orNull
+        }
+      }
+    }
+
 
     private[this] def instantiate = {
       val jconstructor = constructor.constructor
@@ -667,6 +691,9 @@ object Extraction {
       val deserializer = formats.typeHints.deserialize
       if (!deserializer.isDefinedAt(typeHint, obj)) {
         val concreteClass = formats.typeHints.classFor(typeHint) getOrElse fail("Do not know how to deserialize '" + typeHint + "'")
+        if (!typeInfo.erasure.isAssignableFrom(concreteClass)) {
+          fail(s"Type hint $typeHint which refers to class ${concreteClass.getName} cannot be extracted as an instance of ${typeInfo.erasure.getName}")
+        }
 
         extract(obj, typeInfo.copy(erasure = concreteClass))
       } else deserializer(typeHint, obj)
@@ -676,8 +703,8 @@ object Extraction {
       json match {
         case JNull if formats.strictOptionParsing && descr.properties.exists(_.returnType.isOption) =>
           fail(s"No value set for Option property: ${descr.properties.filter(_.returnType.isOption).map(_.name).mkString(", ")}")
-        case JNull if formats.allowNull => null
-        case JNull if !formats.allowNull =>
+        case JNull if formats.extractionNullStrategy == ExtractionNullStrategy.Keep => null
+        case JNull =>
           fail("Did not find value which can be converted into " + descr.fullName)
         case JObject(TypeHint(t, fs)) => mkWithTypeHint(t, fs, descr.erasure)
         case _ => instantiate
@@ -786,8 +813,8 @@ object Extraction {
       case j: JValue if targetType == classOf[JValue] => j
       case j: JObject if targetType == classOf[JObject] => j
       case j: JArray if targetType == classOf[JArray] => j
-      case JNull if formats.allowNull => null
-      case JNull if !formats.allowNull =>
+      case JNull if formats.extractionNullStrategy == ExtractionNullStrategy.Keep => null
+      case JNull =>
         fail("Did not find value which can be converted into " + targetType.getName)
       case JNothing =>
         default map (_.apply()) getOrElse fail("Did not find value which can be converted into " + targetType.getName)
