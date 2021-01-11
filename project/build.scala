@@ -34,7 +34,7 @@ object build {
     pomExtra := {
       pomExtra.value ++ Group(
       <scm>
-        <url>http://github.com/json4s/json4s</url>
+        <url>https://github.com/json4s/json4s</url>
         <connection>scm:git:git://github.com/json4s/json4s.git</connection>
       </scm>
       <developers>

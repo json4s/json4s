@@ -2,7 +2,7 @@
 
 ### Issues
 
-- Questions should be posted to [stackoverflow.com](http://stackoverflow.com/questions/tagged/json4s)
+- Questions should be posted to [stackoverflow.com](https://stackoverflow.com/questions/tagged/json4s)
 - Please describe about your issue in detail (version, situation, examples)
 - We may close your issue when we have no plan to take action right now. We appreciate your understanding.
 
