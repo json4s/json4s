@@ -138,7 +138,7 @@ Extras
 
 * [ext](https://github.com/json4s/json4s/tree/master/ext)
 
-Support for Enum, Joda-Time, ...
+Support for Enum, Joda-Time, Java 8 Date & Time...
 
 * [scalaz](https://github.com/json4s/json4s/tree/master/scalaz)
 
@@ -929,6 +929,9 @@ implicit val formats = org.json4s.DefaultFormats + new org.json4s.ext.EnumNameSe
 
 // Joda Time
 implicit val formats = org.json4s.DefaultFormats ++ org.json4s.ext.JodaTimeSerializers.all
+
+// Java 8 Date & Time
+implicit val formats = org.json4s.DefaultFormats ++ org.json4s.ext.JavaTimeSerializers.all
 ```
 
 XML support
