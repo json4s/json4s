@@ -342,6 +342,14 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       actual must_== expected
     }
 
+    "#714 Camelize double underscores" in {
+      implicit val f = DefaultFormats
+      val json = """{"full__name": "Kazuhiro Sera", "github___________________account___name": "seratch"}"""
+      val expected = Issue146CamelCaseClass("Kazuhiro Sera", Some("seratch"))
+      val actual = Extraction.extract[Issue146CamelCaseClass](jackson.parseJson(json).camelizeKeys)
+      actual must_== expected
+    }
+
     "#545 snake support with case classes and uuid keys" in {
       implicit val f = DefaultFormats
       val caseClass = Issue545CamelCaseClassWithUUID(Map("565b2803-fdb9-4359-8c39-da1a347d76ca" -> "awesome"))

@@ -1,4 +1,4 @@
-# JSON4S [![Maven Central](https://img.shields.io/maven-central/v/org.json4s/json4s-core_2.12.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:org.json4s%20AND%20a:json4s-core_2.12) [![Build Status](https://travis-ci.com/json4s/json4s.svg?branch=master)](https://travis-ci.com/json4s/json4s)
+# JSON4S [![Maven Central](https://img.shields.io/maven-central/v/org.json4s/json4s-core_2.12.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:org.json4s%20AND%20a:json4s-core_2.12)
 
 [![Join the chat at https://gitter.im/json4s/json4s](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/json4s/json4s?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -138,7 +138,7 @@ Extras
 
 * [ext](https://github.com/json4s/json4s/tree/master/ext)
 
-Support for Enum, Joda-Time, ...
+Support for Enum, Joda-Time, Java 8 Date & Time...
 
 * [scalaz](https://github.com/json4s/json4s/tree/master/scalaz)
 
@@ -929,6 +929,9 @@ implicit val formats = org.json4s.DefaultFormats + new org.json4s.ext.EnumNameSe
 
 // Joda Time
 implicit val formats = org.json4s.DefaultFormats ++ org.json4s.ext.JodaTimeSerializers.all
+
+// Java 8 Date & Time
+implicit val formats = org.json4s.DefaultFormats ++ org.json4s.ext.JavaTimeSerializers.all
 ```
 
 XML support

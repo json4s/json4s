@@ -2,7 +2,7 @@
 
 ### Issues
 
-- Questions should be posted to [stackoverflow.com](http://stackoverflow.com/questions/tagged/json4s)
+- Questions should be posted to [stackoverflow.com](https://stackoverflow.com/questions/tagged/json4s)
 - Please describe about your issue in detail (version, situation, examples)
 - We may close your issue when we have no plan to take action right now. We appreciate your understanding.
 
@@ -46,12 +46,10 @@
 
 #### Testing your pull request
 
-All the pull requests must pass the Travis CI jobs before merging them.
-
-https://travis-ci.com/json4s/json4s
+All the pull requests must pass the CI jobs before merging them.
 
 Testing with default settings is required when push changes:
 
 ```sh
-sbt test
+sbt +test
 ```

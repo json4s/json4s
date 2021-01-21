@@ -59,6 +59,8 @@ object ExtractionBugs {
 
   case class ABigDecimal(num: BigDecimal)
 
+  case class AJavaDouble(num: Double)
+
   case class AJavaBigDecimal(num: JavaBigDecimal)
 
   case class AJavaBigInteger(num: JavaBigInteger)
@@ -291,6 +293,9 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       parse("""{"num": 0}""").extract[AJavaBigInteger] must_== bji
     }
 
+    "does not hang when parsing big integers" in {
+      parse(s"""{"num": ${"9" * 10000000}}""", useBigIntForLong = false) must throwAn[Exception]
+    }
 
     "Extract a java BigInteger from a long value" in {
       val bji = AJavaBigInteger(BigInt(Long.MaxValue).bigInteger)
