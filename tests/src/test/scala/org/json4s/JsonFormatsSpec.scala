@@ -18,6 +18,9 @@ class JacksonJsonFormatsSpec extends JsonFormatsSpec[JValue]("Jackson") with jac
 * System under specification for JSON Formats.
 */
 abstract class JsonFormatsSpec[T](mod: String) extends Specification with TypeHintExamples with JsonMethods[T] {
+  // To ensure the state of the ObjectMapper is guaranteed, execute in order
+  sequential
+
   implicit val formats = ShortTypeHintExamples.formats + FullTypeHintExamples.formats.typeHints
 
   val hintsForFish   = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Fish]).get
@@ -53,6 +56,20 @@ abstract class JsonFormatsSpec[T](mod: String) extends Specification with TypeHi
       val json = parse("""{"jsonClass": "rock"}""")
       json.extract[Item] must_== Rock()
       json.extract[Music.Genre] must_== Music.Rock()
+    }
+      
+    "Unicode escaping can be changed" in {
+      val json = parse("""{"Script Small G": "\u210A"}""")
+
+      "escaped" in {
+        implicit val formats = new DefaultFormats { override def alwaysEscapeUnicode: Boolean = true }
+        compact(render(json)) must_== "{\"Script Small G\":\"\\u210A\"}"
+      }
+
+      "not escaped" in {
+        implicit val formats = DefaultFormats
+        compact(render(json)) must_== "{\"Script Small G\":\"\u210A\"}"
+      }
     }
   }
 }

@@ -45,7 +45,7 @@ object ParserUtil {
             (c >= '\u0000' && c <= '\u001f') || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100')
           }
           if (shouldEscape)
-            appender.append("\\u%04x".format(c: Int))
+            appender.append("\\u%04X".format(c: Int))
           else appender.append(c.toString)
       }
       i += 1

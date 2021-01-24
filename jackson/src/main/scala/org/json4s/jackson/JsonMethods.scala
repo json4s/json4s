@@ -3,6 +3,7 @@ package jackson
 
 import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.databind.DeserializationFeature.{USE_BIG_DECIMAL_FOR_FLOATS, USE_BIG_INTEGER_FOR_INTS}
+import com.fasterxml.jackson.core.json._
 import scala.util.control.Exception.allCatch
 
 trait JsonMethods extends org.json4s.JsonMethods[JValue] {
@@ -18,8 +19,15 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
 
   def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): JValue = {
     var reader = mapper.readerFor(classOf[JValue])
-    if (useBigDecimalForDouble) reader = reader `with` USE_BIG_DECIMAL_FOR_FLOATS
-    if (useBigIntForLong) reader = reader `with` USE_BIG_INTEGER_FOR_INTS
+    if (useBigDecimalForDouble)
+      reader = reader `with` USE_BIG_DECIMAL_FOR_FLOATS
+    else
+      reader = reader `without` USE_BIG_DECIMAL_FOR_FLOATS
+
+    if (useBigIntForLong)
+      reader = reader `with` USE_BIG_INTEGER_FOR_INTS
+    else
+      reader = reader `without` USE_BIG_INTEGER_FOR_INTS
 
     in match {
 	    case StringInput(s) => reader.readValue(s)
@@ -33,8 +41,13 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
     parse(in, useBigDecimalForDouble, useBigIntForLong)
   }
 
-  def render(value: JValue)(implicit formats: Formats = DefaultFormats): JValue =
+  def render(value: JValue)(implicit formats: Formats = DefaultFormats): JValue = {
+    if (mapper.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII.mappedFeature()) != formats.alwaysEscapeUnicode) {
+      mapper.getFactory().configure(JsonWriteFeature.ESCAPE_NON_ASCII.mappedFeature(), formats.alwaysEscapeUnicode)
+    }
+
     formats.emptyValueStrategy.replaceEmpty(value)
+  }
 
   def compact(d: JValue): String = mapper.writeValueAsString(d)
 
