@@ -161,14 +161,14 @@ class SerializationBugs extends Specification {
   }
 
   "Escapes control characters" in {
-    val ser = native.Serialization.write("\u0000\u001f")
-    ser must_== "\"\\u0000\\u001f\""
+    val ser = native.Serialization.write("\u0000\u001F")
+    ser must_== "\"\\u0000\\u001F\""
   }
 
   "Escapes control and unicode characters" in {
     val formats = DefaultFormats.withEscapeUnicode
-    val ser = native.Serialization.write("\u0000\u001f")(formats)
-    ser must_== "\"\u0000\u001f\""
+    val ser = native.Serialization.write("\u0000\u001F")(formats)
+    ser must_== "\"\u0000\u001F\""
   }
 
   "classes in deeply nested objects can be serialized" in {

@@ -6,11 +6,19 @@ on:
 jobs:
   scala-steward:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-    - uses: laughedelic/coursier-setup@v1
-    - run: cs install scalafmt
+    - name: Generate token
+      id: generate_token
+      if: ${{ !github.event.repository.fork }}
+      uses: tibdex/github-app-token@v1
+      with:
+        app_id: 89664
+        private_key: ${{ secrets.JSON4S_BOT_KEY }}
     - name: Launch Scala Steward
       if: ${{ !github.event.repository.fork }}
-      uses: xuwei-k/scala-steward-action@e6f6760c01214a4735a4c8a025b9350cee040a11
+      uses: scala-steward-org/scala-steward-action@v2.9.1
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ steps.generate_token.outputs.token }}
+        author-email: "74845451+json4s-bot[bot]@users.noreply.github.com"
+        author-name: json4s-bot[bot]

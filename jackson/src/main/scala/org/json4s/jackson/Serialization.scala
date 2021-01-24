@@ -4,6 +4,10 @@ package jackson
 import scala.reflect.Manifest
 import java.io.OutputStream
 
+/** Serialization using default JsonMethods
+ */
+object Serialization extends JacksonSerialization(JsonMethods)
+
 /** Functions to serialize and deserialize a case class.
  * Custom serializer can be inserted if a class is not a case class.
  * <p>
@@ -14,44 +18,44 @@ import java.io.OutputStream
  *
  * @see org.json4s.TypeHints
  */
-object Serialization extends Serialization {
+class JacksonSerialization(jsonMethods: JsonMethods) extends Serialization {
   import java.io.{Reader, Writer}
   /** Serialize to String.
    */
   def write[A <: AnyRef](a: A)(implicit formats: Formats): String =
-    JsonMethods.mapper.writeValueAsString(Extraction.decompose(a)(formats))
+    jsonMethods.mapper.writeValueAsString(Extraction.decompose(a)(formats))
 
   /** Serialize to Writer.
    */
   def write[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
-    JsonMethods.mapper.writeValue(out, Extraction.decompose(a)(formats))
+    jsonMethods.mapper.writeValue(out, Extraction.decompose(a)(formats))
     out
   }
 
   def write[A <: AnyRef](a: A, out: OutputStream)(implicit formats: Formats): Unit = {
-    JsonMethods.mapper.writeValue(out, Extraction.decompose(a)(formats: Formats))
+    jsonMethods.mapper.writeValue(out, Extraction.decompose(a)(formats: Formats))
   }
 
   /** Serialize to String (pretty format).
    */
   def writePretty[A <: AnyRef](a: A)(implicit formats: Formats): String =
-    JsonMethods.mapper.writerWithDefaultPrettyPrinter.writeValueAsString(Extraction.decompose(a)(formats))
+    jsonMethods.mapper.writerWithDefaultPrettyPrinter.writeValueAsString(Extraction.decompose(a)(formats))
 
   /** Serialize to Writer (pretty format).
    */
   def writePretty[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
-    JsonMethods.mapper.writerWithDefaultPrettyPrinter.writeValue(out, Extraction.decompose(a)(formats))
+    jsonMethods.mapper.writerWithDefaultPrettyPrinter.writeValue(out, Extraction.decompose(a)(formats))
     out
   }
 
   /** Deserialize from an JsonInput
     */
   def read[A](json: JsonInput)(implicit formats: Formats, mf: Manifest[A]): A =
-    JsonMethods.parse(json, formats.wantsBigDecimal, formats.wantsBigInt).extract(formats, mf)
+    jsonMethods.parse(json, formats.wantsBigDecimal, formats.wantsBigInt).extract(formats, mf)
 
   /** Deserialize from a Reader.
    */
   def read[A](in: Reader)(implicit formats: Formats, mf: Manifest[A]): A = {
-    JsonMethods.parse(in, formats.wantsBigDecimal, formats.wantsBigInt).extract(formats, mf)
+    jsonMethods.parse(in, formats.wantsBigDecimal, formats.wantsBigInt).extract(formats, mf)
   }
 }
