@@ -111,7 +111,7 @@ object Extraction {
     val current = builder
     def prependTypeHint(clazz: Class[_], o: JObject) = for {
       hint <- formats.typeHints.hintFor(clazz)
-      typeHintFieldName <- formats.typeHints.typeHintFieldNameForHint(hint)
+      typeHintFieldName <- formats.typeHints.typeHintFieldNameForHint(hint, clazz)
     } yield JObject(JField(typeHintFieldName, JString(hint)) :: o.obj)
 
     def addField(name: String, v: Any, obj: JsonWriter[T]): Unit = v match {
@@ -500,7 +500,7 @@ object Extraction {
       def unapply(fs: List[JField]): Option[(String, List[JField])] =
         if (!formats.typeHints.shouldExtractHints(descr.erasure.erasure)) None
         else {
-          fs.partition(formats.typeHints.isTypeHintField) match {
+          fs.partition(formats.typeHints.isTypeHintField(_, descr.erasure.erasure)) match {
             case (Nil, _) => None
             case (t, f) => Some((t.head._2.values.toString, f))
           }
@@ -685,10 +685,10 @@ object Extraction {
     }
 
     private[this] def mkWithTypeHint(typeHint: String, fields: List[JField], typeInfo: ScalaType) = {
-      val obj = JObject(fields filterNot formats.typeHints.isTypeHintField)
+      val obj = JObject(fields filterNot(formats.typeHints.isTypeHintField(_, typeInfo.erasure)))
       val deserializer = formats.typeHints.deserialize
       if (!deserializer.isDefinedAt(typeHint, obj)) {
-        val concreteClass = formats.typeHints.classFor(typeHint) getOrElse fail("Do not know how to deserialize '" + typeHint + "'")
+        val concreteClass = formats.typeHints.classFor(typeHint, typeInfo.erasure) getOrElse fail("Do not know how to deserialize '" + typeHint + "'")
         if (!typeInfo.erasure.isAssignableFrom(concreteClass)) {
           fail(s"Type hint $typeHint which refers to class ${concreteClass.getName} cannot be extracted as an instance of ${typeInfo.erasure.getName}")
         }

@@ -4,6 +4,14 @@ package org.json4s
 import org.specs2.mutable.Specification
 import org.json4s.native.Document
 
+sealed trait Item
+case class Rock() extends Item
+
+object Music {
+  sealed trait Genre
+  case class Rock() extends Genre
+}
+
 class NativeJsonFormatsSpec extends JsonFormatsSpec[Document]("Native") with native.JsonMethods
 class JacksonJsonFormatsSpec extends JsonFormatsSpec[JValue]("Jackson") with jackson.JsonMethods
 /**
@@ -27,9 +35,9 @@ abstract class JsonFormatsSpec[T](mod: String) extends Specification with TypeHi
     }
 
     "classFor across composite formats" in {
-      formats.typeHints.classFor(hintsForFish)   must_== (FullTypeHintExamples.formats.typeHints.classFor(hintsForFish))
-      formats.typeHints.classFor(hintsForDog)    must_== (FullTypeHintExamples.formats.typeHints.classFor(hintsForDog))
-      formats.typeHints.classFor(hintsForAnimal) must_== (FullTypeHintExamples.formats.typeHints.classFor(hintsForAnimal))
+      formats.typeHints.classFor(hintsForFish, classOf[Animal])   must_== (FullTypeHintExamples.formats.typeHints.classFor(hintsForFish, classOf[Animal]))
+      formats.typeHints.classFor(hintsForDog, classOf[Animal])    must_== (FullTypeHintExamples.formats.typeHints.classFor(hintsForDog, classOf[Animal]))
+      formats.typeHints.classFor(hintsForAnimal, classOf[Animal]) must_== (FullTypeHintExamples.formats.typeHints.classFor(hintsForAnimal, classOf[Animal]))
     }
 
     "parameter name reading strategy can be changed" in {
@@ -41,6 +49,15 @@ abstract class JsonFormatsSpec[T](mod: String) extends Specification with TypeHi
       json.extract[NamesNotSameAsInJson] must_== NamesNotSameAsInJson("joe", 35)
     }
 
+    "Duplicate hints for orthogonal classes should not interfere with each other" in {
+      implicit val formats = SerializationExamples.formats +
+        MappedTypeHints(Map(classOf[Rock] -> "rock")) +
+        MappedTypeHints(Map(classOf[Music.Rock] -> "rock"))
+      val json = parse("""{"jsonClass": "rock"}""")
+      json.extract[Item] must_== Rock()
+      json.extract[Music.Genre] must_== Music.Rock()
+    }
+      
     "Unicode escaping can be changed" in {
       val json = parse("""{"Script Small G": "\u210A"}""")
 
