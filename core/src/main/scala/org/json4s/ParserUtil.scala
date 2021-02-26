@@ -106,7 +106,7 @@ object ParserUtil {
     var curMark = -1
     var curMarkSegment = -1
     var eofIsFailure = false
-    private[this] var segments: List[Segment] = List(Segments.apply())
+    private[this] var segments: Vector[Segment] = Vector(Segments.apply())
     private[this] var segment: Array[Char] = segments.head.seg
     private[this] var cur = 0 // Pointer which points current parsing location
     private[this] var curSegmentIdx = 0 // Pointer which points current segment
@@ -163,7 +163,7 @@ object ParserUtil {
         val newSegment = Segments.apply()
         offset = 0
         segment = newSegment.seg
-        segments = segments ::: List(newSegment)
+        segments = segments :+ newSegment
         curSegmentIdx = segments.length - 1
       }
 
