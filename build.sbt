@@ -41,7 +41,7 @@ lazy val core = Project(
 ).settings(
   json4sSettings,
   libraryDependencies ++= Seq(paranamer),
-  initialCommands in (Test, console) := """
+  Test / console / initialCommands := """
       |import org.json4s._
       |import reflect._
     """.stripMargin,
@@ -97,7 +97,7 @@ lazy val mongo = Project(
 ).settings(
   json4sSettings,
   libraryDependencies ++= Seq(
-    "org.mongodb" % "mongo-java-driver" % "3.12.7"
+    "org.mongodb" % "mongo-java-driver" % "3.12.8"
   ),
 ) dependsOn(core % "compile;test->test")
 
@@ -108,7 +108,7 @@ lazy val json4sTests = Project(
   json4sSettings,
   noPublish,
   libraryDependencies ++= Seq(specs.value, mockito, jaxbApi),
-  initialCommands in (Test, console) :=
+  Test / console / initialCommands :=
     """
       |import org.json4s._
       |import reflect._

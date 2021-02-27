@@ -58,10 +58,10 @@ object build {
   val json4sSettings = mavenCentralFrouFrou ++ Def.settings(
     organization := "org.json4s",
     scalaVersion := Scala212,
-    crossScalaVersions := Seq("2.11.12", Scala212, "2.13.4"),
+    crossScalaVersions := Seq("2.11.12", Scala212, "2.13.5"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-Xsource:3"),
-    scalacOptions in (Compile, doc) ++= {
-      val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
+    (Compile / doc / scalacOptions) ++= {
+      val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
       Seq("-sourcepath", base, "-doc-source-url", "https://github.com/json4s/json4s/tree/" + hash + "€{FILE_PATH}.scala")
     },
@@ -83,8 +83,8 @@ object build {
     },
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
     Seq(Compile, Test).map { scope =>
-      unmanagedSourceDirectories in scope += {
-        val base = (sourceDirectory in scope).value.getParentFile / Defaults.nameForSrc(scope.name)
+      (scope / unmanagedSourceDirectories) += {
+        val base = (scope / sourceDirectory).value.getParentFile / Defaults.nameForSrc(scope.name)
         CrossVersion.partialVersion(scalaVersion.value) match {
           case Some((2, v)) if v >= 13 =>
             base / s"scala-2.13+"
@@ -107,7 +107,7 @@ object build {
       commitNextVersion,
       pushChanges
     ),
-    parallelExecution in Test := false,
+    Test / parallelExecution := false,
     manifestSetting,
     crossVersion := CrossVersion.binary
   )

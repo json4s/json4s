@@ -5,7 +5,7 @@ object Dependencies {
   lazy val jaxbApi = "javax.xml.bind" % "jaxb-api" % "2.3.1" % "test"
 
   lazy val jodaTime     = Seq(
-    "joda-time" % "joda-time"    % "2.10.9",
+    "joda-time" % "joda-time"    % "2.10.10",
     "org.joda"  % "joda-convert" % "2.2.1"
   )
   lazy val jackson      = Seq(
@@ -16,7 +16,7 @@ object Dependencies {
   lazy val specs        = Def.setting(
     "org.specs2" %% "specs2-scalacheck"            % "4.10.6" % "test"
   )
-  lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "3.7.7" % "test"
+  lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "3.8.0" % "test"
 
   lazy val scalaXml     = Def.setting {
     "org.scala-lang.modules" %% "scala-xml" % "1.3.0"

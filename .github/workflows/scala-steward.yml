@@ -1,8 +1,10 @@
 name: scala-steward
 on:
   push:
+    branches: [ master ]
   schedule:
   - cron: '0 0 * * *'
+  workflow_dispatch:
 jobs:
   scala-steward:
     runs-on: ubuntu-latest
@@ -17,7 +19,7 @@ jobs:
         private_key: ${{ secrets.JSON4S_BOT_KEY }}
     - name: Launch Scala Steward
       if: ${{ !github.event.repository.fork }}
-      uses: scala-steward-org/scala-steward-action@v2.9.1
+      uses: scala-steward-org/scala-steward-action@v2.12.0
       with:
         github-token: ${{ steps.generate_token.outputs.token }}
         author-email: "74845451+json4s-bot[bot]@users.noreply.github.com"
