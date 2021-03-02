@@ -27,9 +27,9 @@ object MimaSettings {
         case _ => Set.empty
       }
     },
-    test in Test := {
+    (Test / test) := {
       mimaReportBinaryIssues.value
-      (test in Test).value
+      (Test / test).value
     }
   )
 

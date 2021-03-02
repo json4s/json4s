@@ -39,7 +39,7 @@ lazy val core = Project(
 ).settings(
   json4sSettings,
   libraryDependencies ++= Seq(paranamer),
-  initialCommands in (Test, console) := """
+  Test / console / initialCommands := """
       |import org.json4s._
       |import reflect._
     """.stripMargin,
@@ -106,7 +106,7 @@ lazy val json4sTests = Project(
   json4sSettings,
   noPublish,
   libraryDependencies ++= (specs.value :+ mockito :+ jaxbApi),
-  initialCommands in (Test, console) :=
+  Test / console / initialCommands :=
     """
       |import org.json4s._
       |import reflect._

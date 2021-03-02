@@ -63,8 +63,8 @@ object build {
     scalacOptions ++= PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion.value)) {
       case Some((2, 10)) => "-optimize"
     }.toList,
-    scalacOptions in (Compile, doc) ++= {
-      val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
+    (Compile / doc / scalacOptions) ++= {
+      val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
       Seq("-sourcepath", base, "-doc-source-url", "https://github.com/json4s/json4s/tree/" + hash + "€{FILE_PATH}.scala")
     },
@@ -88,8 +88,8 @@ object build {
     },
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
     Seq(Compile, Test).map { scope =>
-      unmanagedSourceDirectories in scope += {
-        val base = (sourceDirectory in scope).value.getParentFile / Defaults.nameForSrc(scope.name)
+      (scope / unmanagedSourceDirectories) += {
+        val base = (scope / sourceDirectory).value.getParentFile / Defaults.nameForSrc(scope.name)
         CrossVersion.partialVersion(scalaVersion.value) match {
           case Some((2, v)) if v >= 13 =>
             base / s"scala-2.13+"
@@ -112,7 +112,7 @@ object build {
       commitNextVersion,
       pushChanges
     ),
-    parallelExecution in Test := false,
+    Test / parallelExecution := false,
     manifestSetting,
     crossVersion := CrossVersion.binary
   )
