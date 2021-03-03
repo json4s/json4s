@@ -360,6 +360,14 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       Extraction.extract[OptionOfInt](obj) must_== OptionOfInt(None)
     }
 
+    "Extract should succeed for missing optional field when strictOptionParsing is on" in {
+      implicit val formats = new DefaultFormats {
+        override val strictOptionParsing: Boolean = true
+      }
+      val obj = parse("""{}""".stripMargin)
+      Extraction.extract[OptionOfInt](obj) must_== OptionOfInt(None)
+    }
+
     "Extract should fail when strictOptionParsing is on and extracting from JNull" in {
       implicit val formats = new DefaultFormats {
         override val strictOptionParsing: Boolean = true
@@ -374,7 +382,6 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       JNothing,
       JInt(5),
       JString("---"),
-      JObject(Nil),
       JArray(Nil)
     )) { obj =>
       s"Extract should fail when strictOptionParsing is on and extracting from ${obj.toString}" in {

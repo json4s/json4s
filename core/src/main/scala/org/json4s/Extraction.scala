@@ -595,32 +595,30 @@ object Extraction {
 
     private[this] def buildOptionalCtorArg(json: JValue, descr: ConstructorParamDescriptor) = {
       lazy val default = descr.defaultValue.map(_.apply()).getOrElse(None)
-      if(json == JNothing) {
-        if(formats.strictOptionParsing) fail(s"No value set for Option property: ${descr.name}") else default
-      } else {
-        try {
-          Option(extract(json, descr.argType)).getOrElse(default)
-        } catch {
-          case _: MappingException if !formats.strictOptionParsing => default
-        }
+      json \ descr.name match {
+        case JNothing if json.isInstanceOf[JObject] || !formats.strictOptionParsing => default
+        case JNothing => fail(s"No value set for Option property: ${descr.name}")
+        case value =>
+          try { Option(extract(value, descr.argType)).getOrElse(default) }
+          catch { case _: MappingException if !formats.strictOptionParsing => default }
       }
     }
 
     private[this] def buildMandatoryCtorArg(json: JValue, descr: ConstructorParamDescriptor) = {
       lazy val default: Option[Any] = descr.defaultValue.map(_.apply())
-      if(json == JNothing) {
-        default.getOrElse(extract(json, descr.argType))
-      } else if(json == JNull && formats.extractionNullStrategy == ExtractionNullStrategy.TreatAsAbsent) {
-        default.getOrElse(throw new MappingException("Expected value but got null"))
-      } else {
-        Option(extract(json, descr.argType)) match {
-          case Some(value) =>
-            value
-          case None if descr.defaultValue.isEmpty && descr.argType <:< ScalaType(manifest[AnyVal]) =>
-            throw new MappingException("Null invalid value for a sub-type of AnyVal")
-          case None =>
-            default.orNull
-        }
+      json \ descr.name match {
+        case JNothing =>
+          default.getOrElse(extract(JNothing, descr.argType))
+        case JNull if formats.extractionNullStrategy == ExtractionNullStrategy.TreatAsAbsent =>
+          default.getOrElse(throw new MappingException("Expected value but got null"))
+        case value =>
+          Option(extract(value, descr.argType)).getOrElse {
+            if(descr.defaultValue.isEmpty && descr.argType <:< ScalaType(manifest[AnyVal])) {
+              throw new MappingException("Null invalid value for a sub-type of AnyVal")
+            } else {
+              default.orNull
+            }
+          }
       }
     }
 
@@ -644,7 +642,7 @@ object Extraction {
 
       val args = paramsWithOriginalTypes.collect {
         case (param, clazz) =>
-          val rawArg = buildCtorArg(deserializedJson \ param.name, param)
+          val rawArg = buildCtorArg(deserializedJson, param)
           (rawArg, clazz) match {
             case (arg: BigDecimal, tt) if tt == classOf[JavaBigDecimal] => arg.bigDecimal
             case (arg: BigInt, tt) if tt == classOf[JavaBigInteger] => arg.bigInteger
