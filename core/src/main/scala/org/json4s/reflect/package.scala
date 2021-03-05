@@ -1,9 +1,5 @@
 package org.json4s
 
-import com.thoughtworks.paranamer.{BytecodeReadingParanamer, CachingParanamer}
-import java.lang.reflect._
-import java.util.concurrent.ConcurrentHashMap
-
 package object reflect {
 
   def safeSimpleName(clazz: Class[_]) =
@@ -26,48 +22,9 @@ package object reflect {
     }
   }
 
-  private[reflect] class Memo[A, R] {
-    private[this] val cache = new ConcurrentHashMap[A, R](1500, 1, 1)
-
-    def apply(x: A, f: A => R): R = {
-      if (cache.containsKey(x))
-        cache.get(x)
-      else {
-        val v = f(x)
-        replace(x, v)
-      }
-    }
-
-    def replace(x: A, v: R):R = {
-      cache.put(x, v)
-      v
-    }
-
-    def clear() = cache.clear()
-  }
-
   private[reflect] val ConstructorDefaultValuePattern = "$lessinit$greater$default$%d"
   private[reflect] val ModuleFieldName = "MODULE$"
   private[reflect] val ClassLoaders = Vector(getClass.getClassLoader, Thread.currentThread().getContextClassLoader)
-  private[this] val paranamer = new CachingParanamer(new BytecodeReadingParanamer)
-
-
-
-  case class TypeInfo(clazz: Class[_], parameterizedType: Option[ParameterizedType])
-
-  private[reflect] trait SourceType {
-    def scalaType: ScalaType
-  }
-
-  trait ParameterNameReader {
-    def lookupParameterNames(constructor: reflect.Executable): Seq[String]
-  }
-
-  trait ReflectorDescribable[T] {
-    def companionClasses: List[(Class[_], AnyRef)]
-    def paranamer: ParameterNameReader
-    def scalaType: ScalaType
-  }
 
   implicit def scalaTypeDescribable(t: ScalaType)(implicit formats: Formats = DefaultFormats): ReflectorDescribable[ScalaType] = new ReflectorDescribable[ScalaType] {
     val companionClasses: List[(Class[_], AnyRef)] = formats.companions
@@ -85,11 +42,6 @@ package object reflect {
     val companionClasses: List[(Class[_], AnyRef)] = formats.companions
     val paranamer: ParameterNameReader = formats.parameterNameReader
     val scalaType: ScalaType = Reflector.scalaTypeOf(t) getOrElse (throw new MappingException("Couldn't find class for " + t))
-  }
-
-  object ParanamerReader extends ParameterNameReader {
-    def lookupParameterNames(constructor: reflect.Executable): Seq[String] =
-      paranamer.lookupParameterNames(constructor.getAsAccessibleObject).toSeq
   }
 
   def fail(msg: String, cause: Exception = null) = throw new MappingException(msg, cause)
