@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     strategy:
+      fail-fast: false
       matrix:
         include:
           - java: 8
