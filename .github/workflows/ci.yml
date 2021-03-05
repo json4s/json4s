@@ -31,7 +31,7 @@ jobs:
             sbt -v "+ test"
             ;;
           3)
-            sbt -v '++ 3.0.0-M3!' json4s-ast/test
+            sbt -v '++ 3.0.0-RC1!' json4s-ast/test
             ;;
           *)
             echo "unknown scala version"
