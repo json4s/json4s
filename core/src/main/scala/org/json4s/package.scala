@@ -57,7 +57,4 @@ package object json4s {
   implicit def jvalue2monadic(jv: JValue) = new MonadicJValue(jv)
   implicit def jsonwritable[T: Writer](a: T) = new ToJsonWritable[T](a)
 
-  case class MappingException(msg: String, cause: Exception) extends Exception(msg, cause) {
-    def this(msg: String) = this(msg, null)
-  }
 }
