@@ -150,7 +150,7 @@ trait DefaultReaders extends DefaultReaders0 {
     }
   }
 
-  implicit def OptionReader[T](implicit valueReader: Reader[T]) = new Reader[Option[T]] {
+  implicit def OptionReader[T](implicit valueReader: Reader[T]): Reader[Option[T]] = new Reader[Option[T]] {
     def read(value: _root_.org.json4s.JValue): Option[T] = {
       import scala.util.control.Exception.catching
       catching(classOf[RuntimeException], classOf[MappingException]) opt { valueReader read value }
