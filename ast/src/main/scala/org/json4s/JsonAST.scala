@@ -191,10 +191,7 @@ object JsonAST {
   object JField {
     def apply(name: String, value: JValue): (String, JValue) = (name, value)
 
-    final class OptionStringJValue(val get: JField) extends AnyVal {
-      def isEmpty: Boolean = false
-    }
-    def unapply(f: JField): OptionStringJValue = new OptionStringJValue(f)
+    def unapply(f: JField): SomeValue[JField] = new SomeValue(f)
   }
 }
 
