@@ -59,7 +59,7 @@ object build {
     organization := "org.json4s",
     scalaVersion := Scala212,
     crossScalaVersions := Seq("2.11.12", Scala212, "2.13.5"),
-    scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-Xsource:3"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds"),
     (Compile / doc / scalacOptions) ++= {
       val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
@@ -75,10 +75,20 @@ object build {
     },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, _)) =>
+          Seq("-Xsource:3")
+        case _ =>
+          Nil
+      }
+    },
+    scalacOptions ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 11)) =>
           Seq("-Ywarn-unused-import", "-Xsource:2.12")
-        case _ =>
+        case Some((2, _)) =>
           Seq("-Ywarn-unused:imports")
+        case _ =>
+          Nil
       }
     },
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
