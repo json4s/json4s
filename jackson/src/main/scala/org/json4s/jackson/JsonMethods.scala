@@ -30,11 +30,11 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
       reader = reader `without` USE_BIG_INTEGER_FOR_INTS
 
     in match {
-	    case StringInput(s) => reader.readValue(s)
-	    case ReaderInput(rdr) => reader.readValue(rdr)
-	    case StreamInput(stream) => reader.readValue(stream)
-	    case FileInput(file) => reader.readValue(file)
-	  }
+      case StringInput(s) => reader.readValue(s)
+      case ReaderInput(rdr) => reader.readValue(rdr)
+      case StreamInput(stream) => reader.readValue(stream)
+      case FileInput(file) => reader.readValue(file)
+    }
   }
 
   def parseOpt(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): Option[JValue] = allCatch opt {
