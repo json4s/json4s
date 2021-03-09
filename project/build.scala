@@ -59,7 +59,14 @@ object build {
     organization := "org.json4s",
     scalaVersion := Scala212,
     crossScalaVersions := Seq("2.11.12", Scala212, "2.13.5"),
-    scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds"),
+    scalacOptions ++= Seq(
+      "-unchecked",
+      "-deprecation",
+      "-feature",
+      "-language:existentials",
+      "-language:implicitConversions",
+      "-language:higherKinds",
+    ),
     (Compile / doc / scalacOptions) ++= {
       val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
