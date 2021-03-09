@@ -10,7 +10,7 @@ class NativeJsonMethodsSpec extends Specification {
 
   "JsonMethods.parse" should {
 
-	  val stringJson = """{"number": 200}"""
+    val stringJson = """{"number": 200}"""
 
     "parse StringInput and produce JInt" in {
       (parse(stringJson) \ "number") must beAnInstanceOf[JInt]
