@@ -47,7 +47,7 @@ package object json4s {
   val  TypeInfo = reflect.TypeInfo
   type TypeInfo = reflect.TypeInfo
 
-  type ParameterNameReader extends reflect.ParameterNameReader
+  type ParameterNameReader = reflect.ParameterNameReader
 
   implicit def string2JsonInput(s: String): JsonInput = StringInput(s)
   implicit def reader2JsonInput(rdr: java.io.Reader): JsonInput = ReaderInput(rdr)
