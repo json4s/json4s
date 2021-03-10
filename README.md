@@ -718,6 +718,39 @@ These settings (`strictOptionParsing`, `strictArrayExtraction` and `strictMapExt
 val formats: Formats = DefaultFormats.strict
 ```
 
+Json 3.6 expands the `strictOptionParsing` behavior to throw a MappingException even when `extractOpt` is called on a missing optional attribute.  This behavior might not be desirable if you have a large code base that was using `extractOpt` prior to Json 3.6.  If you prefer to maintain the pre-3.6 `extractOpt` behavior, you can specify the format option `strictOptionParsingIgnoreMissing`
+
+```scala
+val formats: Formats = new DefaultFormats {
+  override val strictOptionParsingIgnoreMissing: Boolean = true
+}
+```
+
+Note the following examples:
+
+### Pre-3.6 behavior
+
+```scala
+val formats: Formats = new DefaultFormats {
+  override val strictOptionParsingIgnoreMissing: Boolean = true
+}
+case class SerializationSpec(someInt: Int, someString: Option[String])
+val json = parse("""{ "someInt": 123 }""")
+// someString is None
+val someString = (json \ "someString").extractOpt[String]
+```
+
+### Post-3.6 behavior
+
+```scala
+val formats: Formats = new DefaultFormats {
+  override val strictOptionParsing: Boolean = true
+}
+case class SerializationSpec(someInt: Int, someString: Option[String])
+val json = parse("""{ "someInt": 123 }""")
+// throws MappingException.
+val someString = (json \ "someString").extractOpt[String]
+```
 With Json4s 3.6 and higher, `apply` functions in companion objects will be evaluated for use during extraction.  If this behavior is not desired, you can disable it using the `considerCompanionConstructors` on a custom `Formats` object:
 ```scala 
 val formats: Formats = new DefaultFormats { override val considerCompanionConstructors = false }
