@@ -10,7 +10,7 @@ private[json4s] trait DefaultReaders0 {
           val builder = cbf()
           items.foldLeft(builder) { (acc, i) => acc += valueReader.read(i); acc}.result()
         case x =>
-          throw new MappingException("Can't convert %s to Iterable." format x)
+          throw new MappingException(s"Can't convert ${x} to Iterable.")
       }
     }
 }

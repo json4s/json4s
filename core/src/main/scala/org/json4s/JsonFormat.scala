@@ -19,7 +19,7 @@ trait DefaultReaders extends DefaultReaders0 {
       case JLong(x) => x.intValue
       case JDouble(x) => x.intValue
       case JDecimal(x) => x.intValue
-      case x => throw new MappingException("Can't convert %s to Int." format x)
+      case x => throw new MappingException(s"Can't convert ${x} to Int.")
     }
   }
 
@@ -29,7 +29,7 @@ trait DefaultReaders extends DefaultReaders0 {
       case JLong(x) => BigInt(x)
       case JDouble(x) => BigInt(x.longValue)
       case JDecimal(x) => x.toBigInt
-      case x => throw new MappingException("Can't convert %s to BigInt." format x)
+      case x => throw new MappingException(s"Can't convert ${x} to BigInt.")
     }
   }
 
@@ -39,7 +39,7 @@ trait DefaultReaders extends DefaultReaders0 {
       case JLong(x) => x
       case JDouble(x) => x.longValue
       case JDecimal(x) => x.longValue
-      case x => throw new MappingException("Can't convert %s to Long." format x)
+      case x => throw new MappingException(s"Can't convert ${x} to Long.")
     }
   }
 
@@ -50,7 +50,7 @@ trait DefaultReaders extends DefaultReaders0 {
       case JDouble(x) => x.shortValue
       case JDecimal(x) => x.shortValue
       case JNull => 0
-      case x => throw new MappingException("Can't convert %s to Short." format x)
+      case x => throw new MappingException(s"Can't convert ${x} to Short.")
     }
   }
 
@@ -61,7 +61,7 @@ trait DefaultReaders extends DefaultReaders0 {
       case JDouble(x) => x.byteValue
       case JDecimal(x) => x.byteValue
       case JNull => 0
-      case x => throw new MappingException("Can't convert %s to Byte." format x)
+      case x => throw new MappingException(s"Can't convert ${x} to Byte.")
     }
   }
 
@@ -72,7 +72,7 @@ trait DefaultReaders extends DefaultReaders0 {
       case JDouble(x) => x.floatValue
       case JDecimal(x) => x.floatValue
       case JNull => 0
-      case x => throw new MappingException("Can't convert %s to Float." format x)
+      case x => throw new MappingException(s"Can't convert ${x} to Float.")
     }
   }
 
@@ -83,7 +83,7 @@ trait DefaultReaders extends DefaultReaders0 {
       case JDouble(x) => x
       case JDecimal(x) => x.doubleValue
       case JNull => 0
-      case x => throw new MappingException("Can't convert %s to Double." format x)
+      case x => throw new MappingException(s"Can't convert ${x} to Double.")
     }
   }
 
@@ -94,7 +94,7 @@ trait DefaultReaders extends DefaultReaders0 {
       case JDouble(x) => BigDecimal(x)
       case JDecimal(x) => x
       case JNull => 0
-      case x => throw new MappingException("Can't convert %s to BigDecimal." format x)
+      case x => throw new MappingException(s"Can't convert ${x} to BigDecimal.")
     }
   }
 
@@ -102,7 +102,7 @@ trait DefaultReaders extends DefaultReaders0 {
     def read(value: _root_.org.json4s.JValue): Boolean = value match {
       case JBool(v) => v
       case JNull => false
-      case x => throw new MappingException("Can't convert %s to Boolean." format x)
+      case x => throw new MappingException(s"Can't convert ${x} to Boolean.")
     }
   }
 
@@ -115,14 +115,14 @@ trait DefaultReaders extends DefaultReaders0 {
       case JBool(x) => x.toString
       case JString(s) => s
       case JNull => null
-      case x => throw new MappingException("Can't convert %s to String." format x)
+      case x => throw new MappingException(s"Can't convert ${x} to String.")
     }
   }
 
   implicit def mapReader[V](implicit valueReader: Reader[V]): Reader[immutable.Map[String, V]] = new Reader[immutable.Map[String, V]] {
     def read(value: _root_.org.json4s.JValue): Map[String, V] = value match {
       case JObject(v) => Map(v.map({ case JField(k, vl) => k -> valueReader.read(vl)}):_*)
-      case x => throw new MappingException("Can't convert %s to Map." format x)
+      case x => throw new MappingException(s"Can't convert ${x} to Map.")
     }
   }
 
@@ -139,14 +139,14 @@ trait DefaultReaders extends DefaultReaders0 {
   implicit object JObjectReader extends Reader[JObject] {
     def read(value: _root_.org.json4s.JValue): _root_.org.json4s.JObject = value match {
       case x: JObject => x
-      case x => throw new MappingException("JObject expected, but got %s." format x)
+      case x => throw new MappingException(s"JObject expected, but got ${x}.")
     }
   }
 
   implicit object JArrayReader extends Reader[JArray] {
     def read(value: _root_.org.json4s.JValue): _root_.org.json4s.JArray = value match {
       case x: JArray => x
-      case x => throw new MappingException("JArray expected, but got %s." format x)
+      case x => throw new MappingException(s"JArray expected, but got ${x}.")
     }
   }
 
