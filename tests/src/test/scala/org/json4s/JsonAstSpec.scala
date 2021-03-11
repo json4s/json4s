@@ -190,7 +190,7 @@ class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
 
     }
 
-    "equals hashCode" in prop{ x: JObject =>
+    "equals hashCode" in prop{ (x: JObject) =>
       val y = JObject(scala.util.Random.shuffle(x.obj))
 
       x must_== y
