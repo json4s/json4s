@@ -85,7 +85,11 @@ object build {
         case Some((2, _)) =>
           Seq("-Xsource:3")
         case _ =>
-          Nil
+          Seq(
+            "-Xignore-scala2-macros", // TODO https://github.com/etorreborre/specs2/issues/848
+            "-source",
+            "3.0-migration",
+          )
       }
     },
     scalacOptions ++= {
