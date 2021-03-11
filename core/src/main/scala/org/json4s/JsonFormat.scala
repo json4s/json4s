@@ -2,6 +2,7 @@ package org.json4s
 
 import collection.immutable
 import annotation.implicitNotFound
+import scala.reflect.ClassTag
 
 // based on the type classes from play 2 but with the conversions from lift-json
 @implicitNotFound(
@@ -126,7 +127,7 @@ trait DefaultReaders extends DefaultReaders0 {
     }
   }
 
-  implicit def arrayReader[T:Manifest:Reader]: Reader[Array[T]] = new Reader[Array[T]] {
+  implicit def arrayReader[T:ClassTag:Reader]: Reader[Array[T]] = new Reader[Array[T]] {
     def read(value: _root_.org.json4s.JValue): Array[T] = {
       value.as[List[T]].toArray
     }
