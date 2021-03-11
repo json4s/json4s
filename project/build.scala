@@ -55,7 +55,7 @@ object build {
 
   val Scala212 = "2.12.13"
 
-  val json4sSettings = mavenCentralFrouFrou ++ Def.settings(
+  def json4sSettings(cross: Boolean) = mavenCentralFrouFrou ++ Def.settings(
     organization := "org.json4s",
     scalaVersion := Scala212,
     crossScalaVersions := Seq("2.11.12", Scala212, "2.13.5"),
@@ -109,7 +109,11 @@ object build {
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
     Seq(Compile, Test).map { scope =>
       (scope / unmanagedSourceDirectories) += {
-        val base = (scope / sourceDirectory).value.getParentFile / Defaults.nameForSrc(scope.name)
+        val base = if (cross) {
+          baseDirectory.value.getParentFile / "shared" / "src" / Defaults.nameForSrc(scope.name)
+        } else {
+          baseDirectory.value / "src" / Defaults.nameForSrc(scope.name)
+        }
         CrossVersion.partialVersion(scalaVersion.value) match {
           case Some((2, v)) if v <= 12 =>
             base / s"scala-2.13-"
@@ -123,8 +127,10 @@ object build {
       // https://github.com/lampepfl/dotty/issues/11605
       val xs = (Compile / sources).value
       if (scalaVersion.value == "3.0.0-RC1") {
-        val singletonIsEmpty = (ThisBuild / baseDirectory).value / "ast/src/main/scala-2.13+/org/json4s/SomeValue.scala"
-        val booleanIsEmpty = (ThisBuild / baseDirectory).value / "ast/src/main/scala-2.13-/org/json4s/SomeValue.scala"
+        val singletonIsEmpty =
+          (ThisBuild / baseDirectory).value / "ast/shared/src/main/scala-2.13+/org/json4s/SomeValue.scala"
+        val booleanIsEmpty =
+          (ThisBuild / baseDirectory).value / "ast/shared/src/main/scala-2.13-/org/json4s/SomeValue.scala"
         assert(Seq(singletonIsEmpty, booleanIsEmpty).forall(_.isFile))
         xs.map { x =>
           if (x == singletonIsEmpty) booleanIsEmpty else x
@@ -158,4 +164,20 @@ object build {
     publish := {},
     publishLocal := {}
   )
+
+  val scalajsProjectSettings = Def.settings(
+    scalacOptions += {
+      val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
+      val a = (LocalRootProject / baseDirectory).value.toURI.toString
+      val g = "https://raw.githubusercontent.com/json4s/json4s/" + hash
+      val key = CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((3, _)) =>
+          "-scalajs-mapSourceURI"
+        case _ =>
+          "-P:scalajs:mapSourceURI"
+      }
+      s"${key}:$a->$g/"
+    }
+  )
+
 }

@@ -319,7 +319,8 @@ object Extraction {
 
       json match {
         case JNothing | JNull => Map()
-        case JString(s) => Map(path -> ("\"" + ParserUtil.quote(s) + "\""))
+        case JString(s) =>
+          Map(path -> ("\"" + ParserUtil.quote(s, alwaysEscapeUnicode = formats.alwaysEscapeUnicode) + "\""))
         case JDouble(num) => Map(path -> num.toString)
         case JDecimal(num) => Map(path -> num.toString)
         case JLong(num) => Map(path -> num.toString)

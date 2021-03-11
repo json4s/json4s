@@ -68,13 +68,11 @@ abstract class JsonFormatsSpec[T](mod: String) extends AnyWordSpec with TypeHint
       val json = parse("""{"Script Small G": "\u210A"}""")
 
       "escaped" in {
-        implicit val formats: Formats = new DefaultFormats { override def alwaysEscapeUnicode: Boolean = true }
-        assert(compact(render(json)) == "{\"Script Small G\":\"\\u210A\"}")
+        assert(compact(render(json, alwaysEscapeUnicode = true)) == "{\"Script Small G\":\"\\u210A\"}")
       }
 
       "not escaped" in {
-        implicit val formats: Formats = DefaultFormats
-        assert(compact(render(json)) == "{\"Script Small G\":\"\u210A\"}")
+        assert(compact(render(json, alwaysEscapeUnicode = false)) == "{\"Script Small G\":\"\u210A\"}")
       }
     }
   }

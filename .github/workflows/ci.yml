@@ -35,7 +35,7 @@ jobs:
             scalafmtSbtCheck \
             '++ 3.0.0-RC1!' \
             scalafmtCheckAll \
-            "all json4s-ast/test json4s-scalap/test"
+            "all json4s-astJVM/test json4s-scalap/test"
             ;;
           *)
             echo "unknown scala version"

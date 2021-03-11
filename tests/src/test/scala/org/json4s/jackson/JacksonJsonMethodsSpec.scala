@@ -2,6 +2,7 @@ package org.json4s
 package jackson
 
 import org.scalatest.wordspec.AnyWordSpec
+import org.json4s.prefs.EmptyValueStrategy
 
 class JacksonJsonMethodsSpec extends AnyWordSpec {
 
@@ -10,8 +11,6 @@ class JacksonJsonMethodsSpec extends AnyWordSpec {
 
   "JsonMethods.write" should {
     "produce JSON without empty fields" should {
-
-      implicit val format: Formats = DefaultFormats.skippingEmptyValues
 
       "from Seq(Some(1), None, None, Some(2))" in {
         val seq = Seq(Some(1), None, None, Some(2))
@@ -28,18 +27,16 @@ class JacksonJsonMethodsSpec extends AnyWordSpec {
 
     "produce JSON with empty fields preserved" should {
 
-      implicit val format: Formats = DefaultFormats.preservingEmptyValues
-
       "from Seq(Some(1), None, None, Some(2))" in {
         val seq = Seq(Some(1), None, None, Some(2))
         val expected = JArray(List(JInt(1), JNull, JNull, JInt(2)))
-        assert(render(seq) == expected)
+        assert(render(seq, emptyValueStrategy = EmptyValueStrategy.preserve) == expected)
       }
 
       """from Map("a" -> Some(1), "b" -> None, "c" -> None, "d" -> Some(2))""" in {
         val map = Map("a" -> Some(1), "b" -> None, "c" -> None, "d" -> Some(2))
         val expected = JObject(List(("a", JInt(1)), ("b", JNull), ("c", JNull), ("d", JInt(2))))
-        assert(render(map) == expected)
+        assert(render(map, emptyValueStrategy = EmptyValueStrategy.preserve) == expected)
       }
     }
 

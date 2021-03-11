@@ -331,10 +331,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
 
       // #131 Strategies for empty value treatment
       // https://github.com/json4s/json4s/pull/131
-      val preserve = new DefaultFormats {
-        override val emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.preserve
-      }
-      assert(compact(render(a)(preserve)) == "[1,null,null,1]")
+      assert(compact(render(a, emptyValueStrategy = EmptyValueStrategy.preserve)) == "[1,null,null,1]")
     }
 
     "#146 Snake support with case classes" in {

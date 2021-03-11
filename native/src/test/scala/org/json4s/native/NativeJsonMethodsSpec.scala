@@ -2,6 +2,7 @@ package org.json4s
 package native
 
 import org.scalatest.wordspec.AnyWordSpec
+import org.json4s.prefs.EmptyValueStrategy
 
 class NativeJsonMethodsSpec extends AnyWordSpec {
 
@@ -77,7 +78,6 @@ class NativeJsonMethodsSpec extends AnyWordSpec {
     }
 
     "produce JSON with empty fields preserved" should {
-      implicit val formats: Formats = DefaultFormats.preservingEmptyValues
 
       "from Seq(Some(1), None, None, Some(2))" in {
         val seq = Seq(Some(1), None, None, Some(2))
@@ -94,7 +94,7 @@ class NativeJsonMethodsSpec extends AnyWordSpec {
             DocText("]")
           )
         )
-        assert(render(seq) == expected)
+        assert(render(seq, emptyValueStrategy = EmptyValueStrategy.preserve) == expected)
       }
 
       """from Map("a" -> Some(1), "b" -> None, "c" -> None, "d" -> Some(2))""" in {
@@ -121,7 +121,7 @@ class NativeJsonMethodsSpec extends AnyWordSpec {
             DocCons(DocBreak, DocText("}"))
           )
         )
-        assert(render(map) == expected)
+        assert(render(map, emptyValueStrategy = EmptyValueStrategy.preserve) == expected)
       }
     }
 

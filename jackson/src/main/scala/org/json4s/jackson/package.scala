@@ -8,7 +8,11 @@ package object jackson {
     JsonMethods.parseOpt(in, useBigDecimalForDouble)
 
   def renderJValue(value: JValue)(implicit formats: Formats = DefaultFormats): JValue =
-    JsonMethods.render(value)(formats)
+    JsonMethods.render(
+      value = value,
+      alwaysEscapeUnicode = formats.alwaysEscapeUnicode,
+      emptyValueStrategy = formats.emptyValueStrategy
+    )
 
   def compactJson(d: JValue): String = JsonMethods.compact(d)
 
