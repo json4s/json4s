@@ -184,7 +184,7 @@ object JsonParser {
       }
     }
 
-    do {
+   def go(): Unit = {
       token = p.nextToken
       token match {
         case OpenObj          => vals.push(JObject(Nil))
@@ -201,7 +201,12 @@ object JsonParser {
         case CloseArr         => closeBlock(vals.pop(classOf[JArray]))
         case End              =>
       }
-    } while (token != End)
+    }
+
+    go()
+    while (token != End) {
+      go()
+    }
 
     root getOrElse JNothing
   }
