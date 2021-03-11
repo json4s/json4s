@@ -42,12 +42,12 @@ trait Rules {
     val factory = Rules.this
   }
 
-  def success[Out, A](out: Out, a: A) = rule { in: Any => Success(out, a) }
+  def success[Out, A](out: Out, a: A) = rule { (in: Any) => Success(out, a) }
 
-  def failure = rule { in: Any => Failure }
+  def failure = rule { (in: Any) => Failure }
 
-  def error[In] = rule { in: In => Error(in) }
-  def error[X](err: X) = rule { in: Any => Error(err) }
+  def error[In] = rule { (in: In) => Error(in) }
+  def error[X](err: X) = rule { (in: Any) => Error(err) }
 
   def oneOf[In, Out, A, X](rules: Rule[In, Out, A, X] *): Rule[In, Out, A, X] = new Choice[In, Out, A, X] {
     val factory = Rules.this
