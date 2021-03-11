@@ -171,8 +171,8 @@ trait DefaultWriters {
   }
 
   implicit object IntWriter extends W[Int](JInt(_))
-  implicit object ByteWriter extends W[Byte](JInt(_))
-  implicit object ShortWriter extends W[Short](JInt(_))
+  implicit object ByteWriter extends W[Byte](x => JInt(x: Long))
+  implicit object ShortWriter extends W[Short](x => JInt(x: Long))
   implicit object LongWriter extends W[Long](JInt(_))
   implicit object BigIntWriter extends W[BigInt](JInt(_))
   implicit object BooleanWriter extends W[Boolean](JBool(_))
@@ -193,7 +193,7 @@ trait DefaultWriters {
 }
 
 trait DoubleWriters extends DefaultWriters {
-  implicit object FloatWriter extends W[Float](JDouble(_))
+  implicit object FloatWriter extends W[Float](x => JDouble(x: Double))
   implicit object DoubleWriter extends W[Double](JDouble(_))
   implicit object BigDecimalWriter extends W[BigDecimal](d => JDouble(d.doubleValue))
 }
