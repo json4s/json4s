@@ -21,7 +21,7 @@ object DateSerializerSpec {
 class DateSerializerSpec extends Specification {
 
   import DateSerializerSpec._
-  implicit val formats = DefaultFormats.lossless + new DateSerializer("$date")
+  implicit val formats: Formats = DefaultFormats.lossless + new DateSerializer("$date")
   val js = """{ "_id" : { "$oid" : "51523bc0036433e0ce323ca6"} , "timestamp" : { "$date" : "2013-03-26T11:19:00.000Z"} , "index" : 1 , "event" : "uAppLaunch" , "description" : "" , "version" : "370" , "platform" : "iPad" , "device" : "Apple iPad 3rd Gen (Wi-Fi Only)" , "userId" : "89B59046-A6F1-4E13-B5B9-055FF2D2BBF1" , "params" : [ ""]}"""
 
   "A DateSerializer" should {

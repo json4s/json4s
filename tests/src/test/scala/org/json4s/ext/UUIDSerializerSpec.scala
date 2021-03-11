@@ -35,7 +35,7 @@ class JacksonUUIDSerializerSpec extends UUIDSerializerSpec("Jackson") {
 abstract class UUIDSerializerSpec(mod: String) extends Specification {
 
   def s: Serialization
-  implicit lazy val formats = s.formats(NoTypeHints) ++ JavaTypesSerializers.all
+  implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JavaTypesSerializers.all
 
   (mod + " UUIDSerializer Specification") should {
     "Serialize UUID's" in {

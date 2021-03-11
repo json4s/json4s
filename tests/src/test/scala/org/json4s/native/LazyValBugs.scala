@@ -1,6 +1,6 @@
 package org.json4s.native
 
-import org.json4s.{FieldSerializer, DefaultFormats}
+import org.json4s.{FieldSerializer, Formats, DefaultFormats}
 import org.json4s.native.Serialization.{read, write}
 import org.specs2.mutable.Specification
 
@@ -23,7 +23,7 @@ class LazyValBugs extends Specification {
   "LazyValBugs Test" should {
 
     "Serialize lazy val to json" in {
-      implicit val formats = DefaultFormats + FieldSerializer[ActorNode](includeLazyVal = true)
+      implicit val formats: Formats = DefaultFormats + FieldSerializer[ActorNode](includeLazyVal = true)
 
       val actorNode = new ActorNode("A1", "Bruce Willis")
       val res = write(actorNode)
@@ -36,7 +36,7 @@ class LazyValBugs extends Specification {
     }
 
     "Don't serialize lazy val to json if includeLazyVal is not set in FieldSerializer" in {
-      implicit val formats = DefaultFormats + FieldSerializer[ActorNode]()
+      implicit val formats: Formats = DefaultFormats + FieldSerializer[ActorNode]()
 
       val actorNode = new ActorNode("A1", "Bruce Willis")
       val res = write(actorNode)
@@ -83,7 +83,7 @@ class LazyValBugs extends Specification {
          """.stripMargin
 
     "Deserialize lazy val value from parsed json" in {
-      implicit val formats = DefaultFormats + FieldSerializer[ActorNode](includeLazyVal = true)
+      implicit val formats: Formats = DefaultFormats + FieldSerializer[ActorNode](includeLazyVal = true)
 
       val actorNode = read[ActorNode](jsonStr)
 
@@ -105,7 +105,7 @@ class LazyValBugs extends Specification {
     }
 
     "Don't deserialize lazy val from parsed json if includeLazyVal is not set in FieldSerializer" in {
-      implicit val formats = DefaultFormats + FieldSerializer[ActorNode]()
+      implicit val formats: Formats = DefaultFormats + FieldSerializer[ActorNode]()
 
       val actorNode = read[ActorNode](jsonStr)
 

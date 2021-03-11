@@ -31,7 +31,7 @@ object NullErrorHandlingSpec {
 abstract class NullErrorHandlingSpec[T](mod: String) extends Specification with JsonMethods[T] {
   import NullErrorHandlingSpec._
 
-  implicit lazy val formats = DefaultFormats
+  implicit lazy val formats: Formats = DefaultFormats
 
   (mod + " case class modeling json type") should {
     "throw an error explaining the cause when parsing null int" in {

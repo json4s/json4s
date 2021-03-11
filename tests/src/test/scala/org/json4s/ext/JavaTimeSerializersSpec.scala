@@ -20,7 +20,7 @@ class JacksonJavaDateTimeSerializerSpec extends JavaDateTimeSerializerSpec("Jack
 abstract class JavaDateTimeSerializerSpec(mod: String) extends Specification {
 
   def s: Serialization
-  implicit lazy val formats = s.formats(NoTypeHints) ++ JavaTimeSerializers.all
+  implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JavaTimeSerializers.all
 
   (mod + " JavaTimeSerializer Specification") should {
     "Serialize java time types" in {
@@ -38,7 +38,7 @@ abstract class JavaDateTimeSerializerSpec(mod: String) extends Specification {
     }
 
     "LocalDateTime use configured date format" in {
-      implicit val formats = new DefaultFormats {
+      implicit val formats: Formats = new DefaultFormats {
         override def dateFormatter = {
           val f = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'")
           f.setTimeZone(DefaultFormats.UTC)

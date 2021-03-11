@@ -63,7 +63,7 @@ object Extraction {
    * <p>
    * Example:<pre>
    * case class Person(name: String, age: Int)
-   * implicit val formats = org.json4s.DefaultFormats
+   * implicit val formats: Formats = org.json4s.DefaultFormats
    * Extraction.decompose(Person("joe", 25)) == JObject(JField("age",JInt(25)) :: JField("name",JString("joe")) :: Nil)
    * </pre>
    */
@@ -248,7 +248,7 @@ object Extraction {
    * <p>
    * Example:<pre>
    * case class Person(name: String, age: Int)
-   * implicit val formats = org.json4s.DefaultFormats
+   * implicit val formats: Formats = org.json4s.DefaultFormats
    * Extraction.decompose(Person("joe", 25)) == JObject(JField("age",JInt(25)) :: JField("name",JString("joe")) :: Nil)
    * </pre>
    */

@@ -7,7 +7,7 @@ class FieldSerializerBugs extends Specification {
   import native.Serialization
   import Serialization.{read, write => swrite}
 
-  implicit val formats = DefaultFormats + FieldSerializer[AnyRef]()
+  implicit val formats: Formats = DefaultFormats + FieldSerializer[AnyRef]()
 
 /* FIXME: it doesn't cause a stack overflow but the ser/deser doesn't work
   "AtomicInteger should not cause stack overflow" in {
@@ -24,7 +24,7 @@ class FieldSerializerBugs extends Specification {
   }
 
   "Name with symbols is correctly serialized" in {
-    implicit val formats = DefaultFormats + FieldSerializer[AnyRef]()
+    implicit val formats: Formats = DefaultFormats + FieldSerializer[AnyRef]()
 
     val s = WithSymbol(5)
     val str = Serialization.write(s)
@@ -33,7 +33,7 @@ class FieldSerializerBugs extends Specification {
   }
 
   "FieldSerialization should work with Options" in {
-    implicit val formats = DefaultFormats + FieldSerializer[ClassWithOption]()
+    implicit val formats: Formats = DefaultFormats + FieldSerializer[ClassWithOption]()
 
     val t = new ClassWithOption
     t.field = Some(5)
@@ -42,7 +42,7 @@ class FieldSerializerBugs extends Specification {
 
   "FieldSerializer's manifest should not be overridden when it's added to Formats" in {
     val fieldSerializer = FieldSerializer[Type1](FieldSerializer.renameTo("num", "yum"))
-    implicit val formats = DefaultFormats + (fieldSerializer: FieldSerializer[_])
+    implicit val formats: Formats = DefaultFormats + (fieldSerializer: FieldSerializer[_])
     val expected1 = JObject(JField("yum", JInt(123)))
     val expected2 = JObject(JField("num", JInt(456)))
     Extraction.decompose(Type1(123)) must_== (expected1)

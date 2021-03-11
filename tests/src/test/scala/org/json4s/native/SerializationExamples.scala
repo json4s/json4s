@@ -7,7 +7,7 @@ import org.specs2.mutable.Specification
 object SerializationExamples extends Specification {
   import native.Serialization.{read, write => swrite}
 
-  implicit val formats = native.Serialization.formats(NoTypeHints)
+  implicit val formats: Formats = native.Serialization.formats(NoTypeHints)
 
   val project = Project("test", new Date, Some(Language("Scala", 2.75)), List(
     Team("QA", List(Employee("John Doe", 5), Employee("Mike", 3))),
@@ -177,7 +177,7 @@ object SerializationExamples extends Specification {
   }
 
   "Generic Map with case class and type hint example" in {
-    implicit val formats = native.Serialization.formats(ShortTypeHints(List(classOf[Player])))
+    implicit val formats: Formats = native.Serialization.formats(ShortTypeHints(List(classOf[Player])))
     val pw = PlayerWithGenericMap("zortan", Map("1" -> "asd", "a" -> 3, "friend" -> Player("joe")))
     val ser = swrite(pw)
     ser must_== """{"name":"zortan","infomap":{"1":"asd","a":3,"friend":{"jsonClass":"Player","name":"joe"}}}"""
@@ -192,7 +192,7 @@ object SerializationExamples extends Specification {
   }
 
   "Generic List with objects and hints example" in {
-    implicit val formats = native.Serialization.formats(ShortTypeHints(List(classOf[Player])))
+    implicit val formats: Formats = native.Serialization.formats(ShortTypeHints(List(classOf[Player])))
     val pw = PlayerWithGenericList("zortan", List("1", 3, Player("joe")))
     val ser = swrite(pw)
     ser must_== """{"name":"zortan","infolist":["1",3,{"jsonClass":"Player","name":"joe"}]}"""
@@ -217,7 +217,7 @@ object SerializationExamples extends Specification {
   }
 
   "Unknown type hint should not serialize" in {
-    implicit val formats = native.Serialization.formats(
+    implicit val formats: Formats = native.Serialization.formats(
       ShortTypeHints(classOf[Iron] :: classOf[IronMaiden] :: Nil))
     val toSerialize = Materials(List(Oak(9)), Nil)
     val json = native.Serialization.write(toSerialize)
@@ -227,7 +227,7 @@ object SerializationExamples extends Specification {
 
  "Multiple type hints should serialize" in {
 
-   implicit val formats = native.Serialization.formats(
+   implicit val formats: Formats = native.Serialization.formats(
      ShortTypeHints(classOf[Oak] :: classOf[Cherry] :: Nil) +
      ShortTypeHints(classOf[Iron] :: classOf[IronMaiden] :: Nil))
    val toSerialize = Materials(List(Oak(9)), Nil)
@@ -252,7 +252,7 @@ object ShortTypeHintExamples {
 }
 
 class ShortTypeHintExamples extends TypeHintExamples {
-  implicit val formats = ShortTypeHintExamples.formats
+  implicit val formats: Formats = ShortTypeHintExamples.formats
 
   "Deserialization succeeds even if jsonClass is not the first field" in {
     val ser = """{"animals":[],"pet":{"name":"pluto","jsonClass":"Dog"}}"""
@@ -266,7 +266,7 @@ class ShortTypeHintExamples extends TypeHintExamples {
 }
 
 class MappedHintExamples extends TypeHintExamples {
-  implicit val formats = native.Serialization.formats(MappedTypeHints(Map(classOf[Fish] -> "fish", classOf[Dog] -> "dog")))
+  implicit val formats: Formats = native.Serialization.formats(MappedTypeHints(Map(classOf[Fish] -> "fish", classOf[Dog] -> "dog")))
 
   "Serialization provides no type hint when not mapped" in {
     val animals = Animals(Dog("pluto") :: Fish(1.2) :: Turtle(103) :: Nil, Dog("pluto"))
@@ -291,7 +291,7 @@ object FullTypeHintExamples {
 class FullTypeHintExamples extends TypeHintExamples {
   import native.Serialization.{read, write => swrite}
 
-  implicit val formats = FullTypeHintExamples.formats
+  implicit val formats: Formats = FullTypeHintExamples.formats
 
   "Ambiguous field decomposition example" in {
     val a = Ambiguous(False())
@@ -337,7 +337,7 @@ class FullTypeHintExamples extends TypeHintExamples {
 class CustomTypeHintFieldNameExample extends TypeHintExamples {
   import native.Serialization.{write => swrite}
 
-  implicit val formats = new Formats {
+  implicit val formats: Formats = new Formats {
     val dateFormat = DefaultFormats.lossless.dateFormat
     override val typeHints = ShortTypeHints(classOf[Fish] :: classOf[Dog] :: Nil, "$type$")
   }
@@ -435,7 +435,7 @@ class CustomSerializerExamples extends Specification {
   }
 
   "Serialize with custom serializers" in {
-    implicit val formats =  native.Serialization.formats(NoTypeHints) +
+    implicit val formats: Formats =  native.Serialization.formats(NoTypeHints) +
       new IntervalSerializer + new PatternSerializer + new DateSerializer + new IndexedSeqSerializer
 
     val i = new Interval(1, 4)
@@ -484,7 +484,7 @@ class CustomClassWithTypeHintsExamples extends Specification {
       case ("DateTime", JObject(JField("t", JInt(t)) :: Nil)) => new DateTime(t.longValue)
     }
   }
-  implicit val formats = native.Serialization.formats(hints)
+  implicit val formats: Formats = native.Serialization.formats(hints)
 
   "Custom class serialization using provided serialization and deserialization functions" in {
     val m = Meeting("The place", new DateTime(1256681210802L))

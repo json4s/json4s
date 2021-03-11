@@ -21,7 +21,7 @@ abstract class JsonFormatsSpec[T](mod: String) extends Specification with TypeHi
   // To ensure the state of the ObjectMapper is guaranteed, execute in order
   sequential
 
-  implicit val formats = ShortTypeHintExamples.formats + FullTypeHintExamples.formats.typeHints
+  implicit val formats: Formats = ShortTypeHintExamples.formats + FullTypeHintExamples.formats.typeHints
 
   val hintsForFish   = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Fish]).get
   val hintsForDog    = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Dog]).get
@@ -44,13 +44,13 @@ abstract class JsonFormatsSpec[T](mod: String) extends Specification with TypeHi
       object TestReader extends ParameterNameReader {
         def lookupParameterNames(constructor: reflect.Executable) = List("name", "age")
       }
-      implicit val formats = new DefaultFormats { override val parameterNameReader = TestReader }
+      implicit val formats: Formats = new DefaultFormats { override val parameterNameReader = TestReader }
       val json = parse("""{"name":"joe","age":35}""")
       json.extract[NamesNotSameAsInJson] must_== NamesNotSameAsInJson("joe", 35)
     }
 
     "Duplicate hints for orthogonal classes should not interfere with each other" in {
-      implicit val formats = SerializationExamples.formats +
+      implicit val formats: Formats = SerializationExamples.formats +
         MappedTypeHints(Map(classOf[Rock] -> "rock")) +
         MappedTypeHints(Map(classOf[Music.Rock] -> "rock"))
       val json = parse("""{"jsonClass": "rock"}""")
@@ -62,12 +62,12 @@ abstract class JsonFormatsSpec[T](mod: String) extends Specification with TypeHi
       val json = parse("""{"Script Small G": "\u210A"}""")
 
       "escaped" in {
-        implicit val formats = new DefaultFormats { override def alwaysEscapeUnicode: Boolean = true }
+        implicit val formats: Formats = new DefaultFormats { override def alwaysEscapeUnicode: Boolean = true }
         compact(render(json)) must_== "{\"Script Small G\":\"\\u210A\"}"
       }
 
       "not escaped" in {
-        implicit val formats = DefaultFormats
+        implicit val formats: Formats = DefaultFormats
         compact(render(json)) must_== "{\"Script Small G\":\"\u210A\"}"
       }
     }

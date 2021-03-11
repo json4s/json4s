@@ -8,7 +8,7 @@ class JacksonStrictOptionParsingModeSpec extends StrictOptionParsingModeSpec[JVa
 
 abstract class StrictOptionParsingModeSpec[T](mod: String) extends Specification with JsonMethods[T] {
 
-  implicit lazy val formats = new DefaultFormats { override val strictOptionParsing = true }
+  implicit lazy val formats: Formats = new DefaultFormats { override val strictOptionParsing = true }
 
   val doubleForIntJson  = """{ "someDouble": 10.0, "someString": "abc", "someInt": 10.0, "someMap": {}, "someBoolean": true }"""
   val booleanForIntJson = """{ "someDouble": 10.0, "someString": "abc", "someInt": true, "someMap": {}, "someBoolean": true }"""

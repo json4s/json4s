@@ -8,7 +8,7 @@ import java.util.{GregorianCalendar, Date}
 import java.sql.Timestamp
 
 class MapSerializationExamples extends Specification {
-  implicit val formats = native.Serialization.formats(NoTypeHints)
+  implicit val formats: Formats = native.Serialization.formats(NoTypeHints)
 
   "Map with Symbol key" in {
     val pw = Map[Symbol, String](Symbol("a") -> "hello", Symbol("b") -> "world")
@@ -69,7 +69,7 @@ class MapSerializationExamples extends Specification {
       { case s: String => KeyWithInt(s.toInt)},
       { case k: KeyWithInt => k.id.toString }
     ))
-    implicit val formats = native.Serialization.formats(NoTypeHints) + serializer
+    implicit val formats: Formats = native.Serialization.formats(NoTypeHints) + serializer
 
     val pw = Map[KeyWithInt, String](KeyWithInt(1) -> "hello", KeyWithInt(2) -> "world")
     val ser = swrite(pw)

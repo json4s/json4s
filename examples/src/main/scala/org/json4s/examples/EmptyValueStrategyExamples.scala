@@ -26,7 +26,7 @@ object EmptyValueTreatmentExamples {
     import jackson.JsonMethods._
     import jackson.Serialization._
 
-    implicit val formats = jackson.Serialization.formats(NoTypeHints).skippingEmptyValues
+    implicit val formats: Formats = jackson.Serialization.formats(NoTypeHints).skippingEmptyValues
 
     // perform the show
     println("\n\n### Jackson way, skipping nulls ###")
@@ -43,7 +43,7 @@ object EmptyValueTreatmentExamples {
   def jacksonWayPreservingNulls(): Unit = {
     import jackson.JsonMethods._
     import jackson.Serialization._
-    implicit val formats = jackson.Serialization.formats(NoTypeHints).preservingEmptyValues
+    implicit val formats: Formats = jackson.Serialization.formats(NoTypeHints).preservingEmptyValues
 
     // perform the show
     println("\n\n### Jackson way, preserving nulls ###")
@@ -61,7 +61,7 @@ object EmptyValueTreatmentExamples {
     import native.JsonMethods._
     import native.Serialization._
 
-    implicit val formats = native.Serialization.formats(NoTypeHints).skippingEmptyValues
+    implicit val formats: Formats = native.Serialization.formats(NoTypeHints).skippingEmptyValues
 
     // perform the show
     println("\n\n### Native way, skipping nulls ###")
@@ -78,7 +78,7 @@ object EmptyValueTreatmentExamples {
   def nativeWayPreservingNulls(): Unit = {
     import native.JsonMethods._
     import native.Serialization._
-    implicit val formats = native.Serialization.formats(NoTypeHints).preservingEmptyValues
+    implicit val formats: Formats = native.Serialization.formats(NoTypeHints).preservingEmptyValues
 
     // perform the show
     println("\n\n### Native way, preserving nulls ###\n")

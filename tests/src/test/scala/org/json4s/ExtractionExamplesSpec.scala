@@ -28,7 +28,7 @@ class JacksonExtractionExamples extends ExtractionExamples[JValue]("Jackson", ja
 
 abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) extends Specification with JsonMethods[T] {
 
-  implicit lazy val formats = DefaultFormats
+  implicit lazy val formats: Formats = DefaultFormats
 
   val notNullFormats = new DefaultFormats {
     override val extractionNullStrategy = ExtractionNullStrategy.Disallow

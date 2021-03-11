@@ -31,7 +31,7 @@ class JacksonURISerializerSpec extends URISerializerSpec("Jackson") {
 abstract class URISerializerSpec(mod: String) extends Specification {
 
   def s: Serialization
-  implicit lazy val formats = s.formats(NoTypeHints) ++ JavaTypesSerializers.all
+  implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JavaTypesSerializers.all
 
   (mod + " URISerializer Specification") should {
     "Serialize URI's" in {

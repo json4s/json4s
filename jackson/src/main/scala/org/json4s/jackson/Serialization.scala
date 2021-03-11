@@ -13,7 +13,7 @@ object Serialization extends JacksonSerialization(JsonMethods)
  * <p>
  * Example:<pre>
  * val hints = new ShortTypeHints( ... )
- * implicit val formats = Serialization.formats(hints)
+ * implicit val formats: Formats = Serialization.formats(hints)
  * </pre>
  *
  * @see org.json4s.TypeHints

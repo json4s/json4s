@@ -14,7 +14,7 @@ object UseCompanionCtorSpec {
 
 abstract class UseCompanionConstructors[T](mod: String) extends Specification with JsonMethods[T] {
   
-  implicit lazy val formats = DefaultFormats
+  implicit lazy val formats: Formats = DefaultFormats
 
   val useCtorSpec1 = """{ "someString": "Foo", "someInt": 123 }"""
   val useCtorSpec2 = """{ "someString": "Foo", "someInt": 123, "someDouble": 456.1 }"""

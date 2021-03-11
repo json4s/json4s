@@ -15,7 +15,7 @@ class FieldSerializerExamples extends Specification {
   cat.name = "tommy"
 
   "All fields are serialized by default" in {
-    implicit val formats = DefaultFormats + FieldSerializer[WildDog]()
+    implicit val formats: Formats = DefaultFormats + FieldSerializer[WildDog]()
     val ser = swrite(dog)
     val dog2 = read[WildDog](ser)
     dog2.name must_== dog.name
@@ -30,7 +30,7 @@ class FieldSerializerExamples extends Specification {
       renameFrom("animalname", "name")
     )
 
-    implicit val formats = DefaultFormats + dogSerializer
+    implicit val formats: Formats = DefaultFormats + dogSerializer
 
     val ser = swrite(dog)
     val dog2 = read[WildDog](ser)
@@ -43,7 +43,7 @@ class FieldSerializerExamples extends Specification {
 
   "Selects best matching serializer" in {
     val dogSerializer = FieldSerializer[WildDog](ignore("name"))
-    implicit val formats = DefaultFormats + FieldSerializer[AnyRef]() + dogSerializer
+    implicit val formats: Formats = DefaultFormats + FieldSerializer[AnyRef]() + dogSerializer
 
     val dog2 = read[WildDog](swrite(dog))
     val cat2 = read[WildCat](swrite(cat))
@@ -55,7 +55,7 @@ class FieldSerializerExamples extends Specification {
 
   "Renames a property name to/from" in {
     val dudeSerializer = FieldSerializer[Dude](renameTo("name", "nm"), renameFrom("nm", "name"))
-    implicit val formats = DefaultFormats + dudeSerializer
+    implicit val formats: Formats = DefaultFormats + dudeSerializer
     val dude = Dude("Jeffrey")
 
     val jv = Extraction.decompose(dude)
@@ -67,7 +67,7 @@ class FieldSerializerExamples extends Specification {
 
   "Renames a property name to/from in subproperties" in {
     val dudeSerializer = FieldSerializer[Dude](renameTo("name", "nm"), renameFrom("nm", "name"))
-    implicit val formats = DefaultFormats + dudeSerializer
+    implicit val formats: Formats = DefaultFormats + dudeSerializer
     val dude = Dude("Jeffrey", Dude("Angel") :: Dude("Constantin") :: Nil)
 
     val jv = Extraction.decompose(dude)
@@ -84,7 +84,7 @@ class FieldSerializerExamples extends Specification {
     }
 
     val dudeSerializer = FieldSerializer[Dude]()
-    implicit val formats = customFormats + dudeSerializer
+    implicit val formats: Formats = customFormats + dudeSerializer
 
     val ser = parse("""{"name":"John", "friends":[], "lastName": "Smith"}""")
 
@@ -97,7 +97,7 @@ class FieldSerializerExamples extends Specification {
     }
 
     val dudeSerializer = FieldSerializer[Dude](renameTo("name", "nm"), renameFrom("nm", "name"))
-    implicit val formats = customFormats + dudeSerializer
+    implicit val formats: Formats = customFormats + dudeSerializer
 
     val ser = parse("""{"nm":"John", "friends":[]}""")
 

@@ -32,7 +32,7 @@ trait Serialization {
    * <p>
    * Example:<pre>
    * val hints = new ShortTypeHints( ... )
-   * implicit val formats = Serialization.formats(hints)
+   * implicit val formats: Formats = Serialization.formats(hints)
    * </pre>
    */
   def formats(hints: TypeHints) = new Formats {

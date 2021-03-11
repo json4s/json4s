@@ -7,7 +7,7 @@ import scala.collection.mutable
 class SerializationBugs extends Specification {
   import native.Serialization.{ read, write => swrite }
 
-  implicit val formats = native.Serialization.formats(NoTypeHints)
+  implicit val formats: Formats = native.Serialization.formats(NoTypeHints)
 
   "plan1.Plan can be serialized (issue 341)" in {
     import plan1._
@@ -65,7 +65,7 @@ class SerializationBugs extends Specification {
       }
     }
 
-    implicit val formats = native.Serialization.formats(NoTypeHints) + new UUIDFormat
+    implicit val formats: Formats = native.Serialization.formats(NoTypeHints) + new UUIDFormat
     val o1 = OptionalUUID(None)
     val o2 = OptionalUUID(Some(UUID.randomUUID))
     read[OptionalUUID](swrite(o1)) must_== o1
@@ -110,7 +110,7 @@ class SerializationBugs extends Specification {
   }
 
   "Either can't be deserialized with type hints" in {
-    implicit val formats = DefaultFormats + FullTypeHints(classOf[Either[_, _]] :: Nil)
+    implicit val formats: Formats = DefaultFormats + FullTypeHints(classOf[Either[_, _]] :: Nil)
     val x = Eith(Left("hello"))
     val s = native.Serialization.write(x)
     read[Eith](s) must_== x
@@ -154,7 +154,7 @@ class SerializationBugs extends Specification {
       }
     }
 
-    implicit val formats = DefaultFormats + new SingleOrVectorSerializer
+    implicit val formats: Formats = DefaultFormats + new SingleOrVectorSerializer
 
     val ser = swrite(MapHolder(Map("hello" -> SingleValue(2.0))))
     read[MapHolder](ser) must_== MapHolder(Map("hello" -> SingleValue(2.0)))

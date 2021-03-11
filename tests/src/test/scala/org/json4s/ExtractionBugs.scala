@@ -199,7 +199,7 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
     }
 
     "Extraction should handle AnyRef" in {
-      implicit val formats = DefaultFormats.withHints(FullTypeHints(classOf[ExtractWithAnyRef] :: Nil))
+      implicit val formats: Formats = DefaultFormats.withHints(FullTypeHints(classOf[ExtractWithAnyRef] :: Nil))
       val json = JObject(JField("jsonClass", JString(classOf[ExtractWithAnyRef].getName)) :: Nil)
       val extracted = Extraction.extract[AnyRef](json)
       extracted must_== ExtractWithAnyRef()
@@ -336,7 +336,7 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
     }
 
     "Extract error should preserve error message when strict option parsing is enabled" in {
-      implicit val formats = new DefaultFormats {
+      implicit val formats: Formats = new DefaultFormats {
         override val strictOptionParsing: Boolean = true
       }
 
@@ -361,7 +361,7 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
     }
 
     "Extract should succeed for missing optional field when strictOptionParsing is on" in {
-      implicit val formats = new DefaultFormats {
+      implicit val formats: Formats = new DefaultFormats {
         override val strictOptionParsing: Boolean = true
       }
       val obj = parse("""{}""".stripMargin)
@@ -369,7 +369,7 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
     }
 
     "Extract should fail when strictOptionParsing is on and extracting from JNull" in {
-      implicit val formats = new DefaultFormats {
+      implicit val formats: Formats = new DefaultFormats {
         override val strictOptionParsing: Boolean = true
       }
 
@@ -385,7 +385,7 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       JArray(Nil)
     )) { obj =>
       s"Extract should fail when strictOptionParsing is on and extracting from ${obj.toString}" in {
-        implicit val formats = new DefaultFormats {
+        implicit val formats: Formats = new DefaultFormats {
           override val strictOptionParsing: Boolean = true
         }
 

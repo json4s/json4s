@@ -101,7 +101,7 @@ class BsonDSLSpec extends Specification  {
     }
 
     "Convert Date properly" in {
-      implicit val formats = DefaultFormats.lossless
+      implicit val formats: Formats = DefaultFormats.lossless
       val dt: Date = new Date
       val qry: JObject = ("now" -> dt)
       val dbo: DBObject = JObjectParser.parse(qry)
@@ -110,7 +110,7 @@ class BsonDSLSpec extends Specification  {
     }
 
     "Convert List[Date] properly" in {
-      implicit val formats = DefaultFormats.lossless
+      implicit val formats: Formats = DefaultFormats.lossless
       val dateList = new Date :: new Date :: new Date :: Nil
       val qry: JObject = ("dts" -> dateList)
       val dbo: DBObject = JObjectParser.parse(qry)

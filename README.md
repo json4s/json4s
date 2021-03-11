@@ -548,7 +548,7 @@ Please see more examples in [ExtractionExampleSpec.scala](https://github.com/jso
 scala> import org.json4s._
 scala> import org.json4s.jackson.JsonMethods._
 
-scala> implicit val formats = DefaultFormats // Brings in default date formats etc.
+scala> implicit val formats: Formats = DefaultFormats // Brings in default date formats etc.
 
 scala> case class Child(name: String, age: Int, birthdate: Option[java.util.Date])
 scala> case class Address(street: String, city: String)
@@ -607,7 +607,7 @@ If the json field names are snake case (i.e., separated_by_underscores), but the
 ```scala
 scala> import org.json4s._
 scala> import org.json4s.native.JsonMethods._
-scala> implicit val formats = DefaultFormats
+scala> implicit val formats: Formats = DefaultFormats
 scala> val json = parse("""{"first_name":"Mary"}""")
 scala> case class Person(firstName: String)
 
@@ -639,7 +639,7 @@ res1: java.util.Date = Sat Sep 04 21:06:22 EEST 2004
 DateFormat can be changed by overriding 'DefaultFormats' (or by implementing trait 'Formats'):
 
 ```scala
-scala> implicit val formats = new DefaultFormats {
+scala> implicit val formats: Formats = new DefaultFormats {
          override def dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
        }
 ```
@@ -743,7 +743,7 @@ scala> import org.json4s._
 scala> import org.json4s.native.Serialization
 scala> import org.json4s.native.Serialization.{read, write}
 
-scala> implicit val formats = Serialization.formats(NoTypeHints)
+scala> implicit val formats: Formats = Serialization.formats(NoTypeHints)
 
 scala> val ser = write(Child("Mary", 5, None))
 
@@ -758,7 +758,7 @@ scala> import org.json4s._
 scala> import org.json4s.jackson.Serialization
 scala> import org.json4s.jackson.Serialization.{read, write}
 
-scala> implicit val formats = Serialization.formats(NoTypeHints)
+scala> implicit val formats: Formats = Serialization.formats(NoTypeHints)
 
 scala> val ser = write(Child("Mary", 5, None))
 
@@ -800,7 +800,7 @@ scala> case class Dog(name: String) extends Animal
 scala> case class Fish(weight: Double) extends Animal
 scala> case class Animals(animals: List[Animal])
 
-scala> implicit val formats = Serialization.formats(ShortTypeHints(List(classOf[Dog], classOf[Fish])))
+scala> implicit val formats: Formats = Serialization.formats(ShortTypeHints(List(classOf[Dog], classOf[Fish])))
 
 scala> val ser = write(Animals(Dog("pluto") :: Fish(1.2) :: Nil))
 ser: String = {"animals":[{"jsonClass":"Dog","name":"pluto"},{"jsonClass":"Fish","weight":1.2}]}
@@ -818,7 +818,7 @@ Serializing fields of a class
 To enable serialization of fields, a single FieldSerializer can be added for each type:
 
 ```scala
-implicit val formats = DefaultFormats + FieldSerializer[WildDog]()
+implicit val formats: Formats = DefaultFormats + FieldSerializer[WildDog]()
 ```
 
 Now the type WildDog (and all subtypes) gets serialized with all its fields (+ constructor parameters).
@@ -838,7 +838,7 @@ val dogSerializer = FieldSerializer[WildDog](
   renameTo("name", "animalname") orElse ignore("owner"),
   renameFrom("animalname", "name"))
 
-implicit val formats = DefaultFormats + dogSerializer
+implicit val formats: Formats = DefaultFormats + dogSerializer
 ```
 
 Support for renaming multiple fields is accomplished by chaining the PFs like so:
@@ -854,7 +854,7 @@ val logSerializer = FieldSerializer[Log](
   renameTo("startTime", "start-time") orElse renameTo("endTime", "end-time"),
   renameFrom("start-time", "startTime") orElse renameFrom("end-time", "endTime"))
 
-implicit val formats = DefaultFormats + logSerializer
+implicit val formats: Formats = DefaultFormats + logSerializer
 ```
 
 Serializing classes defined in traits or classes
@@ -910,7 +910,7 @@ scala> class IntervalSerializer extends CustomSerializer[Interval](format => (
          }
        ))
 
-scala> implicit val formats = Serialization.formats(NoTypeHints) + new IntervalSerializer
+scala> implicit val formats: Formats = Serialization.formats(NoTypeHints) + new IntervalSerializer
 ```
 
 A custom serializer is created by providing two partial functions. The first evaluates to a value
@@ -923,15 +923,15 @@ Module json4s-ext contains extensions to extraction and serialization. The follo
 
 ```scala
 // Scala enums
-implicit val formats = org.json4s.DefaultFormats + new org.json4s.ext.EnumSerializer(MyEnum)
+implicit val formats: Formats = org.json4s.DefaultFormats + new org.json4s.ext.EnumSerializer(MyEnum)
 // or
-implicit val formats = org.json4s.DefaultFormats + new org.json4s.ext.EnumNameSerializer(MyEnum)
+implicit val formats: Formats = org.json4s.DefaultFormats + new org.json4s.ext.EnumNameSerializer(MyEnum)
 
 // Joda Time
-implicit val formats = org.json4s.DefaultFormats ++ org.json4s.ext.JodaTimeSerializers.all
+implicit val formats: Formats = org.json4s.DefaultFormats ++ org.json4s.ext.JodaTimeSerializers.all
 
 // Java 8 Date & Time
-implicit val formats = org.json4s.DefaultFormats ++ org.json4s.ext.JavaTimeSerializers.all
+implicit val formats: Formats = org.json4s.DefaultFormats ++ org.json4s.ext.JavaTimeSerializers.all
 ```
 
 XML support

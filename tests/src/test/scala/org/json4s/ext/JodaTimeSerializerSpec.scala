@@ -42,7 +42,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
   def s: Serialization
   def m: JsonMethods[_]
 
-  implicit lazy val formats = s.formats(NoTypeHints) ++ JodaTimeSerializers.all
+  implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JodaTimeSerializers.all
 
   (mod + " JodaTimeSerializer Specification") should {
     "Serialize joda time types with default format" in {
@@ -54,7 +54,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
     }
 
     "DateTime and DateMidnight use configured date format 1" in {
-      implicit val formats = new DefaultFormats {
+      implicit val formats: Formats = new DefaultFormats {
         override def dateFormatter = {
           val customFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'")
           customFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
@@ -75,7 +75,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
       def usTimeZone = TimeZone.getTimeZone("America/New_York")
       def usDateTimeZone = forTimeZone(usTimeZone)
 
-      implicit val formats = new DefaultFormats {
+      implicit val formats: Formats = new DefaultFormats {
         override def dateFormatter = {
           // non default format
           val customFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ssXXX")

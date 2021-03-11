@@ -82,7 +82,7 @@ object Formats {
 /** Formats to use when converting JSON.
  * Formats are usually configured by using an implicit parameter:
  * <pre>
- * implicit val formats = org.json4s.DefaultFormats
+ * implicit val formats: Formats = org.json4s.DefaultFormats
  * </pre>
  */
 @implicitNotFound(
@@ -317,7 +317,7 @@ trait KeySerializer[A] {
  *     case ("DateTime", JObject(JField("t", JInt(t)) :: Nil)) => new DateTime(t.longValue)
  *   }
  * }
- * implicit val formats = DefaultFormats.withHints(hints)
+ * implicit val formats: Formats = DefaultFormats.withHints(hints)
  * </pre>
  */
 trait TypeHints {

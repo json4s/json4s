@@ -40,7 +40,7 @@ class NativeJsonMethodsSpec extends Specification {
   "JsonMethods.write" should {
 
     "produce JSON without empty fields" in {
-      implicit val formats = DefaultFormats.skippingEmptyValues
+      implicit val formats: Formats = DefaultFormats.skippingEmptyValues
 
       "from Seq(Some(1), None, None, Some(2))" in {
         val seq = Seq(Some(1), None, None, Some(2))
@@ -56,7 +56,7 @@ class NativeJsonMethodsSpec extends Specification {
     }
 
     "produce JSON with empty fields preserved" in {
-      implicit val formats = DefaultFormats.preservingEmptyValues
+      implicit val formats: Formats = DefaultFormats.preservingEmptyValues
 
       "from Seq(Some(1), None, None, Some(2))" in {
         val seq = Seq(Some(1), None, None, Some(2))

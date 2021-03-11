@@ -11,7 +11,7 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
 
   "Serialization of case class with many Option[T] fields" should {
 
-    implicit val formats = baseFormats.skippingEmptyValues
+    implicit val formats: Formats = baseFormats.skippingEmptyValues
 
     "produce valid JSON without empty fields" in {
       "from case class with all fields empty" in {
@@ -64,7 +64,7 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
     }
 
     "produce valid JSON with preserved empty fields" in {
-      implicit val formats = baseFormats.preservingEmptyValues
+      implicit val formats: Formats = baseFormats.preservingEmptyValues
 
       "from case class with all fields empty" in {
         val optFields = OptionalFields(None, None, None, None)
@@ -157,7 +157,7 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
       }
 
       "#674 serializes a boolean in a map from a trait in Scala 2.13" in {
-        implicit val formats = DefaultFormats.skippingEmptyValues+FieldSerializer[AttributesT]()
+        implicit val formats: Formats = DefaultFormats.skippingEmptyValues+FieldSerializer[AttributesT]()
 
         val expected = Foo("test")
         val json = org.json4s.native.Serialization.writePretty(expected)
