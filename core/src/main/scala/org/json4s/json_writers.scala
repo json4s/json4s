@@ -239,7 +239,7 @@ private sealed abstract class JValueJsonWriter extends JsonWriter[JValue] {
 
   def string(value: String): JsonWriter[JValue] = addNode(JString(value))
 
-  def byte(value: Byte): JsonWriter[JValue] = addNode(JInt(value))
+  def byte(value: Byte): JsonWriter[JValue] = addNode(JInt(value: Long))
 
   def int(value: Int): JsonWriter[JValue] = addNode(JInt(value))
 
@@ -249,7 +249,7 @@ private sealed abstract class JValueJsonWriter extends JsonWriter[JValue] {
 
   def boolean(value: Boolean): JsonWriter[JValue] = addNode(JBool(value))
 
-  def short(value: Short): JsonWriter[JValue] = addNode(JInt(value))
+  def short(value: Short): JsonWriter[JValue] = addNode(JInt(value: Long))
 
   def endArray(): JsonWriter[JValue] = {
     sys.error("You have to start an object to be able to end it (endArray called before startArray)")
