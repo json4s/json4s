@@ -101,7 +101,7 @@ case class ScalaSig(majorVersion: Int, minorVersion: Int, table: Seq[Int ~ ByteC
 
   def parseEntry(index: Int) = applyRule(ScalaSigParsers.parseEntry(ScalaSigEntryParsers.entry)(index))
 
-  implicit def applyRule[A](parser: ScalaSigParsers.Parser[A]) = ScalaSigParsers.expect(parser)(this)
+  implicit def applyRule[A](parser: ScalaSigParsers.Parser[A]): A = ScalaSigParsers.expect(parser)(this)
 
   override def toString = "ScalaSig version " + majorVersion + "." + minorVersion + {
     for (i <- 0 until table.size) yield s"${i}:\t${parseEntry(i)}" // + "\n\t" + getEntry(i)
