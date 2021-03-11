@@ -199,7 +199,7 @@ trait DoubleWriters extends DefaultWriters {
 }
 
 trait BigDecimalWriters extends DefaultWriters {
-  implicit object FloatWriter extends W[Float](JDecimal(_))
+  implicit object FloatWriter extends W[Float](x => JDecimal(x: Double))
   implicit object DoubleWriter extends W[Double](JDecimal(_))
   implicit object BigDecimalWriter extends W[BigDecimal](d => JDecimal(d))
 }
