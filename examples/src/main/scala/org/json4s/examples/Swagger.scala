@@ -93,7 +93,7 @@ object Api {
 
   lazy val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
 
-  implicit val formats = new DefaultFormats {
+  implicit val formats: Formats = new DefaultFormats {
     override val dateFormat = new DateFormat {
       def format(d: JDate) = new DateTime(d).toString(Iso8601Date)
       def parse(s: String) = try {
@@ -298,7 +298,7 @@ case class ModelField(name: String,
                       required: Boolean = true)
 
 object ModelField {
-  implicit def modelField2tuple(m: ModelField) = (m.name, m)
+  implicit def modelField2tuple(m: ModelField): (String, ModelField) = (m.name, m)
 }
 
 case class Model(id: String,
@@ -310,7 +310,7 @@ case class Model(id: String,
 }
 
 object Model {
-  implicit def model2tuple(m: Model) = (m.id, m)
+  implicit def model2tuple(m: Model): (String, Model) = (m.id, m)
 }
 
 case class Operation(httpMethod: HttpMethod,
