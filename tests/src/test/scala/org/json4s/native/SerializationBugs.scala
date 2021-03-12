@@ -77,7 +77,7 @@ class SerializationBugs extends Specification {
       val SeqClass = classOf[Seq[_]]
 
       def serialize(implicit format: Formats) = {
-        case seq: Seq[_] => JArray(seq.toList.map(Extraction.decompose))
+        case seq: Seq[_] => JArray(seq.toList.map(Extraction.decompose(_)(format)))
       }
 
       def deserialize(implicit format: Formats) = {
@@ -85,11 +85,11 @@ class SerializationBugs extends Specification {
           val typeInfo = TypeInfo(parameterizedType
             .map(_.getActualTypeArguments()(0))
             .getOrElse(reflect.fail("No type parameter info for type Seq")).asInstanceOf[Class[_]], None)
-          xs.map(x => Extraction.extract(x, typeInfo))
+          xs.map(x => Extraction.extract(x, typeInfo)(format))
       }
     }
 
-    implicit val formats = DefaultFormats + new SeqFormat
+    implicit val formats: Formats = DefaultFormats + new SeqFormat
 
     val seq = Seq(1, 2, 3)
     val ser = Extraction.decompose(seq)
