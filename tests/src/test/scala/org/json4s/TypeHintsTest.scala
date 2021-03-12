@@ -1,8 +1,9 @@
 package org.json4s
-import org.json4s.jackson.{JsonMethods, Serialization}
-import org.specs2.mutable.Specification
 
-class TypeHintTest extends Specification {
+import org.json4s.jackson.{JsonMethods, Serialization}
+import org.scalatest.wordspec.AnyWordSpec
+
+class TypeHintTest extends AnyWordSpec {
 
   import TypeHintsTest._
 
@@ -15,18 +16,22 @@ class TypeHintTest extends Specification {
     "fail when the type hint is incompatible with the requested type" in {
       val dump = Serialization.write(Foo(1))
       // : MyTrait is important for reproducing the behavior reported in https://github.com/json4s/json4s/issues/617
-      (JsonMethods.parse(dump).extract[Bar]: MyTrait) must throwA[MappingException]
+      assertThrows[MappingException] {
+        (JsonMethods.parse(dump).extract[Bar]: MyTrait)
+      }
     }
 
     "fail when the type hint of a nested field is incompatible with the requested type" in {
       val json = """{"t": [{"baz": "a string", "jsonClass": "baz"}, 2]}"""
-      (JsonMethods.parse(json).extract[Container]) must throwA[MappingException]
+      assertThrows[MappingException] {
+        JsonMethods.parse(json).extract[Container]
+      }
     }
 
     "succeed when the type hint is compatible with the requested type" in {
       val dump = Serialization.write(Foo(1))
-      JsonMethods.parse(dump).extract[MyTrait] shouldEqual Foo(1)
-      JsonMethods.parse(dump).extract[Foo] shouldEqual Foo(1)
+      assert(JsonMethods.parse(dump).extract[MyTrait] == Foo(1))
+      assert(JsonMethods.parse(dump).extract[Foo] == Foo(1))
     }
   }
 }
