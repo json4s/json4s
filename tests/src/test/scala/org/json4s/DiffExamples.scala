@@ -16,22 +16,21 @@
 
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 class NativeDiffExamples extends DiffExamples[Document]("Native") with native.JsonMethods
 class JacksonDiffExamples extends DiffExamples[JValue]("Jackson") with jackson.JsonMethods
 
-abstract class DiffExamples[T](mod: String) extends Specification with JsonMethods[T] {
+abstract class DiffExamples[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
-  title(mod + " Diff Examples")
   import NativeMergeExamples.{scala1, scala2, lotto1, lotto2, mergedLottoResult}
 
   "Diff example" in {
     val Diff(changed, added, deleted) = scala1 diff scala2
-    changed must_== expectedChanges
-    added must_== expectedAdditions
-    deleted must_== expectedDeletions
+    assert(changed == expectedChanges)
+    assert(added == expectedAdditions)
+    assert(deleted == expectedDeletions)
   }
 
   lazy val expectedChanges = parse("""
@@ -58,9 +57,9 @@ abstract class DiffExamples[T](mod: String) extends Specification with JsonMetho
 
   "Lotto example" in {
     val Diff(changed, added, deleted) = mergedLottoResult diff lotto1
-    changed must_== JNothing
-    added must_== JNothing
-    deleted must_== lotto2
+    assert(changed == JNothing)
+    assert(added == JNothing)
+    assert(deleted == lotto2)
   }
 
   "Example from http://tlrobinson.net/projects/js/jsondiff/" in {
@@ -70,20 +69,20 @@ abstract class DiffExamples[T](mod: String) extends Specification with JsonMetho
     val expectedAdditions = read("/diff-example-expected-additions.json")
     val expectedDeletions = read("/diff-example-expected-deletions.json")
 
-    json1 diff json2 must_== Diff(expectedChanges, expectedAdditions, expectedDeletions)
+    assert((json1 diff json2) == Diff(expectedChanges, expectedAdditions, expectedDeletions))
   }
 
   "After adding and removing a field, there should be no difference" in {
     import JsonDSL._
     val addition = parse("""{"author":"Martin"}""")
     val scala2 = scala1 merge addition removeField { _ == JField("author", "Martin") }
-    scala1 diff scala2 must_== Diff(JNothing, JNothing, JNothing)
+    assert((scala1 diff scala2) == Diff(JNothing, JNothing, JNothing))
   }
 
   "Changing value type results in a change diff" in {
     val original = JObject("a" -> JInt(1))
     val changed = JObject("a" -> JString("different"))
-    original diff changed must_== Diff(changed, JNothing, JNothing)
+    assert((original diff changed) == Diff(changed, JNothing, JNothing))
   }
 
   private def read(resource: String) =
