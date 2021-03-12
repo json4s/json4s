@@ -41,9 +41,9 @@ class ParserBugs extends Specification {
   }
 
   private[this] val discardParser = (p : JsonParser.Parser) => {
-     var token: JsonParser.Token = null
-     do {
-       token = p.nextToken
-     } while (token != JsonParser.End)
-   }
+    var token: JsonParser.Token = p.nextToken
+    while (token != JsonParser.End) {
+      token = p.nextToken
+    }
+  }
 }
