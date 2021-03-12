@@ -19,8 +19,8 @@ package org.json4s
 import org.specs2.mutable.Specification
 import org.json4s.native.Document
 
-object NativeNullErrorHandlingSpec extends NullErrorHandlingSpec[Document]("Native") with native.JsonMethods
-object JacksonNullErrorHandlingSpec extends NullErrorHandlingSpec[JValue]("Jackson") with jackson.JsonMethods
+class NativeNullErrorHandlingSpec extends NullErrorHandlingSpec[Document]("Native") with native.JsonMethods
+class JacksonNullErrorHandlingSpec extends NullErrorHandlingSpec[JValue]("Jackson") with jackson.JsonMethods
 
 object NullErrorHandlingSpec {
   val NullIntTypeJson = """{"x": null, "y": true, "z": "abc"}"""

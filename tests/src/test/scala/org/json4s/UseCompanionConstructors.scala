@@ -3,8 +3,8 @@ package org.json4s
 import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
-object NativeUseCompanionCtorSpec extends UseCompanionConstructors[Document]("Native") with native.JsonMethods
-object JacksonUseCompanionCtorSpec extends UseCompanionConstructors[JValue]("Jackson") with jackson.JsonMethods
+class NativeUseCompanionCtorSpec extends UseCompanionConstructors[Document]("Native") with native.JsonMethods
+class JacksonUseCompanionCtorSpec extends UseCompanionConstructors[JValue]("Jackson") with jackson.JsonMethods
 
 final case class UseCompanionCtorSpec(someString: String, someInt: Int, someDouble: Double)
 
