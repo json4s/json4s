@@ -1,8 +1,7 @@
 package org.json4s
 package ext
 
-import org.specs2.matcher.Matchers
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
 class NativeTypeFieldSerializerSpec extends TypeFieldSerializerSpec("Native") {
   val s: Serialization = native.Serialization
@@ -12,7 +11,7 @@ class JacksonTypeFieldSerializerSpec extends TypeFieldSerializerSpec("Jackson") 
   val s: Serialization = jackson.Serialization
 }
 
-abstract class TypeFieldSerializerSpec(mod: String) extends Specification with Matchers {
+abstract class TypeFieldSerializerSpec(mod: String) extends AnyWordSpec {
 
   def s: Serialization
 
@@ -28,12 +27,12 @@ abstract class TypeFieldSerializerSpec(mod: String) extends Specification with M
     "Serialize concrete type" in {
       val x = Concrete1()
       val ser = s.write(x)
-      ser shouldEqual """{"type":"concrete1"}"""
+      assert(ser == """{"type":"concrete1"}""")
     }
 
     "Deserialize concrete type" in {
       val json = """{"type":"concrete2"}"""
-      s.read[BaseTrait](json) must beLike { case Concrete2() => ok }
+      assert(s.read[BaseTrait](json).isInstanceOf[Concrete2])
     }
   }
 
