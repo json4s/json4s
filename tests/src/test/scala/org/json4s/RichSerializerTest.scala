@@ -3,11 +3,11 @@ package org.json4s
 import org.json4s.Extraction._
 import org.json4s.jackson.JsonMethods
 import org.json4s.reflect.ScalaType
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
 import scala.collection.immutable.HashMap
 
-class RichSerializerTest extends Specification {
+class RichSerializerTest extends AnyWordSpec {
 
   object TypeBearerDeserializer extends RichSerializer[TypeBearer[_]] {
     override def deserialize(implicit format: Formats): PartialFunction[(ScalaType, JValue), TypeBearer[_]] = {
@@ -50,20 +50,20 @@ class RichSerializerTest extends Specification {
       implicit val formats: Formats = DefaultFormats + CustomTuple2Serializer + TypeBearerDeserializer
       val json = """[{"name": "foo"}, {"name": "bar"}]"""
       val extracted = JsonMethods.parse(json).extract[(TypeBearer[TypeBearer[String]], TypeBearer[Int])]
-      extracted._2.enclosedType shouldEqual manifest[Int]
-      extracted._1.enclosedType shouldEqual manifest[TypeBearer[String]]
+      assert(extracted._2.enclosedType == manifest[Int])
+      assert(extracted._1.enclosedType == manifest[TypeBearer[String]])
     }
 
     "serialize with rich serializer logic" in {
       implicit val formats: Formats = DefaultFormats + CustomTuple2Serializer
-      Extraction.decompose(("foo", 1)) shouldEqual JArray(List(JString("foo"), JInt(1)))
+      assert(Extraction.decompose(("foo", 1)) == JArray(List(JString("foo"), JInt(1))))
     }
 
     "deserialize hash maps correctly" in {
       implicit val formats: Formats = DefaultFormats + HashMapDeserializer
       val json = """{"map":{"foo": null, "bar": 2}}"""
       val extracted = JsonMethods.parse(json).extract[HashMapHaver]
-      extracted shouldEqual HashMapHaver(HashMap("foo" -> None, "bar" -> Some(2)))
+      assert(extracted == HashMapHaver(HashMap("foo" -> None, "bar" -> Some(2))))
     }
 
     "be compatible with type hints" in {
@@ -72,7 +72,7 @@ class RichSerializerTest extends Specification {
       val json = """{"map":{"foo": null, "bar": 2}, "jsonClass": "map_haver"}"""
       val expected = HashMapHaver(HashMap("foo" -> None, "bar" -> Some(2)))
       val extracted = JsonMethods.parse(json).extract[SomeTrait]
-      extracted shouldEqual expected
+      assert(extracted == expected)
     }
   }
 }

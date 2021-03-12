@@ -16,31 +16,35 @@
 
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 class NativeXmlExamples extends XmlExamples[Document]("Native") with native.JsonMethods
 class JacksonXmlExamples extends XmlExamples[JValue]("Jackson") with jackson.JsonMethods
 
-abstract class XmlExamples[T](mod: String) extends Specification with JsonMethods[T] {
+abstract class XmlExamples[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
   import Xml._
   import scala.xml.{Group, Text}
 
   (mod + " XML Examples") should {
     "Basic conversion example" in {
       val json = toJson(users1)
-      compact(
-        render(json)
-      ) must_== """{"users":{"count":"2","user":[{"disabled":"true","id":"1","name":"Harry"},{"id":"2","name":"David","nickname":"Dave"}]}}"""
+      assert(
+        compact(
+          render(json)
+        ) == """{"users":{"count":"2","user":[{"disabled":"true","id":"1","name":"Harry"},{"id":"2","name":"David","nickname":"Dave"}]}}"""
+      )
     }
 
     "Conversion transformation example 1" in {
       val json = toJson(users1).transformField { case JField("id", JString(s)) =>
         JField("id", JInt(s.toInt))
       }
-      compact(
-        render(json)
-      ) must_== """{"users":{"count":"2","user":[{"disabled":"true","id":1,"name":"Harry"},{"id":2,"name":"David","nickname":"Dave"}]}}"""
+      assert(
+        compact(
+          render(json)
+        ) == """{"users":{"count":"2","user":[{"disabled":"true","id":1,"name":"Harry"},{"id":2,"name":"David","nickname":"Dave"}]}}"""
+      )
     }
 
     "Conversion transformation example 2" in {
@@ -48,12 +52,12 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
         case JField("id", JString(s)) => JField("id", JInt(s.toInt))
         case JField("user", x: JObject) => JField("user", JArray(x :: Nil))
       }
-      compact(render(json)) must_== """{"users":{"user":[{"id":1,"name":"Harry"}]}}"""
+      assert(compact(render(json)) == """{"users":{"user":[{"id":1,"name":"Harry"}]}}""")
     }
 
     "Primitive array example" in {
       val xml = <chars><char>a</char><char>b</char><char>c</char></chars>
-      compact(render(toJson(xml))) must_== """{"chars":{"char":["a","b","c"]}}"""
+      assert(compact(render(toJson(xml))) == """{"chars":{"char":["a","b","c"]}}""")
     }
 
     "Lotto example which flattens number arrays into encoded string arrays" in {
@@ -66,7 +70,7 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
         case JField("numbers", JArray(nums)) => JField("numbers", flattenArray(nums))
       })
 
-      printer.format(xml(0)) must_== printer.format(<lotto>
+      assert(printer.format(xml(0)) == printer.format(<lotto>
           <id>5</id>
           <winning-numbers>2,45,34,23,7,5,3</winning-numbers>
           <winners>
@@ -77,12 +81,12 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
             <winner-id>54</winner-id>
             <numbers>52,3,12,11,18,22</numbers>
           </winners>
-        </lotto>)
+        </lotto>))
     }
 
     "Band example with namespaces" in {
       val json = toJson(band)
-      json mustEqual parse("""{
+      assert(json == parse("""{
     "b:band":{
       "name":"The Fall",
       "genre":"rock",
@@ -97,25 +101,25 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
         }]
       }
     }
-  }""")
+  }"""))
     }
 
     "Grouped text example" in {
       val json = toJson(groupedText)
-      compact(render(json)) mustEqual """{"g":{"group":"foobar","url":"http://example.com/test"}}"""
+      assert(compact(render(json)) == """{"g":{"group":"foobar","url":"http://example.com/test"}}""")
     }
 
     "Example with multiple attributes, multiple nested elements " in {
       val a1 = attrToObject("stats", "count", s => JInt(s.s.toInt)) _
       val a2 = attrToObject("messages", "href", identity) _
       val json = a1(a2(toJson(messageXml1)))
-      (json diff parse(expected1)) mustEqual Diff(JNothing, JNothing, JNothing)
+      assert((json diff parse(expected1)) == Diff(JNothing, JNothing, JNothing))
     }
 
     "Example with one attribute, one nested element " in {
       val a = attrToObject("stats", "count", s => JInt(s.s.toInt)) _
-      compact(render(a(toJson(messageXml2)))) mustEqual expected2
-      compact(render(a(toJson(messageXml3)))) mustEqual expected2
+      assert(compact(render(a(toJson(messageXml2)))) == expected2)
+      assert(compact(render(a(toJson(messageXml3)))) == expected2)
 
     }
   }

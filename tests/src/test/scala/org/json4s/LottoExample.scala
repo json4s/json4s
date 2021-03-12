@@ -16,7 +16,7 @@
 
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 class NativeLottoExample extends LottoExample[Document]("Native") with native.JsonMethods {
@@ -34,28 +34,32 @@ class JacksonLottoExample extends LottoExample[JValue]("Jackson") with jackson.J
   def extractLotto(jv: _root_.org.json4s.JValue): Lotto = jv.extract[Lotto]
 }
 
-abstract class LottoExample[T](mod: String) extends Specification with JsonMethods[T] {
+abstract class LottoExample[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
   import LottoExample._
 
   ("The " + mod + " Lotto Examples") should {
     "pass" in {
-      compact(
-        render(json)
-      ) must_== """{"lotto":{"id":5,"winning-numbers":[2,45,34,23,7,5,3],"winners":[{"winner-id":23,"numbers":[2,45,34,23,3,5]},{"winner-id":54,"numbers":[52,3,12,11,18,22]}]}}"""
+      assert(
+        compact(
+          render(json)
+        ) == """{"lotto":{"id":5,"winning-numbers":[2,45,34,23,7,5,3],"winners":[{"winner-id":23,"numbers":[2,45,34,23,3,5]},{"winner-id":54,"numbers":[52,3,12,11,18,22]}]}}"""
+      )
       val exp: Winner = Winner(23, List(2, 45, 34, 23, 3, 5))
       val winn: Winner = extractWinner((json \ "lotto" \ "winners")(0))
-      winn.`winner-id` must_== exp.`winner-id`
+      assert(winn.`winner-id` == exp.`winner-id`)
 
-      extractLotto(json \ "lotto") must_== lotto
+      assert(extractLotto(json \ "lotto") == lotto)
 
-      json.values must_== Map(
-        "lotto" -> Map(
-          "id" -> 5,
-          "winning-numbers" -> List(2, 45, 34, 23, 7, 5, 3),
-          "draw-date" -> None,
-          "winners" -> List(
-            Map("winner-id" -> 23, "numbers" -> List(2, 45, 34, 23, 3, 5)),
-            Map("winner-id" -> 54, "numbers" -> List(52, 3, 12, 11, 18, 22))
+      assert(
+        json.values == Map(
+          "lotto" -> Map(
+            "id" -> 5,
+            "winning-numbers" -> List(2, 45, 34, 23, 7, 5, 3),
+            "draw-date" -> None,
+            "winners" -> List(
+              Map("winner-id" -> 23, "numbers" -> List(2, 45, 34, 23, 3, 5)),
+              Map("winner-id" -> 54, "numbers" -> List(52, 3, 12, 11, 18, 22))
+            )
           )
         )
       )

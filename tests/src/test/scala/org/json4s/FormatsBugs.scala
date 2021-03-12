@@ -2,9 +2,9 @@ package org.json4s
 
 import org.json4s.prefs.ExtractionNullStrategy
 import org.json4s.prefs.ExtractionNullStrategy.Disallow
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
-class FormatsBugs extends Specification {
+class FormatsBugs extends AnyWordSpec {
 
   "Formats" should {
     "retain 'extractionNullStrategy' setting over updates" in {
@@ -12,7 +12,7 @@ class FormatsBugs extends Specification {
         override val extractionNullStrategy: ExtractionNullStrategy = Disallow
       }
       val fModified = f.withBigDecimal
-      fModified.extractionNullStrategy mustEqual Disallow
+      assert(fModified.extractionNullStrategy == Disallow)
     }
   }
 

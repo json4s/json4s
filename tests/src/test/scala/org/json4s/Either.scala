@@ -1,6 +1,6 @@
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
 object EitherTest {
 
@@ -20,7 +20,7 @@ object EitherTest {
 
 class JacksonEitherTest extends EitherTest[JValue]("Native") with jackson.JsonMethods
 
-abstract class EitherTest[T](mod: String) extends Specification with JsonMethods[T] {
+abstract class EitherTest[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
   import EitherTest._
 
@@ -29,30 +29,32 @@ abstract class EitherTest[T](mod: String) extends Specification with JsonMethods
   (mod + " EitherTest Specification") should {
     "See that it works for Option[Int]" in {
       val opt = OptionInt(Some(39))
-      Extraction.decompose(opt).extract[OptionInt].i.get must_== 39
+      assert(Extraction.decompose(opt).extract[OptionInt].i.get == 39)
     }
 
     "Work for Either[Int, String]" in {
       val opt = EitherIntString(Left(39))
-      Extraction.decompose(opt).extract[EitherIntString].i.left.get must_== 39
+      assert(Extraction.decompose(opt).extract[EitherIntString].i.left.get == 39)
 
       val opt2 = EitherIntString(Right("hello"))
-      Extraction.decompose(opt2).extract[EitherIntString].i.right.get must_== "hello"
+      assert(Extraction.decompose(opt2).extract[EitherIntString].i.right.get == "hello")
     }
 
     "Work for Either[List[Int], List[String]]" in {
       val opt = EitherListStringListInt(Left(List(1, 2, 3)))
-      Extraction.decompose(opt).extract[EitherListStringListInt].i.left.get must_== List(1, 2, 3)
+      assert(Extraction.decompose(opt).extract[EitherListStringListInt].i.left.get == List(1, 2, 3))
 
       val opt2 = EitherListStringListInt(Right(List("hello", "world")))
-      Extraction.decompose(opt2).extract[EitherListStringListInt].i.right.get must_== List("hello", "world")
+      assert(Extraction.decompose(opt2).extract[EitherListStringListInt].i.right.get == List("hello", "world"))
     }
 
     "Work for Either[List[List[String]], List[Map[String, List[Int]]]]" in {
       val opt = EitherListListStringMapStringInt(Left(List(List("a", "b", "c"), List("d", "e", "f"))))
-      Extraction.decompose(opt).extract[EitherListListStringMapStringInt].i.left.get must_== List(
-        List("a", "b", "c"),
-        List("d", "e", "f")
+      assert(
+        Extraction.decompose(opt).extract[EitherListListStringMapStringInt].i.left.get == List(
+          List("a", "b", "c"),
+          List("d", "e", "f")
+        )
       )
 
       val opt2 = EitherListListStringMapStringInt(
@@ -63,9 +65,11 @@ abstract class EitherTest[T](mod: String) extends Specification with JsonMethods
           )
         )
       )
-      Extraction.decompose(opt2).extract[EitherListListStringMapStringInt].i.right.get must_== List(
-        Map("hello" -> List(5, 4, 3, 2, 1), "world" -> List(10, 20, 30)),
-        Map("bye" -> List(10), "world" -> List(10, 20, 30))
+      assert(
+        Extraction.decompose(opt2).extract[EitherListListStringMapStringInt].i.right.get == List(
+          Map("hello" -> List(5, 4, 3, 2, 1), "world" -> List(10, 20, 30)),
+          Map("bye" -> List(10), "world" -> List(10, 20, 30))
+        )
       )
     }
   }

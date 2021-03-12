@@ -9,9 +9,9 @@ import scalaz.syntax.validation._
 import JsonScalaz._
 import org.json4s._
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
-class ValidationExample extends Specification {
+class ValidationExample extends AnyWordSpec {
 
   case class Person(name: String, age: Int)
 
@@ -26,12 +26,12 @@ class ValidationExample extends Specification {
     "fail when age is less than min age" in {
       // Age must be between 18 an 60
       val person = Person.applyJSON(field[String]("name"), validate[Int]("age") >==> min(18) >==> max(60))
-      person(json) must_== Failure(NonEmptyList(UncategorizedError("min", "17 < 18", Nil)))
+      assert(person(json) == Failure(NonEmptyList(UncategorizedError("min", "17 < 18", Nil))))
     }
 
     "pass when age within limits" in {
       val person = Person.applyJSON(field[String]("name"), validate[Int]("age") >==> min(16) >==> max(60))
-      person(json) must_== Success(Person("joe", 17))
+      assert(person(json) == Success(Person("joe", 17)))
     }
   }
 
@@ -56,12 +56,12 @@ class ValidationExample extends Specification {
 
     "fail if lists contains invalid ranges" in {
       val r = fromJSON[List[Range]](json)
-      r.swap.toOption.get.list must_== IList(UncategorizedError("asc", "11 > 8", Nil))
+      assert(r.swap.toOption.get.list == IList(UncategorizedError("asc", "11 > 8", Nil)))
     }
 
     "optionally return only valid ranges" in {
       val ranges = json.children.map(fromJSON[Range]).filter(_.isSuccess).sequenceU
-      ranges must_== Success(List(Range(10, 17), Range(12, 13)))
+      assert(ranges == Success(List(Range(10, 17), Range(12, 13))))
     }
   }
 }

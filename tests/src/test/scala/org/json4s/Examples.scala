@@ -17,7 +17,7 @@
 package org.json4s
 
 import org.json4s.prefs.EmptyValueStrategy
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 class NativeExamples extends Examples[Document]("Native") with native.JsonMethods {
@@ -26,10 +26,12 @@ class NativeExamples extends Examples[Document]("Native") with native.JsonMethod
   "issue 482 Infinity" in {
     val value = Map("a" -> Double.PositiveInfinity, "b" -> Double.NegativeInfinity)
     val json = compact(render(value))
-    parse(json) must_== JObject(
-      List(
-        ("a", JDouble(Double.PositiveInfinity)),
-        ("b", JDouble(Double.NegativeInfinity))
+    assert(
+      parse(json) == JObject(
+        List(
+          ("a", JDouble(Double.PositiveInfinity)),
+          ("b", JDouble(Double.NegativeInfinity))
+        )
       )
     )
   }
@@ -122,7 +124,7 @@ object Examples {
   val symbols = ("f1" -> Symbol("foo")) ~ ("f2" -> Symbol("bar"))
 }
 
-abstract class Examples[T](mod: String) extends Specification with JsonMethods[T] {
+abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
   import Examples._
   import JsonDSL._
@@ -132,35 +134,34 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
     "Lotto example" in {
       val json = parse(lotto)
       val renderedLotto = compact(render(json))
-      json must_== parse(renderedLotto)
+      assert(json == parse(renderedLotto))
     }
 
     "Person example" in {
       val json = parse(person)
       val renderedPerson = pretty(render(json))
-      json must_== parse(renderedPerson)
-      render(json) must_== render(personDSL)
-      compact(render(json \\ "name")) must_== """{"name":"Joe","name":"Marilyn"}"""
-      compact(render(json \ "person" \ "name")) must_== "\"Joe\""
+      assert(json == parse(renderedPerson))
+      assert(render(json) == render(personDSL))
+      assert(compact(render(json \\ "name")) == """{"name":"Joe","name":"Marilyn"}""")
+      assert(compact(render(json \ "person" \ "name")) == "\"Joe\"")
     }
 
     "Transformation example" in {
       val uppercased = parse(person).transformField { case JField(n, v) => JField(n.toUpperCase, v) }
       val rendered = compact(render(uppercased))
-      rendered must_==
-        """{"PERSON":{"NAME":"Joe","AGE":35,"SPOUSE":{"PERSON":{"NAME":"Marilyn","AGE":33}}}}"""
+      assert(rendered == """{"PERSON":{"NAME":"Joe","AGE":35,"SPOUSE":{"PERSON":{"NAME":"Marilyn","AGE":33}}}}""")
     }
 
     "Remove Field example" in {
       val json = parse(person) removeField { _ == JField("name", "Marilyn") }
-      (json \\ "name") must_== JString("Joe")
-      compact(render(json \\ "name")) must_== "\"Joe\""
+      assert((json \\ "name") == JString("Joe"))
+      assert(compact(render(json \\ "name")) == "\"Joe\"")
     }
 
     "Remove example" in {
       val json = parse(person) remove { _ == JString("Marilyn") }
-      (json \\ "name") must_== JString("Joe")
-      compact(render(json \\ "name")) must_== "\"Joe\""
+      assert((json \\ "name") == JString("Joe"))
+      assert(compact(render(json \\ "name")) == "\"Joe\"")
     }
 
     "XPath operator should behave the same after adding and removing a second field with the same name" in {
@@ -168,7 +169,7 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       val addition = parse("""{"lotto-two": {"lotto-id": 6}}""")
       val json2 = json merge addition removeField { _ == JField("lotto-id", 6) }
 
-      (json2 \\ "lotto-id") must_== (json \\ "lotto-id")
+      assert((json2 \\ "lotto-id") == (json \\ "lotto-id"))
     }
 
     "Queries on person example" in {
@@ -177,77 +178,77 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
         case JField("name", _) => true
         case _ => false
       }
-      filtered must_== List(JField("name", JString("Joe")), JField("name", JString("Marilyn")))
+      assert(filtered == List(JField("name", JString("Joe")), JField("name", JString("Marilyn"))))
 
       val found = json findField {
         case JField("name", _) => true
         case _ => false
       }
-      found must_== Some(JField("name", JString("Joe")))
+      assert(found == Some(JField("name", JString("Joe"))))
     }
 
     "Object array example" in {
       val json = parse(objArray)
-      compact(render(json \ "children" \ "name")) must_== """["Mary","Mazy"]"""
-      compact(render((json \ "children")(0) \ "name")) must_== "\"Mary\""
-      compact(render((json \ "children")(1) \ "name")) must_== "\"Mazy\""
-      (for { JObject(o) <- json; JField("name", JString(y)) <- o } yield y) must_== List("joe", "Mary", "Mazy")
+      assert(compact(render(json \ "children" \ "name")) == """["Mary","Mazy"]""")
+      assert(compact(render((json \ "children")(0) \ "name")) == "\"Mary\"")
+      assert(compact(render((json \ "children")(1) \ "name")) == "\"Mazy\"")
+      assert((for { JObject(o) <- json; JField("name", JString(y)) <- o } yield y) == List("joe", "Mary", "Mazy"))
     }
 
     "Object array example 2" in {
-      compact(render(parse(lotto) \ "lotto" \ "lucky-number")) must_== """[7]"""
-      compact(render(parse(objArray2) \ "children" \ "name")) must_== """["Mary"]"""
+      assert(compact(render(parse(lotto) \ "lotto" \ "lucky-number")) == """[7]""")
+      assert(compact(render(parse(objArray2) \ "children" \ "name")) == """["Mary"]""")
     }
 
     // https://github.com/json4s/json4s/issues/562
     "Object array example 3" in {
-      parse("{\"a\" : []}") \ "a" \ "c" must_== JNothing
+      assert({ parse("{\"a\" : []}") \ "a" \ "c" } == JNothing)
     }
 
     "Unbox values using XPath-like type expression" in {
-      parse(objArray) \ "children" \\ classOf[JInt] must_== List(5, 3)
-      parse(lotto) \ "lotto" \ "winning-numbers" \ classOf[JInt] must_== List(2, 45, 34, 23, 7, 5, 3)
-      parse(lotto) \\ "winning-numbers" \ classOf[JInt] must_== List(2, 45, 34, 23, 7, 5, 3)
+      assert({ parse(objArray) \ "children" \\ classOf[JInt] } == List(5, 3))
+      assert({ parse(lotto) \ "lotto" \ "winning-numbers" \ classOf[JInt] } == List(2, 45, 34, 23, 7, 5, 3))
+      assert({ parse(lotto) \\ "winning-numbers" \ classOf[JInt] } == List(2, 45, 34, 23, 7, 5, 3))
     }
 
     "Quoted example" in {
       val json = parse(quoted)
-      List("foo \" \n \t \r bar") must_== json.values
+      assert(List("foo \" \n \t \r bar") == json.values)
     }
 
     "Null example" in {
-      compact(render(parse(""" {"name": null} """))) must_== """{"name":null}"""
+      assert(compact(render(parse(""" {"name": null} """))) == """{"name":null}""")
     }
 
     "Null rendering example" in {
-      compact(render(nulls)) must_== """{"f1":null,"f2":[null,"s"]}"""
+      assert(compact(render(nulls)) == """{"f1":null,"f2":[null,"s"]}""")
     }
 
     "Symbol example" in {
-      compact(render(symbols)) must_== """{"f1":"foo","f2":"bar"}"""
+      assert(compact(render(symbols)) == """{"f1":"foo","f2":"bar"}""")
     }
 
     "Unicode example" in {
-      parse("[\" \\u00e4\\u00e4li\\u00f6t\"]") must_== JArray(List(JString(" \u00e4\u00e4li\u00f6t")))
+      assert(parse("[\" \\u00e4\\u00e4li\\u00f6t\"]") == JArray(List(JString(" \u00e4\u00e4li\u00f6t"))))
     }
 
     "Exponent example" in {
-      parse("""{"num": 2e5 }""") must_== JObject(List(JField("num", JDouble(200000.0))))
-      parse("""{"num": -2E5 }""") must_== JObject(List(JField("num", JDouble(-200000.0))))
-      parse("""{"num": 2.5e5 }""") must_== JObject(List(JField("num", JDouble(250000.0))))
-      parse("""{"num": 2.5e-5 }""") must_== JObject(List(JField("num", JDouble(2.5e-5))))
+      assert(parse("""{"num": 2e5 }""") == JObject(List(JField("num", JDouble(200000.0)))))
+      assert(parse("""{"num": -2E5 }""") == JObject(List(JField("num", JDouble(-200000.0)))))
+      assert(parse("""{"num": 2.5e5 }""") == JObject(List(JField("num", JDouble(250000.0)))))
+      assert(parse("""{"num": 2.5e-5 }""") == JObject(List(JField("num", JDouble(2.5e-5)))))
     }
 
     "JSON building example" in {
       val json =
         JObject(("name", JString("joe")), ("age", JInt(34))) ++ JObject(("name", JString("mazy")), ("age", JInt(31)))
-      compact(render(json)) must_== """[{"name":"joe","age":34},{"name":"mazy","age":31}]"""
+      assert(compact(render(json)) == """[{"name":"joe","age":34},{"name":"mazy","age":31}]""")
     }
 
     "JSON building with implicit primitive conversions example" in {
       import DoubleMode._
       val json = JObject(("name", "joe"), ("age", 34)) ++ JObject(("name", "mazy"), ("age", 31))
-      compact(render(json)) must_== """[{"name":"joe","age":34},{"name":"mazy","age":31}]"""
+      assert(compact(render(json)) == """[{"name":"joe","age":34},{"name":"mazy","age":31}]""")
     }
 
     "Example which collects all integers and forms a new JSON" in {
@@ -258,26 +259,26 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
           case _ => a
         }
       }
-      compact(render(ints)) must_== """[35,33]"""
+      assert(compact(render(ints)) == """[35,33]""")
     }
 
     "Generate JSON with DSL example" in {
       val json: JValue =
         ("id" -> 5) ~
         ("tags" -> Map("a" -> 5, "b" -> 7))
-      compact(render(json)) must_== """{"id":5,"tags":{"a":5,"b":7}}"""
+      assert(compact(render(json)) == """{"id":5,"tags":{"a":5,"b":7}}""")
     }
 
     "Tuple2 example" in {
       implicit val fmts = DefaultFormats
       val json = """{"blah":123}"""
-      Extraction.extract[(String, Int)](parse(json)) must_== ("blah" -> 123)
+      assert(Extraction.extract[(String, Int)](parse(json)) == ("blah" -> 123))
     }
 
     "List[Tuple2] example" in {
       implicit val fmts = DefaultFormats
       val json = parse("""[{"blah1":13939},{"blah2":3948}]""")
-      Extraction.extract[List[(String, Int)]](json) must_== "blah1" -> 13939 :: "blah2" -> 3948 :: Nil
+      assert(Extraction.extract[List[(String, Int)]](json) == { "blah1" -> 13939 :: "blah2" -> 3948 :: Nil })
     }
 
     "List[Animal] example" in {
@@ -288,7 +289,7 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       val json = parse(
         s"""[{"name":"pluto","${typeHints.typeHintFieldName}":"Dog"},{"weight":1.3,"${typeHints.typeHintFieldName}":"Fish"}]"""
       )
-      Extraction.extract[List[Animal]](json) must_== Dog("pluto") :: Fish(1.3) :: Nil
+      assert(Extraction.extract[List[Animal]](json) == { Dog("pluto") :: Fish(1.3) :: Nil })
     }
 
     // ------------------------------------------------------------
@@ -309,8 +310,8 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
         case JField("longt", _) => false
         case _ => true
       }
-      filtered1.exists(_._1 == "longt") must_== false
-      filtered1.exists(_._1 == "error") must_== true
+      assert(filtered1.exists(_._1 == "longt") == false)
+      assert(filtered1.exists(_._1 == "error") == true)
       // These assertions fail
       // filtered1.exists(_._1 == "description") must_== false
       // filtered1.exists(_._1 == "code") must_== false
@@ -319,8 +320,8 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
         case JField("error", _) => false
         case _ => true
       }
-      filtered2.exists(_._1 == "longt") must_== true
-      filtered2.exists(_._1 == "error") must_== false
+      assert(filtered2.exists(_._1 == "longt") == true)
+      assert(filtered2.exists(_._1 == "error") == false)
       // These assertions fail
       // filtered2.exists(_._1 == "description") must_== false
       // filtered2.exists(_._1 == "code") must_== false
@@ -328,14 +329,14 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
 
     "#23 Change serialization of Seq[Option[T]] so it doesn't remove elements" in {
       val a: List[Option[Int]] = List(Some(1), None, None, Some(1))
-      compact(render(a)) must_== "[1,1]"
+      assert(compact(render(a)) == "[1,1]")
 
       // #131 Strategies for empty value treatment
       // https://github.com/json4s/json4s/pull/131
       val preserve = new DefaultFormats {
         override val emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.preserve
       }
-      compact(render(a)(preserve)) must_== "[1,null,null,1]"
+      assert(compact(render(a)(preserve)) == "[1,null,null,1]")
     }
 
     "#146 Snake support with case classes" in {
@@ -343,7 +344,7 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       val json = """{"full_name": "Kazuhiro Sera", "github_account_name": "seratch"}"""
       val expected = Issue146CamelCaseClass("Kazuhiro Sera", Some("seratch"))
       val actual = Extraction.extract[Issue146CamelCaseClass](jackson.parseJson(json).camelizeKeys)
-      actual must_== expected
+      assert(actual == expected)
     }
 
     "#714 Camelize double underscores" in {
@@ -351,7 +352,7 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       val json = """{"full__name": "Kazuhiro Sera", "github___________________account___name": "seratch"}"""
       val expected = Issue146CamelCaseClass("Kazuhiro Sera", Some("seratch"))
       val actual = Extraction.extract[Issue146CamelCaseClass](jackson.parseJson(json).camelizeKeys)
-      actual must_== expected
+      assert(actual == expected)
     }
 
     "#545 snake support with case classes and uuid keys" in {
@@ -361,8 +362,8 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       val unexpected = """{"my_map":{"565b2803_fdb9_4359_8c39_da1a347d76ca":"awesome"}}"""
       val future = compact(render(Extraction.decompose(caseClass).underscoreCamelCaseKeysOnly))
       val actual = compact(render(Extraction.decompose(caseClass).underscoreKeys))
-      actual must_== unexpected
-      future must_== expected
+      assert(actual == unexpected)
+      assert(future == expected)
     }
 
     "Camelize should not fail on json with empty keys." in {
@@ -370,7 +371,7 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       val json = """{"full_name": "Kazuhiro Sera", "github_account_name": "seratch", "" : ""}"""
       val expected = Issue146CamelCaseClass("Kazuhiro Sera", Some("seratch"))
       val actual = Extraction.extract[Issue146CamelCaseClass](jackson.parseJson(json).camelizeKeys)
-      actual must_== expected
+      assert(actual == expected)
     }
 
     "Multiple type hint field names should be possible" in {
@@ -407,7 +408,7 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       val actual = parse(json).extract[Materials]
       val expected = Materials(List(Cherry(3), Oak(8)), List(Iron("USA"), IronMaiden("UK")))
 
-      actual must_== expected
+      assert(actual == expected)
     }
 
   }

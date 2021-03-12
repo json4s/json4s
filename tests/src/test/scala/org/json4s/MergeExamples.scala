@@ -16,17 +16,17 @@
 
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 class NativeMergeExamples extends MergeExamples[Document]("Native") with native.JsonMethods
 object NativeMergeExamples extends NativeMergeExamples
 class JacksonMergeExamples extends MergeExamples[JValue]("Jackson") with jackson.JsonMethods
-abstract class MergeExamples[T](mod: String) extends Specification with JsonMethods[T] {
+abstract class MergeExamples[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
   (mod + " Merge Examples") should {
     "Merge example" in {
-      (scala1 merge scala2) must_== expectedMergeResult
+      assert((scala1 merge scala2) == expectedMergeResult)
     }
   }
 
@@ -66,7 +66,7 @@ abstract class MergeExamples[T](mod: String) extends Specification with JsonMeth
     }""")
 
   "Lotto example" in {
-    (lotto1 merge lotto2) must_== mergedLottoResult
+    assert((lotto1 merge lotto2) == mergedLottoResult)
   }
 
   lazy val lotto1 = parse("""

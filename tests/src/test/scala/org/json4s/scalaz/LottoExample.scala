@@ -5,9 +5,9 @@ import JsonScalaz._
 import org.json4s.native
 import native.JsonMethods._
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
-class LottoExample extends Specification {
+class LottoExample extends AnyWordSpec {
   case class Winner(winnerId: Long, numbers: List[Int])
   case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[String])
 
@@ -39,6 +39,6 @@ class LottoExample extends Specification {
   val lotto = Lotto(5, List(2, 45, 34, 23, 7, 5), winners, None)
 
   "LottoExample" in {
-    fromJSON[Lotto](json) must_== Success(lotto)
+    assert(fromJSON[Lotto](json) == Success(lotto))
   }
 }

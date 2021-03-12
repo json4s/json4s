@@ -18,7 +18,7 @@ package org.json4s
 package ext
 
 import java.net.URI
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
 class NativeURISerializerSpec extends URISerializerSpec("Native") {
   val s: Serialization = native.Serialization
@@ -28,7 +28,7 @@ class JacksonURISerializerSpec extends URISerializerSpec("Jackson") {
   val s: Serialization = jackson.Serialization
 }
 
-abstract class URISerializerSpec(mod: String) extends Specification {
+abstract class URISerializerSpec(mod: String) extends AnyWordSpec {
 
   def s: Serialization
   implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JavaTypesSerializers.all
@@ -37,7 +37,7 @@ abstract class URISerializerSpec(mod: String) extends Specification {
     "Serialize URI's" in {
       val x = SubjectWithURI(uri = URI.create("/test"))
       val ser = s.write(x)
-      s.read[SubjectWithURI](ser) must_== x
+      assert(s.read[SubjectWithURI](ser) == x)
     }
   }
 }

@@ -1,11 +1,11 @@
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
 /**
  * System under specification for JSON Pull Parser.
  */
-class PullParserExamples extends Specification {
+class PullParserExamples extends AnyWordSpec {
 
   import native.JsonParser
   import JsonParser._
@@ -27,7 +27,7 @@ class PullParserExamples extends Specification {
       }
 
       val postalCode = JsonParser.parse(json, parser)
-      postalCode must_== 10021
+      assert(postalCode == 10021)
     }
   }
 

@@ -1,12 +1,12 @@
 package org.json4s
 
 import org.json4s.native.Document
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
 class NativeJsonFormatSpec extends JsonFormatSpec[Document]("native") with native.JsonMethods
 class JacksonJsonFormatSpec extends JsonFormatSpec[JValue]("jackson") with jackson.JsonMethods
 
-abstract class JsonFormatSpec[T](mod: String) extends Specification with JsonMethods[T] {
+abstract class JsonFormatSpec[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
   import DefaultReaders._
 
@@ -16,10 +16,10 @@ abstract class JsonFormatSpec[T](mod: String) extends Specification with JsonMet
     "read a JLong" in {
       val value: JValue = JLong(42L)
 
-      read[Byte](value) must_=== (42: Byte)
-      read[Short](value) must_=== (42: Short)
-      read[Int](value) must_=== 42
-      read[Long](value) must_=== 42L
+      assert(read[Byte](value) == (42: Byte))
+      assert(read[Short](value) == (42: Short))
+      assert(read[Int](value) == 42)
+      assert(read[Long](value) == 42L)
     }
   }
 }

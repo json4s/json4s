@@ -16,24 +16,24 @@
 
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 class NativeXmlBugs extends XmlBugs[Document]("Native") with native.JsonMethods
 class JacksonXmlBugs extends XmlBugs[JValue]("Jackson") with jackson.JsonMethods
-abstract class XmlBugs[T](mod: String) extends Specification with JsonMethods[T] {
+abstract class XmlBugs[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
   import Xml._
 
   (mod + " XML Bugs") should {
     "HarryH's XML parses correctly" in {
       val xml1 = <venue><id>123</id></venue>
       val xml2 = <venue> <id>{"1"}{"23"}</id> </venue>
-      Xml.toJson(xml1) must_== Xml.toJson(xml2)
+      assert(Xml.toJson(xml1) == Xml.toJson(xml2))
     }
 
     "HarryH's XML with attributes parses correctly" in {
       val json = toJson(<tips><group type="Nearby"><tip><id>10</id></tip></group></tips>)
-      compact(render(json)) must_== """{"tips":{"group":{"type":"Nearby","tip":{"id":"10"}}}}"""
+      assert(compact(render(json)) == """{"tips":{"group":{"type":"Nearby","tip":{"id":"10"}}}}""")
     }
 
     "Jono's XML with attributes parses correctly" in {
@@ -44,8 +44,8 @@ abstract class XmlBugs[T](mod: String) extends Specification with JsonMethods[T]
       val example2 = <word term="example" self="http://localhost:8080/word/example" available="true"></word>
       val expected2 = """{"self":"http://localhost:8080/word/example","term":"example","available":"true"}"""
 
-      (toJson(example1) diff parse(expected1)) must_== Diff(JNothing, JNothing, JNothing)
-      (toJson(example2) diff parse(expected2)) must_== Diff(JNothing, JNothing, JNothing)
+      assert((toJson(example1) diff parse(expected1)) == Diff(JNothing, JNothing, JNothing))
+      assert((toJson(example2) diff parse(expected2)) == Diff(JNothing, JNothing, JNothing))
     }
 
     "Nodes with attributes converted to correct JSON" in {
@@ -71,14 +71,14 @@ abstract class XmlBugs[T](mod: String) extends Specification with JsonMethods[T]
 //
 //=======
       val expected = """{"root":{"n":[{"id":"10","x":"abc"},{"id":"11","x":"bcd"}]}}"""
-      compact(render(toJson(xml))) must_== expected
+      assert(compact(render(toJson(xml))) == expected)
     }
 
     "XML with empty node is converted correctly to JSON" in {
       val xml =
         <tips><group type="Foo"></group><group type="Bar"><tip><text>xxx</text></tip><tip><text>yyy</text></tip></group></tips>
       val expected = """{"tips":{"group":[{"type":"Foo"},{"type":"Bar","tip":[{"text":"xxx"},{"text":"yyy"}]}]}}"""
-      compact(render(toJson(xml))) must_== expected
+      assert(compact(render(toJson(xml))) == expected)
     }
   }
 }

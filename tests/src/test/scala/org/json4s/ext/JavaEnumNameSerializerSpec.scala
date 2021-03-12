@@ -2,11 +2,11 @@ package org.json4s
 package ext
 
 import org.json4s.jackson._
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
 private case class ExampleClass(day: JavaDayEnum)
 
-class JavaEnumNameSerializerSpec extends Specification {
+class JavaEnumNameSerializerSpec extends AnyWordSpec {
 
   implicit val formats: Formats =
     DefaultFormats + new JavaEnumNameSerializer[JavaDayEnum]()
@@ -15,8 +15,8 @@ class JavaEnumNameSerializerSpec extends Specification {
     "serialize and deserialize with name" in {
       val example = ExampleClass(JavaDayEnum.Monday)
       val jsonString = Serialization.write(example)
-      jsonString must_== """{"day":"Monday"}"""
-      Serialization.read[ExampleClass](jsonString) must_== example
+      assert(jsonString == """{"day":"Monday"}""")
+      assert(Serialization.read[ExampleClass](jsonString) == example)
     }
   }
 

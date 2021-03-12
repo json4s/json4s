@@ -16,7 +16,7 @@
 
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 class NativeJsonQueryExamples extends JsonQueryExamples[Document]("Native") with native.JsonMethods
@@ -25,17 +25,19 @@ class JacksonJsonQueryExamples extends JsonQueryExamples[JValue]("Jackson") with
 /**
  * System under specification for JSON Query Examples.
  */
-abstract class JsonQueryExamples[T](mod: String) extends Specification with JsonMethods[T] {
+abstract class JsonQueryExamples[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
   (mod + " JSON Query Examples") should {
     "List of IPs" in {
       val ips = for { JString(ip) <- json \\ "ip" } yield ip
-      ips must_== List("192.168.1.125", "192.168.1.126", "192.168.1.127", "192.168.2.125", "192.168.2.126")
+      assert(ips == List("192.168.1.125", "192.168.1.126", "192.168.1.127", "192.168.2.125", "192.168.2.126"))
     }
 
     "List of IPs converted to XML" in {
       val ips = <ips>{for { JString(ip) <- json \\ "ip" } yield <ip>{ip}</ip>}</ips>
-      ips must_== <ips><ip>192.168.1.125</ip><ip>192.168.1.126</ip><ip>192.168.1.127</ip><ip>192.168.2.125</ip><ip>192.168.2.126</ip></ips>
+      assert(
+        ips == <ips><ip>192.168.1.125</ip><ip>192.168.1.126</ip><ip>192.168.1.127</ip><ip>192.168.2.125</ip><ip>192.168.2.126</ip></ips>
+      )
     }
 
     "List of IPs in cluster2" in {
@@ -45,11 +47,11 @@ abstract class JsonQueryExamples[T](mod: String) extends Specification with Json
         cluster @ JObject(x) <- json \ "data_center" if x contains JField("name", JString("cluster2"))
         JString(ip) <- cluster \\ "ip"
       } yield ip
-      ips must_== List("192.168.2.125", "192.168.2.126")
+      assert(ips == List("192.168.2.125", "192.168.2.126"))
     }
 
     "Total cpus in data center" in {
-      (for { JInt(x) <- json \\ "cpus" } yield x) reduceLeft (_ + _) must_== 40
+      assert((for { JInt(x) <- json \\ "cpus" } yield x).reduceLeft(_ + _) == 40)
     }
 
     "Servers sorted by uptime" in {
@@ -62,12 +64,13 @@ abstract class JsonQueryExamples[T](mod: String) extends Specification with Json
         JField("uptime", JInt(uptime)) <- server
       } yield Server(ip, uptime.longValue)
 
-      servers sortWith (_.uptime > _.uptime) must_== List(
-        Server("192.168.1.127", 901214),
-        Server("192.168.2.125", 453423),
-        Server("192.168.2.126", 214312),
-        Server("192.168.1.126", 189822),
-        Server("192.168.1.125", 150123)
+      assert({ servers sortWith (_.uptime > _.uptime) } == List(
+          Server("192.168.1.127", 901214),
+          Server("192.168.2.125", 453423),
+          Server("192.168.2.126", 214312),
+          Server("192.168.1.126", 189822),
+          Server("192.168.1.125", 150123)
+        )
       )
     }
 
@@ -79,7 +82,7 @@ abstract class JsonQueryExamples[T](mod: String) extends Specification with Json
         JField("name", JString(name)) <- cluster
       } yield name
 
-      clusters must_== List("cluster2")
+      assert(clusters == List("cluster2"))
     }
   }
 

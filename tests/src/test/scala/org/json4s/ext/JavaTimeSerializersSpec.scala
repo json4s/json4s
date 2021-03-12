@@ -3,7 +3,7 @@ package org.json4s.ext
 import java.time._
 
 import org.json4s._
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
 class NativeJavaDateTimeSerializerSpec extends JavaDateTimeSerializerSpec("Native") {
   val s: Serialization = native.Serialization
@@ -16,7 +16,7 @@ class JacksonJavaDateTimeSerializerSpec extends JavaDateTimeSerializerSpec("Jack
 /**
  * System under specification for JavaTimeSerializer.
  */
-abstract class JavaDateTimeSerializerSpec(mod: String) extends Specification {
+abstract class JavaDateTimeSerializerSpec(mod: String) extends AnyWordSpec {
 
   def s: Serialization
   implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JavaTimeSerializers.all
@@ -35,7 +35,7 @@ abstract class JavaDateTimeSerializerSpec(mod: String) extends Specification {
         MonthDay.of(11, 24)
       )
       val ser = s.write(x)
-      s.read[JavaTypes](ser) must_== x
+      assert(s.read[JavaTypes](ser) == x)
     }
 
     "LocalDateTime use configured date format" in {
@@ -49,13 +49,13 @@ abstract class JavaDateTimeSerializerSpec(mod: String) extends Specification {
 
       val x = JavaDates(LocalDateTime.of(2015, 6, 24, 15, 34, 59))
       val ser = s.write(x)
-      ser must_== """{"ldt":"2015-06-24 15:34:59Z"}"""
+      assert(ser == """{"ldt":"2015-06-24 15:34:59Z"}""")
     }
 
     "null is serialized as JSON null" in {
       val x = JavaTypes(null, null, null, null, null, null, null, null, null)
       val ser = s.write(x)
-      s.read[JavaTypes](ser) must_== x
+      assert(s.read[JavaTypes](ser) == x)
     }
   }
 }

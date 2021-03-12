@@ -1,7 +1,7 @@
 package org.json4s
 package mongo
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.{Extraction, DefaultFormats}
 import java.util.Date
 
@@ -19,7 +19,7 @@ object DateSerializerSpec {
     params: List[String] = Nil
   )
 }
-class DateSerializerSpec extends Specification {
+class DateSerializerSpec extends AnyWordSpec {
 
   import DateSerializerSpec._
   implicit val formats: Formats = DefaultFormats.lossless + new DateSerializer("$date")
@@ -32,22 +32,24 @@ class DateSerializerSpec extends Specification {
       val obj = WithDate(2, "Alice", d)
       val jv = Extraction.decompose(obj)
       println(jv)
-      jv.extract[WithDate] must_== obj
+      assert(jv.extract[WithDate] == obj)
     }
 
     "serialize a mongo json string" in {
       val d = formats.dateFormat.parse("2013-03-26T11:19:00.000Z")
       val obj = jackson.JsonMethods.parse(js).extract[EventWithDate]
-      obj must_== EventWithDate(
-        d.get,
-        1,
-        "uAppLaunch",
-        "",
-        "370",
-        "iPad",
-        "Apple iPad 3rd Gen (Wi-Fi Only)",
-        "89B59046-A6F1-4E13-B5B9-055FF2D2BBF1",
-        List("")
+      assert(
+        obj == EventWithDate(
+          d.get,
+          1,
+          "uAppLaunch",
+          "",
+          "370",
+          "iPad",
+          "Apple iPad 3rd Gen (Wi-Fi Only)",
+          "89B59046-A6F1-4E13-B5B9-055FF2D2BBF1",
+          List("")
+        )
       )
     }
   }

@@ -25,12 +25,12 @@ import java.util.{Date, UUID}
 import java.util.regex.Pattern
 
 import org.bson.types.ObjectId
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
 import com.mongodb.{BasicDBList, DBObject}
 import scala.collection.JavaConverters._
 
-class BsonDSLSpec extends Specification {
+class BsonDSLSpec extends AnyWordSpec {
 
   "BsonDSL" should {
     "Convert ObjectId properly" in {
@@ -38,7 +38,7 @@ class BsonDSLSpec extends Specification {
       val qry: JObject = "id" -> oid
       val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
 
-      dbo.get("id") must_== oid
+      assert(dbo.get("id") == oid)
     }
 
     "Convert List[ObjectId] properly" in {
@@ -48,7 +48,7 @@ class BsonDSLSpec extends Specification {
       val oidList2: List[ObjectId] =
         dbo.get("ids").asInstanceOf[BasicDBList].asScala.toList.map(_.asInstanceOf[ObjectId])
 
-      oidList2 must_== oidList
+      assert(oidList2 == oidList)
     }
 
     "Convert Pattern properly" in {
@@ -57,8 +57,8 @@ class BsonDSLSpec extends Specification {
       val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
       val ptrn2: Pattern = dbo.get("ptrn").asInstanceOf[Pattern]
 
-      ptrn2.pattern must_== ptrn.pattern
-      ptrn2.flags must_== ptrn.flags
+      assert(ptrn2.pattern == ptrn.pattern)
+      assert(ptrn2.flags == ptrn.flags)
     }
 
     "Convert List[Pattern] properly" in {
@@ -71,8 +71,8 @@ class BsonDSLSpec extends Specification {
       val ptrnList2: List[Pattern] =
         dbo.get("ptrns").asInstanceOf[BasicDBList].asScala.toList.map(_.asInstanceOf[Pattern])
 
-      ptrnList.map(_.pattern) must_== ptrnList2.map(_.pattern)
-      ptrnList.map(_.flags) must_== ptrnList2.map(_.flags)
+      assert(ptrnList.map(_.pattern) == ptrnList2.map(_.pattern))
+      assert(ptrnList.map(_.flags) == ptrnList2.map(_.flags))
     }
 
     "Convert Regex properly" in {
@@ -81,8 +81,8 @@ class BsonDSLSpec extends Specification {
       val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
       val ptrn: Pattern = dbo.get("regex").asInstanceOf[Pattern]
 
-      regex.pattern.pattern must_== ptrn.pattern
-      regex.pattern.flags must_== ptrn.flags
+      assert(regex.pattern.pattern == ptrn.pattern)
+      assert(regex.pattern.flags == ptrn.flags)
     }
 
     "Convert UUID properly" in {
@@ -90,7 +90,7 @@ class BsonDSLSpec extends Specification {
       val qry: JObject = "uuid" -> uuid
       val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
 
-      dbo.get("uuid") must_== uuid
+      assert(dbo.get("uuid") == uuid)
     }
 
     "Convert List[UUID] properly" in {
@@ -99,7 +99,7 @@ class BsonDSLSpec extends Specification {
       val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
       val uuidList2: List[UUID] = dbo.get("ids").asInstanceOf[BasicDBList].asScala.toList.map(_.asInstanceOf[UUID])
 
-      uuidList2 must_== uuidList
+      assert(uuidList2 == uuidList)
     }
 
     "Convert Date properly" in {
@@ -108,7 +108,7 @@ class BsonDSLSpec extends Specification {
       val qry: JObject = "now" -> dt
       val dbo: DBObject = JObjectParser.parse(qry)
 
-      dbo.get("now") must_== dt
+      assert(dbo.get("now") == dt)
     }
 
     "Convert List[Date] properly" in {
@@ -118,7 +118,7 @@ class BsonDSLSpec extends Specification {
       val dbo: DBObject = JObjectParser.parse(qry)
       val dateList2: List[Date] = dbo.get("dts").asInstanceOf[BasicDBList].asScala.toList.map(_.asInstanceOf[Date])
 
-      dateList2 must_== dateList
+      assert(dateList2 == dateList)
     }
   }
 }

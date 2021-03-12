@@ -1,10 +1,10 @@
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import java.util.UUID
 import scala.collection.mutable
 
-class SerializationBugs extends Specification {
+class SerializationBugs extends AnyWordSpec {
   import native.Serialization.{read, write => swrite}
 
   implicit val formats: Formats = native.Serialization.formats(NoTypeHints)
@@ -14,7 +14,7 @@ class SerializationBugs extends Specification {
 
     val game = Game(Map("a" -> Plan(Some(Action(1, None)))))
     val ser = swrite(game)
-    read[Game](ser) must_== game
+    assert(read[Game](ser) == game)
   }
 
   "plan2.Plan can be serialized (issue 341)" in {
@@ -32,30 +32,30 @@ class SerializationBugs extends Specification {
     val ser = swrite(g1)
     val g2 = read[Game](ser)
     val plan = g2.buy("a")
-    g2.buy.size must_== 1
+    assert(g2.buy.size == 1)
     val leftOp = plan.leftOperand.get
-    leftOp.functionName must_== "f1"
-    leftOp.symbol must_== "s"
-    leftOp.inParams.toList must_== Nil
-    leftOp.subOperand must_== None
-    plan.operator must_== Some("A")
+    assert(leftOp.functionName == "f1")
+    assert(leftOp.symbol == "s")
+    assert(leftOp.inParams.toList == Nil)
+    assert(leftOp.subOperand == None)
+    assert(plan.operator == Some("A"))
     val rightOp = plan.rightOperand.get
-    rightOp.functionName must_== "f2"
-    rightOp.symbol must_== "s2"
-    rightOp.inParams.toList must_== List(0, 1, 2)
-    rightOp.subOperand must_== None
+    assert(rightOp.functionName == "f2")
+    assert(rightOp.symbol == "s2")
+    assert(rightOp.inParams.toList == List(0, 1, 2))
+    assert(rightOp.subOperand == None)
   }
 
   "null serialization bug" in {
     val x = new X(null)
     val ser = swrite(x)
-    read[X](ser) must_== x
+    assert(read[X](ser) == x)
   }
 
   "StackOverflowError with large Lists" in {
     val xs = LongList(List.fill(5000)(0).map(Num))
     val ser = swrite(xs)
-    read[LongList](ser).xs.length must_== 5000
+    assert(read[LongList](ser).xs.length == 5000)
   }
 
   "Custom serializer should work with Option" in {
@@ -74,8 +74,8 @@ class SerializationBugs extends Specification {
     implicit val formats: Formats = native.Serialization.formats(NoTypeHints) + new UUIDFormat
     val o1 = OptionalUUID(None)
     val o2 = OptionalUUID(Some(UUID.randomUUID))
-    read[OptionalUUID](swrite(o1)) must_== o1
-    read[OptionalUUID](swrite(o2)) must_== o2
+    assert(read[OptionalUUID](swrite(o1)) == o1)
+    assert(read[OptionalUUID](swrite(o2)) == o2)
   }
 
   "TypeInfo is not correctly constructed for customer serializer -- 970" in {
@@ -102,27 +102,27 @@ class SerializationBugs extends Specification {
 
     val seq = Seq(1, 2, 3)
     val ser = Extraction.decompose(seq)
-    Extraction.extract[Seq[Int]](ser) must_== seq
+    assert(Extraction.extract[Seq[Int]](ser) == seq)
   }
 
   "Serialization of an opaque value should not fail" in {
     val o = Opaque(JObject(JField("some", JString("data")) :: Nil))
     val ser = native.Serialization.write(o)
-    ser must_== """{"x":{"some":"data"}}"""
+    assert(ser == """{"x":{"some":"data"}}""")
   }
 
   "Map with Map value" in {
     val a = Map("a" -> Map("a" -> 5))
     val b = Map("b" -> 1)
     val str = native.Serialization.write(MapWithMap(a, b))
-    read[MapWithMap](str) must_== MapWithMap(a, b)
+    assert(read[MapWithMap](str) == MapWithMap(a, b))
   }
 
   "Either can't be deserialized with type hints" in {
     implicit val formats: Formats = DefaultFormats + FullTypeHints(classOf[Either[_, _]] :: Nil)
     val x = Eith(Left("hello"))
     val s = native.Serialization.write(x)
-    read[Eith](s) must_== x
+    assert(read[Eith](s) == x)
   }
 
   "Deserialization of nested non-terminal types w/o type information should not suppress type hinted deserialization" in {
@@ -132,7 +132,7 @@ class SerializationBugs extends Specification {
       val json = native.Serialization.write[Expected](expected)
       val actual = read[Actual](json)
 
-      actual must_== expected
+      assert(actual == expected)
     }
 
     test[Seq[Seq[Any]], Seq[_]](Seq(Seq[Any](1, Y("foo"), "bar")))
@@ -170,56 +170,56 @@ class SerializationBugs extends Specification {
     implicit val formats: Formats = DefaultFormats + new SingleOrVectorSerializer
 
     val ser = swrite(MapHolder(Map("hello" -> SingleValue(2.0))))
-    read[MapHolder](ser) must_== MapHolder(Map("hello" -> SingleValue(2.0)))
+    assert(read[MapHolder](ser) == MapHolder(Map("hello" -> SingleValue(2.0))))
   }
 
   "Escapes control characters" in {
     val ser = native.Serialization.write("\u0000\u001F")
-    ser must_== "\"\\u0000\\u001F\""
+    assert(ser == "\"\\u0000\\u001F\"")
   }
 
   "Escapes control and unicode characters" in {
     val formats = DefaultFormats.withEscapeUnicode
     val ser = native.Serialization.write("\u0000\u001F")(formats)
-    ser must_== "\"\u0000\u001F\""
+    assert(ser == "\"\u0000\u001F\"")
   }
 
   "classes in deeply nested objects can be serialized" in {
     val ser = swrite(Zot.Bar.Foo("s"))
-    read[Zot.Bar.Foo](ser).s must_== "s"
+    assert(read[Zot.Bar.Foo](ser).s == "s")
   }
 
   "mutable Map can be serialized" in {
     val ser = swrite(mutable.Map("f" -> 1))
-    ser must_== """{"f":1}"""
+    assert(ser == """{"f":1}""")
   }
 
   "PositiveInfinity Float can be serialized" in {
     val expected = SingleValue(Float.PositiveInfinity)
     val serialized = native.Serialization.write(expected)
     val deserialized = read[SingleValue[Float]](serialized)
-    expected.value must_== deserialized.value
+    assert(expected.value == deserialized.value)
   }
 
   "NegativeInfinity Float can be serialized" in {
     val expected = SingleValue(Float.NegativeInfinity)
     val serialized = native.Serialization.write(expected)
     val deserialized = read[SingleValue[Float]](serialized)
-    expected.value must_== deserialized.value
+    assert(expected.value == deserialized.value)
   }
 
   "PositiveInfinity Double can be serialized" in {
     val expected = SingleValue(Double.PositiveInfinity)
     val serialized = native.Serialization.write(expected)
     val deserialized = read[SingleValue[Double]](serialized)
-    expected.value must_== deserialized.value
+    assert(expected.value == deserialized.value)
   }
 
   "NegativeInfinity Double can be serialized" in {
     val expected = SingleValue(Double.NegativeInfinity)
     val serialized = native.Serialization.write(expected)
     val deserialized = read[SingleValue[Double]](serialized)
-    expected.value must_== deserialized.value
+    assert(expected.value == deserialized.value)
   }
 }
 

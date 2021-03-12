@@ -1,6 +1,6 @@
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 object NativeUseCompanionCtorSpec extends UseCompanionConstructors[Document]("Native") with native.JsonMethods
@@ -12,7 +12,7 @@ object UseCompanionCtorSpec {
   def apply(someString: String, someInt: Int): UseCompanionCtorSpec = UseCompanionCtorSpec(someString, someInt, 1.1d)
 }
 
-abstract class UseCompanionConstructors[T](mod: String) extends Specification with JsonMethods[T] {
+abstract class UseCompanionConstructors[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
   implicit lazy val formats: Formats = DefaultFormats
 
@@ -22,15 +22,15 @@ abstract class UseCompanionConstructors[T](mod: String) extends Specification wi
   (mod + " case class with a companion ctor") should {
     "use companion ctor" in {
       val model = parse(useCtorSpec1).extract[UseCompanionCtorSpec]
-      model.someString must_== "Foo"
-      model.someInt must_== 123
-      model.someDouble must_== 1.1
+      assert(model.someString == "Foo")
+      assert(model.someInt == 123)
+      assert(model.someDouble == 1.1)
     }
     "use primary ctor" in {
       val model = parse(useCtorSpec2).extract[UseCompanionCtorSpec]
-      model.someString must_== "Foo"
-      model.someInt must_== 123
-      model.someDouble must_== 456.1
+      assert(model.someString == "Foo")
+      assert(model.someInt == 123)
+      assert(model.someDouble == 456.1)
     }
   }
 }
