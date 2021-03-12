@@ -1,14 +1,15 @@
 package org.json4s.ext
 
 import org.json4s._
+import scala.reflect.{ClassTag, classTag}
 
 trait ClassType[A, B] {
   def unwrap(b: B)(implicit format: Formats): A
   def wrap(a: A)(implicit format: Formats): B
 }
 
-case class ClassSerializer[A : Manifest, B : Manifest](t: ClassType[A, B]) extends Serializer[A] {
-  private[this] val Class = implicitly[Manifest[A]].runtimeClass
+case class ClassSerializer[A : ClassTag, B : Manifest](t: ClassType[A, B]) extends Serializer[A] {
+  private[this] val Class = classTag[A].runtimeClass
 
   def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), A] = {
     case (TypeInfo(Class, _), json) => json match {
