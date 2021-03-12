@@ -18,7 +18,7 @@ package org.json4s
 package ext
 
 import java.util.UUID
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
 class NativeUUIDSerializerSpec extends UUIDSerializerSpec("Native") {
   val s: Serialization = native.Serialization
@@ -31,7 +31,7 @@ class JacksonUUIDSerializerSpec extends UUIDSerializerSpec("Jackson") {
 /**
  * System under specification for UUIDSerializer.
  */
-abstract class UUIDSerializerSpec(mod: String) extends Specification {
+abstract class UUIDSerializerSpec(mod: String) extends AnyWordSpec {
 
   def s: Serialization
   implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JavaTypesSerializers.all
@@ -40,12 +40,14 @@ abstract class UUIDSerializerSpec(mod: String) extends Specification {
     "Serialize UUID's" in {
       val x = SubjectWithUUID(id = UUID.randomUUID())
       val ser = s.write(x)
-      s.read[SubjectWithUUID](ser) must_== x
+      assert(s.read[SubjectWithUUID](ser) == x)
     }
 
     "Throw mapping exceptions when fails to create uuid from string" in {
       val nonUUIDString = "abcdef"
-      JString(nonUUIDString).extract[UUID] must throwA[MappingException]
+      assertThrows[MappingException] {
+        JString(nonUUIDString).extract[UUID]
+      }
     }
   }
 

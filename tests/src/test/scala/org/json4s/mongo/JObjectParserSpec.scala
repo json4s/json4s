@@ -19,15 +19,11 @@ package mongo
 import JsonDSL._
 
 import org.bson.types.ObjectId
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import com.mongodb.DBObject
 import scala.util.control.Exception._
 
-class JObjectParserSpec extends Specification {
-
-  title("JObjectParser Specification")
-
-  sequential
+class JObjectParserSpec extends AnyWordSpec {
 
   def buildTestData: (ObjectId, DBObject) = {
     val oid = ObjectId.get
@@ -40,10 +36,10 @@ class JObjectParserSpec extends Specification {
       val (oid, dbo) = buildTestData
       val xval = allCatch.opt(dbo.get("x").asInstanceOf[ObjectId])
 
-      xval.isDefined must_== true
-      xval.toList map { x =>
-        x must_== oid
-      } reduce (_ and _)
+      assert(xval.isDefined)
+      xval.foreach { x =>
+        assert(x == oid)
+      }
     }
     "not convert strings to ObjectId when configured not to" in {
       JObjectParser.stringProcessor.set((s: String) => s)
@@ -51,10 +47,10 @@ class JObjectParserSpec extends Specification {
       val (oid, dbo) = buildTestData
       val xval = allCatch.opt(dbo.get("x").asInstanceOf[String])
 
-      xval.isDefined must_== true
-      xval.toList map { x =>
-        x must_== oid.toString
-      } reduce (_ and _)
+      assert(xval.isDefined)
+      xval.foreach { x =>
+        assert(x == oid.toString)
+      }
     }
   }
 }

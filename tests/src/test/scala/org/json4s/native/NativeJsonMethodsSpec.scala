@@ -1,9 +1,9 @@
 package org.json4s
 package native
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
-class NativeJsonMethodsSpec extends Specification {
+class NativeJsonMethodsSpec extends AnyWordSpec {
 
   import org.json4s.JsonDSL._
   import JsonMethods._
@@ -13,43 +13,45 @@ class NativeJsonMethodsSpec extends Specification {
     val stringJson = """{"number": 200}"""
 
     "parse StringInput and produce JInt" in {
-      (parse(stringJson) \ "number") must beAnInstanceOf[JInt]
+      assert((parse(stringJson) \ "number").isInstanceOf[JInt])
     }
 
     "parse ReaderInput and produce JInt" in {
-      (parse(new java.io.StringReader(stringJson)) \ "number") must beAnInstanceOf[JInt]
+      assert((parse(new java.io.StringReader(stringJson)) \ "number").isInstanceOf[JInt])
     }
 
     "parse StreamInput and produce JInt" in {
-      (parse(new java.io.ByteArrayInputStream(stringJson.getBytes)) \ "number") must beAnInstanceOf[JInt]
+      assert((parse(new java.io.ByteArrayInputStream(stringJson.getBytes)) \ "number").isInstanceOf[JInt])
     }
 
     "parse StringInput and produce JLong" in {
-      (parse(stringJson, useBigIntForLong = false) \ "number") must beAnInstanceOf[JLong]
+      assert((parse(stringJson, useBigIntForLong = false) \ "number").isInstanceOf[JLong])
     }
 
     "parse ReaderInput and produce JLong" in {
-      (parse(new java.io.StringReader(stringJson), useBigIntForLong = false) \ "number") must beAnInstanceOf[JLong]
+      assert((parse(new java.io.StringReader(stringJson), useBigIntForLong = false) \ "number").isInstanceOf[JLong])
     }
 
     "parse StreamInput and produce AST using Long" in {
-      (parse(
-        new java.io.ByteArrayInputStream(stringJson.getBytes),
-        useBigIntForLong = false
-      ) \ "number") must beAnInstanceOf[JLong]
+      assert(
+        (parse(
+          new java.io.ByteArrayInputStream(stringJson.getBytes),
+          useBigIntForLong = false
+        ) \ "number").isInstanceOf[JLong]
+      )
     }
   }
 
   "JsonMethods.write" should {
 
-    "produce JSON without empty fields" in {
+    "produce JSON without empty fields" should {
       implicit val formats: Formats = DefaultFormats.skippingEmptyValues
 
       "from Seq(Some(1), None, None, Some(2))" in {
         val seq = Seq(Some(1), None, None, Some(2))
         val expected =
           DocCons(DocText("["), DocCons(DocCons(DocText("1"), DocCons(DocText(","), DocText("2"))), DocText("]")))
-        render(seq) must_== expected
+        assert(render(seq) == expected)
       }
 
       """from Map("a" -> Some(1), "b" -> None, "c" -> None, "d" -> Some(2))""" in {
@@ -70,11 +72,11 @@ class NativeJsonMethodsSpec extends Specification {
             DocCons(DocBreak, DocText("}"))
           )
         )
-        render(map) must_== expected
+        assert(render(map) == expected)
       }
     }
 
-    "produce JSON with empty fields preserved" in {
+    "produce JSON with empty fields preserved" should {
       implicit val formats: Formats = DefaultFormats.preservingEmptyValues
 
       "from Seq(Some(1), None, None, Some(2))" in {
@@ -92,7 +94,7 @@ class NativeJsonMethodsSpec extends Specification {
             DocText("]")
           )
         )
-        render(seq) must_== expected
+        assert(render(seq) == expected)
       }
 
       """from Map("a" -> Some(1), "b" -> None, "c" -> None, "d" -> Some(2))""" in {
@@ -119,7 +121,7 @@ class NativeJsonMethodsSpec extends Specification {
             DocCons(DocBreak, DocText("}"))
           )
         )
-        render(map) must_== expected
+        assert(render(map) == expected)
       }
     }
 

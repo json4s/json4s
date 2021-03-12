@@ -16,7 +16,7 @@
 
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 class NativeNullErrorHandlingSpec extends NullErrorHandlingSpec[Document]("Native") with native.JsonMethods
@@ -28,7 +28,7 @@ object NullErrorHandlingSpec {
   val NullStringTypeJson = """{"x": 10, "y": true, "z": null}"""
 }
 
-abstract class NullErrorHandlingSpec[T](mod: String) extends Specification with JsonMethods[T] {
+abstract class NullErrorHandlingSpec[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
   import NullErrorHandlingSpec._
 
   implicit lazy val formats: Formats = DefaultFormats
@@ -36,22 +36,30 @@ abstract class NullErrorHandlingSpec[T](mod: String) extends Specification with 
   (mod + " case class modeling json type") should {
     "throw an error explaining the cause when parsing null int" in {
       val json = parse(NullIntTypeJson)
-      json.extract[NullErrorHandlingJson] must throwA(
-        new MappingException("No usable value for x\nNull invalid value for a sub-type of AnyVal")
-      )
+      try {
+        json.extract[NullErrorHandlingJson]
+        fail()
+      } catch {
+        case e: MappingException =>
+          assert(e.getMessage == "No usable value for x\nNull invalid value for a sub-type of AnyVal")
+      }
     }
     "throw an error explaining the cause when parsing null boolean" in {
       val json = parse(NullBooleanTypeJson)
-      json.extract[NullErrorHandlingJson] must throwA(
-        new MappingException("No usable value for y\nNull invalid value for a sub-type of AnyVal")
-      )
+      try {
+        json.extract[NullErrorHandlingJson]
+        fail()
+      } catch {
+        case e: MappingException =>
+          assert(e.getMessage == "No usable value for y\nNull invalid value for a sub-type of AnyVal")
+      }
     }
     "returns a correct result when parsing a null string" in {
       val json = parse(NullStringTypeJson)
       val obj = json.extract[NullErrorHandlingJson]
-      obj.x must_== 10
-      obj.y must_== true
-      obj.z must_== null
+      assert(obj.x == 10)
+      assert(obj.y)
+      assert(obj.z == null)
     }
   }
 }

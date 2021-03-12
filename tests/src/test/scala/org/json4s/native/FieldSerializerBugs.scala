@@ -1,9 +1,9 @@
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import FieldSerializerBugs._
 
-class FieldSerializerBugs extends Specification {
+class FieldSerializerBugs extends AnyWordSpec {
   import native.Serialization
   import Serialization.{read, write => swrite}
 
@@ -15,12 +15,12 @@ class FieldSerializerBugs extends Specification {
 
     val ser = swrite(new AtomicInteger(1))
     val atomic = read[AtomicInteger](ser)
-    atomic.get must_== 1
+    assert(atomic.get == 1)
   }
    */
 
   "Serializing a singleton object should not cause stack overflow" in {
-    swrite(SingletonObject) must not(throwAn[Exception])
+    swrite(SingletonObject)
   }
 
   "Name with symbols is correctly serialized" in {
@@ -28,8 +28,8 @@ class FieldSerializerBugs extends Specification {
 
     val s = WithSymbol(5)
     val str = Serialization.write(s)
-    str must_== """{"a-b*c":5}"""
-    read[WithSymbol](str) must_== s
+    assert(str == """{"a-b*c":5}""")
+    assert(read[WithSymbol](str) == s)
   }
 
   "FieldSerialization should work with Options" in {
@@ -37,7 +37,7 @@ class FieldSerializerBugs extends Specification {
 
     val t = new ClassWithOption
     t.field = Some(5)
-    read[ClassWithOption](Serialization.write(t)).field must_== Some(5)
+    assert(read[ClassWithOption](Serialization.write(t)).field == Some(5))
   }
 
   "FieldSerializer's manifest should not be overridden when it's added to Formats" in {
@@ -45,8 +45,8 @@ class FieldSerializerBugs extends Specification {
     implicit val formats: Formats = DefaultFormats + (fieldSerializer: FieldSerializer[_])
     val expected1 = JObject(JField("yum", JInt(123)))
     val expected2 = JObject(JField("num", JInt(456)))
-    Extraction.decompose(Type1(123)) must_== expected1
-    Extraction.decompose(Type2(456)) must_== expected2
+    assert(Extraction.decompose(Type1(123)) == expected1)
+    assert(Extraction.decompose(Type2(456)) == expected2)
   }
 }
 

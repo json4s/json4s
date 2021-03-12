@@ -21,7 +21,7 @@ import java.util.TimeZone
 
 import org.joda.time.DateTimeZone.{forTimeZone, UTC}
 import org.joda.time._
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
 class NativeJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Native") {
   val s: Serialization = native.Serialization
@@ -36,7 +36,7 @@ class JacksonJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Jackson") {
 /**
  * System under specification for JodaTimeSerializer.
  */
-abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
+abstract class JodaTimeSerializerSpec(mod: String) extends AnyWordSpec {
 
   def s: Serialization
   def m: JsonMethods[_]
@@ -55,7 +55,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
         Period.weeks(3)
       )
       val ser = s.write(x)
-      s.read[JodaTypes](ser) must_== x
+      assert(s.read[JodaTypes](ser) == x)
     }
 
     "DateTime and DateMidnight use configured date format 1" in {
@@ -69,10 +69,10 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
 
       val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0, UTC), new DateMidnight(2011, 1, 16, UTC))
       val ser = s.write(x)
-      ser must_== """{"dt":"2011-01-16 10:32:00Z","dm":"2011-01-16 00:00:00Z"}"""
+      assert(ser == """{"dt":"2011-01-16 10:32:00Z","dm":"2011-01-16 00:00:00Z"}""")
 
-      (m.parse(ser) \ "dt").extract[DateTime] must_== new DateTime(2011, 1, 16, 10, 32, 0, 0, UTC)
-      (m.parse(ser) \ "dm").extract[DateTime] must_== new DateMidnight(2011, 1, 16, UTC)
+      assert((m.parse(ser) \ "dt").extract[DateTime] == new DateTime(2011, 1, 16, 10, 32, 0, 0, UTC))
+      assert((m.parse(ser) \ "dm").extract[DateTime] == new DateMidnight(2011, 1, 16, UTC))
     }
 
     "DateTime and DateMidnight use configured date format 2" in {
@@ -92,10 +92,10 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
       val x =
         Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0, usDateTimeZone), new DateMidnight(2011, 1, 16, usDateTimeZone))
       val ser = s.write(x)
-      ser must beMatching("""\{"dt":"2011-01-16 10:32:00[-+]\d{2}:\d{2}","dm":"2011-01-16 00:00:00[-+]\d{2}:\d{2}"\}""")
+      assert(ser.matches("""\{"dt":"2011-01-16 10:32:00[-+]\d{2}:\d{2}","dm":"2011-01-16 00:00:00[-+]\d{2}:\d{2}"\}"""))
 
-      (m.parse(ser) \ "dt").extract[DateTime] must_== new DateTime(2011, 1, 16, 10, 32, 0, 0, usDateTimeZone)
-      (m.parse(ser) \ "dm").extract[DateTime] must_== new DateMidnight(2011, 1, 16, usDateTimeZone)
+      assert((m.parse(ser) \ "dt").extract[DateTime] == new DateTime(2011, 1, 16, 10, 32, 0, 0, usDateTimeZone))
+      assert((m.parse(ser) \ "dm").extract[DateTime] == new DateMidnight(2011, 1, 16, usDateTimeZone))
     }
 
     "Serialising and deserialising Date types with the default format uses UTC rather than the default local timezone" in {
@@ -106,13 +106,13 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
       val ser = s.write(x)
       val deserialisedDates = s.read[Dates](ser)
 
-      deserialisedDates must_== x
+      assert(deserialisedDates == x)
     }
 
     "null is serialized as JSON null" in {
       val x = JodaTypes(null, null, null, null, null, null, null)
       val ser = s.write(x)
-      s.read[JodaTypes](ser) must_== x
+      assert(s.read[JodaTypes](ser) == x)
     }
   }
 }

@@ -1,34 +1,34 @@
 package org.json4s.native
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import org.json4s._
 import org.json4s.native.Serialization.{read, write => swrite}
 import org.json4s.native
 import java.util.{GregorianCalendar, Date}
 import java.sql.Timestamp
 
-class MapSerializationExamples extends Specification {
+class MapSerializationExamples extends AnyWordSpec {
   implicit val formats: Formats = native.Serialization.formats(NoTypeHints)
 
   "Map with Symbol key" in {
     val pw = Map[Symbol, String](Symbol("a") -> "hello", Symbol("b") -> "world")
     val ser = swrite(pw)
-    ser must_== """{"a":"hello","b":"world"}"""
-    read[Map[Symbol, String]](ser) must_== pw
+    assert(ser == """{"a":"hello","b":"world"}""")
+    assert(read[Map[Symbol, String]](ser) == pw)
   }
 
   "Map with Int key" in {
     val pw = Map[Int, String](1 -> "hello", 2 -> "world")
     val ser = swrite(pw)
-    ser must_== """{"1":"hello","2":"world"}"""
-    read[Map[Int, String]](ser) must_== pw
+    assert(ser == """{"1":"hello","2":"world"}""")
+    assert(read[Map[Int, String]](ser) == pw)
   }
 
   "Map with Long key" in {
     val pw = Map[Long, String](1L -> "hello", 2L -> "world")
     val ser = swrite(pw)
-    ser must_== """{"1":"hello","2":"world"}"""
-    read[Map[Long, String]](ser) must_== pw
+    assert(ser == """{"1":"hello","2":"world"}""")
+    assert(read[Map[Long, String]](ser) == pw)
   }
 
   "Map with Date key" in {
@@ -41,8 +41,8 @@ class MapSerializationExamples extends Specification {
     val ser = swrite(pw)
     val f2013 = formats.dateFormat.format(d2013)
     val f2014 = formats.dateFormat.format(d2014)
-    ser must_== """{"""" + f2013 + """":"hello","""" + f2014 + """":"world"}"""
-    read[Map[Date, String]](ser) must_== pw
+    assert(ser == { """{"""" + f2013 + """":"hello","""" + f2014 + """":"world"}""" })
+    assert(read[Map[Date, String]](ser) == pw)
   }
 
   "Map with Timestamp key" in {
@@ -53,15 +53,20 @@ class MapSerializationExamples extends Specification {
 
     val f2013 = formats.dateFormat.format(t2013)
     val f2014 = formats.dateFormat.format(t2014)
-    ser must_== """{"""" + f2013 + """":"hello","""" + f2014 + """":"world"}"""
-    read[Map[Timestamp, String]](ser) must_== pw
+    assert(ser == { """{"""" + f2013 + """":"hello","""" + f2014 + """":"world"}""" })
+    assert(read[Map[Timestamp, String]](ser) == pw)
   }
 
   "Map with custom key and no custom serializer -- should suggest CustomKeySerializer implementation" in {
     val pw = Map[KeyWithInt, String](KeyWithInt(1) -> "hello", KeyWithInt(2) -> "world")
-    val thrown = swrite(pw) must throwA[MappingException]
-    thrown.message must contain("Consider implementing a CustomKeySerializer")
-    thrown.message must contain("KeyWithInt")
+    try {
+      swrite(pw)
+      fail()
+    } catch {
+      case thrown: MappingException =>
+        assert(thrown.getMessage.contains("Consider implementing a CustomKeySerializer"))
+        assert(thrown.getMessage.contains("KeyWithInt"))
+    }
   }
 
   "Map with custom key and custom key serializer" in {
@@ -75,17 +80,17 @@ class MapSerializationExamples extends Specification {
 
     val pw = Map[KeyWithInt, String](KeyWithInt(1) -> "hello", KeyWithInt(2) -> "world")
     val ser = swrite(pw)
-    ser must_== """{"1":"hello","2":"world"}"""
-    read[Map[KeyWithInt, String]](ser) must_== pw
+    assert(ser == """{"1":"hello","2":"world"}""")
+    assert(read[Map[KeyWithInt, String]](ser) == pw)
   }
 
   "case class with custom map" in {
     val pw = PlayerWithCustomMap("zortan", Map("2013" -> "zortan13", "2014" -> "zortan14"))
     val ser = swrite(pw)
     val s: String = """{"name":"zortan","aliasByYear":{"2013":"zortan13","2014":"zortan14"}}"""
-    ser must_== s
+    assert(ser == s)
     val deser = read[PlayerWithCustomMap](ser)
-    deser must_== pw
+    assert(deser == pw)
   }
 }
 

@@ -1,9 +1,9 @@
 package org.json4s
-import native.JsonMethods._
-import org.specs2.mutable.Specification
-import scala.util.Try
 
-class FieldSerializerExamples extends Specification {
+import native.JsonMethods._
+import org.scalatest.wordspec.AnyWordSpec
+
+class FieldSerializerExamples extends AnyWordSpec {
   import native.Serialization.{read, write => swrite}
   import FieldSerializer._
 
@@ -18,10 +18,10 @@ class FieldSerializerExamples extends Specification {
     implicit val formats: Formats = DefaultFormats + FieldSerializer[WildDog]()
     val ser = swrite(dog)
     val dog2 = read[WildDog](ser)
-    dog2.name must_== dog.name
-    dog2.color must_== dog.color
-    dog2.owner must_== dog.owner
-    dog2.size must_== dog.size
+    assert(dog2.name == dog.name)
+    assert(dog2.color == dog.color)
+    assert(dog2.owner == dog.owner)
+    assert(dog2.size == dog.size)
   }
 
   "Fields can be ignored and renamed" in {
@@ -34,11 +34,11 @@ class FieldSerializerExamples extends Specification {
 
     val ser = swrite(dog)
     val dog2 = read[WildDog](ser)
-    dog2.name must_== dog.name
-    dog2.color must_== dog.color
-    dog2.owner must beNull
-    dog2.size must_== dog.size
-    (parse(ser) \ "animalname") must_== JString("pluto")
+    assert(dog2.name == dog.name)
+    assert(dog2.color == dog.color)
+    assert(dog2.owner == null)
+    assert(dog2.size == dog.size)
+    assert((parse(ser) \ "animalname") == JString("pluto"))
   }
 
   "Selects best matching serializer" in {
@@ -48,8 +48,8 @@ class FieldSerializerExamples extends Specification {
     val dog2 = read[WildDog](swrite(dog))
     val cat2 = read[WildCat](swrite(cat))
 
-    dog2.name must_== ""
-    cat2.name must_== "tommy"
+    assert(dog2.name == "")
+    assert(cat2.name == "tommy")
   }
 
   "Renames a property name to/from" in {
@@ -58,10 +58,10 @@ class FieldSerializerExamples extends Specification {
     val dude = Dude("Jeffrey")
 
     val jv = Extraction.decompose(dude)
-    jv \ "nm" must_== JString("Jeffrey")
+    assert({ jv \ "nm" } == JString("Jeffrey"))
 
     val result = Extraction.extract[Dude](jv)
-    result must_== dude
+    assert(result == dude)
   }
 
   "Renames a property name to/from in subproperties" in {
@@ -70,11 +70,11 @@ class FieldSerializerExamples extends Specification {
     val dude = Dude("Jeffrey", Dude("Angel") :: Dude("Constantin") :: Nil)
 
     val jv = Extraction.decompose(dude)
-    jv \ "nm" must_== JString("Jeffrey")
-    jv \ "friends" \\ "nm" must_== JObject(List("nm" -> JString("Angel"), "nm" -> JString("Constantin")))
+    assert({ jv \ "nm" } == JString("Jeffrey"))
+    assert({ jv \ "friends" \\ "nm" } == JObject(List("nm" -> JString("Angel"), "nm" -> JString("Constantin"))))
 
     val result = Extraction.extract[Dude](jv)
-    result must_== dude
+    assert(result == dude)
   }
 
   "Extract should fail when undefined fields are provided with strictFieldSerialialization on" in {
@@ -87,7 +87,9 @@ class FieldSerializerExamples extends Specification {
 
     val ser = parse("""{"name":"John", "friends":[], "lastName": "Smith"}""")
 
-    Try { Extraction.extract[Dude](ser) } must beFailedTry
+    assertThrows[MappingException] {
+      Extraction.extract[Dude](ser)
+    }
   }
 
   "rename functionality should not break strictFieldSerialialization" in {
@@ -100,7 +102,7 @@ class FieldSerializerExamples extends Specification {
 
     val ser = parse("""{"nm":"John", "friends":[]}""")
 
-    Try { Extraction.extract[Dude](ser) } must beSuccessfulTry
+    Extraction.extract[Dude](ser)
   }
 
 }
