@@ -27,6 +27,8 @@ import org.json4s.prefs.ExtractionNullStrategy
 import org.json4s.reflect.Reflector
 
 import scala.annotation.implicitNotFound
+import scala.reflect.ClassTag
+import scala.reflect.classTag
 
 object Formats {
 
@@ -551,10 +553,10 @@ trait DefaultFormats extends Formats {
   }
 }
 
-class CustomSerializer[A: Manifest](
+class CustomSerializer[A: ClassTag](
   ser: Formats => (PartialFunction[JValue, A], PartialFunction[Any, JValue])) extends Serializer[A] {
 
-  val Class = implicitly[Manifest[A]].runtimeClass
+  val Class = classTag[A].runtimeClass
 
   def deserialize(implicit format: Formats) = {
     case (TypeInfo(Class, _), json) =>
@@ -565,10 +567,10 @@ class CustomSerializer[A: Manifest](
   def serialize(implicit format: Formats) = ser(format)._2
 }
 
-class CustomKeySerializer[A: Manifest](
+class CustomKeySerializer[A: ClassTag](
   ser: Formats => (PartialFunction[String, A], PartialFunction[Any, String])) extends KeySerializer[A] {
 
-  val Class = implicitly[Manifest[A]].runtimeClass
+  val Class = classTag[A].runtimeClass
 
   def deserialize(implicit format: Formats) = {
     case (TypeInfo(Class, _), json) =>

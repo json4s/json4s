@@ -1,5 +1,7 @@
 package org.json4s
 
+import scala.reflect.ClassTag
+
 /**
  * Serializer which serializes all fields of a class too.
  *
@@ -19,7 +21,7 @@ case class FieldSerializer[A](
   serializer:   PartialFunction[(String, Any), Option[(String, Any)]] = Map(),
   deserializer: PartialFunction[JField, JField] = Map(),
   includeLazyVal: Boolean = false
-)(implicit val mf: Manifest[A])
+)(implicit val mf: ClassTag[A])
 
 object FieldSerializer {
   def renameFrom(name: String, newName: String): PartialFunction[JField, JField] = {
