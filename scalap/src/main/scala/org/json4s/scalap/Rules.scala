@@ -117,7 +117,7 @@ trait StateRules {
         }
       }
     }
-    in: S => rep(in, rules.toList, Nil)
+    (in: S) => rep(in, rules.toList, Nil)
   }
 
 
