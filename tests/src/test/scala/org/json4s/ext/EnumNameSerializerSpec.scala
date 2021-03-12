@@ -1,7 +1,8 @@
 package org.json4s
 package ext
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers._
 
 object EnumNameSerializerSpec extends native.JsonMethods {
 
@@ -33,7 +34,7 @@ object EnumNameSerializerSpec extends native.JsonMethods {
 
 }
 
-class EnumNameSerializerSpec extends Specification {
+class EnumNameSerializerSpec extends AnyWordSpec {
   import EnumNameSerializerSpec._
 
   val weekdays = List(Week.Monday, Week.Tuesday, Week.Wednesday, Week.Thursday, Week.Friday)
@@ -47,103 +48,103 @@ class EnumNameSerializerSpec extends Specification {
 
   "An enum serializer" should {
 
-    "serialize with name" in {
+    "serialize with name" should {
       implicit val formats: Formats =
         DefaultFormats + new EnumNameSerializer(Days) + new EnumNameSerializer(Weekend) + new EnumNameSerializer(Week)
       "week days" in {
-        Extraction.decompose(weekdays) must_== weekdayNames
+        assert(Extraction.decompose(weekdays) == weekdayNames)
       }
 
       "weekend" in {
-        Extraction.decompose(weekend) must_== weekendNames
+        assert(Extraction.decompose(weekend) == weekendNames)
       }
     }
 
-    "deserialize from name" in {
+    "deserialize from name" should {
       implicit val formats: Formats =
         DefaultFormats + new EnumNameSerializer(Days) + new EnumNameSerializer(Weekend) + new EnumNameSerializer(Week)
       "week days" in {
-        weekdayNames.extract[List[Week.Week]] must_== weekdays
+        assert(weekdayNames.extract[List[Week.Week]] == weekdays)
       }
 
       "weekend" in {
-        weekendNames.extract[List[Weekend.Weekend]] must_== weekend
+        assert(weekendNames.extract[List[Weekend.Weekend]] == weekend)
       }
     }
 
-    "serialize with id" in {
+    "serialize with id" should {
       implicit val formats: Formats =
         DefaultFormats + new EnumSerializer(Days) + new EnumSerializer(Weekend) + new EnumSerializer(Week)
       "week days" in {
-        Extraction.decompose(weekdays) must_== weekdayIds
+        assert(Extraction.decompose(weekdays) == weekdayIds)
       }
 
       "weekend" in {
-        Extraction.decompose(weekend) must_== weekendIds
+        assert(Extraction.decompose(weekend) == weekendIds)
       }
     }
 
-    "deserialize from id" in {
+    "deserialize from id" should {
       implicit val formats: Formats =
         DefaultFormats + new EnumSerializer(Days) + new EnumSerializer(Weekend) + new EnumSerializer(Week)
       "week days" in {
-        weekdayIds.extract[List[Week.Week]] must_== weekdays
+        assert(weekdayIds.extract[List[Week.Week]] == weekdays)
       }
 
       "weekend" in {
-        weekendIds.extract[List[Weekend.Weekend]] must_== weekend
+        assert(weekendIds.extract[List[Weekend.Weekend]] == weekend)
       }
     }
 
-    "serialize with mix of id and name" in {
+    "serialize with mix of id and name" should {
       implicit val formats: Formats =
         DefaultFormats + new EnumNameSerializer(Week) + new EnumSerializer(Weekend)
 
       "week days as names" in {
-        Extraction.decompose(weekdays) must_== weekdayNames
+        assert(Extraction.decompose(weekdays) == weekdayNames)
       }
 
       "weekends as ids" in {
-        Extraction.decompose(weekend) must_== weekendIds
+        assert(Extraction.decompose(weekend) == weekendIds)
       }
     }
 
-    "serialize with mix of id and name - inverted order of serializers in formats" in {
+    "serialize with mix of id and name - inverted order of serializers in formats" should {
       implicit val formats: Formats =
         DefaultFormats + new EnumSerializer(Weekend) + new EnumNameSerializer(Week)
 
       "week days as names" in {
-        Extraction.decompose(weekdays) must_== weekdayNames
+        assert(Extraction.decompose(weekdays) == weekdayNames)
       }
 
       "weekends as ids" in {
-        Extraction.decompose(weekend) must_== weekendIds
+        assert(Extraction.decompose(weekend) == weekendIds)
       }
     }
 
-    "deserialize with mix of id and name" in {
+    "deserialize with mix of id and name" should {
       implicit val formats: Formats =
         DefaultFormats + new EnumNameSerializer(Week) + new EnumSerializer(Weekend)
 
       "week days as names" in {
-        weekdayNames.extract[List[Week.Week]] == weekdays
+        assert(weekdayNames.extract[List[Week.Week]] == weekdays)
       }
 
       "weekends as ids" in {
-        weekendIds.extract[List[Weekend.Weekend]] == weekend
+        assert(weekendIds.extract[List[Weekend.Weekend]] == weekend)
       }
     }
 
-    "deserialize with mix of id and name - inverted order of serializers in formats" in {
+    "deserialize with mix of id and name - inverted order of serializers in formats" should {
       implicit val formats: Formats =
         DefaultFormats + new EnumSerializer(Weekend) + new EnumNameSerializer(Week)
 
       "week days as names" in {
-        weekdayNames.extract[List[Week.Week]] == weekdays
+        assert(weekdayNames.extract[List[Week.Week]] == weekdays)
       }
 
       "weekends as ids" in {
-        weekendIds.extract[List[Weekend.Weekend]] == weekend
+        assert(weekendIds.extract[List[Weekend.Weekend]] == weekend)
       }
     }
 
