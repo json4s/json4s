@@ -47,28 +47,39 @@ class SeqRule[S, +A, +X](rule: Rule[S, S, A, X]) {
     case Error(x) => (in: S) => Error(x)
   }
 
-  /** Creates a rule that always succeeds with a Boolean value.
-   *  Value is 'true' if this rule succeeds, 'false' otherwise */
+  /**
+   * Creates a rule that always succeeds with a Boolean value.
+   *  Value is 'true' if this rule succeeds, 'false' otherwise
+   */
   def -? = ? map { _ isDefined }
 
   def * = from[S] {
     // tail-recursive function with reverse list accumulator
     def rep(in: S, acc: List[A]): Result[S, List[A], X] = rule(in) match {
-       case Success(out, a) => rep(out, a :: acc)
-       case Failure => Success(in, acc.reverse)
-       case err: Error[_] => err
+      case Success(out, a) => rep(out, a :: acc)
+      case Failure => Success(in, acc.reverse)
+      case err: Error[_] => err
     }
     in => rep(in, Nil)
   }
 
   def + = rule ~++ *
 
-  def ~>?[B >: A, X2 >: X](f: => Rule[S, S, B => B, X2]) = for (a <- rule; fs <- f?) yield fs.foldLeft[B](a) { (b, f) => f(b) }
+  def ~>?[B >: A, X2 >: X](f: => Rule[S, S, B => B, X2]) = for {
+    a <- rule
+    fs <- f ?
+  } yield fs.foldLeft[B](a) { (b, f) => f(b) }
 
-  def ~>*[B >: A, X2 >: X](f: => Rule[S, S, B => B, X2]) = for (a <- rule; fs <- f*) yield fs.foldLeft[B](a) { (b, f) => f(b) }
+  def ~>*[B >: A, X2 >: X](f: => Rule[S, S, B => B, X2]) = for {
+    a <- rule
+    fs <- f *
+  } yield fs.foldLeft[B](a) { (b, f) => f(b) }
 
   def ~*~[B >: A, X2 >: X](join: => Rule[S, S, (B, B) => B, X2]) = {
-    this ~>* (for (f <- join; a <- rule) yield f(_: B, a))
+    this ~>* (for {
+      f <- join
+      a <- rule
+    } yield f(_: B, a))
   }
 
   /** Repeats this rule one or more times with a separator (which is discarded) */
@@ -85,15 +96,15 @@ class SeqRule[S, +A, +X](rule: Rule[S, S, A, X]) {
     // more compact using HoF but written this way so it's tail-recursive
     def rep(result: List[A], i: Int, in: S): Result[S, Seq[A], X] = {
       if (i == num) Success(in, result.reverse)
-      else rule(in) match {
-       case Success(out, a) => {
-         rep(a :: result, i + 1, out)
-       }
-       case Failure => Failure
-       case err: Error[_] => err
-      }
+      else
+        rule(in) match {
+          case Success(out, a) => {
+            rep(a :: result, i + 1, out)
+          }
+          case Failure => Failure
+          case err: Error[_] => err
+        }
     }
     in => rep(Nil, 0, in)
   }
 }
-

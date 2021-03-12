@@ -14,7 +14,7 @@ private[reflect] class Memo[A, R] {
     }
   }
 
-  def replace(x: A, v: R):R = {
+  def replace(x: A, v: R): R = {
     cache.put(x, v)
     v
   }

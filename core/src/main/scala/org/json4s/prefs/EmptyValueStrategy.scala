@@ -32,9 +32,10 @@ object EmptyValueStrategy {
 
     def replaceEmpty(value: JValue): JValue = value match {
       case JArray(items) => JArray(items map replaceEmpty)
-      case JObject(fields) => JObject(fields map {
-        case JField(name, value) => JField(name, replaceEmpty(value))
-      })
+      case JObject(fields) =>
+        JObject(fields map { case JField(name, value) =>
+          JField(name, replaceEmpty(value))
+        })
       case JNothing => JNull
       case oth => oth
     }

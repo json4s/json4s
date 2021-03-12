@@ -8,8 +8,8 @@ object Json {
 }
 class Json(fmts: Formats) extends JsonUtil(fmts) {
 
-  def write[A <: AnyRef : Manifest](a: A): String = Serialization.write(a)
-  def write[A <: AnyRef : Manifest, W <: JWriter](a: A, out: W): W = Serialization.write(a, out)
+  def write[A <: AnyRef: Manifest](a: A): String = Serialization.write(a)
+  def write[A <: AnyRef: Manifest, W <: JWriter](a: A, out: W): W = Serialization.write(a, out)
 
   def writePretty[A <: AnyRef](a: A): String = Serialization.writePretty(a)
   def writePretty[A <: AnyRef, W <: JWriter](a: A, out: W): W = Serialization.writePretty(a, out)

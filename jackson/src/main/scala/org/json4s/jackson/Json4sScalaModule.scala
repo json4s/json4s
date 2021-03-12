@@ -7,17 +7,18 @@ import com.fasterxml.jackson.databind.Module.SetupContext
 
 object Json4sModule {
   private[this] val VersionRegex = """(\d+)\.(\d+)(?:\.(\d+)(?:\-(.*))?)?""".r
-  val version: Version = try {
-    val groupId = BuildInfo.organization
-    val artifactId = BuildInfo.name
-    BuildInfo.version match {
-      case VersionRegex(major,minor,patchOpt,snapOpt) => {
-        val patch = Option(patchOpt) map (_.toInt) getOrElse 0
-        new Version(major.toInt,minor.toInt,patch,snapOpt,groupId,artifactId)
+  val version: Version =
+    try {
+      val groupId = BuildInfo.organization
+      val artifactId = BuildInfo.name
+      BuildInfo.version match {
+        case VersionRegex(major, minor, patchOpt, snapOpt) => {
+          val patch = Option(patchOpt) map (_.toInt) getOrElse 0
+          new Version(major.toInt, minor.toInt, patch, snapOpt, groupId, artifactId)
+        }
+        case _ => Version.unknownVersion()
       }
-      case _ => Version.unknownVersion()
-    }
-  } catch { case _: Throwable => Version.unknownVersion() }
+    } catch { case _: Throwable => Version.unknownVersion() }
 }
 
 class Json4sScalaModule extends Module {

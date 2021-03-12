@@ -28,21 +28,20 @@ class RichSerializerTest extends Specification {
         scalaType.manifest.typeArguments match {
           case List(_, vType) =>
             HashMap(
-              fields.map {
-                case (k, v) => k -> extract(v)(format, vType)
+              fields.map { case (k, v) =>
+                k -> extract(v)(format, vType)
               }: _*
             )
         }
     }
 
-    override def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-      case map: HashMap[_, _] =>
-        JObject {
-          map.map {
-            case (k: String, v) => k -> decompose(v)
-            case (k, _) => throw new MappingException(s"Expected String key but got $k")
-          }.toList
-        }
+    override def serialize(implicit format: Formats): PartialFunction[Any, JValue] = { case map: HashMap[_, _] =>
+      JObject {
+        map.map {
+          case (k: String, v) => k -> decompose(v)
+          case (k, _) => throw new MappingException(s"Expected String key but got $k")
+        }.toList
+      }
     }
   }
 
@@ -68,7 +67,8 @@ class RichSerializerTest extends Specification {
     }
 
     "be compatible with type hints" in {
-      implicit val formats: Formats = DefaultFormats + HashMapDeserializer + MappedTypeHints(Map(classOf[HashMapHaver] -> "map_haver"))
+      implicit val formats: Formats =
+        DefaultFormats + HashMapDeserializer + MappedTypeHints(Map(classOf[HashMapHaver] -> "map_haver"))
       val json = """{"map":{"foo": null, "bar": 2}, "jsonClass": "map_haver"}"""
       val expected = HashMapHaver(HashMap("foo" -> None, "bar" -> Some(2)))
       val extracted = JsonMethods.parse(json).extract[SomeTrait]
@@ -93,7 +93,7 @@ object CustomTuple2Serializer extends RichSerializer[(_, _)] {
       (extract(arr.head, scalaType.typeArgs.head), extract(arr(1), scalaType.typeArgs(1)))
   }
 
-  override def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case (x, y) => JArray(List(decompose(x), decompose(y)))
+  override def serialize(implicit format: Formats): PartialFunction[Any, JValue] = { case (x, y) =>
+    JArray(List(decompose(x), decompose(y)))
   }
 }

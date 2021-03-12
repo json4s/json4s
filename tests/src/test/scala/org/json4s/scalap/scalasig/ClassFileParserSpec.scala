@@ -14,7 +14,7 @@ class ClassFileParserSpec extends Specification {
         val parsed = ClassFileParser.parse(ByteCode(bytes))
         val size = parsed.header.constants.size
         size must_== 32
-        val constants = (1 to size).map{ index =>
+        val constants = (1 to size).map { index =>
           parsed.header.constants(index)
         }
         constants must contain("ConstantModule: java.xml.bind")
@@ -28,10 +28,12 @@ class ClassFileParserSpec extends Specification {
   private def getModuleInfo(c: Class[_]): Array[Byte] = {
     val jarFile = new JarFile(new File(c.getProtectionDomain.getCodeSource.getLocation.getFile))
     val classes = jarFile.entries.asScala
-    classes.collectFirst {
-      case s if s.toString == "module-info.class" =>
-        getBytes(jarFile.getInputStream(s))
-    }.getOrElse(sys.error("not found"))
+    classes
+      .collectFirst {
+        case s if s.toString == "module-info.class" =>
+          getBytes(jarFile.getInputStream(s))
+      }
+      .getOrElse(sys.error("not found"))
   }
 
   private def getBytes(in: InputStream): Array[Byte] = {

@@ -34,16 +34,24 @@ case class ExternalSymbol(name: String, parent: Option[Symbol], entry: ScalaSig#
   def hasFlag(flag: Long) = false
 }
 
-case class SymbolInfo(name: String, owner: Symbol, flags: Int, privateWithin: Option[AnyRef], info: Int, entry: ScalaSig#Entry) {
+case class SymbolInfo(
+  name: String,
+  owner: Symbol,
+  flags: Int,
+  privateWithin: Option[AnyRef],
+  info: Int,
+  entry: ScalaSig#Entry
+) {
   def symbolString(any: AnyRef) = any match {
     case sym: SymbolInfoSymbol => sym.index.toString
     case other => other.toString
   }
 
-  override def toString = name + ", owner=" + symbolString(owner) + ", flags=" + flags.toHexString + ", info=" + info + (privateWithin match {
-    case Some(any) => ", privateWithin=" + symbolString(any)
-    case None => " "
-  })
+  override def toString =
+    name + ", owner=" + symbolString(owner) + ", flags=" + flags.toHexString + ", info=" + info + (privateWithin match {
+      case Some(any) => ", privateWithin=" + symbolString(any)
+      case None => " "
+    })
 }
 
 abstract class SymbolInfoSymbol extends ScalaSigSymbol {
@@ -57,15 +65,15 @@ abstract class SymbolInfoSymbol extends ScalaSigSymbol {
   lazy val infoType = applyRule(parseEntry(typeEntry)(symbolInfo.info))
 }
 
-case class TypeSymbol(symbolInfo: SymbolInfo) extends SymbolInfoSymbol{
+case class TypeSymbol(symbolInfo: SymbolInfo) extends SymbolInfoSymbol {
   override def path = name
 }
 
-case class AliasSymbol(symbolInfo: SymbolInfo) extends SymbolInfoSymbol{
+case class AliasSymbol(symbolInfo: SymbolInfo) extends SymbolInfoSymbol {
   override def path = name
 }
 case class ClassSymbol(symbolInfo: SymbolInfo, thisTypeRef: Option[Int]) extends SymbolInfoSymbol {
-  lazy val selfType = thisTypeRef.map{(x: Int) => applyRule(parseEntry(typeEntry)(x))}
+  lazy val selfType = thisTypeRef.map { (x: Int) => applyRule(parseEntry(typeEntry)(x)) }
 }
 case class ObjectSymbol(symbolInfo: SymbolInfo) extends SymbolInfoSymbol
 case class MethodSymbol(symbolInfo: SymbolInfo, aliasRef: Option[Int]) extends SymbolInfoSymbol

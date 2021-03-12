@@ -14,10 +14,10 @@ class ActorNode(val id: String, val name: String) {
   lazy val isBald: Boolean = true
 }
 
-/** Test of a fix for failed lazy val serialization from FieldSerializer
-  * where the serialized lazy val will get default value result (null, 0, false, etc) instead of the real value.
-  *
-  */
+/**
+ * Test of a fix for failed lazy val serialization from FieldSerializer
+ * where the serialized lazy val will get default value result (null, 0, false, etc) instead of the real value.
+ */
 class LazyValBugs extends Specification {
 
   "LazyValBugs Test" should {

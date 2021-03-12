@@ -20,7 +20,8 @@ import JsonAST._
 
 import scala.annotation.tailrec
 
-/** Use fundep encoding to improve return type of merge function
+/**
+ * Use fundep encoding to improve return type of merge function
  *  (see: http://www.chuusai.com/2011/07/16/fundeps-in-scala/)
  *
  *  JObject merge JObject = JObject
@@ -32,7 +33,7 @@ private[json4s] trait MergeDep[A <: JValue, B <: JValue, R <: JValue] {
 }
 
 private[json4s] trait LowPriorityMergeDep {
-  implicit def jjj[A <: JValue, B <: JValue]: MergeDep[A,B,JValue] = new MergeDep[A, B, JValue] {
+  implicit def jjj[A <: JValue, B <: JValue]: MergeDep[A, B, JValue] = new MergeDep[A, B, JValue] {
     def apply(val1: A, val2: B): JValue = merge(val1, val2)
 
     private def merge(val1: JValue, val2: JValue): JValue = (val1, val2) match {
@@ -55,30 +56,33 @@ private[json4s] trait MergeDeps extends LowPriorityMergeDep {
   }
 }
 
-/** Function to merge two JSONs.
+/**
+ * Function to merge two JSONs.
  */
 object Merge {
-  /** Return merged JSON.
+
+  /**
+   * Return merged JSON.
    * <p>
    * Example:<pre>
    * val m = ("name", "joe") ~ ("age", 10) merge ("name", "joe") ~ ("iq", 105)
    * m: JObject(List((name,JString(joe)), (age,JInt(10)), (iq,JInt(105))))
    * </pre>
    */
-  def merge[A <: JValue, B <: JValue, R <: JValue]
-    (val1: A, val2: B)(implicit instance: MergeDep[A, B, R]): R = instance(val1, val2)
-
+  def merge[A <: JValue, B <: JValue, R <: JValue](val1: A, val2: B)(implicit instance: MergeDep[A, B, R]): R =
+    instance(val1, val2)
 
   private[json4s] def mergeFields(vs1: List[JField], vs2: List[JField]): List[JField] = {
 
     @tailrec
     def mergeRec(acc: List[JField], xleft: List[JField], yleft: List[JField]): List[JField] = xleft match {
       case Nil => acc ++ yleft
-      case (xn, xv) :: xs => yleft find (_._1 == xn) match {
-        case Some(y @ (yn@_, yv)) =>
-          mergeRec(acc ++ List(JField(xn, merge(xv, yv))), xs, yleft filterNot (_ == y))
-        case None => mergeRec(acc ++ List(JField(xn, xv)), xs, yleft)
-      }
+      case (xn, xv) :: xs =>
+        yleft find (_._1 == xn) match {
+          case Some(y @ (yn @ _, yv)) =>
+            mergeRec(acc ++ List(JField(xn, merge(xv, yv))), xs, yleft filterNot (_ == y))
+          case None => mergeRec(acc ++ List(JField(xn, xv)), xs, yleft)
+        }
     }
 
     mergeRec(List(), vs1, vs2)
@@ -88,10 +92,11 @@ object Merge {
     @tailrec
     def mergeRec(acc: List[JValue], xleft: List[JValue], yleft: List[JValue]): List[JValue] = xleft match {
       case Nil => acc ++ yleft
-      case x :: xs => yleft find (_ == x) match {
-        case Some(y) => mergeRec(acc ++ List(merge(x,y)), xs, yleft filterNot (_ == y))
-        case None => mergeRec(acc ++ List(x), xs, yleft)
-      }
+      case x :: xs =>
+        yleft find (_ == x) match {
+          case Some(y) => mergeRec(acc ++ List(merge(x, y)), xs, yleft filterNot (_ == y))
+          case None => mergeRec(acc ++ List(x), xs, yleft)
+        }
     }
 
     mergeRec(List(), vs1, vs2)
@@ -101,7 +106,9 @@ object Merge {
     implicit def j2m[A <: JValue](json: A): MergeSyntax[A] = new MergeSyntax(json)
 
     class MergeSyntax[A <: JValue](json: A) {
-      /** Return merged JSON.
+
+      /**
+       * Return merged JSON.
        * @see org.json4s.Merge#merge
        */
       def merge[B <: JValue, R <: JValue](other: B)(implicit instance: MergeDep[A, B, R]): R =

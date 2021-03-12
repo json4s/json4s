@@ -23,9 +23,7 @@ import java.util.regex.Pattern
 
 import org.bson.types.ObjectId
 
-
-trait BsonDSL extends JsonDSL{
-
+trait BsonDSL extends JsonDSL {
 
   implicit def objectid2jvalue(oid: ObjectId): JValue = Meta.objectIdAsJValue(oid)
   implicit def pattern2jvalue(p: Pattern): JValue = Meta.patternAsJValue(p)

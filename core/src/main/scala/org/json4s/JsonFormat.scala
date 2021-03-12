@@ -120,14 +120,15 @@ trait DefaultReaders extends DefaultReaders0 {
     }
   }
 
-  implicit def mapReader[V](implicit valueReader: Reader[V]): Reader[immutable.Map[String, V]] = new Reader[immutable.Map[String, V]] {
-    def read(value: _root_.org.json4s.JValue): Map[String, V] = value match {
-      case JObject(v) => Map(v.map({ case JField(k, vl) => k -> valueReader.read(vl)}):_*)
-      case x => throw new MappingException(s"Can't convert ${x} to Map.")
+  implicit def mapReader[V](implicit valueReader: Reader[V]): Reader[immutable.Map[String, V]] =
+    new Reader[immutable.Map[String, V]] {
+      def read(value: _root_.org.json4s.JValue): Map[String, V] = value match {
+        case JObject(v) => Map(v.map({ case JField(k, vl) => k -> valueReader.read(vl) }): _*)
+        case x => throw new MappingException(s"Can't convert ${x} to Map.")
+      }
     }
-  }
 
-  implicit def arrayReader[T:ClassTag:Reader]: Reader[Array[T]] = new Reader[Array[T]] {
+  implicit def arrayReader[T: ClassTag: Reader]: Reader[Array[T]] = new Reader[Array[T]] {
     def read(value: _root_.org.json4s.JValue): Array[T] = {
       value.as[List[T]].toArray
     }
@@ -181,9 +182,12 @@ trait DefaultWriters {
   implicit def arrayWriter[T](implicit valueWriter: Writer[T]): Writer[Array[T]] = new Writer[Array[T]] {
     def write(obj: Array[T]): _root_.org.json4s.JValue = JArray(obj.map(valueWriter.write(_)).toList)
   }
-  implicit def mapWriter[V](implicit valueWriter: Writer[V]): Writer[immutable.Map[String, V]] = new Writer[Map[String, V]] {
-    def write(obj: Map[String, V]): _root_.org.json4s.JValue = JObject(obj.map({case (k, v) => k -> valueWriter.write(v)}).toList)
-  }
+  implicit def mapWriter[V](implicit valueWriter: Writer[V]): Writer[immutable.Map[String, V]] =
+    new Writer[Map[String, V]] {
+      def write(obj: Map[String, V]): _root_.org.json4s.JValue = JObject(
+        obj.map({ case (k, v) => k -> valueWriter.write(v) }).toList
+      )
+    }
   implicit object JValueWriter extends W[JValue](identity)
   implicit def OptionWriter[T](implicit valueWriter: Writer[T]): Writer[Option[T]] = new Writer[Option[T]] {
     def write(obj: Option[T]): _root_.org.json4s.JValue = obj match {
@@ -208,7 +212,6 @@ trait BigDecimalWriters extends DefaultWriters {
 object BigDecimalWriters extends BigDecimalWriters
 object DoubleWriters extends DoubleWriters
 object DefaultWriters extends DoubleWriters // alias for DoubleWriters
-
 
 @implicitNotFound(
   "No Json formatter found for type ${T}. Try to implement an implicit JsonFormat for this type."

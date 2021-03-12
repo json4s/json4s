@@ -2,7 +2,7 @@ package org.json4s
 package reflect
 
 import scala.reflect.Manifest
-import java.lang.reflect.{ TypeVariable, WildcardType, ParameterizedType, Type, GenericArrayType }
+import java.lang.reflect.{TypeVariable, WildcardType, ParameterizedType, Type, GenericArrayType}
 
 object ManifestFactory {
   def manifestOf(t: Type): Manifest[_] = t match {

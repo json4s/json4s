@@ -20,7 +20,8 @@ class JValueDeserializer(klass: Class[_]) extends JsonDeserializer[Object] {
           if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) JInt(BigInt(jp.getText))
           else JLong(jp.getLongValue)
         case JsonTokenId.ID_NUMBER_FLOAT =>
-          if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) JDecimal(BigDecimal(jp.getDecimalValue))
+          if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS))
+            JDecimal(BigDecimal(jp.getDecimalValue))
           else JDouble(jp.getDoubleValue)
         case JsonTokenId.ID_STRING => JString(jp.getText)
         case JsonTokenId.ID_TRUE => JBool.True
@@ -29,7 +30,7 @@ class JValueDeserializer(klass: Class[_]) extends JsonDeserializer[Object] {
         case JsonTokenId.ID_START_ARRAY =>
           val values = new mutable.ListBuffer[JValue]()
           jp.nextToken()
-          while(jp.getCurrentToken != JsonToken.END_ARRAY) {
+          while (jp.getCurrentToken != JsonToken.END_ARRAY) {
             values += _deserialize(jp, ctxt).asInstanceOf[JValue]
             jp.nextToken()
           }

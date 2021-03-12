@@ -9,7 +9,7 @@ lazy val root = Project(
 ).settings(
   json4sSettings,
   noPublish,
-) aggregate(core, xml, native, json4sExt, jacksonSupport, scalazExt, json4sTests, mongo, ast, scalap, examples)
+) aggregate (core, xml, native, json4sExt, jacksonSupport, scalazExt, json4sTests, mongo, ast, scalap, examples)
 
 lazy val ast = Project(
   id = "json4s-ast",
@@ -33,7 +33,7 @@ lazy val xml = Project(
 ).settings(
   json4sSettings,
   libraryDependencies += scalaXml.value,
-) dependsOn(core)
+).dependsOn(core)
 
 lazy val core = Project(
   id = "json4s-core",
@@ -45,14 +45,14 @@ lazy val core = Project(
       |import org.json4s._
       |import reflect._
     """.stripMargin,
-) dependsOn(ast % "compile;test->test", scalap)
+).dependsOn(ast % "compile;test->test", scalap)
 
 lazy val native = Project(
   id = "json4s-native",
   base = file("native"),
 ).settings(
   json4sSettings,
-) dependsOn(core % "compile;test->test")
+).dependsOn(core % "compile;test->test")
 
 lazy val json4sExt = Project(
   id = "json4s-ext",
@@ -60,7 +60,7 @@ lazy val json4sExt = Project(
 ).settings(
   json4sSettings,
   libraryDependencies ++= jodaTime,
-) dependsOn(native % "provided->compile;test->test")
+).dependsOn(native % "provided->compile;test->test")
 
 lazy val jacksonSupport = Project(
   id = "json4s-jackson",
@@ -68,7 +68,7 @@ lazy val jacksonSupport = Project(
 ).settings(
   json4sSettings,
   libraryDependencies ++= jackson,
-) dependsOn(core % "compile;test->test")
+).dependsOn(core % "compile;test->test")
 
 lazy val examples = Project(
   id = "json4s-examples",
@@ -76,12 +76,13 @@ lazy val examples = Project(
 ).settings(
   json4sSettings,
   noPublish,
-) dependsOn(
+).dependsOn(
   core % "compile;test->test",
   native % "compile;test->test",
   jacksonSupport % "compile;test->test",
   json4sExt,
-  mongo)
+  mongo
+)
 
 lazy val scalazExt = Project(
   id = "json4s-scalaz",
@@ -89,7 +90,7 @@ lazy val scalazExt = Project(
 ).settings(
   json4sSettings,
   libraryDependencies += scalaz_core,
-) dependsOn(core % "compile;test->test", native % "provided->compile", jacksonSupport % "provided->compile")
+).dependsOn(core % "compile;test->test", native % "provided->compile", jacksonSupport % "provided->compile")
 
 lazy val mongo = Project(
   id = "json4s-mongo",
@@ -99,7 +100,7 @@ lazy val mongo = Project(
   libraryDependencies ++= Seq(
     "org.mongodb" % "mongo-java-driver" % "3.12.8"
   ),
-) dependsOn(core % "compile;test->test")
+).dependsOn(core % "compile;test->test")
 
 lazy val json4sTests = Project(
   id = "json4s-tests",
@@ -113,4 +114,4 @@ lazy val json4sTests = Project(
       |import org.json4s._
       |import reflect._
     """.stripMargin,
-) dependsOn(core, xml, native, json4sExt, scalazExt, jacksonSupport, mongo)
+).dependsOn(core, xml, native, json4sExt, scalazExt, jacksonSupport, mongo)

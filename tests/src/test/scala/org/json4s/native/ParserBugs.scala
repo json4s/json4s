@@ -1,6 +1,5 @@
 package org.json4s
 
-
 import util.control.Exception._
 import org.specs2.mutable.Specification
 
@@ -27,8 +26,8 @@ class ParserBugs extends Specification {
     }
 
     "Solo quote mark should fail cleanly (not StringIndexOutOfBoundsException) (1041)" in {
-      JsonParser.parse("\"", discardParser) must throwA[Throwable].like {
-        case e: ParserUtil.ParseException => e.getMessage must startWith("unexpected eof")
+      JsonParser.parse("\"", discardParser) must throwA[Throwable].like { case e: ParserUtil.ParseException =>
+        e.getMessage must startWith("unexpected eof")
       }
     }
 
@@ -40,7 +39,7 @@ class ParserBugs extends Specification {
     }
   }
 
-  private[this] val discardParser = (p : JsonParser.Parser) => {
+  private[this] val discardParser = (p: JsonParser.Parser) => {
     var token: JsonParser.Token = p.nextToken
     while (token != JsonParser.End) {
       token = p.nextToken

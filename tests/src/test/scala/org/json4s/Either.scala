@@ -26,7 +26,6 @@ abstract class EitherTest[T](mod: String) extends Specification with JsonMethods
 
   implicit val formats: Formats = DefaultFormats + ShortTypeHints(List(classOf[Either[_, _]], classOf[List[_]]))
 
-
   (mod + " EitherTest Specification") should {
     "See that it works for Option[Int]" in {
       val opt = OptionInt(Some(39))
@@ -51,13 +50,19 @@ abstract class EitherTest[T](mod: String) extends Specification with JsonMethods
 
     "Work for Either[List[List[String]], List[Map[String, List[Int]]]]" in {
       val opt = EitherListListStringMapStringInt(Left(List(List("a", "b", "c"), List("d", "e", "f"))))
-      Extraction.decompose(opt).extract[EitherListListStringMapStringInt].i.left.get must_== List(List("a", "b", "c"), List("d", "e", "f"))
+      Extraction.decompose(opt).extract[EitherListListStringMapStringInt].i.left.get must_== List(
+        List("a", "b", "c"),
+        List("d", "e", "f")
+      )
 
-      val opt2 = EitherListListStringMapStringInt(Right(
-        List(
-          Map("hello" -> List(5, 4, 3, 2, 1), "world" -> List(10, 20, 30)),
-          Map("bye" -> List(10), "world" -> List(10, 20, 30))
-        )))
+      val opt2 = EitherListListStringMapStringInt(
+        Right(
+          List(
+            Map("hello" -> List(5, 4, 3, 2, 1), "world" -> List(10, 20, 30)),
+            Map("bye" -> List(10), "world" -> List(10, 20, 30))
+          )
+        )
+      )
       Extraction.decompose(opt2).extract[EitherListListStringMapStringInt].i.right.get must_== List(
         Map("hello" -> List(5, 4, 3, 2, 1), "world" -> List(10, 20, 30)),
         Map("bye" -> List(10), "world" -> List(10, 20, 30))

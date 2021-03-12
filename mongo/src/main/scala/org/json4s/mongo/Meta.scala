@@ -24,26 +24,38 @@ import org.bson.types.ObjectId
 object Meta {
 
   /*
-  * For converting scala objects into DBObject values
-  */
+   * For converting scala objects into DBObject values
+   */
   object Reflection {
     import com.mongodb.DBRef
 
     /*
-    * These don't require a conversion and can be put directly into a DBObject
-    */
-    val primitives = Set[Class[_]](classOf[String], classOf[Int], classOf[Long], classOf[Double],
-                                  classOf[Float], classOf[Byte], classOf[BigInt], classOf[Boolean],
-                                  classOf[Short], classOf[java.lang.Integer], classOf[java.lang.Long],
-                                  classOf[java.lang.Double], classOf[java.lang.Float],
-                                  classOf[java.lang.Byte], classOf[java.lang.Boolean],
-                                  classOf[java.lang.Short])
+     * These don't require a conversion and can be put directly into a DBObject
+     */
+    val primitives = Set[Class[_]](
+      classOf[String],
+      classOf[Int],
+      classOf[Long],
+      classOf[Double],
+      classOf[Float],
+      classOf[Byte],
+      classOf[BigInt],
+      classOf[Boolean],
+      classOf[Short],
+      classOf[java.lang.Integer],
+      classOf[java.lang.Long],
+      classOf[java.lang.Double],
+      classOf[java.lang.Float],
+      classOf[java.lang.Byte],
+      classOf[java.lang.Boolean],
+      classOf[java.lang.Short]
+    )
 
     def isPrimitive(clazz: Class[_]) = primitives contains clazz
 
     /*
-    * This is used to convert DBObjects into JObjects
-    */
+     * This is used to convert DBObjects into JObjects
+     */
     def primitive2jvalue(a: Any) = a match {
       case x: String => JString(x)
       case x: Int => JInt(x)
@@ -65,8 +77,8 @@ object Meta {
     }
 
     /*
-    * Date types require formatting
-    */
+     * Date types require formatting
+     */
     val datetypes = Set[Class[_]](classOf[Calendar], classOf[Date], classOf[GregorianCalendar])
 
     def isDateType(clazz: Class[_]) = datetypes contains clazz
@@ -82,16 +94,15 @@ object Meta {
     }
 
     /*
-    * Extended Mongo types.
-    */
-    val mongotypes = Set[Class[_]](
-      classOf[DBRef], classOf[ObjectId], classOf[Pattern], classOf[UUID])
+     * Extended Mongo types.
+     */
+    val mongotypes = Set[Class[_]](classOf[DBRef], classOf[ObjectId], classOf[Pattern], classOf[UUID])
 
     def isMongoType(clazz: Class[_]) = mongotypes contains clazz
 
     /*
-    * Definitive place for JValue conversion of mongo types
-    */
+     * Definitive place for JValue conversion of mongo types
+     */
     def mongotype2jvalue(a: Any)(implicit formats: Formats) = a match {
       case x: ObjectId => objectIdAsJValue(x, formats)
       case x: Pattern => patternAsJValue(x)
@@ -103,7 +114,9 @@ object Meta {
 
   def dateAsJValue(d: Date, formats: Formats) = JObject(JField("$dt", JString(formats.dateFormat.format(d))) :: Nil)
   def objectIdAsJValue(oid: ObjectId): JValue = JObject(JField("$oid", JString(oid.toString)) :: Nil)
-  def patternAsJValue(p: Pattern): JValue = JObject(JField("$regex", JString(p.pattern)) :: JField("$flags", JInt(p.flags)) :: Nil)
+  def patternAsJValue(p: Pattern): JValue = JObject(
+    JField("$regex", JString(p.pattern)) :: JField("$flags", JInt(p.flags)) :: Nil
+  )
   def uuidAsJValue(u: UUID): JValue = JObject(JField("$uuid", JString(u.toString)) :: Nil)
 
   def objectIdAsJValue(oid: ObjectId, formats: Formats): JValue =
@@ -113,11 +126,10 @@ object Meta {
       JString(oid.toString)
 
   /*
-  * Check to see if the ObjectIdSerializer is being used.
-  */
+   * Check to see if the ObjectIdSerializer is being used.
+   */
   private def isObjectIdSerializerUsed(formats: Formats): Boolean =
     formats.customSerializers.exists(_.getClass == objectIdSerializerClass)
 
   private[this] val objectIdSerializerClass = classOf[ObjectIdSerializer]
 }
-

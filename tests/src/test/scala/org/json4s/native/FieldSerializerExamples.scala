@@ -52,7 +52,6 @@ class FieldSerializerExamples extends Specification {
     cat2.name must_== "tommy"
   }
 
-
   "Renames a property name to/from" in {
     val dudeSerializer = FieldSerializer[Dude](renameTo("name", "nm"), renameFrom("nm", "name"))
     implicit val formats: Formats = DefaultFormats + dudeSerializer
@@ -115,5 +114,4 @@ abstract class Mammal {
 class WildDog(val color: String) extends Mammal
 class WildCat(val cuteness: Int) extends Mammal
 case class Owner(name: String, age: Int)
-case class Dude(name: String,  friends: List[Dude] = Nil)
-
+case class Dude(name: String, friends: List[Dude] = Nil)

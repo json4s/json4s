@@ -1,6 +1,7 @@
 package org.json4s
 
-/** Stub implementation of the trait scala.collection.immutable.Map
+/**
+ * Stub implementation of the trait scala.collection.immutable.Map
  *  Only (and always) contains `content` -> ()
  */
 class MapImplementation extends Map[List[String], Unit] {

@@ -101,8 +101,8 @@ object ArbitraryJson4s {
     def genJArray: Gen[JArray] = for {
       obj: JObject <- arbitrary[JObject]
     } yield JArray {
-      val jvals: List[JValue] = obj.fold(List.empty[JValue]) {
-        (acc, el) => el :: acc
+      val jvals: List[JValue] = obj.fold(List.empty[JValue]) { (acc, el) =>
+        el :: acc
       }
       jvals
     }

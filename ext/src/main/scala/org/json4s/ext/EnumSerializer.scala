@@ -19,8 +19,7 @@ package ext
 
 import scala.reflect.ClassTag
 
-class EnumSerializer[E <: Enumeration: ClassTag](enum: E)
-  extends Serializer[E#Value] {
+class EnumSerializer[E <: Enumeration: ClassTag](enum: E) extends Serializer[E#Value] {
   import JsonDSL._
 
   val EnumerationClass = classOf[E#Value]
@@ -30,37 +29,35 @@ class EnumSerializer[E <: Enumeration: ClassTag](enum: E)
     case _ => false
   }
 
-  def deserialize(implicit format: Formats):
-    PartialFunction[(TypeInfo, JValue), E#Value] = {
-      case (TypeInfo(EnumerationClass, _), json) if isValid(json) => json match {
+  def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), E#Value] = {
+    case (TypeInfo(EnumerationClass, _), json) if isValid(json) =>
+      json match {
         case JInt(value) => enum(value.toInt)
         case value => throw new MappingException(s"Can't convert $value to $EnumerationClass")
       }
-    }
+  }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
     case i: E#Value if enum.values.exists(_ == i) => i.id
   }
 }
 
-class EnumNameSerializer[E <: Enumeration: ClassTag](enum: E)
-  extends Serializer[E#Value] {
+class EnumNameSerializer[E <: Enumeration: ClassTag](enum: E) extends Serializer[E#Value] {
   import JsonDSL._
 
   val EnumerationClass = classOf[E#Value]
 
-  def deserialize(implicit format: Formats):
-    PartialFunction[(TypeInfo, JValue), E#Value] = {
-      case (_ @ TypeInfo(EnumerationClass, _), json) if (isValid(json)) => {
-        json match {
-         case JString(value) => enum.withName(value)
-          case value => throw new MappingException(s"Can't convert $value to $EnumerationClass")
-        }
+  def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), E#Value] = {
+    case (_ @TypeInfo(EnumerationClass, _), json) if isValid(json) => {
+      json match {
+        case JString(value) => enum.withName(value)
+        case value => throw new MappingException(s"Can't convert $value to $EnumerationClass")
       }
     }
+  }
 
   private[this] def isValid(json: JValue) = json match {
-    case JString(value) if (enum.values.exists(_.toString == value)) => true
+    case JString(value) if enum.values.exists(_.toString == value) => true
     case _ => false
   }
 

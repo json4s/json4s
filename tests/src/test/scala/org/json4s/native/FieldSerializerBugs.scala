@@ -9,7 +9,7 @@ class FieldSerializerBugs extends Specification {
 
   implicit val formats: Formats = DefaultFormats + FieldSerializer[AnyRef]()
 
-/* FIXME: it doesn't cause a stack overflow but the ser/deser doesn't work
+  /* FIXME: it doesn't cause a stack overflow but the ser/deser doesn't work
   "AtomicInteger should not cause stack overflow" in {
     import java.util.concurrent.atomic.AtomicInteger
 
@@ -17,7 +17,7 @@ class FieldSerializerBugs extends Specification {
     val atomic = read[AtomicInteger](ser)
     atomic.get must_== 1
   }
-*/
+   */
 
   "Serializing a singleton object should not cause stack overflow" in {
     swrite(SingletonObject) must not(throwAn[Exception])
@@ -45,8 +45,8 @@ class FieldSerializerBugs extends Specification {
     implicit val formats: Formats = DefaultFormats + (fieldSerializer: FieldSerializer[_])
     val expected1 = JObject(JField("yum", JInt(123)))
     val expected2 = JObject(JField("num", JInt(456)))
-    Extraction.decompose(Type1(123)) must_== (expected1)
-    Extraction.decompose(Type2(456)) must_== (expected2)
+    Extraction.decompose(Type1(123)) must_== expected1
+    Extraction.decompose(Type2(456)) must_== expected2
   }
 }
 
@@ -62,5 +62,3 @@ object FieldSerializerBugs {
 
   object SingletonObject
 }
-
-

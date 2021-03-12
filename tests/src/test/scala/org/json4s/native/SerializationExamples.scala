@@ -1,6 +1,5 @@
 package org.json4s
 
-
 import java.util.Date
 import org.specs2.mutable.Specification
 
@@ -9,9 +8,15 @@ object SerializationExamples extends Specification {
 
   implicit val formats: Formats = native.Serialization.formats(NoTypeHints)
 
-  val project = Project("test", new Date, Some(Language("Scala", 2.75)), List(
-    Team("QA", List(Employee("John Doe", 5), Employee("Mike", 3))),
-    Team("Impl", List(Employee("Mark", 4), Employee("Mary", 5), Employee("Nick Noob", 1)))))
+  val project = Project(
+    "test",
+    new Date,
+    Some(Language("Scala", 2.75)),
+    List(
+      Team("QA", List(Employee("John Doe", 5), Employee("Mike", 3))),
+      Team("Impl", List(Employee("Mark", 4), Employee("Mary", 5), Employee("Nick Noob", 1)))
+    )
+  )
 
   "Project serialization example" in {
     val ser = swrite(project)
@@ -81,8 +86,10 @@ object SerializationExamples extends Specification {
   }
 
   "Map serialization example" in {
-    val p = PersonWithAddresses("joe", Map("address1" -> Address("Bulevard", "Helsinki"),
-                                           "address2" -> Address("Soho", "London")))
+    val p = PersonWithAddresses(
+      "joe",
+      Map("address1" -> Address("Bulevard", "Helsinki"), "address2" -> Address("Soho", "London"))
+    )
     val ser = swrite(p)
     read[PersonWithAddresses](ser) must_== p
   }
@@ -217,23 +224,24 @@ object SerializationExamples extends Specification {
   }
 
   "Unknown type hint should not serialize" in {
-    implicit val formats: Formats = native.Serialization.formats(
-      ShortTypeHints(classOf[Iron] :: classOf[IronMaiden] :: Nil))
+    implicit val formats: Formats =
+      native.Serialization.formats(ShortTypeHints(classOf[Iron] :: classOf[IronMaiden] :: Nil))
     val toSerialize = Materials(List(Oak(9)), Nil)
     val json = native.Serialization.write(toSerialize)
 
     read[Materials](json) must throwAn[MappingException]
   }
 
- "Multiple type hints should serialize" in {
+  "Multiple type hints should serialize" in {
 
-   implicit val formats: Formats = native.Serialization.formats(
-     ShortTypeHints(classOf[Oak] :: classOf[Cherry] :: Nil) +
-     ShortTypeHints(classOf[Iron] :: classOf[IronMaiden] :: Nil))
-   val toSerialize = Materials(List(Oak(9)), Nil)
-   val json = native.Serialization.write(toSerialize)
+    implicit val formats: Formats = native.Serialization.formats(
+      ShortTypeHints(classOf[Oak] :: classOf[Cherry] :: Nil) +
+      ShortTypeHints(classOf[Iron] :: classOf[IronMaiden] :: Nil)
+    )
+    val toSerialize = Materials(List(Oak(9)), Nil)
+    val json = native.Serialization.write(toSerialize)
 
-   json must_== """{"woods":[{"jsonClass":"Oak","hardness":9}],"metals":[]}"""
+    json must_== """{"woods":[{"jsonClass":"Oak","hardness":9}],"metals":[]}"""
 
   }
 
@@ -266,7 +274,8 @@ class ShortTypeHintExamples extends TypeHintExamples {
 }
 
 class MappedHintExamples extends TypeHintExamples {
-  implicit val formats: Formats = native.Serialization.formats(MappedTypeHints(Map(classOf[Fish] -> "fish", classOf[Dog] -> "dog")))
+  implicit val formats: Formats =
+    native.Serialization.formats(MappedTypeHints(Map(classOf[Fish] -> "fish", classOf[Dog] -> "dog")))
 
   "Serialization provides no type hint when not mapped" in {
     val animals = Animals(Dog("pluto") :: Fish(1.2) :: Turtle(103) :: Nil, Dog("pluto"))
@@ -286,7 +295,9 @@ class MappedHintExamples extends TypeHintExamples {
 }
 
 object FullTypeHintExamples {
-  val formats = native.Serialization.formats(FullTypeHints(List[Class[_]](classOf[Animal], classOf[True], classOf[False], classOf[Falcon], classOf[Chicken])))
+  val formats = native.Serialization.formats(
+    FullTypeHints(List[Class[_]](classOf[Animal], classOf[True], classOf[False], classOf[Falcon], classOf[Chicken]))
+  )
 }
 class FullTypeHintExamples extends TypeHintExamples {
   import native.Serialization.{read, write => swrite}
@@ -388,54 +399,64 @@ class CustomSerializerExamples extends Specification {
   import JsonAST._
   import java.util.regex.Pattern
 
-  class IntervalSerializer extends CustomSerializer[Interval](format => (
-    {
-      case JObject(JField("start", JInt(s)) :: JField("end", JInt(e)) :: Nil) =>
-        new Interval(s.longValue, e.longValue)
-    },
-    {
-      case x: Interval =>
-        JObject(JField("start", JInt(BigInt(x.startTime))) ::
-                JField("end",   JInt(BigInt(x.endTime))) :: Nil)
-    }
-  ))
+  class IntervalSerializer
+    extends CustomSerializer[Interval](format =>
+      (
+        { case JObject(JField("start", JInt(s)) :: JField("end", JInt(e)) :: Nil) =>
+          new Interval(s.longValue, e.longValue)
+        },
+        { case x: Interval =>
+          JObject(
+            JField("start", JInt(BigInt(x.startTime))) ::
+            JField("end", JInt(BigInt(x.endTime))) :: Nil
+          )
+        }
+      )
+    )
 
-  class PatternSerializer extends CustomSerializer[Pattern](format => (
-    {
-      case JObject(JField("$pattern", JString(s)) :: Nil) => Pattern.compile(s)
-    },
-    {
-      case x: Pattern => JObject(JField("$pattern", JString(x.pattern)) :: Nil)
-    }
-  ))
+  class PatternSerializer
+    extends CustomSerializer[Pattern](format =>
+      (
+        { case JObject(JField("$pattern", JString(s)) :: Nil) =>
+          Pattern.compile(s)
+        },
+        { case x: Pattern =>
+          JObject(JField("$pattern", JString(x.pattern)) :: Nil)
+        }
+      )
+    )
 
-  class DateSerializer extends CustomSerializer[Date](format => (
-    {
-      case JObject(List(JField("$dt", JString(s)))) =>
-        format.dateFormat.parse(s).getOrElse(throw new MappingException("Can't parse "+ s + " to Date"))
-    },
-    {
-      case x: Date => JObject(JField("$dt", JString(format.dateFormat.format(x))) :: Nil)
-    }
-  ))
+  class DateSerializer
+    extends CustomSerializer[Date](format =>
+      (
+        { case JObject(List(JField("$dt", JString(s)))) =>
+          format.dateFormat.parse(s).getOrElse(throw new MappingException("Can't parse " + s + " to Date"))
+        },
+        { case x: Date =>
+          JObject(JField("$dt", JString(format.dateFormat.format(x))) :: Nil)
+        }
+      )
+    )
 
   class IndexedSeqSerializer extends Serializer[IndexedSeq[_]] {
     def deserialize(implicit format: Formats) = {
-      case (TypeInfo(clazz, ptype), json) if classOf[IndexedSeq[_]].isAssignableFrom(clazz) => json match {
-        case JArray(xs) =>
-          val t = ptype.getOrElse(throw new MappingException("parameterized type not known"))
-          xs.map(x => Extraction.extract(x, TypeInfo(t.getActualTypeArguments()(0).asInstanceOf[Class[_]], None))).toIndexedSeq
-        case x => throw new MappingException(s"Can't convert $x to IndexedSeq")
-      }
+      case (TypeInfo(clazz, ptype), json) if classOf[IndexedSeq[_]].isAssignableFrom(clazz) =>
+        json match {
+          case JArray(xs) =>
+            val t = ptype.getOrElse(throw new MappingException("parameterized type not known"))
+            xs.map(x => Extraction.extract(x, TypeInfo(t.getActualTypeArguments()(0).asInstanceOf[Class[_]], None)))
+              .toIndexedSeq
+          case x => throw new MappingException(s"Can't convert $x to IndexedSeq")
+        }
     }
 
-    def serialize(implicit format: Formats) = {
-      case i: IndexedSeq[_] => JArray(i.map(Extraction.decompose).toList)
+    def serialize(implicit format: Formats) = { case i: IndexedSeq[_] =>
+      JArray(i.map(Extraction.decompose).toList)
     }
   }
 
   "Serialize with custom serializers" in {
-    implicit val formats: Formats =  native.Serialization.formats(NoTypeHints) +
+    implicit val formats: Formats = native.Serialization.formats(NoTypeHints) +
       new IntervalSerializer + new PatternSerializer + new DateSerializer + new IndexedSeqSerializer
 
     val i = new Interval(1, 4)
@@ -458,9 +479,8 @@ class CustomSerializerExamples extends Specification {
     val xs = Indexed(Vector("a", "b", "c"))
     val iser = swrite(xs)
     iser mustEqual """{"xs":["a","b","c"]}"""
-    read[Indexed](iser).xs.toList mustEqual List("a","b","c")
+    read[Indexed](iser).xs.toList mustEqual List("a", "b", "c")
   }
-
 
 }
 
@@ -476,8 +496,8 @@ class CustomClassWithTypeHintsExamples extends Specification {
   import JsonAST._
 
   val hints = new ShortTypeHints(classOf[DateTime] :: Nil) {
-    override def serialize: PartialFunction[Any, JObject] = {
-      case t: DateTime => JObject(JField("t", JInt(t.time)) :: Nil)
+    override def serialize: PartialFunction[Any, JObject] = { case t: DateTime =>
+      JObject(JField("t", JInt(t.time)) :: Nil)
     }
 
     override def deserialize: PartialFunction[(String, JObject), Any] = {

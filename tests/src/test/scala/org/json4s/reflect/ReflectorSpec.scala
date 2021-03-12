@@ -11,7 +11,14 @@ case class RRSimple(id: Int, name: String, items: List[String], createdAt: Date)
 
 case class RRSimpleJoda(id: Int, name: String, items: List[String], createdAt: DateTime)
 
-case class RROption(id: Int, name: String, status: Option[String], code: Option[Int], createdAt: Date, deletedAt: Option[Date])
+case class RROption(
+  id: Int,
+  name: String,
+  status: Option[String],
+  code: Option[Int],
+  createdAt: Date,
+  deletedAt: Option[Date]
+)
 
 case class RRTypeParam[T](id: Int, name: String, value: T, opt: Option[T], seq: Seq[T], map: Map[String, T])
 
@@ -21,12 +28,17 @@ case class NestedType(dat: List[Map[Double, Option[Int]]], lis: List[List[List[L
 
 case class NestedType3(dat: List[Map[Double, Option[List[Option[Int]]]]], lis: List[List[List[List[List[Int]]]]])
 
-case class NestedType4(dat: List[Map[Double, Option[List[Map[Long, Option[Int]]]]]], lis: List[List[List[List[List[Int]]]]])
+case class NestedType4(
+  dat: List[Map[Double, Option[List[Map[Long, Option[Int]]]]]],
+  lis: List[List[List[List[List[Int]]]]]
+)
 
-case class NestedType5(dat: List[Map[Double, Option[List[Map[Long, Option[Map[Byte, Either[Double, Long]]]]]]]], lis: List[List[List[List[List[Int]]]]])
+case class NestedType5(
+  dat: List[Map[Double, Option[List[Map[Long, Option[Map[Byte, Either[Double, Long]]]]]]]],
+  lis: List[List[List[List[List[Int]]]]]
+)
 
 case class NestedResType[T, S, V <: Option[S]](t: T, v: V, dat: List[Map[T, V]], lis: List[List[List[List[List[S]]]]])
-
 
 case object TheObject
 
@@ -40,7 +52,14 @@ object PathTypes {
 
     case class FromTrait(name: String)
 
-    case class FromTraitRROption(id: Int, name: String, status: Option[String], code: Option[Int], createdAt: Date, deletedAt: Option[Date])
+    case class FromTraitRROption(
+      id: Int,
+      name: String,
+      status: Option[String],
+      code: Option[Int],
+      createdAt: Date,
+      deletedAt: Option[Date]
+    )
 
     // case class FromTraitRRTypeParam[T](id: Int, name: String, value: T, opt: Option[T], seq: Seq[T], map: Map[String, T])
     // ..
@@ -73,7 +92,6 @@ object PathTypes {
     }
   }
 
-
 }
 
 class NormalClass {
@@ -95,8 +113,6 @@ case class Dog(name: String)
 case class Cat @PrimaryConstructor() (name: String) {
   def this(owner: PetOwner) = this(s"${owner.firstName}'s favorite pet'")
 }
-
-
 
 object GenericCaseClassWithCompanion {
   def apply[A](v: A): GenericCaseClassWithCompanion[A] = GenericCaseClassWithCompanion(v, "Bar")
@@ -192,7 +208,9 @@ class ReflectorSpec extends Specification {
       desc.properties(0).returnType must_== Reflector.scalaTypeOf[Map[String, Double]]
     }
 
-    def genericCheckCaseClass(desc: ObjectDescriptor)(params: Seq[ConstructorParamDescriptor] => MatchResult[Any]): MatchResult[Any] = {
+    def genericCheckCaseClass(
+      desc: ObjectDescriptor
+    )(params: Seq[ConstructorParamDescriptor] => MatchResult[Any]): MatchResult[Any] = {
       val realDesc = desc.asInstanceOf[ClassDescriptor]
 
       // One for c'tor, one for apply
@@ -223,7 +241,9 @@ class ReflectorSpec extends Specification {
     }
 
     "describe a simple case class" in checkCaseClass[RRSimple](checkCtorParams(Reflector.scalaTypeOf[Date]))
-    "describe a simple joda case class" in checkCaseClass[RRSimpleJoda](checkCtorParams(Reflector.scalaTypeOf[DateTime]))
+    "describe a simple joda case class" in checkCaseClass[RRSimpleJoda](
+      checkCtorParams(Reflector.scalaTypeOf[DateTime])
+    )
 
     "Describe a case class with options" in checkCaseClass[RROption] { params =>
       params(0).name must_== "id"
@@ -301,25 +321,27 @@ class ReflectorSpec extends Specification {
     "describe a type with nested generic types 4" in checkCaseClass[NestedType5] { params =>
       params(0).name must_== "dat"
       params(0).defaultValue must beNone
-      params(0).argType must_== Reflector.scalaTypeOf[List[Map[Double, Option[List[Map[Long, Option[Map[Byte, Either[Double, Long]]]]]]]]]
+      params(0).argType must_== Reflector
+        .scalaTypeOf[List[Map[Double, Option[List[Map[Long, Option[Map[Byte, Either[Double, Long]]]]]]]]]
       params(1).name must_== "lis"
       params(1).defaultValue must beNone
       params(1).argType must_== Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]]
     }
 
-    "describe a type with nested generic types parameters" in checkCaseClass[NestedResType[Double, Int, Option[Int]]] { params =>
-      params(0).name must_== "t"
-      params(0).defaultValue must beNone
-      params(0).argType must_== Reflector.scalaTypeOf[Double]
-      params(1).name must_== "v"
-      params(1).defaultValue must beNone
-      params(1).argType must_== Reflector.scalaTypeOf[Option[Int]]
-      params(2).name must_== "dat"
-      params(2).defaultValue must beNone
-      params(2).argType must_== Reflector.scalaTypeOf[List[Map[Double, Option[Int]]]]
-      params(3).name must_== "lis"
-      params(3).defaultValue must beNone
-      params(3).argType must_== Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]]
+    "describe a type with nested generic types parameters" in checkCaseClass[NestedResType[Double, Int, Option[Int]]] {
+      params =>
+        params(0).name must_== "t"
+        params(0).defaultValue must beNone
+        params(0).argType must_== Reflector.scalaTypeOf[Double]
+        params(1).name must_== "v"
+        params(1).defaultValue must beNone
+        params(1).argType must_== Reflector.scalaTypeOf[Option[Int]]
+        params(2).name must_== "dat"
+        params(2).defaultValue must beNone
+        params(2).argType must_== Reflector.scalaTypeOf[List[Map[Double, Option[Int]]]]
+        params(3).name must_== "lis"
+        params(3).defaultValue must beNone
+        params(3).argType must_== Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]]
     }
 
     "describe a class with a wildcard parameter" in checkCaseClass[Objs] { params =>
@@ -349,7 +371,7 @@ class ReflectorSpec extends Specification {
     }
 
     "Describe a case class with options defined in a trait" in {
-      checkCaseClass[PathTypes.HasTrait.FromTraitRROption]{ params =>
+      checkCaseClass[PathTypes.HasTrait.FromTraitRROption] { params =>
         val ctorParams = params.filterNot(_.name == ScalaSigReader.OuterFieldName)
         ctorParams(0).name must_== "id"
         ctorParams(0).defaultValue must beNone

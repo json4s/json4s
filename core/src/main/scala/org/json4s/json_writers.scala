@@ -1,14 +1,16 @@
 package org.json4s
 
-import java.io.{ StringWriter, Writer => JWriter }
+import java.io.{StringWriter, Writer => JWriter}
 import scala.collection.mutable.ListBuffer
 import StreamingJsonWriter._
 
 object JsonWriter {
   def ast: JsonWriter[JValue] = new JDoubleAstRootJsonWriter
   def bigDecimalAst: JsonWriter[JValue] = new JDecimalAstRootJsonWriter
-  def streaming[T <: java.io.Writer](writer: T)(implicit formats: Formats = DefaultFormats): JsonWriter[T] = new RootStreamingJsonWriter[T](writer, pretty = false, formats = formats)
-  def streamingPretty[T <: java.io.Writer](writer: T)(implicit formats: Formats = DefaultFormats): JsonWriter[T] = new RootStreamingJsonWriter[T](writer, pretty = true, formats = formats)
+  def streaming[T <: java.io.Writer](writer: T)(implicit formats: Formats = DefaultFormats): JsonWriter[T] =
+    new RootStreamingJsonWriter[T](writer, pretty = false, formats = formats)
+  def streamingPretty[T <: java.io.Writer](writer: T)(implicit formats: Formats = DefaultFormats): JsonWriter[T] =
+    new RootStreamingJsonWriter[T](writer, pretty = true, formats = formats)
 }
 trait JsonWriter[T] {
   def startArray(): JsonWriter[T]
@@ -30,12 +32,11 @@ trait JsonWriter[T] {
 
   def addJValue(jv: JValue): JsonWriter[T]
 }
-private final class JDoubleJFieldJsonWriter(name: String, parent: JDoubleJObjectJsonWriter) extends JDoubleAstJsonWriter {
+private final class JDoubleJFieldJsonWriter(name: String, parent: JDoubleJObjectJsonWriter)
+  extends JDoubleAstJsonWriter {
   def result: JValue = JNothing
 
-
   def addNode(node: JValue): JsonWriter[JValue] = parent.addNode(name -> node)
-
 
 }
 private final class JDoubleAstRootJsonWriter extends JDoubleAstJsonWriter {
@@ -49,12 +50,11 @@ private final class JDoubleAstRootJsonWriter extends JDoubleAstJsonWriter {
     if (nodes.nonEmpty) nodes.head else JNothing
   }
 }
-private final class JDecimalJFieldJsonWriter(name: String, parent: JDecimalJObjectJsonWriter) extends JDecimalAstJsonWriter {
+private final class JDecimalJFieldJsonWriter(name: String, parent: JDecimalJObjectJsonWriter)
+  extends JDecimalAstJsonWriter {
   def result: JValue = JNothing
 
-
   def addNode(node: JValue): JsonWriter[JValue] = parent.addNode(name -> node)
-
 
 }
 private final class JDecimalAstRootJsonWriter extends JDecimalAstJsonWriter {
@@ -75,14 +75,18 @@ private final class JDoubleJObjectJsonWriter(parent: JsonWriter[JValue]) extends
     this
   }
   def startArray(): JsonWriter[JValue] = {
-    sys.error("You have to start a field to be able to end it (startArray called before startField in a JObject builder)")
+    sys.error(
+      "You have to start a field to be able to end it (startArray called before startField in a JObject builder)"
+    )
   }
 
   def endArray(): JsonWriter[JValue] =
     sys.error("You have to start an array to be able to end it (endArray called before startArray)")
 
   def startObject(): JsonWriter[JValue] =
-    sys.error("You have to start a field to be able to end it (startObject called before startField in a JObject builder)")
+    sys.error(
+      "You have to start a field to be able to end it (startObject called before startField in a JObject builder)"
+    )
 
   def endObject(): JsonWriter[JValue] = {
     parent match {
@@ -119,13 +123,16 @@ private final class JDoubleJObjectJsonWriter(parent: JsonWriter[JValue]) extends
     sys.error("You have to start a field to be able to end it (double called before startField in a JObject builder)")
 
   def bigDecimal(value: BigDecimal): JsonWriter[JValue] =
-    sys.error("You have to start a field to be able to end it (bigDecimal called before startField in a JObject builder)")
+    sys.error(
+      "You have to start a field to be able to end it (bigDecimal called before startField in a JObject builder)"
+    )
 
   def startField(name: String): JsonWriter[JValue] = new JDoubleJFieldJsonWriter(name, this)
 
-
   def addJValue(jv: _root_.org.json4s.JValue): JsonWriter[_root_.org.json4s.JValue] =
-    sys.error("You have to start a field to be able to end it (addJValue called before startField in a JObject builder)")
+    sys.error(
+      "You have to start a field to be able to end it (addJValue called before startField in a JObject builder)"
+    )
 
   def result: JValue = JObject(nodes.toList)
 }
@@ -136,14 +143,18 @@ private final class JDecimalJObjectJsonWriter(parent: JsonWriter[JValue]) extend
     this
   }
   def startArray(): JsonWriter[JValue] = {
-    sys.error("You have to start a field to be able to end it (startArray called before startField in a JObject builder)")
+    sys.error(
+      "You have to start a field to be able to end it (startArray called before startField in a JObject builder)"
+    )
   }
 
   def endArray(): JsonWriter[JValue] =
     sys.error("You have to start an array to be able to end it (endArray called before startArray)")
 
   def startObject(): JsonWriter[JValue] =
-    sys.error("You have to start a field to be able to end it (startObject called before startField in a JObject builder)")
+    sys.error(
+      "You have to start a field to be able to end it (startObject called before startField in a JObject builder)"
+    )
 
   def endObject(): JsonWriter[JValue] = {
     parent match {
@@ -180,15 +191,18 @@ private final class JDecimalJObjectJsonWriter(parent: JsonWriter[JValue]) extend
     sys.error("You have to start a field to be able to end it (double called before startField in a JObject builder)")
 
   def bigDecimal(value: BigDecimal): JsonWriter[JValue] =
-    sys.error("You have to start a field to be able to end it (bigDecimal called before startField in a JObject builder)")
+    sys.error(
+      "You have to start a field to be able to end it (bigDecimal called before startField in a JObject builder)"
+    )
 
   def startField(name: String): JsonWriter[JValue] = new JDecimalJFieldJsonWriter(name, this)
 
-
   def addJValue(jv: _root_.org.json4s.JValue): JsonWriter[_root_.org.json4s.JValue] =
-    sys.error("You have to start a field to be able to end it (addJValue called before startField in a JObject builder)")
+    sys.error(
+      "You have to start a field to be able to end it (addJValue called before startField in a JObject builder)"
+    )
 
-  def result: JValue = JObject(nodes.toList:_*)
+  def result: JValue = JObject(nodes.toList: _*)
 }
 
 private final class JDoubleJArrayJsonWriter(parent: JsonWriter[JValue]) extends JDoubleAstJsonWriter {
@@ -232,7 +246,6 @@ private sealed abstract class JValueJsonWriter extends JsonWriter[JValue] {
     sys.error("You have to start an object to be able to end it (endObject called before startObject)")
   }
 
-
   def startField(name: String): JsonWriter[JValue] = {
     sys.error("You have to start an object before starting a field.")
   }
@@ -267,7 +280,6 @@ private sealed abstract class JDoubleAstJsonWriter extends JValueJsonWriter {
     new JDoubleJObjectJsonWriter(this)
   }
 
-
   def float(value: Float): JsonWriter[JValue] = addNode(JDouble(value))
 
   def double(value: Double): JsonWriter[JValue] = addNode(JDouble(value))
@@ -300,7 +312,8 @@ private final class FieldStreamingJsonWriter[T <: JWriter](
   parent: ObjectStreamingJsonWriter[T],
   protected[this] val pretty: Boolean,
   protected[this] val spaces: Int,
-  protected[this] val formats: Formats) extends StreamingJsonWriter[T] {
+  protected[this] val formats: Formats
+) extends StreamingJsonWriter[T] {
 
   def result: T = nodes
 
@@ -365,7 +378,6 @@ private final class ObjectStreamingJsonWriter[T <: JWriter](
     parent
   }
 
-
   def addAndQuoteNode(node: String): JsonWriter[T] = {
     if (isFirst) isFirst = false
     else nodes.append(",")
@@ -376,15 +388,18 @@ private final class ObjectStreamingJsonWriter[T <: JWriter](
   }
 
   override def startArray(): JsonWriter[T] = {
-    sys.error("You have to start a field to be able to end it (startArray called before startField in a JObject builder)")
+    sys.error(
+      "You have to start a field to be able to end it (startArray called before startField in a JObject builder)"
+    )
   }
 
   override def endArray(): JsonWriter[T] =
     sys.error("You have to start an array to be able to end it (endArray called before startArray)")
 
   override def startObject(): JsonWriter[T] =
-    sys.error("You have to start a field to be able to end it (startObject called before startField in a JObject builder)")
-
+    sys.error(
+      "You have to start a field to be able to end it (startObject called before startField in a JObject builder)"
+    )
 
   override def string(value: String): JsonWriter[T] =
     sys.error("You have to start a field to be able to end it (string called before startField in a JObject builder)")
@@ -414,7 +429,9 @@ private final class ObjectStreamingJsonWriter[T <: JWriter](
     sys.error("You have to start a field to be able to end it (double called before startField in a JObject builder)")
 
   override def bigDecimal(value: BigDecimal): JsonWriter[T] =
-    sys.error("You have to start a field to be able to end it (bigDecimal called before startField in a JObject builder)")
+    sys.error(
+      "You have to start a field to be able to end it (bigDecimal called before startField in a JObject builder)"
+    )
 
   override def startField(name: String): JsonWriter[T] = {
     val r = new FieldStreamingJsonWriter(name, isFirst, nodes, level, this, pretty, spaces, formats)
@@ -445,8 +462,7 @@ private final class ArrayStreamingJsonWriter[T <: JWriter](
     if (!isFirst) {
       nodes.write(',')
       writePretty()
-    }
-    else isFirst = false
+    } else isFirst = false
   }
 
   override def startArray(): JsonWriter[T] = {
@@ -486,7 +502,6 @@ private final class RootStreamingJsonWriter[T <: JWriter](
     nodes write node
     this
   }
-
 
   def addAndQuoteNode(node: String): JsonWriter[T] = {
     nodes.append("\"")
@@ -595,18 +610,18 @@ private[json4s] object StreamingJsonWriter {
   private[this] val negInfiniteVal = "-1e+500"
 
   private[json4s] def handleInfinity(value: Float): String = {
-    if(value.isPosInfinity) {
+    if (value.isPosInfinity) {
       posInfinityVal
-    } else if (value.isNegInfinity){
+    } else if (value.isNegInfinity) {
       negInfiniteVal
     } else {
       value.toString
     }
   }
   private[json4s] def handleInfinity(value: Double): String = {
-    if(value.isPosInfinity) {
+    if (value.isPosInfinity) {
       posInfinityVal
-    } else if (value.isNegInfinity){
+    } else if (value.isNegInfinity) {
       negInfiniteVal
     } else {
       value.toString

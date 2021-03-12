@@ -36,7 +36,12 @@ object ExtractionBugs {
     def this(name: String, email: String) = this(0, name, "Doe", email)
   }
 
-  case class ManyConstructorsWithPrimary @PrimaryConstructor() (id: Long, name: String, lastName: String, email: String) {
+  case class ManyConstructorsWithPrimary @PrimaryConstructor() (
+    id: Long,
+    name: String,
+    lastName: String,
+    email: String
+  ) {
     def this() = this(0, "John", "Doe", "")
     def this(name: String) = this(0, name, "Doe", "")
     def this(id: Long, name: String, lastName: String, email: String, domain: String) = {
@@ -102,7 +107,8 @@ object ExtractionBugs {
 
   object ContentWithOption {
 
-    class ContentWithOptionClass(val path: Option[String], val age: Option[Long], val content: Content) extends ContentWithOption
+    class ContentWithOptionClass(val path: Option[String], val age: Option[Long], val content: Content)
+      extends ContentWithOption
 
     def apply(path: Option[String], age: Option[Long], content: Content): ContentWithOption = {
       new ContentWithOptionClass(path, age, content)
@@ -136,13 +142,17 @@ object ExtractionBugs {
     def apply(str: String, i1: Int, i2: Int): CompanionSample = CompanionSample(str, i1 + i2)
   }
 
-  /** Custom serializer for MapImplementation
+  /**
+   * Custom serializer for MapImplementation
    *  This is used to show that custom (strange) serialisations were once broken.
    */
-  class MapImplementationSerializer extends CustomSerializer[MapImplementation](formats => (
-    { case MapImplementationSerializer.strangeSerialization => new MapImplementation() },
-    { case _: MapImplementation => MapImplementationSerializer.strangeSerialization }
-  ))
+  class MapImplementationSerializer
+    extends CustomSerializer[MapImplementation](formats =>
+      (
+        { case MapImplementationSerializer.strangeSerialization => new MapImplementation() },
+        { case _: MapImplementation => MapImplementationSerializer.strangeSerialization }
+      )
+    )
 
   object MapImplementationSerializer {
     val strangeSerialization = Extraction.decompose(MapImplementation.content)(DefaultFormats)
@@ -151,20 +161,20 @@ object ExtractionBugs {
 abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMethods[T] {
 
   import ExtractionBugs._
-  implicit val formats: Formats = DefaultFormats.withCompanions(
-    classOf[PingPongGame.SharedObj] -> PingPongGame) + new MapImplementationSerializer()
+  implicit val formats: Formats =
+    DefaultFormats.withCompanions(classOf[PingPongGame.SharedObj] -> PingPongGame) + new MapImplementationSerializer()
 
   "Primitive type should not hang" in {
     val a = WithPrimitiveAlias(Vector(1.0, 2.0, 3.0, 4.0))
     try {
       Extraction.decompose(a)
     } catch {
-      case _: MappingException =>  {}
+      case _: MappingException => {}
     }
     1 must_== 1
   }
 
-  (mod+" Extraction bugs Specification") should {
+  (mod + " Extraction bugs Specification") should {
     "ClassCastException (BigInt) regression 2 must pass" in {
       val opt = OptionOfInt(Some(39))
       Extraction.decompose(opt).extract[OptionOfInt].opt.get must_== 39
@@ -195,7 +205,7 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
 
     "Extraction should throw exception if two or more constructors marked as primary" in {
       Reflector.describe[ManyPrimaryConstructors].asInstanceOf[ClassDescriptor].mostComprehensive must
-        throwA[IllegalArgumentException]
+      throwA[IllegalArgumentException]
     }
 
     "Extraction should handle AnyRef" in {
@@ -278,7 +288,7 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
 
     "Parse 0 as JavaBigDecimal" in {
       val bjd = AJavaBigDecimal(BigDecimal("0").bigDecimal)
-      parse("""{"num": 0}""",useBigDecimalForDouble = true).extract[AJavaBigDecimal] must_== bjd
+      parse("""{"num": 0}""", useBigDecimalForDouble = true).extract[AJavaBigDecimal] must_== bjd
       parse("""{"num": 0}""").extract[AJavaBigDecimal] must_== bjd
     }
 
@@ -301,7 +311,6 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       val bji = AJavaBigInteger(BigInt(Long.MaxValue).bigInteger)
       parse(s"""{"num": ${Long.MaxValue}}""").extract[AJavaBigInteger] must_== bji
     }
-
 
     "Parse 0 as BigDecimal" in {
       val bd = ABigDecimal(BigDecimal("0"))
@@ -326,7 +335,9 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
     }
 
     "An implementation of Map should deserialize with a CustomSerializer" in {
-      Extraction.extract[MapImplementation](MapImplementationSerializer.strangeSerialization) must_== new MapImplementation()
+      Extraction.extract[MapImplementation](
+        MapImplementationSerializer.strangeSerialization
+      ) must_== new MapImplementation()
     }
 
     "Apply can't be mostComprehensive" in {
@@ -342,9 +353,7 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
 
       val obj = parse("""{"opt": "not an int"}""".stripMargin)
 
-      Extraction.extract[OptionOfInt](obj) must throwA(
-        new MappingException(
-          """
+      Extraction.extract[OptionOfInt](obj) must throwA(new MappingException("""
             |No usable value for opt
             |Do not know how to convert JString(not an int) into int
             |""".stripMargin.trim))
@@ -378,12 +387,14 @@ abstract class ExtractionBugs[T](mod: String) extends Specification with JsonMet
       )
     }
 
-    Fragments.foreach(Seq[JValue](
-      JNothing,
-      JInt(5),
-      JString("---"),
-      JArray(Nil)
-    )) { obj =>
+    Fragments.foreach(
+      Seq[JValue](
+        JNothing,
+        JInt(5),
+        JString("---"),
+        JArray(Nil)
+      )
+    ) { obj =>
       s"Extract should fail when strictOptionParsing is on and extracting from ${obj.toString}" in {
         implicit val formats: Formats = new DefaultFormats {
           override val strictOptionParsing: Boolean = true

@@ -1,18 +1,18 @@
 /*
-* Copyright 2007-2011 WorldWide Conferencing, LLC
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2007-2011 WorldWide Conferencing, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.json4s
 package ext
@@ -23,20 +23,19 @@ import org.joda.time.DateTimeZone.{forTimeZone, UTC}
 import org.joda.time._
 import org.specs2.mutable.Specification
 
-
 class NativeJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Native") {
   val s: Serialization = native.Serialization
-  val m: JsonMethods[_] =  native.JsonMethods
+  val m: JsonMethods[_] = native.JsonMethods
 }
 
 class JacksonJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Jackson") {
   val s: Serialization = jackson.Serialization
-  val m: JsonMethods[_] =  jackson.JsonMethods
+  val m: JsonMethods[_] = jackson.JsonMethods
 }
 
 /**
-* System under specification for JodaTimeSerializer.
-*/
+ * System under specification for JodaTimeSerializer.
+ */
 abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
 
   def s: Serialization
@@ -46,9 +45,15 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
 
   (mod + " JodaTimeSerializer Specification") should {
     "Serialize joda time types with default format" in {
-      val x = JodaTypes(new Duration(10*1000), new Instant(System.currentTimeMillis),
-                        new DateTime(UTC), new DateMidnight(UTC),
-                        new LocalDate(2011, 1, 16), new LocalTime(16, 52, 10), Period.weeks(3))
+      val x = JodaTypes(
+        new Duration(10 * 1000),
+        new Instant(System.currentTimeMillis),
+        new DateTime(UTC),
+        new DateMidnight(UTC),
+        new LocalDate(2011, 1, 16),
+        new LocalTime(16, 52, 10),
+        Period.weeks(3)
+      )
       val ser = s.write(x)
       s.read[JodaTypes](ser) must_== x
     }
@@ -84,10 +89,10 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
         }
       } ++ JodaTimeSerializers.all
 
-      val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0, usDateTimeZone), new DateMidnight(2011, 1, 16, usDateTimeZone))
+      val x =
+        Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0, usDateTimeZone), new DateMidnight(2011, 1, 16, usDateTimeZone))
       val ser = s.write(x)
-      ser must beMatching(
-        """\{"dt":"2011-01-16 10:32:00[-+]\d{2}:\d{2}","dm":"2011-01-16 00:00:00[-+]\d{2}:\d{2}"\}""")
+      ser must beMatching("""\{"dt":"2011-01-16 10:32:00[-+]\d{2}:\d{2}","dm":"2011-01-16 00:00:00[-+]\d{2}:\d{2}"\}""")
 
       (m.parse(ser) \ "dt").extract[DateTime] must_== new DateTime(2011, 1, 16, 10, 32, 0, 0, usDateTimeZone)
       (m.parse(ser) \ "dm").extract[DateTime] must_== new DateMidnight(2011, 1, 16, usDateTimeZone)
@@ -112,8 +117,14 @@ abstract class JodaTimeSerializerSpec(mod: String) extends Specification {
   }
 }
 
-case class JodaTypes(duration: Duration, instant: Instant, dateTime: DateTime,
-                     dateMidnight: DateMidnight, localDate: LocalDate,
-                     localTime: LocalTime, period: Period)
+case class JodaTypes(
+  duration: Duration,
+  instant: Instant,
+  dateTime: DateTime,
+  dateMidnight: DateMidnight,
+  localDate: LocalDate,
+  localTime: LocalTime,
+  period: Period
+)
 
 case class Dates(dt: DateTime, dm: DateMidnight)

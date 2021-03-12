@@ -6,10 +6,9 @@ import org.specs2.mutable.Specification
 
 import scala.util.Try
 
-
 /**
-* System under specification for JSON Printing.
-*/
+ * System under specification for JSON Printing.
+ */
 class JsonPrintingSpec extends Specification with JValueGen with ScalaCheck {
   import native.Document
   import native.Printer
@@ -26,4 +25,3 @@ class JsonPrintingSpec extends Specification with JValueGen with ScalaCheck {
 
   implicit def arbDoc: Arbitrary[Document] = Arbitrary(genJValue.map(render(_)))
 }
-

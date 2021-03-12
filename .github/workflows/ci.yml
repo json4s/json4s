@@ -28,10 +28,10 @@ jobs:
         export TZ=Australia/Canberra
         case ${{ matrix.scala }} in
           2)
-            sbt -v "+ test"
+            sbt -v scalafmtSbtCheck scalafmtCheckAll "+ test"
             ;;
           3)
-            sbt -v '++ 3.0.0-RC1!' json4s-ast/test
+            sbt -v scalafmtSbtCheck scalafmtCheckAll '++ 3.0.0-RC1!' json4s-ast/test
             ;;
           *)
             echo "unknown scala version"

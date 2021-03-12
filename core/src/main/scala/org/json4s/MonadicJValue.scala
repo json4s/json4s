@@ -5,8 +5,8 @@ import java.util.Locale.ENGLISH
 class MonadicJValue(jv: JValue) {
 
   /**
-    * Extract path name from "foo[]"
-    */
+   * Extract path name from "foo[]"
+   */
   private object ArrayIndex {
     val R = """^([^\[]+)\[(\d+)\]""".r
     def unapply(str: String): Option[(String, Int)] = str match {
@@ -16,8 +16,8 @@ class MonadicJValue(jv: JValue) {
   }
 
   /**
-    * Extract path and index from "foo[index]"
-    */
+   * Extract path and index from "foo[index]"
+   */
   private object ArrayEach {
     val R = """^([^\[]+)\[\]""".r
     def unapply(str: String): Option[String] = str match {
@@ -35,10 +35,11 @@ class MonadicJValue(jv: JValue) {
    * </pre>
    */
   def \(nameToFind: String): JValue = jv match {
-    case JArray(xs) => JArray(findDirectByName(xs, nameToFind)) match {
-      case JArray(Nil) => JNothing
-      case JArray(x)   => JArray(x)
-    }
+    case JArray(xs) =>
+      JArray(findDirectByName(xs, nameToFind)) match {
+        case JArray(Nil) => JNothing
+        case JArray(x) => JArray(x)
+      }
     case _ =>
       findDirectByName(jv :: Nil, nameToFind) match {
         case Nil => JNothing
@@ -69,10 +70,10 @@ class MonadicJValue(jv: JValue) {
    */
   def \\(nameToFind: String): JValue = {
     def find(json: JValue): List[JField] = json match {
-      case JObject(l) => l.foldLeft(List[JField]()) {
-        case (a, (name, value)) =>
+      case JObject(l) =>
+        l.foldLeft(List[JField]()) { case (a, (name, value)) =>
           if (name == nameToFind) a ::: List((name, value)) ::: find(value) else a ::: find(value)
-      }
+        }
       case JArray(l) => l.foldLeft(List[JField]())((a, json) => a ::: find(json))
       case _ => Nil
     }
@@ -131,9 +132,10 @@ class MonadicJValue(jv: JValue) {
   def foldField[A](z: A)(f: (A, JField) => A): A = {
     def rec(acc: A, v: JValue) = {
       v match {
-        case JObject(l) => l.foldLeft(acc) {
-          case (a, field @ (_, value)) => value.foldField(f(a, field))(f)
-        }
+        case JObject(l) =>
+          l.foldLeft(acc) { case (a, field @ (_, value)) =>
+            value.foldField(f(a, field))(f)
+          }
         case JArray(l) => l.foldLeft(acc)((a, e) => e.foldField(a)(f))
         case _ => acc
       }
@@ -217,7 +219,7 @@ class MonadicJValue(jv: JValue) {
    * JObject(List(JField("foo", JObject(List(JField("bar", JInt(1))))))).replace("foo" :: "bar" :: Nil, JString("baz"))
    * // returns JObject(List(JField("foo", JObject(List(JField("bar", JString("baz")))))))
    * </pre>
-   *<pre>
+   * <pre>
    * JObject(List(JField("foo", JArray(List(JObject(List(JField("bar", JInt(1)))), JObject(List(JField("bar", JInt(2))))))))).replace("foo[]" :: "bar" :: Nil, JString("baz"))
    * // returns JObject(List((foo,JArray(List(JObject(List((bar,JString(baz)))), JObject(List((bar,JString(baz)))))))))
    * </pre>
@@ -232,28 +234,33 @@ class MonadicJValue(jv: JValue) {
       (l, in) match {
 
         // "foo[0]" or "foo[0]"."bar"
-        case (ArrayIndex(name, index) :: xs, JObject(fields)) => JObject(
-          fields.map {
-            case JField(`name`, JArray(array)) if array.length > index => JField(name, JArray(array.updated(index, if(xs == Nil) replacement else rep(xs, array(index)))))
-            case field => field
-          }
-        )
+        case (ArrayIndex(name, index) :: xs, JObject(fields)) =>
+          JObject(
+            fields.map {
+              case JField(`name`, JArray(array)) if array.length > index =>
+                JField(name, JArray(array.updated(index, if (xs == Nil) replacement else rep(xs, array(index)))))
+              case field => field
+            }
+          )
 
         // "foo[]" or "foo[]"."bar"
-        case (ArrayEach(name) :: xs, JObject(fields)) => JObject(
-          fields.map {
-            case JField(`name`, JArray(array)) => JField(name, JArray(array.map( elem => if(xs == Nil) replacement else rep(xs, elem))))
-            case field => field
-          }
-        )
+        case (ArrayEach(name) :: xs, JObject(fields)) =>
+          JObject(
+            fields.map {
+              case JField(`name`, JArray(array)) =>
+                JField(name, JArray(array.map(elem => if (xs == Nil) replacement else rep(xs, elem))))
+              case field => field
+            }
+          )
 
         // "foo" or "foo"."bar"
-        case (x :: xs, JObject(fields)) => JObject(
-          fields.map {
-            case JField(`x`, value) => JField(x, if(xs == Nil) replacement else rep(xs, value))
-            case field => field
-          }
-        )
+        case (x :: xs, JObject(fields)) =>
+          JObject(
+            fields.map {
+              case JField(`x`, value) => JField(x, if (xs == Nil) replacement else rep(xs, value))
+              case field => field
+            }
+          )
 
         case _ => in
 
@@ -344,8 +351,8 @@ class MonadicJValue(jv: JValue) {
    * }
    * </pre>
    */
-  def removeField(p: JField => Boolean): JValue = jv transform {
-    case JObject(l) => JObject(l.filterNot(p))
+  def removeField(p: JField => Boolean): JValue = jv transform { case JObject(l) =>
+    JObject(l.filterNot(p))
   }
 
   /**
@@ -356,11 +363,12 @@ class MonadicJValue(jv: JValue) {
    * </pre>
    */
   def remove(p: JValue => Boolean): JValue = {
-    if(p(jv)) JNothing
-    else jv transform {
-      case JObject(l) => JObject(l.filterNot(f => p(f._2)))
-      case JArray(l) => JArray(l.filterNot(p))
-    }
+    if (p(jv)) JNothing
+    else
+      jv transform {
+        case JObject(l) => JObject(l.filterNot(f => p(f._2)))
+        case JArray(l) => JArray(l.filterNot(p))
+      }
   }
 
   private[this] def camelize(word: String): String = {
@@ -374,7 +382,7 @@ class MonadicJValue(jv: JValue) {
   private[this] def pascalize(word: String): String = {
     val lst = word.split("_").filterNot(_.isEmpty).toList
     (lst.headOption.map(s => s.substring(0, 1).toUpperCase(ENGLISH) + s.substring(1)).get ::
-      lst.tail.map(s => s.substring(0, 1).toUpperCase + s.substring(1))).mkString("")
+    lst.tail.map(s => s.substring(0, 1).toUpperCase + s.substring(1))).mkString("")
   }
   private[this] def underscoreCamelCasesOnly(word: String): String = {
     val firstPattern = "([A-Z]+)([A-Z][a-z])".r
@@ -384,7 +392,8 @@ class MonadicJValue(jv: JValue) {
       .replaceAllIn(
         firstPattern.replaceAllIn(word, replacementPattern),
         replacementPattern
-      ).toLowerCase
+      )
+      .toLowerCase
   }
   private[this] def underscore(word: String): String = {
     val spacesPattern = "[-\\s]".r
@@ -397,8 +406,8 @@ class MonadicJValue(jv: JValue) {
   def camelizeKeys: JValue = rewriteJsonAST(this.camelize)
 
   /**
-    * Pascalize all the keys in this org.json4s.JsonAST.JValue
-    */
+   * Pascalize all the keys in this org.json4s.JsonAST.JValue
+   */
   def pascalizeKeys: JValue = rewriteJsonAST(this.pascalize)
 
   /**
@@ -406,10 +415,9 @@ class MonadicJValue(jv: JValue) {
    */
   def snakizeKeys: JValue = rewriteJsonAST(this.underscore)
 
-
   /**
-    * Underscore the camel cased only keys in this [[org.json4s.JsonAST.JValue]]
-    */
+   * Underscore the camel cased only keys in this [[org.json4s.JsonAST.JValue]]
+   */
   def underscoreCamelCaseKeysOnly = rewriteJsonAST(underscoreCamelCasesOnly)
 
   /**

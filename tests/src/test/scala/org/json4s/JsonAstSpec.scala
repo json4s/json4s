@@ -24,7 +24,7 @@ import org.specs2.matcher.MatchResult
 
 class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
 
-  ("JSON AST Specification") should {
+  "JSON AST Specification" should {
     "Functor identity" in {
       val identityProp = (json: JValue) => json must_== (json map identity)
       prop(identityProp)
@@ -65,7 +65,7 @@ class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
 
     "Diff is subset of originals" in {
       val subsetProp = (x: JObject, y: JObject) => {
-        val Diff(c, a, d@_) = x diff y
+        val Diff(c, a, d @ _) = x diff y
         y must_== (y merge (c merge a))
       }
       prop(subsetProp)
@@ -87,25 +87,29 @@ class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
     }
 
     "Remove removes only matching elements" in {
-      forAllNoShrink(genJValue, genJValueClass) { (json: JValue, x: Class[_ <: JValue]) => {
-        val removed = json remove typePredicate(x)
-        val elemsLeft = removed filter {
-          case _ => true
+      forAllNoShrink(genJValue, genJValueClass) { (json: JValue, x: Class[_ <: JValue]) =>
+        {
+          val removed = json remove typePredicate(x)
+          val elemsLeft = removed filter { case _ =>
+            true
+          }
+          (elemsLeft.forall(_.getClass != x) must beTrue)
         }
-        (elemsLeft.forall(_.getClass != x) must beTrue)
-      }}
+      }
     }
 
     "noNulls removes JNulls and JNothings" in {
-      forAllNoShrink(genJValue, genJValueClass) { (json: JValue, x: Class[_ <: JValue]) => {
-        val noNulls = json.noNulls
-        val elemsLeft = noNulls filter {
-          case _ => true
+      forAllNoShrink(genJValue, genJValueClass) { (json: JValue, x: Class[_ <: JValue]) =>
+        {
+          val noNulls = json.noNulls
+          val elemsLeft = noNulls filter { case _ =>
+            true
+          }
+          //noNulls can remove everything in which case we get a JNothing, otherwise there should be no JNulls or JNothings
+          (noNulls must_== JNothing) or
+          (elemsLeft.forall(e => e != JNull && e != JNothing) must beTrue)
         }
-        //noNulls can remove everything in which case we get a JNothing, otherwise there should be no JNulls or JNothings
-        (noNulls must_== JNothing) or
-        (elemsLeft.forall(e => e != JNull && e != JNothing) must beTrue)
-      }}
+      }
     }
 
     "Replace one" in {
@@ -126,7 +130,7 @@ class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
             case name :: Nil => (in \ name) must_== `replacement`
 
             case name :: xs =>
-              val value = (in \ name)
+              val value = in \ name
               (value must_!= JNothing) and replaced(xs, value)
           }
         }
@@ -144,10 +148,9 @@ class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
 
     "Replace each element in JArray" in {
 
-      implicit val arbArray:Arbitrary[JField] = Arbitrary(genFieldArray)
+      implicit val arbArray: Arbitrary[JField] = Arbitrary(genFieldArray)
 
       prop { (field: JField, replacement: JObject) =>
-
         val JField(fn, JArray(_)) = field
 
         // ensure that we test a JObject with a JArray Field
@@ -166,10 +169,9 @@ class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
 
     "Replace one element in JArray" in {
 
-      implicit def arbArray:Arbitrary[JField] = Arbitrary(genFieldArray)
+      implicit def arbArray: Arbitrary[JField] = Arbitrary(genFieldArray)
 
       prop { (field: JField, replacement: JObject) =>
-
         val JField(fn, JArray(arr)) = field
 
         // ensure that we test a JObject with a JArray Field
@@ -182,7 +184,7 @@ class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
         // checks that only one element was replaced
         result match {
           case JObject((_, JArray(xs)) :: _) => {
-            foreach(xs.indices)(i => if(i == index) xs(i) must_== replacement else xs(i) must_== arr(i) )
+            foreach(xs.indices)(i => if (i == index) xs(i) must_== replacement else xs(i) must_== arr(i))
           }
         }
 
@@ -190,7 +192,7 @@ class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
 
     }
 
-    "equals hashCode" in prop{ (x: JObject) =>
+    "equals hashCode" in prop { (x: JObject) =>
       val y = JObject(scala.util.Random.shuffle(x.obj))
 
       x must_== y

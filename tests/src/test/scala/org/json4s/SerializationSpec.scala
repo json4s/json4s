@@ -2,7 +2,12 @@ package org.json4s
 
 import org.specs2.mutable.Specification
 
-private case class OptionalFields(optString: Option[String], optInt: Option[Int], optDouble: Option[Double], optObj: Option[OptionalFields])
+private case class OptionalFields(
+  optString: Option[String],
+  optInt: Option[Int],
+  optDouble: Option[Double],
+  optObj: Option[OptionalFields]
+)
 private case class MyId(id: String) extends AnyVal
 private case class MyModel(ids: Seq[MyId])
 private case class AnotherModel(id: MyId)
@@ -45,18 +50,32 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
       }
 
       "from case class with nested JSON object" in {
-        val optFields = OptionalFields(None, None, None,
-          Some(OptionalFields(None, None, None, None)))
+        val optFields = OptionalFields(None, None, None, Some(OptionalFields(None, None, None, None)))
         val str = serialization.write(optFields)
         str must_== """{"optObj":{}}"""
       }
 
       "from case class with deeply nested JSON objects" in {
-        val optFields = OptionalFields(None, None, None,
-          Some(OptionalFields(None, None, None,
-            Some(OptionalFields(None, None, None,
-              Some(OptionalFields(None, None, None,
-                Some(OptionalFields(None, None, None, None)))))))))
+        val optFields = OptionalFields(
+          None,
+          None,
+          None,
+          Some(
+            OptionalFields(
+              None,
+              None,
+              None,
+              Some(
+                OptionalFields(
+                  None,
+                  None,
+                  None,
+                  Some(OptionalFields(None, None, None, Some(OptionalFields(None, None, None, None))))
+                )
+              )
+            )
+          )
+        )
         val str = serialization.write(optFields)
         str must_== """{"optObj":{"optObj":{"optObj":{"optObj":{}}}}}"""
       }
@@ -97,18 +116,32 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
       }
 
       "from case class with nested JSON object" in {
-        val optFields = OptionalFields(None, None, None,
-          Some(OptionalFields(None, None, None, None)))
+        val optFields = OptionalFields(None, None, None, Some(OptionalFields(None, None, None, None)))
         val str = serialization.write(optFields)
         str must_== """{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":null}}"""
       }
 
       "from case class with deeply nested JSON objects" in {
-        val optFields = OptionalFields(None, None, None,
-          Some(OptionalFields(None, None, None,
-            Some(OptionalFields(None, None, None,
-              Some(OptionalFields(None, None, None,
-                Some(OptionalFields(None, None, None, None)))))))))
+        val optFields = OptionalFields(
+          None,
+          None,
+          None,
+          Some(
+            OptionalFields(
+              None,
+              None,
+              None,
+              Some(
+                OptionalFields(
+                  None,
+                  None,
+                  None,
+                  Some(OptionalFields(None, None, None, Some(OptionalFields(None, None, None, None))))
+                )
+              )
+            )
+          )
+        )
         val str = serialization.write(optFields)
         str must_== """{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":null}}}}}"""
       }
@@ -126,7 +159,7 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
         [error] org.json4s.reflect.package$.fail(package.scala:93)
         [error] org.json4s.Extraction$.convert(Extraction.scala:676)
         [error] org.json4s.Extraction$.extract(Extraction.scala:388)
-        */
+         */
       }
 
 //      "#270 with expected json" in {
@@ -157,7 +190,7 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
       }
 
       "#674 serializes a boolean in a map from a trait in Scala 2.13" in {
-        implicit val formats: Formats = DefaultFormats.skippingEmptyValues+FieldSerializer[AttributesT]()
+        implicit val formats: Formats = DefaultFormats.skippingEmptyValues + FieldSerializer[AttributesT]()
 
         val expected = Foo("test")
         val json = org.json4s.native.Serialization.writePretty(expected)

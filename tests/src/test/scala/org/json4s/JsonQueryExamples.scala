@@ -1,18 +1,18 @@
 /*
-* Copyright 2009-2010 WorldWide Conferencing, LLC
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2009-2010 WorldWide Conferencing, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.json4s
 
@@ -23,18 +23,18 @@ class NativeJsonQueryExamples extends JsonQueryExamples[Document]("Native") with
 class JacksonJsonQueryExamples extends JsonQueryExamples[JValue]("Jackson") with jackson.JsonMethods
 
 /**
-* System under specification for JSON Query Examples.
-*/
+ * System under specification for JSON Query Examples.
+ */
 abstract class JsonQueryExamples[T](mod: String) extends Specification with JsonMethods[T] {
 
-  (mod+" JSON Query Examples") should {
+  (mod + " JSON Query Examples") should {
     "List of IPs" in {
       val ips = for { JString(ip) <- json \\ "ip" } yield ip
       ips must_== List("192.168.1.125", "192.168.1.126", "192.168.1.127", "192.168.2.125", "192.168.2.126")
     }
 
     "List of IPs converted to XML" in {
-      val ips = <ips>{ for { JString(ip) <- json \\ "ip" } yield <ip>{ ip }</ip> }</ips>
+      val ips = <ips>{for { JString(ip) <- json \\ "ip" } yield <ip>{ip}</ip>}</ips>
       ips must_== <ips><ip>192.168.1.125</ip><ip>192.168.1.126</ip><ip>192.168.1.127</ip><ip>192.168.2.125</ip><ip>192.168.2.126</ip></ips>
     }
 
@@ -42,7 +42,7 @@ abstract class JsonQueryExamples[T](mod: String) extends Specification with Json
       val ips = for {
         // NOTE: the following warning given by Scala compiler is incorrect
         // pattern var cluster in value $anonfun is never used; `cluster@_' suppresses this warning
-        cluster @ JObject(x) <- json \ "data_center" if (x contains JField("name", JString("cluster2")))
+        cluster @ JObject(x) <- json \ "data_center" if x contains JField("name", JString("cluster2"))
         JString(ip) <- cluster \\ "ip"
       } yield ip
       ips must_== List("192.168.2.125", "192.168.2.126")
@@ -62,7 +62,13 @@ abstract class JsonQueryExamples[T](mod: String) extends Specification with Json
         JField("uptime", JInt(uptime)) <- server
       } yield Server(ip, uptime.longValue)
 
-      servers sortWith (_.uptime > _.uptime) must_== List(Server("192.168.1.127", 901214), Server("192.168.2.125", 453423), Server("192.168.2.126", 214312), Server("192.168.1.126", 189822), Server("192.168.1.125", 150123))
+      servers sortWith (_.uptime > _.uptime) must_== List(
+        Server("192.168.1.127", 901214),
+        Server("192.168.2.125", 453423),
+        Server("192.168.2.126", 214312),
+        Server("192.168.1.126", 189822),
+        Server("192.168.1.125", 150123)
+      )
     }
 
     "Clusters administered by liza" in {

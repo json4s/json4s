@@ -30,12 +30,12 @@ import org.specs2.mutable.Specification
 import com.mongodb.{BasicDBList, DBObject}
 import scala.collection.JavaConverters._
 
-class BsonDSLSpec extends Specification  {
+class BsonDSLSpec extends Specification {
 
   "BsonDSL" should {
     "Convert ObjectId properly" in {
       val oid: ObjectId = ObjectId.get
-      val qry: JObject = ("id" -> oid)
+      val qry: JObject = "id" -> oid
       val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
 
       dbo.get("id") must_== oid
@@ -43,16 +43,17 @@ class BsonDSLSpec extends Specification  {
 
     "Convert List[ObjectId] properly" in {
       val oidList = ObjectId.get :: ObjectId.get :: ObjectId.get :: Nil
-      val qry: JObject = ("ids" -> oidList)
+      val qry: JObject = "ids" -> oidList
       val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
-      val oidList2: List[ObjectId] = dbo.get("ids").asInstanceOf[BasicDBList].asScala.toList.map(_.asInstanceOf[ObjectId])
+      val oidList2: List[ObjectId] =
+        dbo.get("ids").asInstanceOf[BasicDBList].asScala.toList.map(_.asInstanceOf[ObjectId])
 
       oidList2 must_== oidList
     }
 
     "Convert Pattern properly" in {
       val ptrn: Pattern = Pattern.compile("^Mongo", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE)
-      val qry: JObject = ("ptrn" -> ptrn)
+      val qry: JObject = "ptrn" -> ptrn
       val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
       val ptrn2: Pattern = dbo.get("ptrn").asInstanceOf[Pattern]
 
@@ -65,9 +66,10 @@ class BsonDSLSpec extends Specification  {
         Pattern.compile("^Mongo1", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE) ::
         Pattern.compile("^Mongo2", Pattern.CASE_INSENSITIVE) ::
         Pattern.compile("^Mongo3") :: Nil
-      val qry: JObject = ("ptrns" -> ptrnList)
+      val qry: JObject = "ptrns" -> ptrnList
       val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
-      val ptrnList2: List[Pattern] = dbo.get("ptrns").asInstanceOf[BasicDBList].asScala.toList.map(_.asInstanceOf[Pattern])
+      val ptrnList2: List[Pattern] =
+        dbo.get("ptrns").asInstanceOf[BasicDBList].asScala.toList.map(_.asInstanceOf[Pattern])
 
       ptrnList.map(_.pattern) must_== ptrnList2.map(_.pattern)
       ptrnList.map(_.flags) must_== ptrnList2.map(_.flags)
@@ -75,7 +77,7 @@ class BsonDSLSpec extends Specification  {
 
     "Convert Regex properly" in {
       val regex: Regex = "^Mongo".r
-      val qry: JObject = ("regex" -> regex)
+      val qry: JObject = "regex" -> regex
       val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
       val ptrn: Pattern = dbo.get("regex").asInstanceOf[Pattern]
 
@@ -85,7 +87,7 @@ class BsonDSLSpec extends Specification  {
 
     "Convert UUID properly" in {
       val uuid: UUID = UUID.randomUUID
-      val qry: JObject = ("uuid" -> uuid)
+      val qry: JObject = "uuid" -> uuid
       val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
 
       dbo.get("uuid") must_== uuid
@@ -93,7 +95,7 @@ class BsonDSLSpec extends Specification  {
 
     "Convert List[UUID] properly" in {
       val uuidList = UUID.randomUUID :: UUID.randomUUID :: UUID.randomUUID :: Nil
-      val qry: JObject = ("ids" -> uuidList)
+      val qry: JObject = "ids" -> uuidList
       val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
       val uuidList2: List[UUID] = dbo.get("ids").asInstanceOf[BasicDBList].asScala.toList.map(_.asInstanceOf[UUID])
 
@@ -103,7 +105,7 @@ class BsonDSLSpec extends Specification  {
     "Convert Date properly" in {
       implicit val formats: Formats = DefaultFormats.lossless
       val dt: Date = new Date
-      val qry: JObject = ("now" -> dt)
+      val qry: JObject = "now" -> dt
       val dbo: DBObject = JObjectParser.parse(qry)
 
       dbo.get("now") must_== dt
@@ -112,7 +114,7 @@ class BsonDSLSpec extends Specification  {
     "Convert List[Date] properly" in {
       implicit val formats: Formats = DefaultFormats.lossless
       val dateList = new Date :: new Date :: new Date :: Nil
-      val qry: JObject = ("dts" -> dateList)
+      val qry: JObject = "dts" -> dateList
       val dbo: DBObject = JObjectParser.parse(qry)
       val dateList2: List[Date] = dbo.get("dts").asInstanceOf[BasicDBList].asScala.toList.map(_.asInstanceOf[Date])
 

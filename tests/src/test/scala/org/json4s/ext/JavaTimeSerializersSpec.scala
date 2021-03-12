@@ -5,7 +5,6 @@ import java.time._
 import org.json4s._
 import org.specs2.mutable.Specification
 
-
 class NativeJavaDateTimeSerializerSpec extends JavaDateTimeSerializerSpec("Native") {
   val s: Serialization = native.Serialization
 }
@@ -24,7 +23,8 @@ abstract class JavaDateTimeSerializerSpec(mod: String) extends Specification {
 
   (mod + " JavaTimeSerializer Specification") should {
     "Serialize java time types" in {
-      val x = JavaTypes(Duration.ofDays(1),
+      val x = JavaTypes(
+        Duration.ofDays(1),
         Instant.ofEpochMilli(1433890789),
         Year.of(1987),
         LocalDateTime.of(2015, 6, 23, 14, 34, 29),
@@ -32,7 +32,8 @@ abstract class JavaDateTimeSerializerSpec(mod: String) extends Specification {
         LocalTime.of(15, 13, 34, 123),
         Period.of(2014, 11, 22),
         YearMonth.of(1934, 12),
-        MonthDay.of(11, 24))
+        MonthDay.of(11, 24)
+      )
       val ser = s.write(x)
       s.read[JavaTypes](ser) must_== x
     }
@@ -59,7 +60,8 @@ abstract class JavaDateTimeSerializerSpec(mod: String) extends Specification {
   }
 }
 
-case class JavaTypes(duration: Duration,
+case class JavaTypes(
+  duration: Duration,
   instant: Instant,
   year: Year,
   localDateTime: LocalDateTime,
@@ -67,6 +69,7 @@ case class JavaTypes(duration: Duration,
   localTime: LocalTime,
   period: Period,
   yearMonth: YearMonth,
-  monthDay: MonthDay)
+  monthDay: MonthDay
+)
 
 case class JavaDates(ldt: LocalDateTime)

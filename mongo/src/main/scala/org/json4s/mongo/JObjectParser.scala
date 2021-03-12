@@ -25,13 +25,14 @@ import java.util.concurrent.atomic.AtomicReference
 import org.json4s.ParserUtil.ParseException
 import collection.JavaConverters._
 
-object JObjectParser  {
+object JObjectParser {
+
   /**
-    * Set this to override JObjectParser turning strings that are valid
-    * ObjectIds into actual ObjectIds. For example, place the following in Boot.boot:
-    *
-    * <code>JObjectParser.stringProcessor.default.set((s: String) => s)</code>
-    */
+   * Set this to override JObjectParser turning strings that are valid
+   * ObjectIds into actual ObjectIds. For example, place the following in Boot.boot:
+   *
+   * <code>JObjectParser.stringProcessor.default.set((s: String) => s)</code>
+   */
   val stringProcessor = new AtomicReference[String => Object](defaultStringProcessor _) {}
 
   def defaultStringProcessor(s: String): Object = {
@@ -40,14 +41,14 @@ object JObjectParser  {
   }
 
   /*
-  * Parse a JObject into a DBObject
-  */
+   * Parse a JObject into a DBObject
+   */
   def parse(jo: JValue)(implicit formats: Formats): DBObject =
     Parser.parse(jo, formats)
 
   /*
-  * Serialize a DBObject into a JObject
-  */
+   * Serialize a DBObject into a JObject
+   */
   def serialize(a: Any)(implicit formats: Formats): JValue = serialize0(a, formats)
 
   private[this] def serialize0(a: Any, formats: Formats): JValue = {
@@ -57,12 +58,13 @@ object JObjectParser  {
       case x if isPrimitive(x.getClass) => primitive2jvalue(x)
       case x if isDateType(x.getClass) => datetype2jvalue(x)(formats)
       case x if isMongoType(x.getClass) => mongotype2jvalue(x)(formats)
-      case x: BasicDBList => JArray(x.asScala.toList.map( x => serialize0(x, formats)))
-      case x: BasicDBObject => JObject(
-        x.keySet.asScala.toList.map { f =>
-          JField(f, serialize0(x.get(f), formats))
-        }
-      )
+      case x: BasicDBList => JArray(x.asScala.toList.map(x => serialize0(x, formats)))
+      case x: BasicDBObject =>
+        JObject(
+          x.keySet.asScala.toList.map { f =>
+            JField(f, serialize0(x.get(f), formats))
+          }
+        )
       case _ => JNothing
     }
   }
@@ -80,7 +82,7 @@ object JObjectParser  {
     private def parseArray(arr: List[JValue], formats: Formats): BasicDBList = {
       val dbl = new BasicDBList
       trimArr(arr) foreach {
-        case JObject(JField("$oid", JString(s)) :: Nil) if (ObjectId.isValid(s)) =>
+        case JObject(JField("$oid", JString(s)) :: Nil) if ObjectId.isValid(s) =>
           dbl.add(new ObjectId(s))
         case JObject(JField("$regex", JString(s)) :: JField("$flags", JInt(f)) :: Nil) =>
           dbl.add(Pattern.compile(s, f.intValue))
@@ -99,7 +101,7 @@ object JObjectParser  {
       val dbo = new BasicDBObject
       trimObj(obj) foreach { jf =>
         jf._2 match {
-          case JObject(JField("$oid", JString(s)) :: Nil) if (ObjectId.isValid(s)) =>
+          case JObject(JField("$oid", JString(s)) :: Nil) if ObjectId.isValid(s) =>
             dbo.put(jf._1, new ObjectId(s))
           case JObject(JField("$regex", JString(s)) :: JField("$flags", JInt(f)) :: Nil) =>
             dbo.put(jf._1, Pattern.compile(s, f.intValue))
@@ -123,18 +125,16 @@ object JObjectParser  {
       case JNothing => sys.error("can't render 'nothing'")
       case JString(null) => "null"
       case JString(s) => stringProcessor.get()(s)
-      case _ =>  ""
+      case _ => ""
     }
 
     // FIXME: This is not ideal.
     private def renderInteger(i: BigInt): Object = {
       if (i <= java.lang.Integer.MAX_VALUE && i >= java.lang.Integer.MIN_VALUE) {
         java.lang.Integer.valueOf(i.intValue)
-      }
-      else if (i <= java.lang.Long.MAX_VALUE && i >= java.lang.Long.MIN_VALUE) {
+      } else if (i <= java.lang.Long.MAX_VALUE && i >= java.lang.Long.MIN_VALUE) {
         java.lang.Long.valueOf(i.longValue)
-      }
-      else {
+      } else {
         i.toString
       }
     }

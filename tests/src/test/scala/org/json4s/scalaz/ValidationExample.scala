@@ -16,11 +16,9 @@ class ValidationExample extends Specification {
   case class Person(name: String, age: Int)
 
   "Validation" should {
-    def min(x: Int): Int => Result[Int] = (y: Int) =>
-      if (y < x) Fail("min", s"$y < $x") else y.success
+    def min(x: Int): Int => Result[Int] = (y: Int) => if (y < x) Fail("min", s"$y < $x") else y.success
 
-    def max(x: Int): Int => Result[Int] = (y: Int) =>
-      if (y > x) Fail("max", s"$y > $x") else y.success
+    def max(x: Int): Int => Result[Int] = (y: Int) => if (y > x) Fail("max", s"$y > $x") else y.success
 
     val json = native.JsonParser.parse(""" {"name":"joe","age":17} """)
 
@@ -45,9 +43,10 @@ class ValidationExample extends Specification {
   "Range filtering" should {
     val json = native.JsonParser.parse(""" [{"s":10,"e":17},{"s":12,"e":13},{"s":11,"e":8}] """)
 
-    val ascending: (Int, Int) => (NonEmptyList[Error] \/ (Int, Int)) = (x1, x2) => {
-      if (x1 > x2) Fail[(Int, Int)]("asc", s"${x1} > ${x2}") else (x1, x2).successNel[Error]
-    }.toDisjunction
+    val ascending: (Int, Int) => (NonEmptyList[Error] \/ (Int, Int)) = (x1, x2) =>
+      {
+        if (x1 > x2) Fail[(Int, Int)]("asc", s"${x1} > ${x2}") else (x1, x2).successNel[Error]
+      }.toDisjunction
 
     // Valid range is a range having start <= end
     implicit def rangeJSON: JSONR[Range] = new JSONR[Range] {

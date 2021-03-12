@@ -6,7 +6,6 @@ import org.specs2.mutable.Specification
 class NativeJsonFormatSpec extends JsonFormatSpec[Document]("native") with native.JsonMethods
 class JacksonJsonFormatSpec extends JsonFormatSpec[JValue]("jackson") with jackson.JsonMethods
 
-
 abstract class JsonFormatSpec[T](mod: String) extends Specification with JsonMethods[T] {
 
   import DefaultReaders._

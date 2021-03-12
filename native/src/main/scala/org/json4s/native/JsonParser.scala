@@ -18,13 +18,15 @@ package native
 
 import org.json4s.ParserUtil.{Buffer, parseDouble, ParseException}
 
-/** JSON parser.
+/**
+ * JSON parser.
  */
 object JsonParser {
 
   import java.io._
 
-  /** Parsed tokens from low level pull parser.
+  /**
+   * Parsed tokens from low level pull parser.
    */
   sealed abstract class Token
   case object OpenObj extends Token
@@ -49,78 +51,101 @@ object JsonParser {
     in match {
       case StringInput(s) => parse(s, useBigDecimalForDouble, useBigIntForLong)
       case ReaderInput(rdr) => parse(rdr, useBigDecimalForDouble, useBigIntForLong)
-      case StreamInput(stream) => parse(new InputStreamReader(stream, "UTF-8"), useBigDecimalForDouble, useBigIntForLong)
+      case StreamInput(stream) =>
+        parse(new InputStreamReader(stream, "UTF-8"), useBigDecimalForDouble, useBigIntForLong)
       case FileInput(file) => parse(new FileReader(file), useBigDecimalForDouble, useBigIntForLong)
     }
   }
 
-  /** Return parsed JSON.
+  /**
+   * Return parsed JSON.
    */
   @throws[ParserUtil.ParseException]
   def parse(s: String): JValue = parse(s, useBigDecimalForDouble = false, useBigIntForLong = true)
 
-  /** Return parsed JSON.
+  /**
+   * Return parsed JSON.
    */
   @throws[ParserUtil.ParseException]
-  def parse(s: String, useBigDecimalForDouble: Boolean): JValue = parse(s, useBigDecimalForDouble = useBigDecimalForDouble, useBigIntForLong = true)
+  def parse(s: String, useBigDecimalForDouble: Boolean): JValue =
+    parse(s, useBigDecimalForDouble = useBigDecimalForDouble, useBigIntForLong = true)
 
-  /** Return parsed JSON.
+  /**
+   * Return parsed JSON.
    */
   @throws[ParserUtil.ParseException]
   def parse(s: String, useBigDecimalForDouble: Boolean, useBigIntForLong: Boolean): JValue =
     parse(new Buffer(new StringReader(s), false), useBigDecimal = useBigDecimalForDouble, useBigInt = useBigIntForLong)
 
-  /** Return parsed JSON.
+  /**
+   * Return parsed JSON.
    * @param closeAutomatically true (default) if the Reader is automatically closed on EOF
    * @param useBigDecimalForDouble true if double values need to be parsed as BigDecimal
    * @param useBigIntForLong true if long values need to be parsed as BigInt
    */
   @throws[ParserUtil.ParseException]
-  def parse(s: Reader, closeAutomatically: Boolean = true, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): JValue =
+  def parse(
+    s: Reader,
+    closeAutomatically: Boolean = true,
+    useBigDecimalForDouble: Boolean = false,
+    useBigIntForLong: Boolean = true
+  ): JValue =
     parse(new Buffer(s, closeAutomatically), useBigDecimal = useBigDecimalForDouble, useBigInt = useBigIntForLong)
 
-  /** Return parsed JSON.
+  /**
+   * Return parsed JSON.
    */
   def parseOpt(s: String): Option[JValue] = parseOpt(s, useBigDecimalForDouble = false)
-  /** Return parsed JSON.
+
+  /**
+   * Return parsed JSON.
    */
   def parseOpt(s: String, useBigDecimalForDouble: Boolean): Option[JValue] =
     try { parse(s, useBigDecimalForDouble).toOption }
     catch { case _: Exception => None }
 
-  /** Return parsed JSON.
+  /**
+   * Return parsed JSON.
    * @param closeAutomatically true (default) if the Reader is automatically closed on EOF
    */
   def parseOpt(s: Reader, closeAutomatically: Boolean = true, useBigDecimalForDouble: Boolean = false): Option[JValue] =
     try { parse(s, closeAutomatically, useBigDecimalForDouble).toOption }
     catch { case _: Exception => None }
 
-  /** Parse in pull parsing style.
+  /**
+   * Parse in pull parsing style.
    * Use <code>p.nextToken</code> to parse tokens one by one from a string.
    * @see org.json4s.JsonParser.Token
    */
   def parse[A](s: String, p: Parser => A): A = parse(s, p, useBigDecimalForDouble = false)
-  /** Parse in pull parsing style.
+
+  /**
+   * Parse in pull parsing style.
    * Use <code>p.nextToken</code> to parse tokens one by one from a string.
    * @see org.json4s.JsonParser.Token
    */
   def parse[A](s: String, p: Parser => A, useBigDecimalForDouble: Boolean): A =
     parse(new StringReader(s), p, useBigDecimalForDouble)
 
-  /** Parse in pull parsing style.
+  /**
+   * Parse in pull parsing style.
    * Use <code>p.nextToken</code> to parse tokens one by one from a stream.
    * The Reader must be closed when parsing is stopped.
    * @see org.json4s.JsonParser.Token
    */
   def parse[A](s: Reader, p: Parser => A): A = parse(s, p, useBigDecimalForDouble = false)
-  /** Parse in pull parsing style.
+
+  /**
+   * Parse in pull parsing style.
    * Use <code>p.nextToken</code> to parse tokens one by one from a stream.
    * The Reader must be closed when parsing is stopped.
    * @see org.json4s.JsonParser.Token
    */
   def parse[A](s: Reader, p: Parser => A, useBigDecimalForDouble: Boolean): A =
     parse(s, p, useBigDecimalForDouble, useBigIntForLong = true)
-  /** Parse in pull parsing style.
+
+  /**
+   * Parse in pull parsing style.
    * Use <code>p.nextToken</code> to parse tokens one by one from a stream.
    * The Reader must be closed when parsing is stopped.
    * @see org.json4s.JsonParser.Token
@@ -136,11 +161,6 @@ object JsonParser {
       case e: Exception => throw new ParseException("parsing failed", e)
     } finally { buf.release() }
   }
-
-
-
-
-
 
   private[this] val astParser = (p: Parser, useBigDecimal: Boolean, useBigIntForLong: Boolean) => {
     val vals = new ValStack(p)
@@ -184,22 +204,22 @@ object JsonParser {
       }
     }
 
-   def go(): Unit = {
+    def go(): Unit = {
       token = p.nextToken
       token match {
-        case OpenObj          => vals.push(JObject(Nil))
+        case OpenObj => vals.push(JObject(Nil))
         case FieldStart(name) => vals.push(JField(name, null))
-        case StringVal(x)     => newValue(JString(x))
-        case IntVal(x)        => newValue(JInt(x))
-        case LongVal(x)       => newValue(JLong(x))
-        case DoubleVal(x)     => newValue(JDouble(x))
+        case StringVal(x) => newValue(JString(x))
+        case IntVal(x) => newValue(JInt(x))
+        case LongVal(x) => newValue(JLong(x))
+        case DoubleVal(x) => newValue(JDouble(x))
         case BigDecimalVal(x) => newValue(JDecimal(x))
-        case BoolVal(x)       => newValue(JBool(x))
-        case NullVal          => newValue(JNull)
-        case CloseObj         => closeBlock(vals.popAny)
-        case OpenArr          => vals.push(JArray(Nil))
-        case CloseArr         => closeBlock(vals.pop(classOf[JArray]))
-        case End              =>
+        case BoolVal(x) => newValue(JBool(x))
+        case NullVal => newValue(JNull)
+        case CloseObj => closeBlock(vals.popAny)
+        case OpenArr => vals.push(JArray(Nil))
+        case CloseArr => closeBlock(vals.pop(classOf[JArray]))
+        case End =>
       }
     }
 
@@ -211,7 +231,7 @@ object JsonParser {
     root getOrElse JNothing
   }
 
-  private[this] val EOF = (-1).asInstanceOf[Char]
+  private[this] val EOF = -1.asInstanceOf[Char]
 
   private class ValStack(parser: Parser) {
     import java.util.LinkedList
@@ -226,7 +246,8 @@ object JsonParser {
 
     private def convert[A](x: Any, expectedType: Class[A]): A = {
       if (x == null) parser.fail("expected object or array")
-      try { x.asInstanceOf[A] } catch { case _: ClassCastException => parser.fail(s"unexpected $x") }
+      try { x.asInstanceOf[A] }
+      catch { case _: ClassCastException => parser.fail(s"unexpected $x") }
     }
 
     def peekOption = if (stack.isEmpty) None else Some(stack.peek)
@@ -240,7 +261,8 @@ object JsonParser {
 
     def fail(msg: String) = throw new ParseException(s"$msg\nNear: ${buf.near}", null)
 
-    /** Parse next Token from stream.
+    /**
+     * Parse next Token from stream.
      */
     def nextToken: Token = {
       def parseString: String =
@@ -268,7 +290,8 @@ object JsonParser {
         }
         val value = s.toString
         if (doubleVal) {
-          if (useBigDecimalForDouble) { BigDecimalVal(BigDecimal(value)) } else { DoubleVal(parseDouble(value)) }
+          if (useBigDecimalForDouble) { BigDecimalVal(BigDecimal(value)) }
+          else { DoubleVal(parseDouble(value)) }
         } else {
           if (useBigIntForLong) IntVal(BigInt(value)) else LongVal(value.toLong)
         }
@@ -319,13 +342,13 @@ object JsonParser {
             return CloseArr
           case ' ' | '\n' | ',' | '\r' | '\t' =>
           case c =>
-            if(EOF == c){
+            if (EOF == c) {
               buf.automaticClose()
               return End
-            }else if(Character.isDigit(c) || c == '-' || c == '+'){
+            } else if (Character.isDigit(c) || c == '-' || c == '+') {
               fieldNameMode = true
               return parseValue(c)
-            }else{
+            } else {
               fail(s"unknown token $c")
             }
         }

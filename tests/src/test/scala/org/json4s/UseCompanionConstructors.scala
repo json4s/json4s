@@ -9,11 +9,11 @@ object JacksonUseCompanionCtorSpec extends UseCompanionConstructors[JValue]("Jac
 final case class UseCompanionCtorSpec(someString: String, someInt: Int, someDouble: Double)
 
 object UseCompanionCtorSpec {
-  def apply(someString: String, someInt: Int): UseCompanionCtorSpec = UseCompanionCtorSpec(someString, someInt, 1.1D)
+  def apply(someString: String, someInt: Int): UseCompanionCtorSpec = UseCompanionCtorSpec(someString, someInt, 1.1d)
 }
 
 abstract class UseCompanionConstructors[T](mod: String) extends Specification with JsonMethods[T] {
-  
+
   implicit lazy val formats: Formats = DefaultFormats
 
   val useCtorSpec1 = """{ "someString": "Foo", "someInt": 123 }"""

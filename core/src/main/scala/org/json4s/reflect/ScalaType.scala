@@ -18,8 +18,10 @@ object ScalaType {
     else if (mf.runtimeClass == classOf[Short] || mf.runtimeClass == classOf[java.lang.Short]) ScalaType.ShortType
     else if (mf.runtimeClass == classOf[Float] || mf.runtimeClass == classOf[java.lang.Float]) ScalaType.FloatType
     else if (mf.runtimeClass == classOf[Double] || mf.runtimeClass == classOf[java.lang.Double]) ScalaType.DoubleType
-    else if (mf.runtimeClass == classOf[BigInt] || mf.runtimeClass == classOf[java.math.BigInteger]) ScalaType.BigIntType
-    else if (mf.runtimeClass == classOf[BigDecimal] || mf.runtimeClass == classOf[java.math.BigDecimal]) ScalaType.BigDecimalType
+    else if (mf.runtimeClass == classOf[BigInt] || mf.runtimeClass == classOf[java.math.BigInteger])
+      ScalaType.BigIntType
+    else if (mf.runtimeClass == classOf[BigDecimal] || mf.runtimeClass == classOf[java.math.BigDecimal])
+      ScalaType.BigDecimalType
     else if (mf.runtimeClass == classOf[Boolean] || mf.runtimeClass == classOf[java.lang.Boolean]) ScalaType.BooleanType
     else if (mf.runtimeClass == classOf[String] || mf.runtimeClass == classOf[java.lang.String]) ScalaType.StringType
     else if (mf.runtimeClass == classOf[java.util.Date]) ScalaType.DateType
@@ -45,7 +47,8 @@ object ScalaType {
     target match {
       case t: TypeInfo with SourceType => t.scalaType
       case t =>
-        val tArgs = t.parameterizedType.map(_.getActualTypeArguments.toList.map(Reflector.scalaTypeOf(_))).getOrElse(Nil)
+        val tArgs =
+          t.parameterizedType.map(_.getActualTypeArguments.toList.map(Reflector.scalaTypeOf(_))).getOrElse(Nil)
         ScalaType(target.clazz, tArgs)
     }
   }
@@ -77,7 +80,8 @@ object ScalaType {
   private class CopiedScalaType(
     mf: Manifest[_],
     private[this] var _typeVars: Map[String, ScalaType],
-    override val isPrimitive: Boolean) extends ScalaType(mf) {
+    override val isPrimitive: Boolean
+  ) extends ScalaType(mf) {
 
     override def typeVars: Map[String, ScalaType] = {
       if (_typeVars == null)
@@ -91,12 +95,12 @@ object ScalaType {
 
 class ScalaType(val manifest: Manifest[_]) extends Equals {
 
-  import ScalaType.{ types, CopiedScalaType }
+  import ScalaType.{types, CopiedScalaType}
   val erasure: Class[_] = manifest.runtimeClass
 
   val typeArgs: Seq[ScalaType] = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
     if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
-    )
+  )
 
   private[this] var _typeVars: Map[String, ScalaType] = null
   def typeVars: Map[String, ScalaType] = {
@@ -126,8 +130,9 @@ class ScalaType(val manifest: Manifest[_]) extends Equals {
   lazy val simpleName: String =
     rawSimpleName + (
       if (typeArgs.nonEmpty) typeArgs.map(_.simpleName).mkString("[", ", ", "]")
-      else if (typeVars.nonEmpty) typeVars.map(_._2.simpleName).mkString("[", ", ", "]") else ""
-      )
+      else if (typeVars.nonEmpty) typeVars.map(_._2.simpleName).mkString("[", ", ", "]")
+      else ""
+    )
 
   lazy val fullName: String =
     rawFullName + (if (typeArgs.nonEmpty) typeArgs.map(_.fullName).mkString("[", ", ", "]") else "")
@@ -180,7 +185,8 @@ class ScalaType(val manifest: Manifest[_]) extends Equals {
   def copy(
     erasure: Class[_] = erasure,
     typeArgs: Seq[ScalaType] = typeArgs,
-    typeVars: Map[String, ScalaType] = _typeVars): ScalaType = {
+    typeVars: Map[String, ScalaType] = _typeVars
+  ): ScalaType = {
 
     /* optimization */
     if (erasure == classOf[Int] || erasure == classOf[java.lang.Integer]) ScalaType.IntType

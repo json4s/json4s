@@ -24,7 +24,6 @@ abstract class TypeFieldSerializerSpec(mod: String) extends Specification with M
   implicit lazy val formats1: Formats = s.formats(NoTypeHints) +
     new TypeFieldSerializer[BaseTrait]("type", map)
 
-
   (mod + " TypeFieldSerializer Specification") should {
     "Serialize concrete type" in {
       val x = Concrete1()

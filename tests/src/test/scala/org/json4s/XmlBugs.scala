@@ -1,18 +1,18 @@
 /*
-* Copyright 2009-2011 WorldWide Conferencing, LLC
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2009-2011 WorldWide Conferencing, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.json4s
 
@@ -21,10 +21,10 @@ import org.json4s.native.Document
 
 class NativeXmlBugs extends XmlBugs[Document]("Native") with native.JsonMethods
 class JacksonXmlBugs extends XmlBugs[JValue]("Jackson") with jackson.JsonMethods
-abstract class XmlBugs[T](mod: String) extends Specification with JsonMethods[T]{
+abstract class XmlBugs[T](mod: String) extends Specification with JsonMethods[T] {
   import Xml._
 
-  (mod+" XML Bugs") should {
+  (mod + " XML Bugs") should {
     "HarryH's XML parses correctly" in {
       val xml1 = <venue><id>123</id></venue>
       val xml2 = <venue> <id>{"1"}{"23"}</id> </venue>
@@ -38,7 +38,8 @@ abstract class XmlBugs[T](mod: String) extends Specification with JsonMethods[T]
 
     "Jono's XML with attributes parses correctly" in {
       val example1 = <word term="example" self="http://localhost:8080/word/example" available="true">content</word>
-      val expected1 = """{"word":"content","self":"http://localhost:8080/word/example","term":"example","available":"true"}"""
+      val expected1 =
+        """{"word":"content","self":"http://localhost:8080/word/example","term":"example","available":"true"}"""
 
       val example2 = <word term="example" self="http://localhost:8080/word/example" available="true"></word>
       val expected2 = """{"self":"http://localhost:8080/word/example","term":"example","available":"true"}"""

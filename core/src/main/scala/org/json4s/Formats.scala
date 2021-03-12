@@ -39,49 +39,50 @@ object Formats {
   // ---------------------------------
   // internal utilities
 
-  private[json4s] def customSerializer(a: Any)(
-    implicit format: Formats): PartialFunction[Any, JValue] = {
+  private[json4s] def customSerializer(a: Any)(implicit format: Formats): PartialFunction[Any, JValue] = {
     format.customSerializers
       .collectFirst { case x if x.serialize.isDefinedAt(a) => x.serialize }
       .getOrElse(PartialFunction.empty[Any, JValue])
   }
 
-  private[json4s] def customRichDeserializer(a: (ScalaType, JValue))(
-    implicit format: Formats): PartialFunction[(ScalaType, JValue), Any] = {
+  private[json4s] def customRichDeserializer(
+    a: (ScalaType, JValue)
+  )(implicit format: Formats): PartialFunction[(ScalaType, JValue), Any] = {
     format.richSerializers
       .collectFirst { case x if x.deserialize.isDefinedAt(a) => x.deserialize }
       .getOrElse(PartialFunction.empty[(ScalaType, JValue), Any])
   }
 
-  private[json4s] def customRichSerializer(a: Any)(
-    implicit format: Formats): PartialFunction[Any, JValue] = {
+  private[json4s] def customRichSerializer(a: Any)(implicit format: Formats): PartialFunction[Any, JValue] = {
     format.richSerializers
       .collectFirst { case (x) if x.serialize.isDefinedAt(a) => x.serialize }
       .getOrElse(PartialFunction.empty[Any, JValue])
   }
 
-  private[json4s] def customDeserializer(a: (TypeInfo, JValue))(
-    implicit format: Formats): PartialFunction[(TypeInfo, JValue), Any] = {
+  private[json4s] def customDeserializer(
+    a: (TypeInfo, JValue)
+  )(implicit format: Formats): PartialFunction[(TypeInfo, JValue), Any] = {
     format.customSerializers
       .collectFirst { case x if x.deserialize.isDefinedAt(a) => x.deserialize }
       .getOrElse(PartialFunction.empty[(TypeInfo, JValue), Any])
   }
 
-  private[json4s] def customKeySerializer(a: Any)(
-    implicit format: Formats): PartialFunction[Any, String] =
+  private[json4s] def customKeySerializer(a: Any)(implicit format: Formats): PartialFunction[Any, String] =
     format.customKeySerializers
       .collectFirst { case x if x.serialize.isDefinedAt(a) => x.serialize }
       .getOrElse(PartialFunction.empty[Any, String])
 
-  private[json4s] def customKeyDeserializer(a: (TypeInfo, String))(
-    implicit format: Formats): PartialFunction[(TypeInfo, String), Any] =
+  private[json4s] def customKeyDeserializer(
+    a: (TypeInfo, String)
+  )(implicit format: Formats): PartialFunction[(TypeInfo, String), Any] =
     format.customKeySerializers
       .collectFirst { case x if x.deserialize.isDefinedAt(a) => x.deserialize }
       .getOrElse(PartialFunction.empty[(TypeInfo, String), Any])
   // ---------------------------------
 }
 
-/** Formats to use when converting JSON.
+/**
+ * Formats to use when converting JSON.
  * Formats are usually configured by using an implicit parameter:
  * <pre>
  * implicit val formats: Formats = org.json4s.DefaultFormats
@@ -124,25 +125,26 @@ trait Formats extends Serializable { self: Formats =>
   def emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
 
   private def copy(
-                    wDateFormat: DateFormat = self.dateFormat,
-                    wParameterNameReader: reflect.ParameterNameReader = self.parameterNameReader,
-                    wTypeHints: TypeHints = self.typeHints,
-                    wCustomSerializers: List[Serializer[_]] = self.customSerializers,
-                    wCustomKeySerializers: List[KeySerializer[_]] = self.customKeySerializers,
-                    wFieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers,
-                    wRichSerializers: List[RichSerializer[_]] = self.richSerializers,
-                    wWantsBigInt: Boolean = self.wantsBigInt,
-                    wWantsBigDecimal: Boolean = self.wantsBigDecimal,
-                    withPrimitives: Set[Type] = self.primitives,
-                    wCompanions: List[(Class[_], AnyRef)] = self.companions,
-                    wExtractionNullStrategy: ExtractionNullStrategy = self.extractionNullStrategy,
-                    wStrictOptionParsing: Boolean = self.strictOptionParsing,
-                    wStrictArrayExtraction: Boolean = self.strictArrayExtraction,
-                    wStrictMapExtraction: Boolean = self.strictMapExtraction,
-                    wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
-                    wConsiderCompanionConstructors: Boolean = self.considerCompanionConstructors,
-                    wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy,
-                    wStrictFieldDeserialization: Boolean = self.strictFieldDeserialization): Formats =
+    wDateFormat: DateFormat = self.dateFormat,
+    wParameterNameReader: reflect.ParameterNameReader = self.parameterNameReader,
+    wTypeHints: TypeHints = self.typeHints,
+    wCustomSerializers: List[Serializer[_]] = self.customSerializers,
+    wCustomKeySerializers: List[KeySerializer[_]] = self.customKeySerializers,
+    wFieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers,
+    wRichSerializers: List[RichSerializer[_]] = self.richSerializers,
+    wWantsBigInt: Boolean = self.wantsBigInt,
+    wWantsBigDecimal: Boolean = self.wantsBigDecimal,
+    withPrimitives: Set[Type] = self.primitives,
+    wCompanions: List[(Class[_], AnyRef)] = self.companions,
+    wExtractionNullStrategy: ExtractionNullStrategy = self.extractionNullStrategy,
+    wStrictOptionParsing: Boolean = self.strictOptionParsing,
+    wStrictArrayExtraction: Boolean = self.strictArrayExtraction,
+    wStrictMapExtraction: Boolean = self.strictMapExtraction,
+    wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
+    wConsiderCompanionConstructors: Boolean = self.considerCompanionConstructors,
+    wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy,
+    wStrictFieldDeserialization: Boolean = self.strictFieldDeserialization
+  ): Formats =
     new Formats {
       def dateFormat: DateFormat = wDateFormat
       override def parameterNameReader: reflect.ParameterNameReader = wParameterNameReader
@@ -200,7 +202,8 @@ trait Formats extends Serializable { self: Formats =>
 
   def strict: Formats = copy(wStrictOptionParsing = true, wStrictArrayExtraction = true, wStrictMapExtraction = true)
 
-  def nonStrict: Formats = copy(wStrictOptionParsing = false, wStrictArrayExtraction = false, wStrictMapExtraction = false)
+  def nonStrict: Formats =
+    copy(wStrictOptionParsing = false, wStrictArrayExtraction = false, wStrictMapExtraction = false)
 
   @deprecated(message = "Use withNullExtractionStrategy instead", since = "3.7.0")
   def disallowNull: Formats = copy(wExtractionNullStrategy = ExtractionNullStrategy.Disallow)
@@ -212,34 +215,35 @@ trait Formats extends Serializable { self: Formats =>
   /**
    * Adds the specified type hints to this formats.
    */
-  def + (extraHints: TypeHints): Formats = copy(wTypeHints = self.typeHints + extraHints)
+  def +(extraHints: TypeHints): Formats = copy(wTypeHints = self.typeHints + extraHints)
 
   /**
    * Adds the specified custom serializer to this formats.
    */
-  def + (newSerializer: RichSerializer[_]): Formats = copy(wRichSerializers = newSerializer :: self.richSerializers)
+  def +(newSerializer: RichSerializer[_]): Formats = copy(wRichSerializers = newSerializer :: self.richSerializers)
 
   /**
    * Adds the specified custom serializer to this formats.
    */
-  def + (newSerializer: Serializer[_]): Formats = copy(wCustomSerializers = newSerializer :: self.customSerializers)
+  def +(newSerializer: Serializer[_]): Formats = copy(wCustomSerializers = newSerializer :: self.customSerializers)
 
   /**
    * Adds the specified custom key serializer to this formats.
    */
-  def + (newSerializer: KeySerializer[_]): Formats =
+  def +(newSerializer: KeySerializer[_]): Formats =
     copy(wCustomKeySerializers = newSerializer :: self.customKeySerializers)
 
   /**
    * Adds the specified custom serializers to this formats.
    */
-  def ++ (newSerializers: Iterable[Serializer[_]]): Formats =
+  def ++(newSerializers: Iterable[Serializer[_]]): Formats =
     copy(wCustomSerializers = newSerializers.foldRight(self.customSerializers)(_ :: _))
 
   /**
    * Removes the specified custom serializer from this formats.
    */
-  def - (serializer: Serializer[_]): Formats = copy(wCustomSerializers = self.customSerializers.filterNot(_ == serializer))
+  def -(serializer: Serializer[_]): Formats =
+    copy(wCustomSerializers = self.customSerializers.filterNot(_ == serializer))
 
   /**
    * Adds the specified custom serializers to this formats.
@@ -250,7 +254,7 @@ trait Formats extends Serializable { self: Formats =>
   /**
    * Adds a field serializer for a given type to this formats.
    */
-  def + [A](newSerializer: FieldSerializer[A]): Formats =
+  def +[A](newSerializer: FieldSerializer[A]): Formats =
     copy(wFieldSerializers = (newSerializer.mf.runtimeClass -> newSerializer) :: self.fieldSerializers)
 
   private[json4s] def fieldSerializer(clazz: Class[_]): Option[FieldSerializer[_]] = {
@@ -259,7 +263,7 @@ trait Formats extends Serializable { self: Formats =>
     val ord = Ordering[Int].on[(Class[_], FieldSerializer[_])](x => delta(x._1, clazz))
     fieldSerializers filter (_._1.isAssignableFrom(clazz)) match {
       case Nil => None
-      case xs  => Some((xs min ord)._2)
+      case xs => Some((xs min ord)._2)
     }
   }
 
@@ -303,7 +307,8 @@ trait KeySerializer[A] {
   def serialize(implicit format: Formats): PartialFunction[Any, String]
 }
 
-/** Type hints can be used to alter the default conversion rules when converting
+/**
+ * Type hints can be used to alter the default conversion rules when converting
  * Scala instances into JSON and vice versa. Type hints must be used when converting
  * class which is not supported by default (for instance when class is not a case class).
  * <p>
@@ -326,11 +331,13 @@ trait TypeHints {
 
   val hints: List[Class[_]]
 
-  /** Return hint for given type.
+  /**
+   * Return hint for given type.
    */
   def hintFor(clazz: Class[_]): Option[String]
 
-  /** Return type for given hint.
+  /**
+   * Return type for given hint.
    */
   def classFor(hint: String, parent: Class[_]): Option[Class[_]]
 
@@ -361,7 +368,7 @@ trait TypeHints {
   /**
    * Adds the specified type hints to this type hints.
    */
-  def + (hints: TypeHints): TypeHints = TypeHints.CompositeTypeHints(hints.components ::: components)
+  def +(hints: TypeHints): TypeHints = TypeHints.CompositeTypeHints(hints.components ::: components)
 
 }
 
@@ -375,23 +382,25 @@ private[json4s] object TypeHints {
      */
     def hintFor(clazz: Class[_]): Option[String] = {
       (components.reverse
-        filter (_.containsHint(clazz))
-        map { th =>
-          val hint =  th.hintFor(clazz)
-          (
-            hint,
-            hint.flatMap(th.classFor(_, clazz))
-              .getOrElse(
-                sys.error("hintFor/classFor not invertible for " + th)
-              )
-          )
-        }
-        sortWith ((x, y) => (ClassDelta.delta(x._2, clazz) - ClassDelta.delta(y._2, clazz)) <= 0)).headOption.flatMap(_._1)
+      filter (_.containsHint(clazz))
+      map { th =>
+        val hint = th.hintFor(clazz)
+        (
+          hint,
+          hint
+            .flatMap(th.classFor(_, clazz))
+            .getOrElse(
+              sys.error("hintFor/classFor not invertible for " + th)
+            )
+        )
+      }
+      sortWith ((x, y) => (ClassDelta.delta(x._2, clazz) - ClassDelta.delta(y._2, clazz)) <= 0)).headOption
+        .flatMap(_._1)
     }
 
     def classFor(hint: String, parent: Class[_]): Option[Class[_]] = {
       def hasClass(h: TypeHints) =
-        scala.util.control.Exception.allCatch opt(h.classFor(hint, parent)) exists (_.isDefined)
+        scala.util.control.Exception.allCatch opt (h.classFor(hint, parent)) exists (_.isDefined)
 
       components find hasClass flatMap (_.classFor(hint, parent))
     }
@@ -427,38 +436,37 @@ private[json4s] object ClassDelta {
     else if (class2.getInterfaces.contains(class1)) 0
     else if (class1.isAssignableFrom(class2)) {
       1 + delta(class1, class2.getSuperclass)
-    }
-    else if (class2.isAssignableFrom(class1)) {
+    } else if (class2.isAssignableFrom(class1)) {
       1 + delta(class1.getSuperclass, class2)
-    }
-    else sys.error("Don't call delta unless one class is assignable from the other")
+    } else sys.error("Don't call delta unless one class is assignable from the other")
   }
 }
 
-/** Do not use any type hints.
+/**
+ * Do not use any type hints.
  */
 case object NoTypeHints extends TypeHints {
   val hints: List[Class[_]] = Nil
-  def hintFor(clazz: Class[_])= None
+  def hintFor(clazz: Class[_]) = None
   def classFor(hint: String, parent: Class[_]) = None
   override def shouldExtractHints(clazz: Class[_]) = false
 }
 
-/** Use short class name as a type hint.
+/**
+ * Use short class name as a type hint.
  */
-case class ShortTypeHints(hints: List[Class[_]],
-                          override val typeHintFieldName: String = "jsonClass")
-    extends TypeHints {
+case class ShortTypeHints(hints: List[Class[_]], override val typeHintFieldName: String = "jsonClass")
+  extends TypeHints {
   def hintFor(clazz: Class[_]) =
     Some(clazz.getName.substring(clazz.getName.lastIndexOf(".") + 1))
   def classFor(hint: String, parent: Class[_]) = hints find (hintFor(_).exists(_ == hint))
 }
 
-/** Use full class name as a type hint.
+/**
+ * Use full class name as a type hint.
  */
-case class FullTypeHints(hints: List[Class[_]],
-                         override val typeHintFieldName: String = "jsonClass")
-    extends TypeHints {
+case class FullTypeHints(hints: List[Class[_]], override val typeHintFieldName: String = "jsonClass")
+  extends TypeHints {
   def hintFor(clazz: Class[_]) = Some(clazz.getName)
   def classFor(hint: String, parent: Class[_]) = {
     Reflector
@@ -468,10 +476,11 @@ case class FullTypeHints(hints: List[Class[_]],
   }
 }
 
-/** Use a map of keys as type hints.  Values may not be mapped by multiple keys
-  */
-case class MappedTypeHints(hintMap: Map[Class[_], String],
-                           override val typeHintFieldName: String = "jsonClass") extends TypeHints {
+/**
+ * Use a map of keys as type hints.  Values may not be mapped by multiple keys
+ */
+case class MappedTypeHints(hintMap: Map[Class[_], String], override val typeHintFieldName: String = "jsonClass")
+  extends TypeHints {
   require(hintMap.size == hintMap.values.toList.distinct.size, "values in type hint mapping must be distinct")
 
   override val hints: List[Class[_]] = hintMap.keys.toList
@@ -481,7 +490,8 @@ case class MappedTypeHints(hintMap: Map[Class[_], String],
   def classFor(hint: String, parent: Class[_]) = lookup.get(hint).filter(parent.isAssignableFrom)
 }
 
-/** Default date format is UTC time.
+/**
+ * Default date format is UTC time.
  */
 object DefaultFormats extends DefaultFormats {
   val UTC = TimeZone.getTimeZone("UTC")
@@ -540,42 +550,42 @@ trait DefaultFormats extends Formats {
     f
   }
 
-  /** Lossless date format includes milliseconds too.
+  /**
+   * Lossless date format includes milliseconds too.
    */
   def lossless: Formats = new DefaultFormats {
     override def dateFormatter = DefaultFormats.losslessDate()
   }
 
-  /** Default formats with given <code>TypeHint</code>s.
+  /**
+   * Default formats with given <code>TypeHint</code>s.
    */
   def withHints(hints: TypeHints): Formats = new DefaultFormats {
     override val typeHints = hints
   }
 }
 
-class CustomSerializer[A: ClassTag](
-  ser: Formats => (PartialFunction[JValue, A], PartialFunction[Any, JValue])) extends Serializer[A] {
+class CustomSerializer[A: ClassTag](ser: Formats => (PartialFunction[JValue, A], PartialFunction[Any, JValue]))
+  extends Serializer[A] {
 
   val Class = classTag[A].runtimeClass
 
-  def deserialize(implicit format: Formats) = {
-    case (TypeInfo(Class, _), json) =>
-      if (ser(format)._1.isDefinedAt(json)) ser(format)._1(json)
-      else throw new MappingException("Can't convert " + json + " to " + Class)
+  def deserialize(implicit format: Formats) = { case (TypeInfo(Class, _), json) =>
+    if (ser(format)._1.isDefinedAt(json)) ser(format)._1(json)
+    else throw new MappingException("Can't convert " + json + " to " + Class)
   }
 
   def serialize(implicit format: Formats) = ser(format)._2
 }
 
-class CustomKeySerializer[A: ClassTag](
-  ser: Formats => (PartialFunction[String, A], PartialFunction[Any, String])) extends KeySerializer[A] {
+class CustomKeySerializer[A: ClassTag](ser: Formats => (PartialFunction[String, A], PartialFunction[Any, String]))
+  extends KeySerializer[A] {
 
   val Class = classTag[A].runtimeClass
 
-  def deserialize(implicit format: Formats) = {
-    case (TypeInfo(Class, _), json) =>
-      if (ser(format)._1.isDefinedAt(json)) ser(format)._1(json)
-      else throw new MappingException("Can't convert " + json + " to " + Class)
+  def deserialize(implicit format: Formats) = { case (TypeInfo(Class, _), json) =>
+    if (ser(format)._1.isDefinedAt(json)) ser(format)._1(json)
+    else throw new MappingException("Can't convert " + json + " to " + Class)
   }
 
   def serialize(implicit format: Formats) = ser(format)._2

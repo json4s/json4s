@@ -6,7 +6,7 @@ object ParserUtil {
 
   class ParseException(message: String, cause: Exception) extends Exception(message, cause)
 
-  private[this] val EOF = (-1).asInstanceOf[Char]
+  private[this] val EOF = -1.asInstanceOf[Char]
   private[this] val AsciiEncoder = Charset.forName("US-ASCII").newEncoder()
 
   private[this] sealed abstract class StringAppender[T] {
@@ -29,9 +29,9 @@ object ParserUtil {
   private[this] def quote[T](s: String, appender: StringAppender[T])(implicit formats: Formats): T = { // hot path
     var i = 0
     val l = s.length
-    while(i < l) {
+    while (i < l) {
       (s(i): @annotation.switch) match {
-        case '"'  => appender.append("\\\"")
+        case '"' => appender.append("\\\"")
         case '\\' => appender.append("\\\\")
         case '\b' => appender.append("\\b")
         case '\f' => appender.append("\\f")
@@ -63,14 +63,14 @@ object ParserUtil {
       while (c != '"') {
         if (c == '\\') {
           buf.next match {
-            case '"'  => s.append('"')
+            case '"' => s.append('"')
             case '\\' => s.append('\\')
-            case '/'  => s.append('/')
-            case 'b'  => s.append('\b')
-            case 'f'  => s.append('\f')
-            case 'n'  => s.append('\n')
-            case 'r'  => s.append('\r')
-            case 't'  => s.append('\t')
+            case '/' => s.append('/')
+            case 'b' => s.append('\b')
+            case 'f' => s.append('\f')
+            case 'n' => s.append('\n')
+            case 'r' => s.append('\r')
+            case 't' => s.append('\t')
             case 'u' =>
               val chars = Array(buf.next, buf.next, buf.next, buf.next)
               val codePoint = Integer.parseInt(new String(chars), 16)
@@ -112,7 +112,7 @@ object ParserUtil {
     private[this] var curSegmentIdx = 0 // Pointer which points current segment
 
     def mark() = { curMark = cur; curMarkSegment = curSegmentIdx }
-    def back() = cur = cur-1
+    def back() = cur = cur - 1
 
     def next: Char = {
       if (cur == offset && read < 0) {
@@ -125,16 +125,16 @@ object ParserUtil {
     }
 
     def substring = {
-      if (curSegmentIdx == curMarkSegment) new String(segment, curMark, cur-curMark-1)
+      if (curSegmentIdx == curMarkSegment) new String(segment, curMark, cur - curMark - 1)
       else { // slower path for case when string is in two or more segments
         var parts: List[(Int, Int, Array[Char])] = Nil
         var i = curSegmentIdx
         while (i >= curMarkSegment) {
           val s = segments(i).seg
           val start = if (i == curMarkSegment) curMark else 0
-          val end = if (i == curSegmentIdx) cur else s.length+1
+          val end = if (i == curSegmentIdx) cur else s.length + 1
           parts = (start, end, s) :: parts
-          i = i-1
+          i = i - 1
         }
         val len = parts.map(p => p._2 - p._1 - 1).sum
         val chars = new Array[Char](len)
@@ -143,16 +143,16 @@ object ParserUtil {
 
         while (i < parts.size) {
           val (start, end, b) = parts(i)
-          val partLen = end-start-1
+          val partLen = end - start - 1
           System.arraycopy(b, start, chars, pos, partLen)
           pos = pos + partLen
-          i = i+1
+          i = i + 1
         }
         new String(chars)
       }
     }
 
-    def near = new String(segment, (cur-20) max 0, 20 min cur)
+    def near = new String(segment, (cur - 20) max 0, 20 min cur)
 
     def release() = segments.foreach(Segments.release)
 
@@ -167,7 +167,7 @@ object ParserUtil {
         curSegmentIdx = segments.length - 1
       }
 
-      val length = in.read(segment, offset, segment.length-offset)
+      val length = in.read(segment, offset, segment.length - offset)
       cur = offset
       offset += length
       length

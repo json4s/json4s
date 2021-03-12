@@ -47,11 +47,13 @@ class Example extends Specification {
     }
 
     val p = Person("joe", 34, Address("Manhattan 2", "00223"))
-    val json = makeObj(("name" -> toJSON(p.name)) ::
-                       ("age" -> toJSON(p.age)) ::
-                       ("address" -> toJSON(p.address)) :: Nil)
+    val json = makeObj(
+      ("name" -> toJSON(p.name)) ::
+      ("age" -> toJSON(p.age)) ::
+      ("address" -> toJSON(p.address)) :: Nil
+    )
     json.shows mustEqual
-      """{"name":"joe","age":34,"address":{"street":"Manhattan 2","zip":"00223"}}"""
+    """{"name":"joe","age":34,"address":{"street":"Manhattan 2","zip":"00223"}}"""
   }
 
   "Parse Map" in {
@@ -61,6 +63,6 @@ class Example extends Specification {
 
   "Format Map" in {
     toJSON(Map("street" -> "Manhattan 2", "zip" -> "00223")) mustEqual
-      parse("""{"street":"Manhattan 2","zip":"00223"}""")
+    parse("""{"street":"Manhattan 2","zip":"00223"}""")
   }
 }

@@ -23,18 +23,27 @@ object ScalaSigReader {
 
   def readConstructor(argName: String, clazz: ScalaType, typeArgIndex: Int, argNames: List[String]): Class[_] = {
     val cl = findClass(clazz.erasure)
-    val cstr = findConstructor(cl, argNames).orElse{
-      val companionClass = findCompanionObject(clazz.erasure)
-      companionClass.children.collect {
-        case m: MethodSymbol if m.name == "apply" => m
-      }.find{
-        _.children.collect{ case x: MethodSymbol => x.name } == argNames
+    val cstr = findConstructor(cl, argNames)
+      .orElse {
+        val companionClass = findCompanionObject(clazz.erasure)
+        companionClass.children
+          .collect {
+            case m: MethodSymbol if m.name == "apply" => m
+          }
+          .find {
+            _.children.collect { case x: MethodSymbol => x.name } == argNames
+          }
       }
-    }.getOrElse(fail("Can't find constructor for " + clazz))
+      .getOrElse(fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndex)
   }
 
-  def readConstructor(argName: String, clazz: ScalaType, typeArgIndexes: List[Int], argNames: List[String]): Class[_] = {
+  def readConstructor(
+    argName: String,
+    clazz: ScalaType,
+    typeArgIndexes: List[Int],
+    argNames: List[String]
+  ): Class[_] = {
     val cl = findClass(clazz.erasure)
     val cstr = findConstructor(cl, argNames)
 
@@ -53,12 +62,14 @@ object ScalaSigReader {
     def read(current: Class[_]): MethodSymbol = {
       if (current == classOf[java.lang.Object]) {
         fail("Can't find field " + name + " from " + clazz)
-      }
-      else {
+      } else {
         findField(current, name)
-          .orElse(current.getInterfaces
-            .filterNot(_ == classOf[java.io.Serializable])
-            .flatMap(findField(_, name)).headOption)
+          .orElse(
+            current.getInterfaces
+              .filterNot(_ == classOf[java.io.Serializable])
+              .flatMap(findField(_, name))
+              .headOption
+          )
           .getOrElse(read(current.getSuperclass))
       }
     }
@@ -113,7 +124,6 @@ object ScalaSigReader {
       case m: MethodSymbol if m.infoType.isInstanceOf[NullaryMethodType] && !m.isSynthetic => m
     }
 
-
   private def findField(clazz: Class[_], name: String): Option[MethodSymbol] = findField(findClass(clazz), name)
 
   private def findField(c: ClassSymbol, name: String): Option[MethodSymbol] =
@@ -133,7 +143,7 @@ object ScalaSigReader {
         case TypeRefType(_, _, args) =>
           val ta = args(typeArgIndex)
           ta match {
-            case ref@TypeRefType(_, _, _) => findPrimitive(ref)
+            case ref @ TypeRefType(_, _, _) => findPrimitive(ref)
             case x => fail("Unexpected type info " + x)
           }
         case TypeBoundsType(_, _) =>
@@ -156,7 +166,7 @@ object ScalaSigReader {
         case TypeRefType(_, _, args) =>
           val ta = args(typeArgIndexes(ii))
           ta match {
-            case ref@TypeRefType(_, _, _) => findPrimitive(ref, curr + 1)
+            case ref @ TypeRefType(_, _, _) => findPrimitive(ref, curr + 1)
             case x => fail("Unexpected type info " + x)
           }
         case x => fail("Unexpected type info " + x)
@@ -167,7 +177,7 @@ object ScalaSigReader {
   }
 
   private def findArgTypeForField(s: MethodSymbol, typeArgIdx: Int): Class[_] = {
-    @tailrec def getType(symbol: SymbolInfoSymbol):Type = {
+    @tailrec def getType(symbol: SymbolInfoSymbol): Type = {
       symbol.infoType match {
         case NullaryMethodType(TypeRefType(_, alias: AliasSymbol, _)) => getType(alias)
         case NullaryMethodType(TypeRefType(_, _, args)) => args(typeArgIdx)
@@ -186,14 +196,14 @@ object ScalaSigReader {
   }
 
   private def toClass(s: Symbol) = s.path match {
-    case "scala.Short"   => classOf[Short]
-    case "scala.Int"     => classOf[Int]
-    case "scala.Long"    => classOf[Long]
+    case "scala.Short" => classOf[Short]
+    case "scala.Int" => classOf[Int]
+    case "scala.Long" => classOf[Long]
     case "scala.Boolean" => classOf[Boolean]
-    case "scala.Float"   => classOf[Float]
-    case "scala.Double"  => classOf[Double]
-    case "scala.Byte"    => classOf[Byte]
-    case _               => classOf[AnyRef]
+    case "scala.Float" => classOf[Float]
+    case "scala.Double" => classOf[Double]
+    case "scala.Byte" => classOf[Byte]
+    case _ => classOf[AnyRef]
   }
 
   private[this] def isPrimitive(s: Symbol) = toClass(s) != classOf[AnyRef]
@@ -214,9 +224,12 @@ object ScalaSigReader {
 
   def companions(t: String, companion: Option[AnyRef] = None, classLoaders: Iterable[ClassLoader] = ClassLoaders) = {
     def path(tt: String) = if (tt.endsWith("$")) tt else tt + "$"
-    val cc: Option[Class[_]] = resolveClass(path(t), classLoaders) flatMap ((c: Class[_]) => resolveClass(path(Reflector.rawClassOf(c).getName), classLoaders))
+    val cc: Option[Class[_]] = resolveClass(path(t), classLoaders) flatMap ((c: Class[_]) =>
+      resolveClass(path(Reflector.rawClassOf(c).getName), classLoaders)
+    )
     def safeField(ccc: Class[_]) =
-      try { Option(ccc.getField(ModuleFieldName)).map(_.get(companion.orNull)) } catch { case _: Throwable => None }
+      try { Option(ccc.getField(ModuleFieldName)).map(_.get(companion.orNull)) }
+      catch { case _: Throwable => None }
     cc map (ccc => (ccc, safeField(ccc)))
   }
 
@@ -235,15 +248,13 @@ object ScalaSigReader {
       while (clazz == null && iter.hasNext) {
         try {
           clazz = Class.forName(c, true, iter.next())
-        }
-        catch {
+        } catch {
           case _: ClassNotFoundException => // keep going, maybe it's in the next one
         }
       }
 
       if (clazz != null) Some(clazz.asInstanceOf[Class[X]]) else None
-    }
-    catch {
+    } catch {
       case _: Throwable => None
     }
   }

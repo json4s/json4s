@@ -12,18 +12,18 @@ object build {
 
   val manifestSetting = packageOptions += {
     val (title, v, vendor) = (name.value, version.value, organization.value)
-      Package.ManifestAttributes(
-        "Created-By" -> "Simple Build Tool",
-        "Built-By" -> System.getProperty("user.name"),
-        "Build-Jdk" -> System.getProperty("java.version"),
-        "Specification-Title" -> title,
-        "Specification-Version" -> v,
-        "Specification-Vendor" -> vendor,
-        "Implementation-Title" -> title,
-        "Implementation-Version" -> v,
-        "Implementation-Vendor-Id" -> vendor,
-        "Implementation-Vendor" -> vendor
-      )
+    Package.ManifestAttributes(
+      "Created-By" -> "Simple Build Tool",
+      "Built-By" -> System.getProperty("user.name"),
+      "Build-Jdk" -> System.getProperty("java.version"),
+      "Specification-Title" -> title,
+      "Specification-Version" -> v,
+      "Specification-Vendor" -> vendor,
+      "Implementation-Title" -> title,
+      "Implementation-Version" -> v,
+      "Implementation-Vendor-Id" -> vendor,
+      "Implementation-Vendor" -> vendor
+    )
   }
 
   val mavenCentralFrouFrou = Seq(
@@ -33,7 +33,7 @@ object build {
     licenses := Seq(("Apache-2.0", new URL("http://www.apache.org/licenses/LICENSE-2.0"))),
     pomExtra := {
       pomExtra.value ++ Group(
-      <scm>
+        <scm>
         <url>https://github.com/json4s/json4s</url>
         <connection>scm:git:git://github.com/json4s/json4s.git</connection>
       </scm>
@@ -70,7 +70,12 @@ object build {
     (Compile / doc / scalacOptions) ++= {
       val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
-      Seq("-sourcepath", base, "-doc-source-url", "https://github.com/json4s/json4s/tree/" + hash + "€{FILE_PATH}.scala")
+      Seq(
+        "-sourcepath",
+        base,
+        "-doc-source-url",
+        "https://github.com/json4s/json4s/tree/" + hash + "€{FILE_PATH}.scala"
+      )
     },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
@@ -120,7 +125,7 @@ object build {
       val xs = (Compile / sources).value
       if (scalaVersion.value == "3.0.0-RC1") {
         val singletonIsEmpty = (ThisBuild / baseDirectory).value / "ast/src/main/scala-2.13+/org/json4s/SomeValue.scala"
-        val booleanIsEmpty   = (ThisBuild / baseDirectory).value / "ast/src/main/scala-2.13-/org/json4s/SomeValue.scala"
+        val booleanIsEmpty = (ThisBuild / baseDirectory).value / "ast/src/main/scala-2.13-/org/json4s/SomeValue.scala"
         assert(Seq(singletonIsEmpty, booleanIsEmpty).forall(_.isFile))
         xs.map { x =>
           if (x == singletonIsEmpty) booleanIsEmpty else x

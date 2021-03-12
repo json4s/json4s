@@ -37,7 +37,11 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
     }
   }
 
-  def parseOpt(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): Option[JValue] = allCatch opt {
+  def parseOpt(
+    in: JsonInput,
+    useBigDecimalForDouble: Boolean = false,
+    useBigIntForLong: Boolean = true
+  ): Option[JValue] = allCatch opt {
     parse(in, useBigDecimalForDouble, useBigIntForLong)
   }
 
@@ -55,7 +59,6 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
     val writer = mapper.writerWithDefaultPrettyPrinter()
     writer.writeValueAsString(d)
   }
-
 
   def asJValue[T](obj: T)(implicit writer: Writer[T]): JValue = writer.write(obj)
   def fromJValue[T](json: JValue)(implicit reader: Reader[T]): T = reader.read(json)

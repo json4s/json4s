@@ -1,18 +1,18 @@
 /*
-* Copyright 2009-2011 WorldWide Conferencing, LLC
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2009-2011 WorldWide Conferencing, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.json4s
 
@@ -22,21 +22,25 @@ import org.json4s.native.Document
 class NativeXmlExamples extends XmlExamples[Document]("Native") with native.JsonMethods
 class JacksonXmlExamples extends XmlExamples[JValue]("Jackson") with jackson.JsonMethods
 
-abstract class XmlExamples[T](mod: String) extends Specification with JsonMethods[T]{
+abstract class XmlExamples[T](mod: String) extends Specification with JsonMethods[T] {
   import Xml._
   import scala.xml.{Group, Text}
 
-  (mod+" XML Examples") should {
+  (mod + " XML Examples") should {
     "Basic conversion example" in {
       val json = toJson(users1)
-      compact(render(json)) must_== """{"users":{"count":"2","user":[{"disabled":"true","id":"1","name":"Harry"},{"id":"2","name":"David","nickname":"Dave"}]}}"""
+      compact(
+        render(json)
+      ) must_== """{"users":{"count":"2","user":[{"disabled":"true","id":"1","name":"Harry"},{"id":"2","name":"David","nickname":"Dave"}]}}"""
     }
 
     "Conversion transformation example 1" in {
-      val json = toJson(users1).transformField {
-        case JField("id", JString(s)) => JField("id", JInt(s.toInt))
+      val json = toJson(users1).transformField { case JField("id", JString(s)) =>
+        JField("id", JInt(s.toInt))
       }
-      compact(render(json)) must_== """{"users":{"count":"2","user":[{"disabled":"true","id":1,"name":"Harry"},{"id":2,"name":"David","nickname":"Dave"}]}}"""
+      compact(
+        render(json)
+      ) must_== """{"users":{"count":"2","user":[{"disabled":"true","id":1,"name":"Harry"},{"id":2,"name":"David","nickname":"Dave"}]}}"""
     }
 
     "Conversion transformation example 2" in {
@@ -55,16 +59,14 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
     "Lotto example which flattens number arrays into encoded string arrays" in {
       def flattenArray(nums: List[JValue]) = JString(nums.map(_.values).mkString(","))
 
-      val printer = new scala.xml.PrettyPrinter(100,2)
+      val printer = new scala.xml.PrettyPrinter(100, 2)
       val lotto: JObject = LottoExample.json
       val xml = toXml(lotto.transformField {
         case JField("winning-numbers", JArray(nums)) => JField("winning-numbers", flattenArray(nums))
         case JField("numbers", JArray(nums)) => JField("numbers", flattenArray(nums))
       })
 
-
-      printer.format(xml(0)) must_== printer.format(
-        <lotto>
+      printer.format(xml(0)) must_== printer.format(<lotto>
           <id>5</id>
           <winning-numbers>2,45,34,23,7,5,3</winning-numbers>
           <winners>
@@ -103,7 +105,7 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
       compact(render(json)) mustEqual """{"g":{"group":"foobar","url":"http://example.com/test"}}"""
     }
 
-    "Example with multiple attributes, multiple nested elements " in  {
+    "Example with multiple attributes, multiple nested elements " in {
       val a1 = attrToObject("stats", "count", s => JInt(s.s.toInt)) _
       val a2 = attrToObject("messages", "href", identity) _
       val json = a1(a2(toJson(messageXml1)))
@@ -124,7 +126,8 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
       <messages href="https://domain.com/message/ant"></messages>
     </message>
 
-  val expected1 = """{"message":{"expiry_date":"20091126","word":"ant","text":"text","self":"me","stats":{"count":0},"messages":{"href":"https://domain.com/message/ant"}}}"""
+  val expected1 =
+    """{"message":{"expiry_date":"20091126","word":"ant","text":"text","self":"me","stats":{"count":0},"messages":{"href":"https://domain.com/message/ant"}}}"""
 
   val messageXml2 =
     <message expiry_date="20091126">
@@ -135,9 +138,8 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
 
   val expected2 = """{"message":{"expiry_date":"20091126","stats":{"count":0}}}"""
 
-
   val band =
-        <b:band>
+    <b:band>
           <name>The Fall</name>
           <genre>rock</genre>
           <influence/>
@@ -153,9 +155,8 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
           </playlists>
         </b:band>
 
-
   val users1 =
-        <users count="2">
+    <users count="2">
           <user disabled="true">
             <id>1</id>
             <name>Harry</name>
@@ -177,8 +178,8 @@ abstract class XmlExamples[T](mod: String) extends Specification with JsonMethod
   val url = "test"
   val groupedText =
     <g>
-      <group>{ Group(List(Text("foo"), Text("bar"))) }</group>
-      <url>http://example.com/{ url }</url>
+      <group>{Group(List(Text("foo"), Text("bar")))}</group>
+      <url>http://example.com/{url}</url>
     </g>
 
   // Examples by Jonathan Ferguson. See http://groups.google.com/group/liftweb/browse_thread/thread/f3bdfcaf1c21c615/c311a91e44f9c178?show_docid=c311a91e44f9c178

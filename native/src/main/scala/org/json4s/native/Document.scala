@@ -37,7 +37,7 @@ sealed abstract class Document extends Product with Serializable {
       case (_, _, DocNil) :: z =>
         fits(w, z)
       case (i, b, DocCons(h, t)) :: z =>
-        fits(w, (i,b,h) :: (i,b,t) :: z)
+        fits(w, (i, b, h) :: (i, b, t) :: z)
       case (_, _, DocText(t)) :: z =>
         fits(w - t.length(), z)
       case (i, b, DocNest(ii, d)) :: z =>
@@ -53,10 +53,10 @@ sealed abstract class Document extends Product with Serializable {
     def spaces(n: Int): Unit = {
       var rem = n
       while (rem >= 16) { writer write "                "; rem -= 16 }
-      if (rem >= 8)     { writer write "        "; rem -= 8 }
-      if (rem >= 4)     { writer write "    "; rem -= 4 }
-      if (rem >= 2)     { writer write "  "; rem -= 2}
-      if (rem == 1)     { writer write " " }
+      if (rem >= 8) { writer write "        "; rem -= 8 }
+      if (rem >= 4) { writer write "    "; rem -= 4 }
+      if (rem >= 2) { writer write "  "; rem -= 2 }
+      if (rem == 1) { writer write " " }
     }
 
     def fmt(k: Int, state: List[FmtState]): Unit = state match {
@@ -65,7 +65,7 @@ sealed abstract class Document extends Product with Serializable {
         fmt(k, z)
       case (i, b, DocCons(h, t)) :: z =>
         fmt(k, (i, b, h) :: (i, b, t) :: z)
-      case (i@_, _, DocText(t)) :: z =>
+      case (i @ _, _, DocText(t)) :: z =>
         writer write t
         fmt(k + t.length(), z)
       case (i, b, DocNest(ii, d)) :: z =>
@@ -74,10 +74,10 @@ sealed abstract class Document extends Product with Serializable {
         writer write "\n"
         spaces(i)
         fmt(i, z)
-      case (i@_, false, DocBreak) :: z =>
+      case (i @ _, false, DocBreak) :: z =>
         writer write " "
         fmt(k + 1, z)
-      case (i, b@_, DocGroup(d)) :: z =>
+      case (i, b @ _, DocGroup(d)) :: z =>
         val fitsFlat = fits(width - k, (i, false, d) :: z)
         fmt(k, (i, !fitsFlat, d) :: z)
       case _ =>
@@ -89,6 +89,7 @@ sealed abstract class Document extends Product with Serializable {
 }
 
 object Document {
+
   /** The empty document */
   def empty: Document = DocNil
 

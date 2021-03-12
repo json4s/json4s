@@ -1,18 +1,18 @@
 /*
-* Copyright 2009-2011 WorldWide Conferencing, LLC
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2009-2011 WorldWide Conferencing, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.json4s
 
@@ -23,10 +23,14 @@ import org.specs2.mutable.Specification
 import org.json4s.native.Document
 import org.json4s.prefs.ExtractionNullStrategy
 
-class NativeExtractionExamples extends ExtractionExamples[Document]("Native", native.Serialization) with native.JsonMethods
-class JacksonExtractionExamples extends ExtractionExamples[JValue]("Jackson", jackson.Serialization) with jackson.JsonMethods
+class NativeExtractionExamples
+  extends ExtractionExamples[Document]("Native", native.Serialization)
+  with native.JsonMethods
+class JacksonExtractionExamples
+  extends ExtractionExamples[JValue]("Jackson", jackson.Serialization)
+  with jackson.JsonMethods
 
-abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) extends Specification with JsonMethods[T] {
+abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) extends Specification with JsonMethods[T] {
 
   implicit lazy val formats: Formats = DefaultFormats
 
@@ -44,10 +48,14 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
 
   def treeFormats[T] = ser.formats(ShortTypeHints(List(classOf[Node[T]], classOf[Leaf[T]], EmptyLeaf.getClass)))
 
-  (mod+" Extraction Examples Specification") should {
+  (mod + " Extraction Examples Specification") should {
     "Extraction example" in {
       val json = parse(testJson)
-      json.extract[Person] must_== Person("joe", Address("Bulevard", "Helsinki"), List(Child("Mary", 5, Some(date("2004-09-04T18:06:22Z"))), Child("Mazy", 3, None)))
+      json.extract[Person] must_== Person(
+        "joe",
+        Address("Bulevard", "Helsinki"),
+        List(Child("Mary", 5, Some(date("2004-09-04T18:06:22Z"))), Child("Mazy", 3, None))
+      )
     }
 
     "Extraction with path expression example" in {
@@ -80,8 +88,10 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
     "Map with object values extraction example" in {
       val json = parse(twoAddresses)
       json.extract[PersonWithAddresses] must_==
-        PersonWithAddresses("joe", Map("address1" -> Address("Bulevard", "Helsinki"),
-                                       "address2" -> Address("Soho", "London")))
+        PersonWithAddresses(
+          "joe",
+          Map("address1" -> Address("Bulevard", "Helsinki"), "address2" -> Address("Soho", "London"))
+        )
     }
 
     "scala.collection.Map extraction example" in {
@@ -114,7 +124,17 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
 
     "Primitive extraction example" in {
       val json = parse(primitives)
-      json.extract[Primitives] must_== Primitives(124, 123L, 126.5, 127.5.floatValue, "128", Symbol("symb"), 125, 129.byteValue, true)
+      json.extract[Primitives] must_== Primitives(
+        124,
+        123L,
+        126.5,
+        127.5.floatValue,
+        "128",
+        Symbol("symb"),
+        125,
+        129.byteValue,
+        true
+      )
     }
 
     "Null extraction example" in {
@@ -143,19 +163,26 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
 
       parse("""{ "name": null, "age": 5, "mother":{"name":"Marilyn"}}""")
         .extract[OChild](fm, implicitly[Manifest[OChild]]) must throwA[MappingException]
-      
-      val mf   = implicitly[Manifest[OptionValue]]
+
+      val mf = implicitly[Manifest[OptionValue]]
       parse("""{"value": null}""").extract[OptionValue](fm, mf) must throwA[MappingException]
       parse("""{}""").extract[OptionValue](fm, mf) must_== OptionValue(None)
       parse("""{"value": 1}""").extract[OptionValue](fm, mf) must_== OptionValue(Some(1))
     }
 
     "Missing JSON array extracted as an empty List (no default value) when strictArrayExtraction is false" in {
-      parse(missingChildren).extract[Person](nonStrictFormats, implicitly[Manifest[Person]]) must_== Person("joe", Address("Bulevard", "Helsinki"), Nil)
+      parse(missingChildren).extract[Person](nonStrictFormats, implicitly[Manifest[Person]]) must_== Person(
+        "joe",
+        Address("Bulevard", "Helsinki"),
+        Nil
+      )
     }
 
     "Missing JSON array extracted as an empty List (has default value) when strictArrayExtraction is false" in {
-      parse(missingChildren).extract[PersonNoKids](nonStrictFormats, implicitly[Manifest[PersonNoKids]]) must_== PersonNoKids("joe", Address("Bulevard", "Helsinki"), Nil)
+      parse(missingChildren).extract[PersonNoKids](
+        nonStrictFormats,
+        implicitly[Manifest[PersonNoKids]]
+      ) must_== PersonNoKids("joe", Address("Bulevard", "Helsinki"), Nil)
     }
 
     "Missing JSON array fails extraction (no default value) when strictArrayExtraction is true" in {
@@ -163,34 +190,48 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
     }
 
     "Missing JSON array extracted as an empty List (has default value) when strictArrayExtraction is true" in {
-      parse(missingChildren).extract[PersonNoKids](strictFormats, implicitly[Manifest[PersonNoKids]]) must_== PersonNoKids("joe", Address("Bulevard", "Helsinki"), Nil)
+      parse(missingChildren).extract[PersonNoKids](
+        strictFormats,
+        implicitly[Manifest[PersonNoKids]]
+      ) must_== PersonNoKids("joe", Address("Bulevard", "Helsinki"), Nil)
     }
 
     "Missing JSON object extracted as an empty Map (no default value) when strictMapExtraction is false" in {
-      parse(noAddress).extract[PersonWithMap](nonStrictFormats, implicitly[Manifest[PersonWithMap]]) must_== PersonWithMap("joe", Map())
+      parse(noAddress).extract[PersonWithMap](
+        nonStrictFormats,
+        implicitly[Manifest[PersonWithMap]]
+      ) must_== PersonWithMap("joe", Map())
     }
 
     "Missing JSON object extracted as an empty Map (has default value) when strictMapExtraction is false" in {
-      parse(noAddress).extract[PersonWithDefaultEmptyMap](nonStrictFormats, implicitly[Manifest[PersonWithDefaultEmptyMap]]) must_== PersonWithDefaultEmptyMap("joe", Map())
+      parse(noAddress).extract[PersonWithDefaultEmptyMap](
+        nonStrictFormats,
+        implicitly[Manifest[PersonWithDefaultEmptyMap]]
+      ) must_== PersonWithDefaultEmptyMap("joe", Map())
     }
 
     "Missing JSON object fails extraction (no default value) when strictMapExtraction is true" in {
-      parse(noAddress).extract[PersonWithMap](strictFormats, implicitly[Manifest[PersonWithMap]]) must throwA[MappingException]
+      parse(noAddress)
+        .extract[PersonWithMap](strictFormats, implicitly[Manifest[PersonWithMap]]) must throwA[MappingException]
     }
 
     "Missing JSON object extracted as an empty Map (has default value) when strictMapExtraction is true" in {
-      parse(noAddress).extract[PersonWithDefaultEmptyMap](strictFormats, implicitly[Manifest[PersonWithDefaultEmptyMap]]) must_== PersonWithDefaultEmptyMap("joe", Map())
+      parse(noAddress).extract[PersonWithDefaultEmptyMap](
+        strictFormats,
+        implicitly[Manifest[PersonWithDefaultEmptyMap]]
+      ) must_== PersonWithDefaultEmptyMap("joe", Map())
     }
 
     "Multidimensional array extraction example" in {
       parse(multiDimensionalArrays).extract[MultiDim] must_== MultiDim(
         List(List(List(1, 2), List(3)), List(List(4), List(5, 6))),
-        List(List(Name("joe"), Name("mary")), List(Name("mazy"))))
+        List(List(Name("joe"), Name("mary")), List(Name("mazy")))
+      )
     }
 
     "Flatten example with simple case class" in {
       val f = Extraction.flatten(Extraction.decompose(SimplePerson("joe", Address("Bulevard", "Helsinki"))))
-      val e = Map(".name" -> "\"joe\"", ".address.street" -> "\"Bulevard\"", ".address.city"   -> "\"Helsinki\"")
+      val e = Map(".name" -> "\"joe\"", ".address.street" -> "\"Bulevard\"", ".address.city" -> "\"Helsinki\"")
 
       f must_== e
     }
@@ -198,19 +239,24 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
     "Unflatten example with top level string and int" in {
       val m = Map(".name" -> "\"joe\"", ".age" -> "32")
 
-      Extraction.unflatten(m) must_== JObject(List(JField("name",JString("joe")), JField("age",JInt(32))))
+      Extraction.unflatten(m) must_== JObject(List(JField("name", JString("joe")), JField("age", JInt(32))))
     }
 
     "Unflatten example with top level string and double" in {
       val m = Map(".name" -> "\"joe\"", ".age" -> "32.2")
 
-      Extraction.unflatten(m) must_== JObject(List(JField("name",JString("joe")), JField("age",JDouble(32.2))))
+      Extraction.unflatten(m) must_== JObject(List(JField("name", JString("joe")), JField("age", JDouble(32.2))))
     }
 
     "Unflatten example with two-level string properties" in {
-      val m = Map(".name" -> "\"joe\"", ".address.street" -> "\"Bulevard\"", ".address.city"   -> "\"Helsinki\"")
+      val m = Map(".name" -> "\"joe\"", ".address.street" -> "\"Bulevard\"", ".address.city" -> "\"Helsinki\"")
 
-      Extraction.unflatten(m) must_== JObject(List(JField("name", JString("joe")), JField("address", JObject(List(JField("street", JString("Bulevard")), JField("city", JString("Helsinki")))))))
+      Extraction.unflatten(m) must_== JObject(
+        List(
+          JField("name", JString("joe")),
+          JField("address", JObject(List(JField("street", JString("Bulevard")), JField("city", JString("Helsinki")))))
+        )
+      )
     }
 
     "Unflatten example with top level array" in {
@@ -313,12 +359,16 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
 
     "ArrayBuffer extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[collection.mutable.ArrayBuffer[Name]] must_== collection.mutable.ArrayBuffer(Name("Mary"), Name("Mazy"))
+      json.extract[collection.mutable.ArrayBuffer[Name]] must_== collection.mutable.ArrayBuffer(
+        Name("Mary"),
+        Name("Mazy")
+      )
     }
 
     "ListBuffer extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[collection.mutable.ListBuffer[Name]] must_== collection.mutable.ListBuffer(Name("Mary"), Name("Mazy"))
+      json
+        .extract[collection.mutable.ListBuffer[Name]] must_== collection.mutable.ListBuffer(Name("Mary"), Name("Mazy"))
     }
 
     "Mutable Stack extraction example" in {
@@ -344,7 +394,12 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
 
     "Extraction failure message example" in {
       val json = parse("""{"city":"San Francisco"}""")
-      json.extract[Address] must throwA(MappingException("No usable value for street\nDid not find value which can be converted into java.lang.String", null))
+      json.extract[Address] must throwA(
+        MappingException(
+          "No usable value for street\nDid not find value which can be converted into java.lang.String",
+          null
+        )
+      )
     }
 
     "Best matching constructor selection example" in {
@@ -386,43 +441,78 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
     }
 
     "Complex nested non-polymorphic collections extraction example" in {
-      parse("""{"a":[{"b":"c"}]}""").extract[Map[String, List[Map[String, String]]]] must_== Map("a" -> List(Map("b" -> "c")))
+      parse("""{"a":[{"b":"c"}]}""").extract[Map[String, List[Map[String, String]]]] must_== Map(
+        "a" -> List(Map("b" -> "c"))
+      )
     }
 
     "format nullExtractionStrategy set to Disallow should disallow null values in extraction for class types" in {
-      parse("""{"name":"foobar","address":null}""").extract[SimplePerson](notNullFormats, Manifest.classType(classOf[SimplePerson])) must throwA(MappingException("No usable value for address\nDid not find value which can be converted into org.json4s.Address", null))
+      parse("""{"name":"foobar","address":null}""")
+        .extract[SimplePerson](notNullFormats, Manifest.classType(classOf[SimplePerson])) must throwA(
+        MappingException(
+          "No usable value for address\nDid not find value which can be converted into org.json4s.Address",
+          null
+        )
+      )
     }
 
     "format nullExtractionStrategy set to TreatAsAbsent should disallow null values in extraction for class types without default values" in {
-      parse("""{"name":"foobar","address":null}""").extract[SimplePerson](nullAsAbsentFormats, Manifest.classType(classOf[SimplePerson])) must throwA(MappingException("No usable value for address\nExpected value but got null", null))
+      parse("""{"name":"foobar","address":null}""").extract[SimplePerson](
+        nullAsAbsentFormats,
+        Manifest.classType(classOf[SimplePerson])
+      ) must throwA(MappingException("No usable value for address\nExpected value but got null", null))
     }
 
     "format nullExtractionStrategy set to Disallow should disallow null values in extraction for primitive types" in {
-      parse("""{"name":null}""").extract[Name](notNullFormats, Manifest.classType(classOf[Name])) must throwA(MappingException("No usable value for name\nDid not find value which can be converted into java.lang.String", null))
+      parse("""{"name":null}""").extract[Name](notNullFormats, Manifest.classType(classOf[Name])) must throwA(
+        MappingException(
+          "No usable value for name\nDid not find value which can be converted into java.lang.String",
+          null
+        )
+      )
     }
 
     "format nullExtractionStrategy set to TreatAsAbsent should disallow null values in extraction for primitive types without default values" in {
-      parse("""{"name":null}""").extract[Name](nullAsAbsentFormats, Manifest.classType(classOf[Name])) must throwA(MappingException("No usable value for name\nExpected value but got null", null))
+      parse("""{"name":null}""").extract[Name](nullAsAbsentFormats, Manifest.classType(classOf[Name])) must throwA(
+        MappingException("No usable value for name\nExpected value but got null", null)
+      )
     }
 
     "format nullExtractionStrategy set to Disallow should extract a null Option[T] as None" in {
-      parse("""{"name":null,"age":22}""").extract[OChild](notNullFormats, Manifest.classType(classOf[OChild])) must_== new OChild(None, 22, None, None)
+      parse("""{"name":null,"age":22}""")
+        .extract[OChild](notNullFormats, Manifest.classType(classOf[OChild])) must_== new OChild(None, 22, None, None)
     }
 
     "format nullExtractionStrategy set to TreatAsAbsent should extract a null Option[T] as None" in {
-      parse("""{"name":null,"age":22}""").extract[OChild](nullAsAbsentFormats, Manifest.classType(classOf[OChild])) must_== new OChild(None, 22, None, None)
+      parse("""{"name":null,"age":22}""").extract[OChild](
+        nullAsAbsentFormats,
+        Manifest.classType(classOf[OChild])
+      ) must_== new OChild(None, 22, None, None)
     }
 
     "format nullExtractionStrategy set to Disallow should disallow null values in extraction for class types with default values" in {
-      parse("""{"name":"foobar","address":null}""").extract[PersonWithDefaultValues](notNullFormats, Manifest.classType(classOf[PersonWithDefaultValues])) must throwA(MappingException("No usable value for address\nDid not find value which can be converted into org.json4s.Address", null))
+      parse("""{"name":"foobar","address":null}""").extract[PersonWithDefaultValues](
+        notNullFormats,
+        Manifest.classType(classOf[PersonWithDefaultValues])
+      ) must throwA(
+        MappingException(
+          "No usable value for address\nDid not find value which can be converted into org.json4s.Address",
+          null
+        )
+      )
     }
 
     "format nullExtractionStrategy set to TreatAsAbsent should ignore null values in extraction for class types with default values" in {
-      parse("""{"name":null}""").extract[PersonWithDefaultValues](nullAsAbsentFormats, Manifest.classType(classOf[PersonWithDefaultValues])) must_== PersonWithDefaultValues()
+      parse("""{"name":null}""").extract[PersonWithDefaultValues](
+        nullAsAbsentFormats,
+        Manifest.classType(classOf[PersonWithDefaultValues])
+      ) must_== PersonWithDefaultValues()
     }
 
     "format nullExtractionStrategy set to Disallow should disallow null values in extraction for collection types" in {
-      parse("""[1,null,3]""").extract[Seq[Int]](notNullFormats, implicitly) must throwA(MappingException("Did not find value which can be converted into int", null))
+      parse("""[1,null,3]""").extract[Seq[Int]](notNullFormats, implicitly) must throwA(
+        MappingException("Did not find value which can be converted into int", null)
+      )
     }
 
     "format nullExtractionStrategy set to TreatAsAbsent should ignore null values in extraction for class types with default values" in {
@@ -430,39 +520,62 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
     }
 
     "format nullExtractionStrategy set to Disallow should use custom null serializer to set Option[T] as None" in {
-      object CustomNull extends CustomSerializer[Null](_ => ( {
-        case JNothing => null
-        case JNull => null
-        case JString("") => null
-      }, {
-        case _ => JString("")
-      }))
-      parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](notNullFormats + CustomNull, Manifest.classType(classOf[OChild])) must_== new OChild(None, 22, None, None)
+      object CustomNull
+        extends CustomSerializer[Null](_ =>
+          (
+            {
+              case JNothing => null
+              case JNull => null
+              case JString("") => null
+            },
+            { case _ =>
+              JString("")
+            }
+          )
+        )
+      parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](
+        notNullFormats + CustomNull,
+        Manifest.classType(classOf[OChild])
+      ) must_== new OChild(None, 22, None, None)
     }
 
     "format nullExtractionStrategy set to TreatAsAbsent should use custom null serializer to set Option[T] as None" in {
-      object CustomNull extends CustomSerializer[Null](_ => ( {
-        case JNothing => null
-        case JNull => null
-        case JString("") => null
-      }, {
-        case _ => JString("")
-      }))
-      parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](nullAsAbsentFormats + CustomNull, Manifest.classType(classOf[OChild])) must_== new OChild(None, 22, None, None)
+      object CustomNull
+        extends CustomSerializer[Null](_ =>
+          (
+            {
+              case JNothing => null
+              case JNull => null
+              case JString("") => null
+            },
+            { case _ =>
+              JString("")
+            }
+          )
+        )
+      parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](
+        nullAsAbsentFormats + CustomNull,
+        Manifest.classType(classOf[OChild])
+      ) must_== new OChild(None, 22, None, None)
     }
 
     "simple case objects should be successfully extracted as a singleton instance" in {
-      parse(emptyTree).extract[LeafTree[Int]](treeFormats, Manifest.classType(classOf[LeafTree[Int]])) must_== LeafTree.empty
+      parse(emptyTree)
+        .extract[LeafTree[Int]](treeFormats, Manifest.classType(classOf[LeafTree[Int]])) must_== LeafTree.empty
     }
 
     "case objects in a complex structure should be successfully extracted as a singleton instance" in {
-      parse(tree).extract[LeafTree[Int]](treeFormats[Int], Manifest.classType(classOf[LeafTree[Int]])) must_== Node(List[LeafTree[Int]](EmptyLeaf, Node(List.empty), Leaf(1), Leaf(2)))
+      parse(tree).extract[LeafTree[Int]](treeFormats[Int], Manifest.classType(classOf[LeafTree[Int]])) must_== Node(
+        List[LeafTree[Int]](EmptyLeaf, Node(List.empty), Leaf(1), Leaf(2))
+      )
     }
 
     "#274 Examples with default value should be parsed" in {
       val res = WithDefaultValueHolder(Seq(WithDefaultValue("Bob")))
       parse("""{"values":[{"name":"Bob","gender":"male"}]}""").extract[WithDefaultValueHolder](
-        DefaultFormats, Manifest.classType(classOf[WithDefaultValueHolder])) must_== (res)
+        DefaultFormats,
+        Manifest.classType(classOf[WithDefaultValueHolder])
+      ) must_== res
     }
 
     "#537 Example with a Seq and default Seq value should be extracted from empty json" in {
@@ -473,7 +586,7 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
   }
 
   val testJson =
-"""
+    """
 { "name": "joe",
   "address": {
     "street": "Bulevard",
@@ -503,7 +616,7 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
     """.stripMargin
 
   val missingChildren =
-"""
+    """
 {
   "name": "joe",
   "address": {
@@ -514,15 +627,14 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
 """
 
   val noAddress =
-"""
+    """
 {
   "name": "joe"
 }
 """
 
-
   val twoAddresses =
-"""
+    """
 {
   "name": "joe",
   "addresses": {
@@ -539,7 +651,7 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
 """
 
   val primitives =
-"""
+    """
 {
   "l": 123,
   "i": 124,
@@ -554,7 +666,7 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
 """
 
   val multiDimensionalArrays =
-"""
+    """
 {
   "ints": [[[1, 2], [3]], [[4], [5, 6]]],
   "names": [[{"name": "joe"}, {"name": "mary"}], [{"name": "mazy"}]]
@@ -562,7 +674,7 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
 """
 
   val stringField =
-"""
+    """
 {
   "name": "one",
   "message": "msg"
@@ -570,7 +682,7 @@ abstract class ExtractionExamples[T](mod: String, ser : json4s.Serialization) ex
 """
 
   val objField =
-"""
+    """
 {
   "name": "one",
   "message": {
@@ -649,17 +761,17 @@ case class ClassWithJSON(name: String, message: JValue)
 
 sealed trait LeafTree[+T]
 object LeafTree {
-  def empty[T] : LeafTree[T] = EmptyLeaf
+  def empty[T]: LeafTree[T] = EmptyLeaf
 }
 
-case class Node[T](children : List[LeafTree[T]]) extends LeafTree[T]
-case class Leaf[T](value : T) extends LeafTree[T]
+case class Node[T](children: List[LeafTree[T]]) extends LeafTree[T]
+case class Leaf[T](value: T) extends LeafTree[T]
 case object EmptyLeaf extends LeafTree[Nothing]
 
 case class WithDefaultValueHolder(values: Seq[WithDefaultValue])
 case class WithDefaultValue(name: String, gender: String = "male")
 
-case class SeqWithDefaultSeq(values:Seq[String], values2:Seq[String] = Seq("1", "2", "3"))
+case class SeqWithDefaultSeq(values: Seq[String], values2: Seq[String] = Seq("1", "2", "3"))
 
 case class Pair(a: String, b: String)
 

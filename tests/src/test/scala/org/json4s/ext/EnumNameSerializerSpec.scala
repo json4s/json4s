@@ -59,7 +59,6 @@ class EnumNameSerializerSpec extends Specification {
       }
     }
 
-
     "deserialize from name" in {
       implicit val formats: Formats =
         DefaultFormats + new EnumNameSerializer(Days) + new EnumNameSerializer(Weekend) + new EnumNameSerializer(Week)
@@ -98,7 +97,7 @@ class EnumNameSerializerSpec extends Specification {
 
     "serialize with mix of id and name" in {
       implicit val formats: Formats =
-        DefaultFormats  + new EnumNameSerializer(Week) + new EnumSerializer(Weekend)
+        DefaultFormats + new EnumNameSerializer(Week) + new EnumSerializer(Weekend)
 
       "week days as names" in {
         Extraction.decompose(weekdays) must_== weekdayNames
@@ -111,7 +110,7 @@ class EnumNameSerializerSpec extends Specification {
 
     "serialize with mix of id and name - inverted order of serializers in formats" in {
       implicit val formats: Formats =
-        DefaultFormats  + new EnumSerializer(Weekend) + new EnumNameSerializer(Week)
+        DefaultFormats + new EnumSerializer(Weekend) + new EnumNameSerializer(Week)
 
       "week days as names" in {
         Extraction.decompose(weekdays) must_== weekdayNames
@@ -124,7 +123,7 @@ class EnumNameSerializerSpec extends Specification {
 
     "deserialize with mix of id and name" in {
       implicit val formats: Formats =
-        DefaultFormats  + new EnumNameSerializer(Week) + new EnumSerializer(Weekend)
+        DefaultFormats + new EnumNameSerializer(Week) + new EnumSerializer(Weekend)
 
       "week days as names" in {
         weekdayNames.extract[List[Week.Week]] == weekdays
@@ -137,7 +136,7 @@ class EnumNameSerializerSpec extends Specification {
 
     "deserialize with mix of id and name - inverted order of serializers in formats" in {
       implicit val formats: Formats =
-        DefaultFormats  + new EnumSerializer(Weekend) + new EnumNameSerializer(Week)
+        DefaultFormats + new EnumSerializer(Weekend) + new EnumNameSerializer(Week)
 
       "week days as names" in {
         weekdayNames.extract[List[Week.Week]] == weekdays

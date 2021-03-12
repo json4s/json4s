@@ -5,7 +5,7 @@ import java.util.UUID
 import scala.collection.mutable
 
 class SerializationBugs extends Specification {
-  import native.Serialization.{ read, write => swrite }
+  import native.Serialization.{read, write => swrite}
 
   implicit val formats: Formats = native.Serialization.formats(NoTypeHints)
 
@@ -20,9 +20,15 @@ class SerializationBugs extends Specification {
   "plan2.Plan can be serialized (issue 341)" in {
     import plan2._
 
-    val g1 = Game(Map("a" -> Plan(Some(Action("f1", "s", Array(), None)),
-      Some("A"),
-      Some(Action("f2", "s2", Array[Number](0, 1, 2), None)))))
+    val g1 = Game(
+      Map(
+        "a" -> Plan(
+          Some(Action("f1", "s", Array(), None)),
+          Some("A"),
+          Some(Action("f2", "s2", Array[Number](0, 1, 2), None))
+        )
+      )
+    )
     val ser = swrite(g1)
     val g2 = read[Game](ser)
     val plan = g2.buy("a")
@@ -60,8 +66,8 @@ class SerializationBugs extends Specification {
         case (TypeInfo(UUIDClass, _), JString(x)) => UUID.fromString(x)
       }
 
-      def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-        case x: UUID => JString(x.toString)
+      def serialize(implicit format: Formats): PartialFunction[Any, JValue] = { case x: UUID =>
+        JString(x.toString)
       }
     }
 
@@ -76,16 +82,19 @@ class SerializationBugs extends Specification {
     class SeqFormat extends Serializer[Seq[_]] {
       val SeqClass = classOf[Seq[_]]
 
-      def serialize(implicit format: Formats) = {
-        case seq: Seq[_] => JArray(seq.toList.map(Extraction.decompose(_)(format)))
+      def serialize(implicit format: Formats) = { case seq: Seq[_] =>
+        JArray(seq.toList.map(Extraction.decompose(_)(format)))
       }
 
-      def deserialize(implicit format: Formats) = {
-        case (TypeInfo(SeqClass, parameterizedType), JArray(xs)) =>
-          val typeInfo = TypeInfo(parameterizedType
+      def deserialize(implicit format: Formats) = { case (TypeInfo(SeqClass, parameterizedType), JArray(xs)) =>
+        val typeInfo = TypeInfo(
+          parameterizedType
             .map(_.getActualTypeArguments()(0))
-            .getOrElse(reflect.fail("No type parameter info for type Seq")).asInstanceOf[Class[_]], None)
-          xs.map(x => Extraction.extract(x, typeInfo)(format))
+            .getOrElse(reflect.fail("No type parameter info for type Seq"))
+            .asInstanceOf[Class[_]],
+          None
+        )
+        xs.map(x => Extraction.extract(x, typeInfo)(format))
       }
     }
 
@@ -126,31 +135,35 @@ class SerializationBugs extends Specification {
       actual must_== expected
     }
 
-    test[Seq[Seq[Any]],               Seq[_]](Seq(Seq[Any](1, Y("foo"), "bar")))
-    test[Seq[Map[String, Y]],         Seq[_]](Seq(Map("f1" -> Y("foo"))))
-    test[Map[String, Seq[Y]],         Map[String, _]](Map("f1" -> Seq(Y("foo"))))
+    test[Seq[Seq[Any]], Seq[_]](Seq(Seq[Any](1, Y("foo"), "bar")))
+    test[Seq[Map[String, Y]], Seq[_]](Seq(Map("f1" -> Y("foo"))))
+    test[Map[String, Seq[Y]], Map[String, _]](Map("f1" -> Seq(Y("foo"))))
     test[Map[String, Map[String, Y]], Map[String, _]](Map("f1" -> Map("f2" -> Y("foo"))))
 
     // and then really run it through the ringer
 
-    test[Seq[Seq[Map[String, Any]]], Seq[_]](Seq(Seq(Map("f1" -> Map("f2" -> Seq(Seq[Any](1, Y("foo"), "bar"))), "f1" -> 2.0))))
+    test[Seq[Seq[Map[String, Any]]], Seq[_]](
+      Seq(Seq(Map("f1" -> Map("f2" -> Seq(Seq[Any](1, Y("foo"), "bar"))), "f1" -> 2.0)))
+    )
   }
 
   "Custom serializer should work as Map key (scala 2.9) (issue #1077)" in {
     class SingleOrVectorSerializer extends Serializer[SingleOrVector[Double]] {
       private[this] val singleOrVectorClass = classOf[SingleOrVector[Double]]
 
-      def deserialize(implicit format: Formats) = {
-        case (TypeInfo(`singleOrVectorClass`, _), json) => json match {
+      def deserialize(implicit format: Formats) = { case (TypeInfo(`singleOrVectorClass`, _), json) =>
+        json match {
           case JObject(List(JField("val", JDouble(x)))) => SingleValue(x)
-          case JObject(List(JField("val", JArray(xs: List[_])))) => VectorValue(xs.map(_.asInstanceOf[JDouble].num).toIndexedSeq)
+          case JObject(List(JField("val", JArray(xs: List[_])))) =>
+            VectorValue(xs.map(_.asInstanceOf[JDouble].num).toIndexedSeq)
           case x => throw new MappingException(s"Can't convert $x to SingleOrVector")
         }
       }
 
       def serialize(implicit format: Formats) = {
-        case SingleValue(x: Double)         => JObject(List(JField("val", JDouble(x))))
-        case VectorValue(x: Vector[_]) => JObject(List(JField("val", JArray(x.map(_.asInstanceOf[Double]).toList.map(JDouble(_))))))
+        case SingleValue(x: Double) => JObject(List(JField("val", JDouble(x))))
+        case VectorValue(x: Vector[_]) =>
+          JObject(List(JField("val", JArray(x.map(_.asInstanceOf[Double]).toList.map(JDouble(_))))))
       }
     }
 
@@ -229,11 +242,9 @@ package plan1 {
 }
 
 package plan2 {
-  case class Plan(leftOperand: Option[Action], operator: Option[String],
-                  rightOperand: Option[Action])
+  case class Plan(leftOperand: Option[Action], operator: Option[String], rightOperand: Option[Action])
   case class Game(buy: Map[String, Plan])
-  case class Action(functionName: String, symbol: String,
-                    inParams: Array[Number], subOperand: Option[Action])
+  case class Action(functionName: String, symbol: String, inParams: Array[Number], subOperand: Option[Action])
 }
 
 case class Opaque(x: JValue)

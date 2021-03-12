@@ -1,6 +1,5 @@
 package org.json4s
 
-
 import org.specs2.mutable.Specification
 import org.json4s.native.Document
 
@@ -14,30 +13,34 @@ object Music {
 
 class NativeJsonFormatsSpec extends JsonFormatsSpec[Document]("Native") with native.JsonMethods
 class JacksonJsonFormatsSpec extends JsonFormatsSpec[JValue]("Jackson") with jackson.JsonMethods
+
 /**
-* System under specification for JSON Formats.
-*/
+ * System under specification for JSON Formats.
+ */
 abstract class JsonFormatsSpec[T](mod: String) extends Specification with TypeHintExamples with JsonMethods[T] {
   // To ensure the state of the ObjectMapper is guaranteed, execute in order
   sequential
 
   implicit val formats: Formats = ShortTypeHintExamples.formats + FullTypeHintExamples.formats.typeHints
 
-  val hintsForFish   = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Fish]).get
-  val hintsForDog    = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Dog]).get
+  val hintsForFish = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Fish]).get
+  val hintsForDog = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Dog]).get
   val hintsForAnimal = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Animal]).get
 
-  (mod+" JsonFormats Specification") should {
+  (mod + " JsonFormats Specification") should {
     "hintsFor across composite formats" in {
       formats.typeHints.hintFor(classOf[Fish]) must beSome(hintsForFish)
-      formats.typeHints.hintFor(classOf[Dog])    must beSome(hintsForDog)
+      formats.typeHints.hintFor(classOf[Dog]) must beSome(hintsForDog)
       formats.typeHints.hintFor(classOf[Animal]) must beSome(hintsForAnimal)
     }
 
     "classFor across composite formats" in {
-      formats.typeHints.classFor(hintsForFish, classOf[Animal])   must_== (FullTypeHintExamples.formats.typeHints.classFor(hintsForFish, classOf[Animal]))
-      formats.typeHints.classFor(hintsForDog, classOf[Animal])    must_== (FullTypeHintExamples.formats.typeHints.classFor(hintsForDog, classOf[Animal]))
-      formats.typeHints.classFor(hintsForAnimal, classOf[Animal]) must_== (FullTypeHintExamples.formats.typeHints.classFor(hintsForAnimal, classOf[Animal]))
+      formats.typeHints.classFor(hintsForFish, classOf[Animal]) must_== (FullTypeHintExamples.formats.typeHints
+        .classFor(hintsForFish, classOf[Animal]))
+      formats.typeHints.classFor(hintsForDog, classOf[Animal]) must_== (FullTypeHintExamples.formats.typeHints
+        .classFor(hintsForDog, classOf[Animal]))
+      formats.typeHints.classFor(hintsForAnimal, classOf[Animal]) must_== (FullTypeHintExamples.formats.typeHints
+        .classFor(hintsForAnimal, classOf[Animal]))
     }
 
     "parameter name reading strategy can be changed" in {
@@ -57,7 +60,7 @@ abstract class JsonFormatsSpec[T](mod: String) extends Specification with TypeHi
       json.extract[Item] must_== Rock()
       json.extract[Music.Genre] must_== Music.Rock()
     }
-      
+
     "Unicode escaping can be changed" in {
       val json = parse("""{"Script Small G": "\u210A"}""")
 

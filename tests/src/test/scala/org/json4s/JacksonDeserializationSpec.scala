@@ -13,11 +13,11 @@ class JacksonDeserializationSpec extends Specification {
   "Recursive deserialization" should {
 
     "create JObject by assigning to 'JValue'" in {
-      mapper.readValue("""{"x":"y"}""", classOf[JValue]) must_== JObject(List(("x",JString("y"))))
+      mapper.readValue("""{"x":"y"}""", classOf[JValue]) must_== JObject(List(("x", JString("y"))))
     }
 
     "create JObject by assigning to 'JObject'" in {
-      mapper.readValue("""{"x":"y"}""", classOf[JObject]) must_== JObject(List(("x",JString("y"))))
+      mapper.readValue("""{"x":"y"}""", classOf[JObject]) must_== JObject(List(("x", JString("y"))))
     }
 
     "create JArray by assigning to 'JValue'" in {
@@ -29,4 +29,3 @@ class JacksonDeserializationSpec extends Specification {
     }
   }
 }
-

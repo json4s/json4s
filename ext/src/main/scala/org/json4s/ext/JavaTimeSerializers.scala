@@ -1,7 +1,7 @@
 package org.json4s.ext
 
 import java.time._
-import java.util.{ Date, TimeZone }
+import java.util.{Date, TimeZone}
 
 import org.json4s._
 
@@ -26,74 +26,93 @@ object JavaTimeSerializers {
   }
 }
 
-case object JLocalDateTimeSerializer extends CustomSerializer[LocalDateTime](format => (
-  {
-    case JString(s) =>
-      val zonedInstant = DateParser.parse(s, format)
-      LocalDateTime.ofInstant(Instant.ofEpochMilli(zonedInstant.instant), zonedInstant.timezone.toZoneId)
-    case JNull => null
-  },
-  {
-    case d: LocalDateTime =>
-      JString(format.dateFormat.format(
-        Date.from(d.toInstant(JavaTimeSerializers.getZoneOffset(format.dateFormat.timezone)))
-      ))
-  }
-))
+case object JLocalDateTimeSerializer
+  extends CustomSerializer[LocalDateTime](format =>
+    (
+      {
+        case JString(s) =>
+          val zonedInstant = DateParser.parse(s, format)
+          LocalDateTime.ofInstant(Instant.ofEpochMilli(zonedInstant.instant), zonedInstant.timezone.toZoneId)
+        case JNull => null
+      },
+      { case d: LocalDateTime =>
+        JString(
+          format.dateFormat.format(
+            Date.from(d.toInstant(JavaTimeSerializers.getZoneOffset(format.dateFormat.timezone)))
+          )
+        )
+      }
+    )
+  )
 
-case object JZonedDateTimeSerializer extends CustomSerializer[ZonedDateTime](format => (
-  {
-    case JString(s) =>
-      val zonedInstant = DateParser.parse(s, format)
-      ZonedDateTime.ofInstant(Instant.ofEpochMilli(zonedInstant.instant), zonedInstant.timezone.toZoneId)
-    case JNull => null
-  },
-  {
-    case d: ZonedDateTime => JString(format.dateFormat.format(Date.from(d.toInstant())))
-  }
-))
+case object JZonedDateTimeSerializer
+  extends CustomSerializer[ZonedDateTime](format =>
+    (
+      {
+        case JString(s) =>
+          val zonedInstant = DateParser.parse(s, format)
+          ZonedDateTime.ofInstant(Instant.ofEpochMilli(zonedInstant.instant), zonedInstant.timezone.toZoneId)
+        case JNull => null
+      },
+      { case d: ZonedDateTime =>
+        JString(format.dateFormat.format(Date.from(d.toInstant())))
+      }
+    )
+  )
 
-case object JOffsetDateTimeSerializer extends CustomSerializer[OffsetDateTime](format => (
-  {
-    case JString(s) =>
-      val zonedInstant = DateParser.parse(s, format)
-      OffsetDateTime.ofInstant(Instant.ofEpochMilli(zonedInstant.instant), zonedInstant.timezone.toZoneId)
-    case JNull => null
-  },
-  {
-    case d: OffsetDateTime => JString(format.dateFormat.format(Date.from(d.toInstant())))
-  }
-))
+case object JOffsetDateTimeSerializer
+  extends CustomSerializer[OffsetDateTime](format =>
+    (
+      {
+        case JString(s) =>
+          val zonedInstant = DateParser.parse(s, format)
+          OffsetDateTime.ofInstant(Instant.ofEpochMilli(zonedInstant.instant), zonedInstant.timezone.toZoneId)
+        case JNull => null
+      },
+      { case d: OffsetDateTime =>
+        JString(format.dateFormat.format(Date.from(d.toInstant())))
+      }
+    )
+  )
 
-case object JDurationSerializer extends CustomSerializer[Duration]( format => (
-  {
-    case JInt(d) => Duration.ofMillis(d.toLong)
-    case JNull => null
-  },
-  {
-    case d: Duration => JInt(d.toMillis)
-  }
-))
+case object JDurationSerializer
+  extends CustomSerializer[Duration](format =>
+    (
+      {
+        case JInt(d) => Duration.ofMillis(d.toLong)
+        case JNull => null
+      },
+      { case d: Duration =>
+        JInt(d.toMillis)
+      }
+    )
+  )
 
-case object JInstantSerializer extends CustomSerializer[Instant]( format => (
-  {
-    case JInt(d) => Instant.ofEpochMilli(d.toLong)
-    case JNull => null
-  },
-  {
-    case d: Instant => JInt(d.toEpochMilli)
-  }
-))
+case object JInstantSerializer
+  extends CustomSerializer[Instant](format =>
+    (
+      {
+        case JInt(d) => Instant.ofEpochMilli(d.toLong)
+        case JNull => null
+      },
+      { case d: Instant =>
+        JInt(d.toEpochMilli)
+      }
+    )
+  )
 
-case object JYearSerializer extends CustomSerializer[Year]( format => (
-  {
-    case JInt(n) => Year.of(n.toInt)
-    case JNull => null
-  },
-  {
-    case y: Year => JInt(y.getValue)
-  }
-))
+case object JYearSerializer
+  extends CustomSerializer[Year](format =>
+    (
+      {
+        case JInt(n) => Year.of(n.toInt)
+        case JNull => null
+      },
+      { case y: Year =>
+        JInt(y.getValue)
+      }
+    )
+  )
 
 private[ext] case class _JLocalDate(year: Int, month: Int, day: Int)
 object JLocalDateSerializer {

@@ -2,11 +2,12 @@ package org.json4s
 package examples
 
 import java.util.{Date => JDate, TimeZone, Locale}
-import ext.{ JodaTimeSerializers, EnumNameSerializer }
+import ext.{JodaTimeSerializers, EnumNameSerializer}
 import org.joda.time._
 import format.ISODateTimeFormat
 
 sealed trait HttpMethod {
+
   /**
    * Flag as to whether the method is "safe", as defined by RFC 2616.
    */
@@ -54,9 +55,9 @@ case class ExtensionMethod(name: String) extends HttpMethod {
 
 object HttpMethod {
   private[this] val methodMap =
-    Map(List(Options, Get, Head, Post, Put, Delete, Trace, Connect, Patch) map {
-      method => (method.toString, method)
-    } : _*)
+    Map(List(Options, Get, Head, Post, Put, Delete, Trace, Connect, Patch) map { method =>
+      (method.toString, method)
+    }: _*)
 
   /**
    * Maps a String as an HttpMethod.
@@ -80,11 +81,13 @@ object HttpMethod {
 case class ListApi(path: String, description: String)
 case class ApiListing(swaggerVersion: String, apiVersion: String, apis: List[ListApi])
 
-case class Api(resourcePath: String,
-               listingPath: Option[String],
-               description: Option[String],
-               apis: List[Endpoint],
-               models: Map[String, Model]) {
+case class Api(
+  resourcePath: String,
+  listingPath: Option[String],
+  description: Option[String],
+  apis: List[Endpoint],
+  models: Map[String, Model]
+) {
   def toJValue = Api.toJValue(this)
 }
 
@@ -108,24 +111,30 @@ object Api {
     new HttpMethodSerializer,
     new ParameterSerializer,
     new AllowableValuesSerializer,
-    new ModelFieldSerializer) ++ JodaTimeSerializers.all
+    new ModelFieldSerializer
+  ) ++ JodaTimeSerializers.all
 
-  def toJValue(doc: Any) = (Extraction.decompose(doc)(formats).noNulls)
-
+  def toJValue(doc: Any) = Extraction.decompose(doc)(formats).noNulls
 
 }
 
 object SwaggerSerializers {
   import JsonDSL._
 
+  class HttpMethodSerializer
+    extends CustomSerializer[HttpMethod](formats =>
+      (
+        { case JString(meth) =>
+          HttpMethod(meth)
+        },
+        { case x: HttpMethod =>
+          JString(x.toString)
+        }
+      )
+    )
 
-  class HttpMethodSerializer extends CustomSerializer[HttpMethod](formats => ({
-    case JString(meth) => HttpMethod(meth)
-  }, {
-    case x: HttpMethod => JString(x.toString)
-  }))
-
-  private[this] val simpleTypeList: List[String] = List("string", "number", "int", "boolean", "object", "Array", "null", "any")
+  private[this] val simpleTypeList: List[String] =
+    List("string", "number", "int", "boolean", "object", "Array", "null", "any")
   private[this] def listType(key: String, name: String, isUnique: Boolean): JValue = {
     val default = (key -> "Array") ~ ("uniqueItems" -> isUnique)
     val arrayType = name.substring(name.indexOf("[") + 1, name.indexOf("]"))
@@ -146,9 +155,9 @@ object SwaggerSerializers {
   private[this] def deserializeDataType(key: String, jv: JValue)(implicit formats: Formats): DataType.DataType = {
     jv \ key match {
       case JString("Array") =>
-        val arrayType = (
-          (jv \ "items" \ "type").extractOpt[String] orElse
-          (jv \ "items" \ "$ref").extractOpt[String]).getOrElse(throw new MappingException(s"Can't get the array type for $jv"))
+        val arrayType = ((jv \ "items" \ "type").extractOpt[String] orElse
+          (jv \ "items" \ "$ref").extractOpt[String])
+          .getOrElse(throw new MappingException(s"Can't get the array type for $jv"))
         jv \ "required" match {
           case JBool(true) =>
             DataType(s"SET[$arrayType]")
@@ -162,70 +171,84 @@ object SwaggerSerializers {
     }
   }
 
-  class ParameterSerializer extends CustomSerializer[Parameter](formats => ({
-    case json =>
-      implicit val fmts: Formats = formats
-      Parameter(
-        name = (json \ "name").extractOrElse(""),
-        description = (json \ "description").extractOrElse(""),
-        dataType = deserializeDataType("dataType", json),
-        notes = (json \ "notes").extractOpt[String],
-        paramType = (json \ "paramType").extractOrElse(ParamType.Query),
-        defaultValue = (json \ "defaultValue").extractOpt[String],
-        allowableValues = (json \ "allowableValues").extractOrElse(AllowableValues.AnyValue),
-        required = (json \ "required").extractOrElse(true),
-        allowMultiple = (json \ "allowMultiple").extractOrElse(false)
+  class ParameterSerializer
+    extends CustomSerializer[Parameter](formats =>
+      (
+        { case json =>
+          implicit val fmts: Formats = formats
+          Parameter(
+            name = (json \ "name").extractOrElse(""),
+            description = (json \ "description").extractOrElse(""),
+            dataType = deserializeDataType("dataType", json),
+            notes = (json \ "notes").extractOpt[String],
+            paramType = (json \ "paramType").extractOrElse(ParamType.Query),
+            defaultValue = (json \ "defaultValue").extractOpt[String],
+            allowableValues = (json \ "allowableValues").extractOrElse(AllowableValues.AnyValue),
+            required = (json \ "required").extractOrElse(true),
+            allowMultiple = (json \ "allowMultiple").extractOrElse(false)
+          )
+        },
+        { case x: Parameter =>
+          implicit val fmts = formats
+          ("name" -> x.name) ~
+          ("description" -> x.description) ~
+          ("notes" -> x.notes) ~
+          ("defaultValue" -> x.defaultValue) ~
+          ("allowableValues" -> Extraction.decompose(x.allowableValues)) ~
+          ("required" -> x.required) ~
+          ("paramType" -> x.paramType.toString) ~
+          ("allowMultiple" -> x.allowMultiple) merge serializeDataType("dataType", x.dataType)
+        }
       )
-  }, {
-    case x: Parameter =>
-      implicit val fmts = formats
-      ("name" -> x.name) ~
-      ("description" -> x.description) ~
-      ("notes" -> x.notes) ~
-      ("defaultValue" -> x.defaultValue) ~
-      ("allowableValues" -> Extraction.decompose(x.allowableValues)) ~
-      ("required" -> x.required) ~
-      ("paramType" -> x.paramType.toString) ~
-      ("allowMultiple" -> x.allowMultiple) merge serializeDataType("dataType", x.dataType)
-  }))
+    )
 
-  class ModelFieldSerializer extends CustomSerializer[ModelField](formats => ({
-    case json =>
-      implicit val fmts = formats
-      ModelField(
-        name = (json \ "name").extractOrElse(""),
-        description = (json \ "description").extractOpt[String],
-        `type` = deserializeDataType("type", json),
-        defaultValue = (json \ "defaultValue").extractOpt[String],
-        enum = (json \ "enum" \\ classOf[JString]),
-        required = (json \ "required").extractOrElse(true)
+  class ModelFieldSerializer
+    extends CustomSerializer[ModelField](formats =>
+      (
+        { case json =>
+          implicit val fmts = formats
+          ModelField(
+            name = (json \ "name").extractOrElse(""),
+            description = (json \ "description").extractOpt[String],
+            `type` = deserializeDataType("type", json),
+            defaultValue = (json \ "defaultValue").extractOpt[String],
+            enum = (json \ "enum" \\ classOf[JString]),
+            required = (json \ "required").extractOrElse(true)
+          )
+        },
+        { case x: ModelField =>
+          val c = ("description" -> x.description) ~
+            ("defaultValue" -> x.defaultValue) ~
+            ("enum" -> x.enum) ~
+            ("required" -> x.required)
+          c merge serializeDataType("type", x.`type`)
+        }
       )
-  }, {
-    case x: ModelField =>
-      val c = ("description" -> x.description) ~
-      ("defaultValue" -> x.defaultValue) ~
-      ("enum" -> x.enum) ~
-      ("required" -> x.required)
-      c merge serializeDataType("type", x.`type`)
-  }))
+    )
 
-  class AllowableValuesSerializer extends CustomSerializer[AllowableValues](formats => ({
-    case json =>
-      implicit val fmts = formats
-      json \ "valueType" match {
-        case JString(x) if x.equalsIgnoreCase("LIST") =>
-          AllowableValues.AllowableValuesList((json \ "values").extract[List[String]])
-        case JString(x) if x.equalsIgnoreCase("RANGE") =>
-          AllowableValues.AllowableRangeValues(Range((json \ "min").extract[Int], (json \ "max").extract[Int]))
-        case _ => AllowableValues.AnyValue
-      }
-  },{
-    case AllowableValues.AnyValue => JNothing
-    case AllowableValues.AllowableValuesList(values)  =>
-      implicit val fmts = formats
-      ("valueType" -> "LIST") ~ ("values" -> Extraction.decompose(values))
-    case AllowableValues.AllowableRangeValues(range)  => ("valueType" -> "RANGE") ~ ("min" -> range.start) ~ ("max" -> range.end)
-  }))
+  class AllowableValuesSerializer
+    extends CustomSerializer[AllowableValues](formats =>
+      (
+        { case json =>
+          implicit val fmts = formats
+          json \ "valueType" match {
+            case JString(x) if x.equalsIgnoreCase("LIST") =>
+              AllowableValues.AllowableValuesList((json \ "values").extract[List[String]])
+            case JString(x) if x.equalsIgnoreCase("RANGE") =>
+              AllowableValues.AllowableRangeValues(Range((json \ "min").extract[Int], (json \ "max").extract[Int]))
+            case _ => AllowableValues.AnyValue
+          }
+        },
+        {
+          case AllowableValues.AnyValue => JNothing
+          case AllowableValues.AllowableValuesList(values) =>
+            implicit val fmts = formats
+            ("valueType" -> "LIST") ~ ("values" -> Extraction.decompose(values))
+          case AllowableValues.AllowableRangeValues(range) =>
+            ("valueType" -> "RANGE") ~ ("min" -> range.start) ~ ("max" -> range.end)
+        }
+      )
+    )
 }
 
 object ParamType extends Enumeration {
@@ -280,30 +303,32 @@ object AllowableValues {
   def empty = AnyValue
 }
 
-case class Parameter(name: String,
-                     description: String,
-                     dataType: DataType.DataType,
-                     notes: Option[String] = None,
-                     paramType: ParamType.ParamType = ParamType.Query,
-                     defaultValue: Option[String] = None,
-                     allowableValues: AllowableValues = AllowableValues.AnyValue,
-                     required: Boolean = true,
-                     allowMultiple: Boolean = false)
+case class Parameter(
+  name: String,
+  description: String,
+  dataType: DataType.DataType,
+  notes: Option[String] = None,
+  paramType: ParamType.ParamType = ParamType.Query,
+  defaultValue: Option[String] = None,
+  allowableValues: AllowableValues = AllowableValues.AnyValue,
+  required: Boolean = true,
+  allowMultiple: Boolean = false
+)
 
-case class ModelField(name: String,
-                      description: Option[String],
-                      `type`: DataType.DataType,
-                      defaultValue: Option[String] = None,
-                      enum: List[String] = Nil,
-                      required: Boolean = true)
+case class ModelField(
+  name: String,
+  description: Option[String],
+  `type`: DataType.DataType,
+  defaultValue: Option[String] = None,
+  enum: List[String] = Nil,
+  required: Boolean = true
+)
 
 object ModelField {
   implicit def modelField2tuple(m: ModelField): (String, ModelField) = (m.name, m)
 }
 
-case class Model(id: String,
-                 description: Option[String],
-                 properties: Map[String, ModelField]) {
+case class Model(id: String, description: Option[String], properties: Map[String, ModelField]) {
 
   def setRequired(property: String, required: Boolean) =
     copy(properties = (properties + (property -> properties(property).copy(required = required))))
@@ -313,19 +338,22 @@ object Model {
   implicit def model2tuple(m: Model): (String, Model) = (m.id, m)
 }
 
-case class Operation(httpMethod: HttpMethod,
-                     responseClass: String,
-                     summary: String,
-                     notes: Option[String] = None,
-                     deprecated: Boolean = false,
-                     nickname: Option[String] = None,
-                     parameters: List[Parameter] = Nil,
-                     errorResponses: List[Error] = Nil)
+case class Operation(
+  httpMethod: HttpMethod,
+  responseClass: String,
+  summary: String,
+  notes: Option[String] = None,
+  deprecated: Boolean = false,
+  nickname: Option[String] = None,
+  parameters: List[Parameter] = Nil,
+  errorResponses: List[Error] = Nil
+)
 
-case class Endpoint(path: String,
-                    description: Option[String],
-                    secured: Boolean = false,
-                    operations: List[Operation] = Nil)
+case class Endpoint(
+  path: String,
+  description: Option[String],
+  secured: Boolean = false,
+  operations: List[Operation] = Nil
+)
 
-case class Error(code: Int,
-                 reason: String)
+case class Error(code: Int, reason: String)

@@ -65,10 +65,12 @@ class MapSerializationExamples extends Specification {
   }
 
   "Map with custom key and custom key serializer" in {
-    val serializer = new CustomKeySerializer[KeyWithInt](format => (
-      { case s: String => KeyWithInt(s.toInt)},
-      { case k: KeyWithInt => k.id.toString }
-    ))
+    val serializer = new CustomKeySerializer[KeyWithInt](format =>
+      (
+        { case s: String => KeyWithInt(s.toInt) },
+        { case k: KeyWithInt => k.id.toString }
+      )
+    )
     implicit val formats: Formats = native.Serialization.formats(NoTypeHints) + serializer
 
     val pw = Map[KeyWithInt, String](KeyWithInt(1) -> "hello", KeyWithInt(2) -> "world")

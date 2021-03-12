@@ -35,7 +35,6 @@ object JsonAST {
   sealed abstract class JValue extends Diff.Diffable with Product with Serializable {
     type Values
 
-
     /**
      * Return unboxed values from JSON
      * <p>
@@ -58,7 +57,6 @@ object JsonAST {
       case _ => Nil
     }
 
-
     /**
      * Return nth element from JSON.
      * Meaningful only to JArray, JObject and JField. Returns JNothing for other types.
@@ -68,7 +66,6 @@ object JsonAST {
      * </pre>
      */
     def apply(i: Int): JValue = JNothing
-
 
     /**
      * Concatenate with another JSON.
@@ -151,7 +148,7 @@ object JsonAST {
 
   case class JObject(obj: List[JField]) extends JValue {
     type Values = Map[String, Any]
-    def values: Map[String,Any] = obj.iterator.map { case (n, v) => (n, v.values) }.toMap
+    def values: Map[String, Any] = obj.iterator.map { case (n, v) => (n, v.values) }.toMap
 
     override def equals(that: Any): Boolean = that match {
       case o: JObject => obj.toSet == o.obj.toSet
@@ -194,4 +191,3 @@ object JsonAST {
     def unapply(f: JField): SomeValue[JField] = new SomeValue(f)
   }
 }
-

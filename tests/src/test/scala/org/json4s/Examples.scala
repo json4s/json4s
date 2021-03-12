@@ -1,18 +1,18 @@
 /*
-* Copyright 2009-2011 WorldWide Conferencing, LLC
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2009-2011 WorldWide Conferencing, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.json4s
 
@@ -26,10 +26,12 @@ class NativeExamples extends Examples[Document]("Native") with native.JsonMethod
   "issue 482 Infinity" in {
     val value = Map("a" -> Double.PositiveInfinity, "b" -> Double.NegativeInfinity)
     val json = compact(render(value))
-    parse(json) must_== JObject(List(
-      ("a", JDouble(Double.PositiveInfinity)),
-      ("b", JDouble(Double.NegativeInfinity))
-    ))
+    parse(json) must_== JObject(
+      List(
+        ("a", JDouble(Double.PositiveInfinity)),
+        ("b", JDouble(Double.NegativeInfinity))
+      )
+    )
   }
 }
 
@@ -71,19 +73,16 @@ object Examples {
 """
 
   val personDSL =
+    "person" ->
+    ("name" -> "Joe") ~
+    ("age" -> 35) ~
+    ("spouse" ->
     ("person" ->
-      ("name" -> "Joe") ~
-      ("age" -> 35) ~
-      ("spouse" ->
-        ("person" ->
-          ("name" -> "Marilyn") ~
-          ("age" -> 33)
-        )
-      )
-    )
+    ("name" -> "Marilyn") ~
+    ("age" -> 33)))
 
   val objArray =
-"""
+    """
 { "name": "joe",
   "address": {
     "street": "Bulevard",
@@ -103,7 +102,7 @@ object Examples {
 """
 
   val objArray2 =
-"""
+    """
 { "name": "joe",
   "address": {
     "street": "Bulevard",
@@ -240,7 +239,8 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
     }
 
     "JSON building example" in {
-      val json = JObject(("name", JString("joe")), ("age", JInt(34))) ++ JObject(("name", JString("mazy")), ("age", JInt(31)))
+      val json =
+        JObject(("name", JString("joe")), ("age", JInt(34))) ++ JObject(("name", JString("mazy")), ("age", JInt(31)))
       compact(render(json)) must_== """[{"name":"joe","age":34},{"name":"mazy","age":31}]"""
     }
 
@@ -252,10 +252,12 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
 
     "Example which collects all integers and forms a new JSON" in {
       val json = parse(person)
-      val ints = json.fold(JNothing: JValue) { (a, v) => v match {
-        case x: JInt => a ++ x
-        case _ => a
-      }}
+      val ints = json.fold(JNothing: JValue) { (a, v) =>
+        v match {
+          case x: JInt => a ++ x
+          case _ => a
+        }
+      }
       compact(render(ints)) must_== """[35,33]"""
     }
 
@@ -283,7 +285,9 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
 //      case class Fish(weight: Double) extends Animal
       val typeHints = ShortTypeHints(List[Class[_]](classOf[Dog], classOf[Fish]))
       implicit val fmts = DefaultFormats + typeHints
-      val json = parse(s"""[{"name":"pluto","${typeHints.typeHintFieldName}":"Dog"},{"weight":1.3,"${typeHints.typeHintFieldName}":"Fish"}]""")
+      val json = parse(
+        s"""[{"name":"pluto","${typeHints.typeHintFieldName}":"Dog"},{"weight":1.3,"${typeHints.typeHintFieldName}":"Fish"}]"""
+      )
       Extraction.extract[List[Animal]](json) must_== Dog("pluto") :: Fish(1.3) :: Nil
     }
 
@@ -301,7 +305,7 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
   }
 }"""
       val jAst = parse(jString)
-      val filtered1: List[(String, JValue)] = jAst.filterField{
+      val filtered1: List[(String, JValue)] = jAst.filterField {
         case JField("longt", _) => false
         case _ => true
       }
@@ -311,7 +315,7 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
       // filtered1.exists(_._1 == "description") must_== false
       // filtered1.exists(_._1 == "code") must_== false
 
-      val filtered2: List[(String, JValue)] = jAst.filterField{
+      val filtered2: List[(String, JValue)] = jAst.filterField {
         case JField("error", _) => false
         case _ => true
       }
@@ -401,10 +405,7 @@ abstract class Examples[T](mod: String) extends Specification with JsonMethods[T
         """.stripMargin
 
       val actual = parse(json).extract[Materials]
-      val expected = Materials(
-        List(Cherry(3), Oak(8)),
-        List(Iron("USA"), IronMaiden("UK")))
-
+      val expected = Materials(List(Cherry(3), Oak(8)), List(Iron("USA"), IronMaiden("UK")))
 
       actual must_== expected
     }
@@ -423,4 +424,3 @@ case class Iron(origin: String) extends Metal
 case class IronMaiden(origin: String) extends Metal
 
 case class Materials(woods: List[Wood], metals: List[Metal])
-

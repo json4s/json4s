@@ -9,7 +9,8 @@ class TypeHintTest extends Specification {
   "deserialization with type hints" should {
 
     implicit val formats: Formats = DefaultFormats + CustomTuple2Serializer + MappedTypeHints(
-      Map(classOf[Foo] -> "foo", classOf[Bar] -> "bar", classOf[Baz] -> "baz"))
+      Map(classOf[Foo] -> "foo", classOf[Bar] -> "bar", classOf[Baz] -> "baz")
+    )
 
     "fail when the type hint is incompatible with the requested type" in {
       val dump = Serialization.write(Foo(1))

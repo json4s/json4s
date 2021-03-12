@@ -1,6 +1,7 @@
 package org.json4s
 
 class ExtractableJsonAstNode(jv: JValue) {
+
   /**
    * Extract a value from a JSON.
    * <p>
@@ -107,4 +108,3 @@ class ExtractableJsonAstNode(jv: JValue) {
   def getAsOrElse[A](default: => A)(implicit reader: Reader[A]): A =
     getAs(reader) getOrElse default
 }
-

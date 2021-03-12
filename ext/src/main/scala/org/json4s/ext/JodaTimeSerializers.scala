@@ -19,69 +19,92 @@ package ext
 
 import org.joda.time._
 
-
-
 object JodaTimeSerializers {
-  def all = List(DurationSerializer, InstantSerializer, DateTimeSerializer,
-                 DateMidnightSerializer, IntervalSerializer(), LocalDateSerializer(),
-                 LocalTimeSerializer(), PeriodSerializer)
+  def all = List(
+    DurationSerializer,
+    InstantSerializer,
+    DateTimeSerializer,
+    DateMidnightSerializer,
+    IntervalSerializer(),
+    LocalDateSerializer(),
+    LocalTimeSerializer(),
+    PeriodSerializer
+  )
 }
 
-case object PeriodSerializer extends CustomSerializer[Period](format => (
-  {
-    case JString(p) => new Period(p)
-    case JNull => null
-  },
-  {
-    case p: Period => JString(p.toString)
-  }
-))
+case object PeriodSerializer
+  extends CustomSerializer[Period](format =>
+    (
+      {
+        case JString(p) => new Period(p)
+        case JNull => null
+      },
+      { case p: Period =>
+        JString(p.toString)
+      }
+    )
+  )
 
-case object DurationSerializer extends CustomSerializer[Duration](format => (
-  {
-    case JInt(d) => new Duration(d.longValue)
-    case JNull => null
-  },
-  {
-    case d: Duration => JInt(d.getMillis)
-  }
-))
+case object DurationSerializer
+  extends CustomSerializer[Duration](format =>
+    (
+      {
+        case JInt(d) => new Duration(d.longValue)
+        case JNull => null
+      },
+      { case d: Duration =>
+        JInt(d.getMillis)
+      }
+    )
+  )
 
-case object InstantSerializer extends CustomSerializer[Instant](format => (
-  {
-    case JInt(i) => new Instant(i.longValue)
-    case JNull => null
-  },
-  {
-    case i: Instant => JInt(i.getMillis)
-  }
-))
+case object InstantSerializer
+  extends CustomSerializer[Instant](format =>
+    (
+      {
+        case JInt(i) => new Instant(i.longValue)
+        case JNull => null
+      },
+      { case i: Instant =>
+        JInt(i.getMillis)
+      }
+    )
+  )
 
-case object DateTimeSerializer extends CustomSerializer[DateTime](format => (
-  {
-    case JString(s) =>
-      val zonedInstant = DateParser.parse(s, format)
-      new DateTime(zonedInstant.instant, DateTimeZone.forTimeZone(zonedInstant.timezone))
-    case JNull => null
-  },
-  {
-    case d: DateTime => JString(format.dateFormat.format(d.toDate))
-  }
-))
+case object DateTimeSerializer
+  extends CustomSerializer[DateTime](format =>
+    (
+      {
+        case JString(s) =>
+          val zonedInstant = DateParser.parse(s, format)
+          new DateTime(zonedInstant.instant, DateTimeZone.forTimeZone(zonedInstant.timezone))
+        case JNull => null
+      },
+      { case d: DateTime =>
+        JString(format.dateFormat.format(d.toDate))
+      }
+    )
+  )
 
 // see: http://www.joda.org/joda-time/apidocs/org/joda/time/DateMidnight.html
-@deprecated("The time of midnight does not exist in some time zones where the daylight saving time forward shift skips the midnight hour. Use LocalDate to represent a date without a time zone. Or use DateTime to represent a full date and time, perhaps using DateTime.withTimeAtStartOfDay() to get an instant at the start of a day. (http://www.joda.org/joda-time/apidocs/org/joda/time/DateMidnight.html)", since = "3.3.0")
-case object DateMidnightSerializer extends CustomSerializer[DateMidnight](format => (
-  {
-    case JString(s) =>
-      val zonedInstant = DateParser.parse(s, format)
-      new DateMidnight(zonedInstant.instant, DateTimeZone.forTimeZone(zonedInstant.timezone))
-    case JNull => null
-  },
-  {
-    case d: DateMidnight => JString(format.dateFormat.format(d.toDate))
-  }
-))
+@deprecated(
+  "The time of midnight does not exist in some time zones where the daylight saving time forward shift skips the midnight hour. Use LocalDate to represent a date without a time zone. Or use DateTime to represent a full date and time, perhaps using DateTime.withTimeAtStartOfDay() to get an instant at the start of a day. (http://www.joda.org/joda-time/apidocs/org/joda/time/DateMidnight.html)",
+  since = "3.3.0"
+)
+case object DateMidnightSerializer
+  extends CustomSerializer[DateMidnight](format =>
+    (
+      {
+        case JString(s) =>
+          val zonedInstant = DateParser.parse(s, format)
+          new DateMidnight(zonedInstant.instant, DateTimeZone.forTimeZone(zonedInstant.timezone))
+        case JNull => null
+      },
+      { case d: DateMidnight =>
+        JString(format.dateFormat.format(d.toDate))
+      }
+    )
+  )
 
 private[ext] case class _Interval(start: Long, end: Long)
 object IntervalSerializer {
@@ -109,4 +132,3 @@ object LocalTimeSerializer {
       _LocalTime(t.getHourOfDay, t.getMinuteOfHour, t.getSecondOfMinute, t.getMillisOfSecond)
   })
 }
-

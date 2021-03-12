@@ -10,7 +10,7 @@ abstract class JsonUtil(fmts: Formats) {
   def writePretty[A <: AnyRef](a: A): String
   def writePretty[A <: AnyRef, W <: java.io.Writer](a: A, out: W): W
 
-  def read[A: Manifest](json: JsonInput):A = parse(json).extract[A]
+  def read[A: Manifest](json: JsonInput): A = parse(json).extract[A]
   def readOpt[A: Manifest](json: JsonInput): Option[A] = parseOpt(json) flatMap (_.extractOpt[A])
 
   def parse(json: JsonInput): JValue

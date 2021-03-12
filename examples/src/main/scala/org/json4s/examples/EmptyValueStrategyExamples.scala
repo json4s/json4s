@@ -7,11 +7,17 @@ object EmptyValueTreatmentExamples {
 
   import JsonDSL._
 
-  private[this] val weekPlans = Seq(Some("event for monday"), None, None, None, Some("friday boogie night!"), Some("uh, headaches.."), Some("sunday laziness"))
+  private[this] val weekPlans = Seq(
+    Some("event for monday"),
+    None,
+    None,
+    None,
+    Some("friday boogie night!"),
+    Some("uh, headaches.."),
+    Some("sunday laziness")
+  )
 
-  private[this] val eventAsMap = Map(
-    ("eventType" -> Some("event")),
-    ("duration" -> None))
+  private[this] val eventAsMap = Map(("eventType" -> Some("event")), ("duration" -> None))
 
   private[this] val eventAsCaseClass = EventAsCaseClass("dinner")
 
@@ -31,7 +37,9 @@ object EmptyValueTreatmentExamples {
     // perform the show
     println("\n\n### Jackson way, skipping nulls ###")
     println("\nserializing " + weekPlans)
-    println("\t" + compact(render(weekPlans))) // = ["event for monday","friday boogie night!","uh, headaches..","sunday laziness"]
+    println(
+      "\t" + compact(render(weekPlans))
+    ) // = ["event for monday","friday boogie night!","uh, headaches..","sunday laziness"]
 
     println("\nserializing " + eventAsMap)
     println("\t" + compact(render(eventAsMap))) // = {"eventType":"event"}
@@ -48,7 +56,9 @@ object EmptyValueTreatmentExamples {
     // perform the show
     println("\n\n### Jackson way, preserving nulls ###")
     println("\nserializing " + weekPlans)
-    println("\t" + compact(render(weekPlans))) // = ["event for monday",null,null,null,"friday boogie night!","uh, headaches..","sunday laziness"]
+    println(
+      "\t" + compact(render(weekPlans))
+    ) // = ["event for monday",null,null,null,"friday boogie night!","uh, headaches..","sunday laziness"]
 
     println("\nserializing " + eventAsMap)
     println("\t" + compact(render(eventAsMap))) // = {"eventType":"event","duration":null}
@@ -66,7 +76,9 @@ object EmptyValueTreatmentExamples {
     // perform the show
     println("\n\n### Native way, skipping nulls ###")
     println("\nserializing " + weekPlans)
-    println("\t" + compact(render(weekPlans))) // = ["event for monday","friday boogie night!","uh, headaches..","sunday laziness"]
+    println(
+      "\t" + compact(render(weekPlans))
+    ) // = ["event for monday","friday boogie night!","uh, headaches..","sunday laziness"]
 
     println("\nserializing " + eventAsMap)
     println("\t" + compact(render(eventAsMap))) // = {"eventType":"event"}
@@ -83,7 +95,9 @@ object EmptyValueTreatmentExamples {
     // perform the show
     println("\n\n### Native way, preserving nulls ###\n")
     println("\nserializing " + weekPlans)
-    println("\t" + compact(render(weekPlans))) // = ["event for monday",null,null,null,"friday boogie night!","uh, headaches..","sunday laziness"]
+    println(
+      "\t" + compact(render(weekPlans))
+    ) // = ["event for monday",null,null,null,"friday boogie night!","uh, headaches..","sunday laziness"]
 
     println("\nserializing " + eventAsMap)
     println("\t" + compact(render(eventAsMap))) // = {"eventType":"event","duration":null}

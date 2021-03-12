@@ -16,12 +16,14 @@
 
 package org.json4s
 
-/** Functions to convert between JSON and XML.
+/**
+ * Functions to convert between JSON and XML.
  */
 object Xml {
   import scala.xml._
 
-  /** Convert given XML to JSON.
+  /**
+   * Convert given XML to JSON.
    * <p>
    * Following rules are used in conversion.
    * <ul>
@@ -104,23 +106,27 @@ object Xml {
 
     def toJValue(x: XElem): JValue = x match {
       case XValue(s) => JString(s)
-      case XLeaf((name, value), attrs) => (value, attrs) match {
-        case (_, Nil) => toJValue(value)
-        case (XValue(""), xs) => JObject(mkFields(xs))
-        case (_, xs) => JObject((name, toJValue(value)) :: mkFields(xs))
-      }
+      case XLeaf((name, value), attrs) =>
+        (value, attrs) match {
+          case (_, Nil) => toJValue(value)
+          case (XValue(""), xs) => JObject(mkFields(xs))
+          case (_, xs) => JObject((name, toJValue(value)) :: mkFields(xs))
+        }
       case XNode(xs) => JObject(mkFields(xs))
       case XArray(elems) => JArray(elems.map(toJValue))
     }
 
     def mkFields(xs: List[(String, XElem)]) =
-      xs.flatMap { case (name, value) => (value, toJValue(value)) match {
-        // This special case is needed to flatten nested objects which resulted from
-        // XML attributes. Flattening keeps transformation more predictable.
-        // <a><foo id="1">x</foo></a> -> {"a":{"foo":{"foo":"x","id":"1"}}} vs
-        // <a><foo id="1">x</foo></a> -> {"a":{"foo":"x","id":"1"}}
-        case (XLeaf(_, _ :: _), o: JObject) => o.obj
-        case (_, json) => JField(name, json) :: Nil }}
+      xs.flatMap { case (name, value) =>
+        (value, toJValue(value)) match {
+          // This special case is needed to flatten nested objects which resulted from
+          // XML attributes. Flattening keeps transformation more predictable.
+          // <a><foo id="1">x</foo></a> -> {"a":{"foo":{"foo":"x","id":"1"}}} vs
+          // <a><foo id="1">x</foo></a> -> {"a":{"foo":"x","id":"1"}}
+          case (XLeaf(_, _ :: _), o: JObject) => o.obj
+          case (_, json) => JField(name, json) :: Nil
+        }
+      }
 
     def buildNodes(xml: NodeSeq): List[XElem] = xml match {
       case n: Node =>
@@ -148,7 +154,8 @@ object Xml {
     }
   }
 
-  /** Convert given JSON to XML.
+  /**
+   * Convert given JSON to XML.
    * <p>
    * Following rules are used in conversion.
    * <ul>
@@ -188,7 +195,9 @@ object Xml {
     }
   }
 
-  private[json4s] class XmlNode(name: String, children: Seq[Node]) extends Elem(null, name, xml.Null, TopScope, children.isEmpty, children :_*)
+  private[json4s] class XmlNode(name: String, children: Seq[Node])
+    extends Elem(null, name, xml.Null, TopScope, children.isEmpty, children: _*)
 
-  private[json4s] class XmlElem(name: String, value: String) extends Elem(null, name, xml.Null, TopScope, false, Text(value))
+  private[json4s] class XmlElem(name: String, value: String)
+    extends Elem(null, name, xml.Null, TopScope, false, Text(value))
 }
