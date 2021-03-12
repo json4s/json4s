@@ -114,6 +114,21 @@ object build {
         }
       }
     },
+    Compile / sources := {
+      // TODO remove this setting if Scala 3.0.0-RC2 released
+      // https://github.com/lampepfl/dotty/issues/11605
+      val xs = (Compile / sources).value
+      if (scalaVersion.value == "3.0.0-RC1") {
+        val singletonIsEmpty = (ThisBuild / baseDirectory).value / "ast/src/main/scala-2.13+/org/json4s/SomeValue.scala"
+        val booleanIsEmpty   = (ThisBuild / baseDirectory).value / "ast/src/main/scala-2.13-/org/json4s/SomeValue.scala"
+        assert(Seq(singletonIsEmpty, booleanIsEmpty).forall(_.isFile))
+        xs.map { x =>
+          if (x == singletonIsEmpty) booleanIsEmpty else x
+        }
+      } else {
+        xs
+      }
+    },
     releaseProcess := Seq[ReleaseStep](
       checkSnapshotDependencies,
       inquireVersions,
