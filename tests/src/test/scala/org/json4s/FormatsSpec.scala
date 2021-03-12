@@ -1,30 +1,30 @@
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
-class FormatsSpec extends Specification {
+class FormatsSpec extends AnyWordSpec {
 
   "Formats" should {
     "be a Serializable" in {
       val f = new Formats {
         def dateFormat: DateFormat = ???
       }
-      f.isInstanceOf[Serializable] must beTrue
+      assert(f.isInstanceOf[Serializable])
     }
   }
 
   "DefaultFormats" should {
     "be a Serializable" in {
-      DefaultFormats.isInstanceOf[Serializable] must beTrue
+      assert(DefaultFormats.isInstanceOf[Serializable])
     }
   }
 
   "ClassDelta NPE Issue#342" should {
     "Check for null class1 based on recursive call to clazz.getSuperclass" in {
-      ClassDelta.delta(null, classOf[Object]) must be_==(1)
+      assert(ClassDelta.delta(null, classOf[Object]) == 1)
     }
     "Check for null class2 based on recursive call to clazz.getSuperclass" in {
-      ClassDelta.delta(classOf[Object], null) must be_==(-1)
+      assert(ClassDelta.delta(classOf[Object], null) == -1)
     }
   }
 
@@ -37,6 +37,5 @@ class FormatsSpec extends Specification {
       override def classFor(hint: String, parent: Class[_]): Option[Class[_]] = None
     }
     a + a
-    success
   }
 }
