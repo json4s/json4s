@@ -1,13 +1,13 @@
 package org.json4s
 
 import org.json4s
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
-object NativeIgnoreCompanionCtorSpec
+class NativeIgnoreCompanionCtorSpec
   extends IgnoreCompanionConstructors[Document]("Native", native.Serialization)
   with native.JsonMethods
-object JacksonIgnoreCompanionCtorSpec
+class JacksonIgnoreCompanionCtorSpec
   extends IgnoreCompanionConstructors[JValue]("Jackson", jackson.Serialization)
   with jackson.JsonMethods
 
@@ -24,7 +24,7 @@ object IgnoreWithTypeParamSpec {
 }
 
 abstract class IgnoreCompanionConstructors[T](mod: String, ser: json4s.Serialization)
-  extends Specification
+  extends AnyWordSpec
   with JsonMethods[T] {
 
   implicit lazy val formats: Formats = new DefaultFormats { override val considerCompanionConstructors = false }
@@ -35,20 +35,22 @@ abstract class IgnoreCompanionConstructors[T](mod: String, ser: json4s.Serializa
 
   (mod + " case class with a companion ctor") should {
     "ignore companion ctor" in {
-      (parse(ignoreCtorSpec1).extract[CompanionCtorSpec]) must throwA[MappingException]
+      assertThrows[MappingException] {
+        (parse(ignoreCtorSpec1).extract[CompanionCtorSpec])
+      }
     }
     "successfully parse using primary ctor" in {
       val model = parse(ignoreCtorSpec2).extract[CompanionCtorSpec]
-      model.someString must_== "Foo"
-      model.someInt must_== 123
-      model.someDouble must_== 456.1
+      assert(model.someString == "Foo")
+      assert(model.someInt == 123)
+      assert(model.someDouble == 456.1)
     }
     "#487 sucessfully round trip case class with type param" in {
       val json = ser.write(IgnoreWithTypeParamSpec[String]("Baz"))
       val model = parse(json).extract[IgnoreWithTypeParamSpec[String]]
 
-      model.someType must_== "Baz"
-      model.other must_== "Bar"
+      assert(model.someType == "Baz")
+      assert(model.other == "Bar")
     }
   }
 }
