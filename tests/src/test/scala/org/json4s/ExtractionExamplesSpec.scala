@@ -19,7 +19,7 @@ package org.json4s
 import java.util.Date
 import org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 import org.json4s.prefs.ExtractionNullStrategy
 
@@ -30,7 +30,7 @@ class JacksonExtractionExamples
   extends ExtractionExamples[JValue]("Jackson", jackson.Serialization)
   with jackson.JsonMethods
 
-abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) extends Specification with JsonMethods[T] {
+abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) extends AnyWordSpec with JsonMethods[T] {
 
   implicit lazy val formats: Formats = DefaultFormats
 
@@ -51,181 +51,207 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
   (mod + " Extraction Examples Specification") should {
     "Extraction example" in {
       val json = parse(testJson)
-      json.extract[Person] must_== Person(
-        "joe",
-        Address("Bulevard", "Helsinki"),
-        List(Child("Mary", 5, Some(date("2004-09-04T18:06:22Z"))), Child("Mazy", 3, None))
+      assert(
+        json.extract[Person] == Person(
+          "joe",
+          Address("Bulevard", "Helsinki"),
+          List(Child("Mary", 5, Some(date("2004-09-04T18:06:22Z"))), Child("Mazy", 3, None))
+        )
       )
     }
 
     "Extraction with path expression example" in {
       val json = parse(testJson)
-      (json \ "address").extract[Address] must_== Address("Bulevard", "Helsinki")
+      assert((json \ "address").extract[Address] == Address("Bulevard", "Helsinki"))
     }
 
     "Partial extraction example" in {
       val json = parse(testJson)
-      json.extract[SimplePerson] must_== SimplePerson("joe", Address("Bulevard", "Helsinki"))
+      assert(json.extract[SimplePerson] == SimplePerson("joe", Address("Bulevard", "Helsinki")))
     }
 
     "Extract with a default value" in {
       val json = parse(testJson)
-      (json \ "address2").extractOrElse(Address("Tie", "Helsinki")) must_== Address("Tie", "Helsinki")
+      assert((json \ "address2").extractOrElse(Address("Tie", "Helsinki")) == Address("Tie", "Helsinki"))
     }
 
     "Extract with default value and secondary constructor" in {
       val json = parse("""{ "a": "A", "b": "B", "int": 5 }""")
       val result = json.extract[SecondaryConstructorCaseClass]
-      result must_== SecondaryConstructorCaseClass(Pair("A", "B"), None, false, 5)
+      assert(result == SecondaryConstructorCaseClass(Pair("A", "B"), None, false, 5))
     }
 
     "Map with primitive values extraction example" in {
       val json = parse(testJson)
-      json.extract[PersonWithMap] must_==
-        PersonWithMap("joe", Map("street" -> "Bulevard", "city" -> "Helsinki"))
+      assert(json.extract[PersonWithMap] == PersonWithMap("joe", Map("street" -> "Bulevard", "city" -> "Helsinki")))
     }
 
     "Map with object values extraction example" in {
       val json = parse(twoAddresses)
-      json.extract[PersonWithAddresses] must_==
-        PersonWithAddresses(
+      assert(
+        json.extract[PersonWithAddresses] == PersonWithAddresses(
           "joe",
           Map("address1" -> Address("Bulevard", "Helsinki"), "address2" -> Address("Soho", "London"))
         )
+      )
     }
 
     "scala.collection.Map extraction example" in {
       val json = parse("""{ "name": "Joe" }""")
-      json.extract[scala.collection.Map[String, String]] must_== scala.collection.Map("name" -> "Joe")
+      assert(json.extract[scala.collection.Map[String, String]] == scala.collection.Map("name" -> "Joe"))
     }
 
     "mutable.Map extraction example" in {
       val json = parse("""{ "name": "Joe" }""")
-      json.extract[scala.collection.mutable.Map[String, String]] must_== scala.collection.mutable.Map("name" -> "Joe")
+      assert(
+        json.extract[scala.collection.mutable.Map[String, String]] == scala.collection.mutable.Map("name" -> "Joe")
+      )
     }
 
     "Simple value extraction example" in {
       val json = parse(testJson)
-      json.extract[Name] must_== Name("joe")
-      (json \ "children")(0).extract[Name] must_== Name("Mary")
-      (json \ "children")(1).extract[Name] must_== Name("Mazy")
+      assert(json.extract[Name] == Name("joe"))
+      assert((json \ "children")(0).extract[Name] == Name("Mary"))
+      assert((json \ "children")(1).extract[Name] == Name("Mazy"))
     }
 
     "Primitive value extraction example" in {
       val json = parse(testJson)
-      (json \ "name").extract[String] must_== "joe"
-      (json \ "name").extractOpt[String] must_== Some("joe")
-      (json \ "name").extractOpt[Int] must_== None
-      ((json \ "children")(0) \ "birthdate").extract[Date] must_== date("2004-09-04T18:06:22Z")
+      assert((json \ "name").extract[String] == "joe")
+      assert((json \ "name").extractOpt[String] == Some("joe"))
+      assert((json \ "name").extractOpt[Int] == None)
+      assert(((json \ "children")(0) \ "birthdate").extract[Date] == date("2004-09-04T18:06:22Z"))
 
-      JInt(1).extract[Int] must_== 1
-      JInt(1).extract[String] must_== "1"
+      assert(JInt(1).extract[Int] == 1)
+      assert(JInt(1).extract[String] == "1")
     }
 
     "Primitive extraction example" in {
       val json = parse(primitives)
-      json.extract[Primitives] must_== Primitives(
-        124,
-        123L,
-        126.5,
-        127.5.floatValue,
-        "128",
-        Symbol("symb"),
-        125,
-        129.byteValue,
-        true
+      assert(
+        json.extract[Primitives] == Primitives(
+          124,
+          123L,
+          126.5,
+          127.5.floatValue,
+          "128",
+          Symbol("symb"),
+          125,
+          129.byteValue,
+          true
+        )
       )
     }
 
     "Null extraction example" in {
       val json = parse("""{ "name": null, "age": 5, "birthdate": null }""")
-      json.extract[Child] must_== Child(null, 5, None)
+      assert(json.extract[Child] == Child(null, 5, None))
     }
 
     "Date extraction example" in {
       val json = parse("""{"name":"e1","timestamp":"2009-09-04T18:06:22Z"}""")
-      json.extract[Event] must_== Event("e1", date("2009-09-04T18:06:22Z"))
+      assert(json.extract[Event] == Event("e1", date("2009-09-04T18:06:22Z")))
     }
 
     "Timestamp extraction example" in {
       val json = parse("""{"timestamp":"2009-09-04T18:06:22Z"}""")
-      new Date((json \ "timestamp").extract[java.sql.Timestamp].getTime) must_== date("2009-09-04T18:06:22Z")
+      assert(new Date((json \ "timestamp").extract[java.sql.Timestamp].getTime) == date("2009-09-04T18:06:22Z"))
     }
 
     "Option extraction example" in {
       val json = parse("""{ "name": null, "age": 5, "mother":{"name":"Marilyn"}}""")
-      json.extract[OChild] must_== OChild(None, 5, Some(Parent("Marilyn")), None)
+      assert(json.extract[OChild] == OChild(None, 5, Some(Parent("Marilyn")), None))
     }
 
     "Option extraction example with strictOptionParsing" in {
       // JNull should not extract to None
       val fm = notNullFormats.withStrictOptionParsing
 
-      parse("""{ "name": null, "age": 5, "mother":{"name":"Marilyn"}}""")
-        .extract[OChild](fm, implicitly[Manifest[OChild]]) must throwA[MappingException]
+      assertThrows[MappingException] {
+        parse("""{ "name": null, "age": 5, "mother":{"name":"Marilyn"}}""")
+          .extract[OChild](fm, implicitly[Manifest[OChild]])
+      }
 
       val mf = implicitly[Manifest[OptionValue]]
-      parse("""{"value": null}""").extract[OptionValue](fm, mf) must throwA[MappingException]
-      parse("""{}""").extract[OptionValue](fm, mf) must_== OptionValue(None)
-      parse("""{"value": 1}""").extract[OptionValue](fm, mf) must_== OptionValue(Some(1))
+      assertThrows[MappingException] { parse("""{"value": null}""").extract[OptionValue](fm, mf) }
+      assert(parse("""{}""").extract[OptionValue](fm, mf) == OptionValue(None))
+      assert(parse("""{"value": 1}""").extract[OptionValue](fm, mf) == OptionValue(Some(1)))
     }
 
     "Missing JSON array extracted as an empty List (no default value) when strictArrayExtraction is false" in {
-      parse(missingChildren).extract[Person](nonStrictFormats, implicitly[Manifest[Person]]) must_== Person(
-        "joe",
-        Address("Bulevard", "Helsinki"),
-        Nil
+      assert(
+        parse(missingChildren).extract[Person](nonStrictFormats, implicitly[Manifest[Person]]) == Person(
+          "joe",
+          Address("Bulevard", "Helsinki"),
+          Nil
+        )
       )
     }
 
     "Missing JSON array extracted as an empty List (has default value) when strictArrayExtraction is false" in {
-      parse(missingChildren).extract[PersonNoKids](
-        nonStrictFormats,
-        implicitly[Manifest[PersonNoKids]]
-      ) must_== PersonNoKids("joe", Address("Bulevard", "Helsinki"), Nil)
+      assert(
+        parse(missingChildren).extract[PersonNoKids](
+          nonStrictFormats,
+          implicitly[Manifest[PersonNoKids]]
+        ) == PersonNoKids("joe", Address("Bulevard", "Helsinki"), Nil)
+      )
     }
 
     "Missing JSON array fails extraction (no default value) when strictArrayExtraction is true" in {
-      parse(missingChildren).extract[Person](strictFormats, implicitly[Manifest[Person]]) must throwA[MappingException]
+      assertThrows[MappingException] {
+        parse(missingChildren).extract[Person](strictFormats, implicitly[Manifest[Person]])
+      }
     }
 
     "Missing JSON array extracted as an empty List (has default value) when strictArrayExtraction is true" in {
-      parse(missingChildren).extract[PersonNoKids](
-        strictFormats,
-        implicitly[Manifest[PersonNoKids]]
-      ) must_== PersonNoKids("joe", Address("Bulevard", "Helsinki"), Nil)
+      assert(
+        parse(missingChildren).extract[PersonNoKids](
+          strictFormats,
+          implicitly[Manifest[PersonNoKids]]
+        ) == PersonNoKids("joe", Address("Bulevard", "Helsinki"), Nil)
+      )
     }
 
     "Missing JSON object extracted as an empty Map (no default value) when strictMapExtraction is false" in {
-      parse(noAddress).extract[PersonWithMap](
-        nonStrictFormats,
-        implicitly[Manifest[PersonWithMap]]
-      ) must_== PersonWithMap("joe", Map())
+      assert(
+        parse(noAddress).extract[PersonWithMap](
+          nonStrictFormats,
+          implicitly[Manifest[PersonWithMap]]
+        ) == PersonWithMap("joe", Map())
+      )
     }
 
     "Missing JSON object extracted as an empty Map (has default value) when strictMapExtraction is false" in {
-      parse(noAddress).extract[PersonWithDefaultEmptyMap](
-        nonStrictFormats,
-        implicitly[Manifest[PersonWithDefaultEmptyMap]]
-      ) must_== PersonWithDefaultEmptyMap("joe", Map())
+      assert(
+        parse(noAddress).extract[PersonWithDefaultEmptyMap](
+          nonStrictFormats,
+          implicitly[Manifest[PersonWithDefaultEmptyMap]]
+        ) == PersonWithDefaultEmptyMap("joe", Map())
+      )
     }
 
     "Missing JSON object fails extraction (no default value) when strictMapExtraction is true" in {
-      parse(noAddress)
-        .extract[PersonWithMap](strictFormats, implicitly[Manifest[PersonWithMap]]) must throwA[MappingException]
+      assertThrows[MappingException] {
+        parse(noAddress)
+          .extract[PersonWithMap](strictFormats, implicitly[Manifest[PersonWithMap]])
+      }
     }
 
     "Missing JSON object extracted as an empty Map (has default value) when strictMapExtraction is true" in {
-      parse(noAddress).extract[PersonWithDefaultEmptyMap](
-        strictFormats,
-        implicitly[Manifest[PersonWithDefaultEmptyMap]]
-      ) must_== PersonWithDefaultEmptyMap("joe", Map())
+      assert(
+        parse(noAddress).extract[PersonWithDefaultEmptyMap](
+          strictFormats,
+          implicitly[Manifest[PersonWithDefaultEmptyMap]]
+        ) == PersonWithDefaultEmptyMap("joe", Map())
+      )
     }
 
     "Multidimensional array extraction example" in {
-      parse(multiDimensionalArrays).extract[MultiDim] must_== MultiDim(
-        List(List(List(1, 2), List(3)), List(List(4), List(5, 6))),
-        List(List(Name("joe"), Name("mary")), List(Name("mazy")))
+      assert(
+        parse(multiDimensionalArrays).extract[MultiDim] == MultiDim(
+          List(List(List(1, 2), List(3)), List(List(4), List(5, 6))),
+          List(List(Name("joe"), Name("mary")), List(Name("mazy")))
+        )
       )
     }
 
@@ -233,28 +259,30 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
       val f = Extraction.flatten(Extraction.decompose(SimplePerson("joe", Address("Bulevard", "Helsinki"))))
       val e = Map(".name" -> "\"joe\"", ".address.street" -> "\"Bulevard\"", ".address.city" -> "\"Helsinki\"")
 
-      f must_== e
+      assert(f == e)
     }
 
     "Unflatten example with top level string and int" in {
       val m = Map(".name" -> "\"joe\"", ".age" -> "32")
 
-      Extraction.unflatten(m) must_== JObject(List(JField("name", JString("joe")), JField("age", JInt(32))))
+      assert(Extraction.unflatten(m) == JObject(List(JField("name", JString("joe")), JField("age", JInt(32)))))
     }
 
     "Unflatten example with top level string and double" in {
       val m = Map(".name" -> "\"joe\"", ".age" -> "32.2")
 
-      Extraction.unflatten(m) must_== JObject(List(JField("name", JString("joe")), JField("age", JDouble(32.2))))
+      assert(Extraction.unflatten(m) == JObject(List(JField("name", JString("joe")), JField("age", JDouble(32.2)))))
     }
 
     "Unflatten example with two-level string properties" in {
       val m = Map(".name" -> "\"joe\"", ".address.street" -> "\"Bulevard\"", ".address.city" -> "\"Helsinki\"")
 
-      Extraction.unflatten(m) must_== JObject(
-        List(
-          JField("name", JString("joe")),
-          JField("address", JObject(List(JField("street", JString("Bulevard")), JField("city", JString("Helsinki")))))
+      assert(
+        Extraction.unflatten(m) == JObject(
+          List(
+            JField("name", JString("joe")),
+            JField("address", JObject(List(JField("street", JString("Bulevard")), JField("city", JString("Helsinki")))))
+          )
         )
       )
     }
@@ -262,261 +290,318 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
     "Unflatten example with top level array" in {
       val m = Map(".foo[2]" -> "2", ".foo[0]" -> "0", ".foo[1]" -> "1")
 
-      Extraction.unflatten(m) must_== JObject(List(JField("foo", JArray(List(JInt(0), JInt(1), JInt(2))))))
+      assert(Extraction.unflatten(m) == JObject(List(JField("foo", JArray(List(JInt(0), JInt(1), JInt(2)))))))
     }
 
     "Unflatten example with field name is prefix of the other field name" in {
       val m = Map(".data" -> "5", ".data_type" -> "6")
 
-      Extraction.unflatten(m) must_== JObject(JField("data", JInt(5)), JField("data_type", JInt(6)))
+      assert(Extraction.unflatten(m) == JObject(JField("data", JInt(5)), JField("data_type", JInt(6))))
     }
 
     "Flatten and unflatten are symmetric" in {
       val parsed = parse(testJson)
 
-      Extraction.unflatten(Extraction.flatten(parsed)) must_== parsed
+      assert(Extraction.unflatten(Extraction.flatten(parsed)) == parsed)
     }
 
     "Flatten preserves empty sets" in {
       val s = SetWrapper(Set())
 
-      Extraction.flatten(Extraction.decompose(s)).get(".set") must_== Some("[]")
+      assert(Extraction.flatten(Extraction.decompose(s)).get(".set") == Some("[]"))
     }
 
     "Flatten and unflatten are symmetric with empty sets" in {
       val s = SetWrapper(Set())
 
-      Extraction.unflatten(Extraction.flatten(Extraction.decompose(s))).extract[SetWrapper] must_== s
+      assert(Extraction.unflatten(Extraction.flatten(Extraction.decompose(s))).extract[SetWrapper] == s)
     }
 
     "List extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[List[Name]] must_== List(Name("Mary"), Name("Mazy"))
+      assert(json.extract[List[Name]] == List(Name("Mary"), Name("Mazy")))
     }
 
     "Map extraction example" in {
       val json = parse(testJson) \ "address"
-      json.extract[Map[String, String]] must_== Map("street" -> "Bulevard", "city" -> "Helsinki")
+      assert(json.extract[Map[String, String]] == Map("street" -> "Bulevard", "city" -> "Helsinki"))
     }
 
     "Set extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[Set[Name]] must_== Set(Name("Mary"), Name("Mazy"))
+      assert(json.extract[Set[Name]] == Set(Name("Mary"), Name("Mazy")))
     }
 
     "Seq extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[Seq[Name]] must_== Seq(Name("Mary"), Name("Mazy"))
+      assert(json.extract[Seq[Name]] == Seq(Name("Mary"), Name("Mazy")))
     }
 
     "Mutable set extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[scala.collection.mutable.Set[Name]] must_==
-        scala.collection.mutable.Set(Name("Mary"), Name("Mazy"))
+      assert(
+        json.extract[scala.collection.mutable.Set[Name]] == scala.collection.mutable.Set(Name("Mary"), Name("Mazy"))
+      )
     }
 
     "Mutable seq extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[scala.collection.mutable.Seq[Name]] must_==
-        scala.collection.mutable.Seq(Name("Mary"), Name("Mazy"))
+      assert(
+        json.extract[scala.collection.mutable.Seq[Name]] == scala.collection.mutable.Seq(Name("Mary"), Name("Mazy"))
+      )
     }
 
     // https://github.com/json4s/json4s/issues/82
     "Vector extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[Vector[Name]] must_== Vector(Name("Mary"), Name("Mazy"))
+      assert(json.extract[Vector[Name]] == Vector(Name("Mary"), Name("Mazy")))
     }
 
     "Stream extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[Stream[Name]] must_== Stream(Name("Mary"), Name("Mazy"))
+      assert(json.extract[Stream[Name]] == Stream(Name("Mary"), Name("Mazy")))
     }
 
     "Iterable extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[Iterable[Name]] must_== Iterable(Name("Mary"), Name("Mazy"))
+      assert(json.extract[Iterable[Name]] == Iterable(Name("Mary"), Name("Mazy")))
     }
 
     "Immutable Queue extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[collection.immutable.Queue[Name]] must_== collection.immutable.Queue(Name("Mary"), Name("Mazy"))
+      assert(json.extract[collection.immutable.Queue[Name]] == collection.immutable.Queue(Name("Mary"), Name("Mazy")))
     }
 
     "Mutable Queue extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[collection.mutable.Queue[Name]] must_== collection.mutable.Queue(Name("Mary"), Name("Mazy"))
+      assert(json.extract[collection.mutable.Queue[Name]] == collection.mutable.Queue(Name("Mary"), Name("Mazy")))
     }
 
     "Immutable HashSet extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[collection.immutable.HashSet[Name]] must_== collection.immutable.HashSet(Name("Mary"), Name("Mazy"))
+      assert(
+        json.extract[collection.immutable.HashSet[Name]] == collection.immutable.HashSet(Name("Mary"), Name("Mazy"))
+      )
     }
 
     "Mutable HashSet extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[collection.mutable.HashSet[Name]] must_== collection.mutable.HashSet(Name("Mary"), Name("Mazy"))
+      assert(json.extract[collection.mutable.HashSet[Name]] == collection.mutable.HashSet(Name("Mary"), Name("Mazy")))
     }
 
     "ArrayBuffer extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[collection.mutable.ArrayBuffer[Name]] must_== collection.mutable.ArrayBuffer(
-        Name("Mary"),
-        Name("Mazy")
+      assert(
+        json.extract[collection.mutable.ArrayBuffer[Name]] == collection.mutable.ArrayBuffer(
+          Name("Mary"),
+          Name("Mazy")
+        )
       )
     }
 
     "ListBuffer extraction example" in {
       val json = parse(testJson) \ "children"
-      json
-        .extract[collection.mutable.ListBuffer[Name]] must_== collection.mutable.ListBuffer(Name("Mary"), Name("Mazy"))
+      assert(
+        json
+          .extract[collection.mutable.ListBuffer[Name]] == collection.mutable.ListBuffer(Name("Mary"), Name("Mazy"))
+      )
     }
 
     "Mutable Stack extraction example" in {
       val json = parse(testJson) \ "children"
-      json.extract[collection.mutable.Stack[Name]] must_== collection.mutable.Stack(Name("Mary"), Name("Mazy"))
+      assert(json.extract[collection.mutable.Stack[Name]] == collection.mutable.Stack(Name("Mary"), Name("Mazy")))
     }
 
     "ArraySeq extraction example" in {
       val scalaV = scala.util.Properties.versionNumberString
       if (scalaV.startsWith("2.11") || scalaV.startsWith("2.12")) {
         val json = parse(testJson) \ "children"
-        json.extract[collection.mutable.ArraySeq[Name]] must_== collection.mutable.ArraySeq(Name("Mary"), Name("Mazy"))
+        assert(
+          json.extract[collection.mutable.ArraySeq[Name]] == collection.mutable.ArraySeq(Name("Mary"), Name("Mazy"))
+        )
       } else {
         // Scala 2.13 ArraySeq.apply take ClassTag parameter
-        1 must_=== 1
+        assert(1 == 1)
       }
     }
 
     "Extraction and decomposition are symmetric" in {
       val person = parse(testJson).extract[Person]
-      Extraction.decompose(person).extract[Person] must_== person
+      assert(Extraction.decompose(person).extract[Person] == person)
     }
 
     "Extraction failure message example" in {
       val json = parse("""{"city":"San Francisco"}""")
-      json.extract[Address] must throwA(
-        MappingException(
-          "No usable value for street\nDid not find value which can be converted into java.lang.String",
-          null
-        )
-      )
+      try {
+        json.extract[Address]
+        fail()
+      } catch {
+        case e: MappingException =>
+          assert(
+            e.getMessage == "No usable value for street\nDid not find value which can be converted into java.lang.String"
+          )
+      }
     }
 
     "Best matching constructor selection example" in {
-      parse("""{"name":"john","age":32,"size":"M"}""").extract[MultipleConstructors] must_==
-        MultipleConstructors("john", 32, Some("M"))
+      assert(
+        parse("""{"name":"john","age":32,"size":"M"}""")
+          .extract[MultipleConstructors] == MultipleConstructors("john", 32, Some("M"))
+      )
 
-      parse("""{"name":"john","age":32}""").extract[MultipleConstructors] must_==
-        MultipleConstructors("john", 32, Some("S"))
+      assert(
+        parse("""{"name":"john","age":32}""")
+          .extract[MultipleConstructors] == MultipleConstructors("john", 32, Some("S"))
+      )
 
-      parse("""{"name":"john","foo":"xxx"}""").extract[MultipleConstructors] must_==
-        MultipleConstructors("john", 30, None)
+      assert(
+        parse("""{"name":"john","foo":"xxx"}""").extract[MultipleConstructors] == MultipleConstructors("john", 30, None)
+      )
 
-      parse("""{"name":"john","age":32,"size":null}""").extract[MultipleConstructors] must_==
-        MultipleConstructors("john", 32, None)
+      assert(
+        parse("""{"name":"john","age":32,"size":null}""")
+          .extract[MultipleConstructors] == MultipleConstructors("john", 32, None)
+      )
 
-      parse("""{"birthYear":1990,"name":"john","foo":2}""").extract[MultipleConstructors] must_==
-        MultipleConstructors("john", 20, None)
+      assert(
+        parse("""{"birthYear":1990,"name":"john","foo":2}""")
+          .extract[MultipleConstructors] == MultipleConstructors("john", 20, None)
+      )
 
-      parse("""{"foo":2,"age":12,"size":"XS"}""").extract[MultipleConstructors] must_==
-        MultipleConstructors("unknown", 12, Some("XS"))
+      assert(
+        parse("""{"foo":2,"age":12,"size":"XS"}""")
+          .extract[MultipleConstructors] == MultipleConstructors("unknown", 12, Some("XS"))
+      )
     }
 
     "Partial JSON extraction" in {
-      parse(stringField).extract[ClassWithJSON] must_== ClassWithJSON("one", JString("msg"))
-      parse(objField).extract[ClassWithJSON] must_== ClassWithJSON("one", JObject(List(JField("yes", JString("woo")))))
+      assert(parse(stringField).extract[ClassWithJSON] == ClassWithJSON("one", JString("msg")))
+      assert(
+        parse(objField).extract[ClassWithJSON] == ClassWithJSON("one", JObject(List(JField("yes", JString("woo")))))
+      )
     }
 
     "Double can be coerced to Int or Long" in {
-      JDouble(2.1).extract[Int] must_== 2
-      JDouble(2.1).extract[Long] must_== 2L
+      assert(JDouble(2.1).extract[Int] == 2)
+      assert(JDouble(2.1).extract[Long] == 2L)
     }
 
     "Map with nested non-polymorphic list extraction example" in {
-      parse("""{"a":["b"]}""").extract[Map[String, List[String]]] must_== Map("a" -> List("b"))
+      assert(parse("""{"a":["b"]}""").extract[Map[String, List[String]]] == Map("a" -> List("b")))
     }
 
     "List with nested non-polymorphic list extraction example" in {
-      parse("""[["a"]]""").extract[List[List[String]]] must_== List(List("a"))
+      assert(parse("""[["a"]]""").extract[List[List[String]]] == List(List("a")))
     }
 
     "Complex nested non-polymorphic collections extraction example" in {
-      parse("""{"a":[{"b":"c"}]}""").extract[Map[String, List[Map[String, String]]]] must_== Map(
-        "a" -> List(Map("b" -> "c"))
+      assert(
+        parse("""{"a":[{"b":"c"}]}""").extract[Map[String, List[Map[String, String]]]] == Map(
+          "a" -> List(Map("b" -> "c"))
+        )
       )
     }
 
     "format nullExtractionStrategy set to Disallow should disallow null values in extraction for class types" in {
-      parse("""{"name":"foobar","address":null}""")
-        .extract[SimplePerson](notNullFormats, Manifest.classType(classOf[SimplePerson])) must throwA(
-        MappingException(
-          "No usable value for address\nDid not find value which can be converted into org.json4s.Address",
-          null
-        )
-      )
+      try {
+        parse("""{"name":"foobar","address":null}""")
+          .extract[SimplePerson](notNullFormats, Manifest.classType(classOf[SimplePerson]))
+        fail()
+      } catch {
+        case e: MappingException =>
+          assert(
+            e.getMessage == "No usable value for address\nDid not find value which can be converted into org.json4s.Address"
+          )
+      }
     }
 
     "format nullExtractionStrategy set to TreatAsAbsent should disallow null values in extraction for class types without default values" in {
-      parse("""{"name":"foobar","address":null}""").extract[SimplePerson](
-        nullAsAbsentFormats,
-        Manifest.classType(classOf[SimplePerson])
-      ) must throwA(MappingException("No usable value for address\nExpected value but got null", null))
+      try {
+        parse("""{"name":"foobar","address":null}""").extract[SimplePerson](
+          nullAsAbsentFormats,
+          Manifest.classType(classOf[SimplePerson])
+        )
+        fail()
+      } catch {
+        case e: MappingException =>
+          assert(e.getMessage == "No usable value for address\nExpected value but got null")
+      }
     }
 
     "format nullExtractionStrategy set to Disallow should disallow null values in extraction for primitive types" in {
-      parse("""{"name":null}""").extract[Name](notNullFormats, Manifest.classType(classOf[Name])) must throwA(
-        MappingException(
-          "No usable value for name\nDid not find value which can be converted into java.lang.String",
-          null
-        )
-      )
+      try {
+        parse("""{"name":null}""").extract[Name](notNullFormats, Manifest.classType(classOf[Name]))
+        fail()
+      } catch {
+        case e: MappingException =>
+          assert(
+            e.getMessage == "No usable value for name\nDid not find value which can be converted into java.lang.String"
+          )
+      }
     }
 
     "format nullExtractionStrategy set to TreatAsAbsent should disallow null values in extraction for primitive types without default values" in {
-      parse("""{"name":null}""").extract[Name](nullAsAbsentFormats, Manifest.classType(classOf[Name])) must throwA(
-        MappingException("No usable value for name\nExpected value but got null", null)
-      )
+      try {
+        parse("""{"name":null}""").extract[Name](nullAsAbsentFormats, Manifest.classType(classOf[Name]))
+        fail()
+      } catch {
+        case e: MappingException =>
+          assert(e.getMessage == "No usable value for name\nExpected value but got null")
+      }
     }
 
     "format nullExtractionStrategy set to Disallow should extract a null Option[T] as None" in {
-      parse("""{"name":null,"age":22}""")
-        .extract[OChild](notNullFormats, Manifest.classType(classOf[OChild])) must_== new OChild(None, 22, None, None)
+      assert(
+        parse("""{"name":null,"age":22}""")
+          .extract[OChild](notNullFormats, Manifest.classType(classOf[OChild])) == new OChild(None, 22, None, None)
+      )
     }
 
     "format nullExtractionStrategy set to TreatAsAbsent should extract a null Option[T] as None" in {
-      parse("""{"name":null,"age":22}""").extract[OChild](
-        nullAsAbsentFormats,
-        Manifest.classType(classOf[OChild])
-      ) must_== new OChild(None, 22, None, None)
+      assert(
+        parse("""{"name":null,"age":22}""").extract[OChild](
+          nullAsAbsentFormats,
+          Manifest.classType(classOf[OChild])
+        ) == new OChild(None, 22, None, None)
+      )
     }
 
     "format nullExtractionStrategy set to Disallow should disallow null values in extraction for class types with default values" in {
-      parse("""{"name":"foobar","address":null}""").extract[PersonWithDefaultValues](
-        notNullFormats,
-        Manifest.classType(classOf[PersonWithDefaultValues])
-      ) must throwA(
-        MappingException(
-          "No usable value for address\nDid not find value which can be converted into org.json4s.Address",
-          null
+      try {
+        parse("""{"name":"foobar","address":null}""").extract[PersonWithDefaultValues](
+          notNullFormats,
+          Manifest.classType(classOf[PersonWithDefaultValues])
         )
-      )
+        fail()
+      } catch {
+        case e: MappingException =>
+          assert(
+            e.getMessage == "No usable value for address\nDid not find value which can be converted into org.json4s.Address"
+          )
+      }
     }
 
-    "format nullExtractionStrategy set to TreatAsAbsent should ignore null values in extraction for class types with default values" in {
-      parse("""{"name":null}""").extract[PersonWithDefaultValues](
-        nullAsAbsentFormats,
-        Manifest.classType(classOf[PersonWithDefaultValues])
-      ) must_== PersonWithDefaultValues()
+    "format nullExtractionStrategy set to TreatAsAbsent should ignore null values in extraction for class types with default values. 1" in {
+      assert(
+        parse("""{"name":null}""").extract[PersonWithDefaultValues](
+          nullAsAbsentFormats,
+          Manifest.classType(classOf[PersonWithDefaultValues])
+        ) == PersonWithDefaultValues()
+      )
     }
 
     "format nullExtractionStrategy set to Disallow should disallow null values in extraction for collection types" in {
-      parse("""[1,null,3]""").extract[Seq[Int]](notNullFormats, implicitly) must throwA(
-        MappingException("Did not find value which can be converted into int", null)
-      )
+      try {
+        parse("""[1,null,3]""").extract[Seq[Int]](notNullFormats, implicitly)
+        fail()
+      } catch {
+        case e: MappingException =>
+          assert(e.getMessage == "Did not find value which can be converted into int")
+      }
     }
 
-    "format nullExtractionStrategy set to TreatAsAbsent should ignore null values in extraction for class types with default values" in {
-      parse("""[1,null,3]""").extract[Seq[Int]](nullAsAbsentFormats, implicitly) must_== Seq(1, 3)
+    "format nullExtractionStrategy set to TreatAsAbsent should ignore null values in extraction for class types with default values. 2" in {
+      assert(parse("""[1,null,3]""").extract[Seq[Int]](nullAsAbsentFormats, implicitly) == Seq(1, 3))
     }
 
     "format nullExtractionStrategy set to Disallow should use custom null serializer to set Option[T] as None" in {
@@ -533,10 +618,12 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
             }
           )
         )
-      parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](
-        notNullFormats + CustomNull,
-        Manifest.classType(classOf[OChild])
-      ) must_== new OChild(None, 22, None, None)
+      assert(
+        parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](
+          notNullFormats + CustomNull,
+          Manifest.classType(classOf[OChild])
+        ) == new OChild(None, 22, None, None)
+      )
     }
 
     "format nullExtractionStrategy set to TreatAsAbsent should use custom null serializer to set Option[T] as None" in {
@@ -553,34 +640,42 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
             }
           )
         )
-      parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](
-        nullAsAbsentFormats + CustomNull,
-        Manifest.classType(classOf[OChild])
-      ) must_== new OChild(None, 22, None, None)
+      assert(
+        parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](
+          nullAsAbsentFormats + CustomNull,
+          Manifest.classType(classOf[OChild])
+        ) == new OChild(None, 22, None, None)
+      )
     }
 
     "simple case objects should be successfully extracted as a singleton instance" in {
-      parse(emptyTree)
-        .extract[LeafTree[Int]](treeFormats, Manifest.classType(classOf[LeafTree[Int]])) must_== LeafTree.empty
+      assert(
+        parse(emptyTree)
+          .extract[LeafTree[Int]](treeFormats, Manifest.classType(classOf[LeafTree[Int]])) == LeafTree.empty
+      )
     }
 
     "case objects in a complex structure should be successfully extracted as a singleton instance" in {
-      parse(tree).extract[LeafTree[Int]](treeFormats[Int], Manifest.classType(classOf[LeafTree[Int]])) must_== Node(
-        List[LeafTree[Int]](EmptyLeaf, Node(List.empty), Leaf(1), Leaf(2))
+      assert(
+        parse(tree).extract[LeafTree[Int]](treeFormats[Int], Manifest.classType(classOf[LeafTree[Int]])) == Node(
+          List[LeafTree[Int]](EmptyLeaf, Node(List.empty), Leaf(1), Leaf(2))
+        )
       )
     }
 
     "#274 Examples with default value should be parsed" in {
       val res = WithDefaultValueHolder(Seq(WithDefaultValue("Bob")))
-      parse("""{"values":[{"name":"Bob","gender":"male"}]}""").extract[WithDefaultValueHolder](
-        DefaultFormats,
-        Manifest.classType(classOf[WithDefaultValueHolder])
-      ) must_== res
+      assert(
+        parse("""{"values":[{"name":"Bob","gender":"male"}]}""").extract[WithDefaultValueHolder](
+          DefaultFormats,
+          Manifest.classType(classOf[WithDefaultValueHolder])
+        ) == res
+      )
     }
 
     "#537 Example with a Seq and default Seq value should be extracted from empty json" in {
       val res = SeqWithDefaultSeq(values = Nil)
-      parse("""{ }""").extract[SeqWithDefaultSeq] must_== res
+      assert(parse("""{ }""").extract[SeqWithDefaultSeq] == res)
     }
 
   }
