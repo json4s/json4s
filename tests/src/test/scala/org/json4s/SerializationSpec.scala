@@ -1,6 +1,6 @@
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
 private case class OptionalFields(
   optString: Option[String],
@@ -12,47 +12,47 @@ private case class MyId(id: String) extends AnyVal
 private case class MyModel(ids: Seq[MyId])
 private case class AnotherModel(id: MyId)
 
-abstract class SerializationSpec(serialization: Serialization, baseFormats: Formats) extends Specification {
+abstract class SerializationSpec(serialization: Serialization, baseFormats: Formats) extends AnyWordSpec {
 
   "Serialization of case class with many Option[T] fields" should {
 
     implicit val formats: Formats = baseFormats.skippingEmptyValues
 
-    "produce valid JSON without empty fields" in {
+    "produce valid JSON without empty fields" should {
       "from case class with all fields empty" in {
         val optFields = OptionalFields(None, None, None, None)
         val str = serialization.write(optFields)
-        str must_== "{}"
+        assert(str == "{}")
       }
 
       "object with one string field defined" in {
         val optFields = OptionalFields(Some("hello"), None, None, None)
         val str = serialization.write(optFields)
-        str must_== """{"optString":"hello"}"""
+        assert(str == """{"optString":"hello"}""")
       }
 
       "from case class with two fields defined #1" in {
         val optFields = OptionalFields(Some("hello"), None, None, Some(OptionalFields(None, None, None, None)))
         val str = serialization.write(optFields)
-        str must_== """{"optString":"hello","optObj":{}}"""
+        assert(str == """{"optString":"hello","optObj":{}}""")
       }
 
       "from case class with two fields defined #2" in {
         val optFields = OptionalFields(None, None, Some(1.0), Some(OptionalFields(None, None, None, None)))
         val str = serialization.write(optFields)
-        str must_== """{"optDouble":1.0,"optObj":{}}"""
+        assert(str == """{"optDouble":1.0,"optObj":{}}""")
       }
 
       "from case class with all fields defined" in {
         val optFields = OptionalFields(Some("hello"), Some(42), Some(1.0), Some(OptionalFields(None, None, None, None)))
         val str = serialization.write(optFields)
-        str must_== """{"optString":"hello","optInt":42,"optDouble":1.0,"optObj":{}}"""
+        assert(str == """{"optString":"hello","optInt":42,"optDouble":1.0,"optObj":{}}""")
       }
 
       "from case class with nested JSON object" in {
         val optFields = OptionalFields(None, None, None, Some(OptionalFields(None, None, None, None)))
         val str = serialization.write(optFields)
-        str must_== """{"optObj":{}}"""
+        assert(str == """{"optObj":{}}""")
       }
 
       "from case class with deeply nested JSON objects" in {
@@ -77,48 +77,56 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
           )
         )
         val str = serialization.write(optFields)
-        str must_== """{"optObj":{"optObj":{"optObj":{"optObj":{}}}}}"""
+        assert(str == """{"optObj":{"optObj":{"optObj":{"optObj":{}}}}}""")
       }
 
     }
 
-    "produce valid JSON with preserved empty fields" in {
+    "produce valid JSON with preserved empty fields" should {
       implicit val formats: Formats = baseFormats.preservingEmptyValues
 
       "from case class with all fields empty" in {
         val optFields = OptionalFields(None, None, None, None)
         val str = serialization.write(optFields)
-        str must_== """{"optString":null,"optInt":null,"optDouble":null,"optObj":null}"""
+        assert(str == """{"optString":null,"optInt":null,"optDouble":null,"optObj":null}""")
       }
 
       "from case class with one string field defined" in {
         val optFields = OptionalFields(Some("hello"), None, None, None)
         val str = serialization.write(optFields)
-        str must_== """{"optString":"hello","optInt":null,"optDouble":null,"optObj":null}"""
+        assert(str == """{"optString":"hello","optInt":null,"optDouble":null,"optObj":null}""")
       }
 
       "from case class with two fields defined #1" in {
         val optFields = OptionalFields(Some("hello"), None, None, Some(OptionalFields(None, None, None, None)))
         val str = serialization.write(optFields)
-        str must_== """{"optString":"hello","optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":null}}"""
+        assert(
+          str == """{"optString":"hello","optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":null}}"""
+        )
       }
 
       "from case class with two fields defined #2" in {
         val optFields = OptionalFields(None, None, Some(1.0), Some(OptionalFields(None, None, None, None)))
         val str = serialization.write(optFields)
-        str must_== """{"optString":null,"optInt":null,"optDouble":1.0,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":null}}"""
+        assert(
+          str == """{"optString":null,"optInt":null,"optDouble":1.0,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":null}}"""
+        )
       }
 
       "from case class with all fields defined" in {
         val optFields = OptionalFields(Some("hello"), Some(42), Some(1.0), Some(OptionalFields(None, None, None, None)))
         val str = serialization.write(optFields)
-        str must_== """{"optString":"hello","optInt":42,"optDouble":1.0,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":null}}"""
+        assert(
+          str == """{"optString":"hello","optInt":42,"optDouble":1.0,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":null}}"""
+        )
       }
 
       "from case class with nested JSON object" in {
         val optFields = OptionalFields(None, None, None, Some(OptionalFields(None, None, None, None)))
         val str = serialization.write(optFields)
-        str must_== """{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":null}}"""
+        assert(
+          str == """{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":null}}"""
+        )
       }
 
       "from case class with deeply nested JSON objects" in {
@@ -143,14 +151,16 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
           )
         )
         val str = serialization.write(optFields)
-        str must_== """{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":null}}}}}"""
+        assert(
+          str == """{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":{"optString":null,"optInt":null,"optDouble":null,"optObj":null}}}}}"""
+        )
       }
 
       "#270 Issue serialising sequences of AnyVal" in {
         val expected = MyModel(Seq(MyId("alice")))
         val json = serialization.write(expected)
         // FIXME: looks invalid JSON string
-        json must_== """{"ids":[{"id":"alice"}]}"""
+        assert(json == """{"ids":[{"id":"alice"}]}""")
         // FIXME: package$MappingException
         // val actual = Extraction.extract[MyModel](jackson.parseJson(json))
         // actual must_== expected
@@ -180,13 +190,13 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
       "#270 works with single AnyVal" in {
         val expected = AnotherModel(MyId("alice"))
         val json = serialization.write(expected)
-        json must_== """{"id":"alice"}"""
+        assert(json == """{"id":"alice"}""")
         val actual = Extraction.extract[AnotherModel](jackson.parseJson(json))
-        actual must_== expected
+        assert(actual == expected)
       }
 
       "#661 Matching algorithm picks least correct ctor" in {
-        serialization.read[BadSpec](s"""{"item2": 789, "item3": 123}""") must_== BadSpec(789, 123)
+        assert(serialization.read[BadSpec](s"""{"item2": 789, "item3": 123}""") == BadSpec(789, 123))
       }
 
       "#674 serializes a boolean in a map from a trait in Scala 2.13" in {
@@ -196,7 +206,7 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
         val json = org.json4s.native.Serialization.writePretty(expected)
 
         val actual = Extraction.extract[Foo](jackson.parseJson(json))
-        actual must_== expected
+        assert(actual == expected)
       }
 
     }
