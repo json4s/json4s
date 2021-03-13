@@ -108,7 +108,7 @@ lazy val json4sTests = Project(
 ).settings(
   json4sSettings,
   noPublish,
-  libraryDependencies ++= Seq(specs.value, scalatest, mockito, jaxbApi, scalatestScalacheck.value),
+  libraryDependencies ++= Seq(scalatest, mockito, jaxbApi, scalatestScalacheck.value),
   Test / console / initialCommands :=
     """
       |import org.json4s._

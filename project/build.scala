@@ -91,7 +91,6 @@ object build {
           Seq("-Xsource:3")
         case _ =>
           Seq(
-            "-Xignore-scala2-macros", // TODO https://github.com/etorreborre/specs2/issues/848
             "-source",
             "3.0-migration",
           )

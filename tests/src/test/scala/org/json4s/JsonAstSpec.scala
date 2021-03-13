@@ -16,74 +16,60 @@
 
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.scalacheck.Checkers
 import org.scalacheck._
 import org.scalacheck.Prop.forAllNoShrink
-import org.specs2.ScalaCheck
-import org.specs2.matcher.MatchResult
 
-class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
+class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
 
   "JSON AST Specification" should {
-    "Functor identity" in {
-      val identityProp = (json: JValue) => json must_== (json map identity)
-      prop(identityProp)
+    "Functor identity" in check { (json: JValue) =>
+      json == (json map identity)
     }
 
-    "Monoid identity" in {
-      val identityProp = (json: JValue) => (json ++ JNothing must_== json) and (JNothing ++ json must_== json)
-      prop(identityProp)
+    "Monoid identity" in check { (json: JValue) =>
+      ({ json ++ JNothing } == json) && ({ JNothing ++ json } == json)
     }
 
-    "Monoid associativity" in {
-      val assocProp = (x: JValue, y: JValue, z: JValue) => x ++ (y ++ z) must_== (x ++ y) ++ z
-      prop(assocProp)
+    "Monoid associativity" in check { (x: JValue, y: JValue, z: JValue) =>
+      (x ++ (y ++ z)) == ((x ++ y) ++ z)
     }
 
-    "Merge identity" in {
-      val identityProp = (json: JValue) => ((json merge JNothing) must_== json) and ((JNothing merge json) must_== json)
-      prop(identityProp)
+    "Merge identity" in check { (json: JValue) =>
+      ((json merge JNothing) == json) && ((JNothing merge json) == json)
     }
 
-    "Merge idempotency" in {
-      val idempotencyProp = (x: JValue) => (x merge x) must_== x
-      prop(idempotencyProp)
+    "Merge idempotency" in check { (x: JValue) =>
+      ((x merge x) == x)
     }
 
-    "Diff identity" in {
-      val identityProp = (json: JValue) =>
-        ((json diff JNothing) must_== Diff(JNothing, JNothing, json)) and
-        ((JNothing diff json) must_== Diff(JNothing, json, JNothing))
-
-      prop(identityProp)
+    "Diff identity" in check { (json: JValue) =>
+      ((json diff JNothing) == Diff(JNothing, JNothing, json)) &&
+      ((JNothing diff json) == Diff(JNothing, json, JNothing))
     }
 
-    "Diff with self is empty" in {
-      val emptyProp = (x: JValue) => (x diff x) must_== Diff(JNothing, JNothing, JNothing)
-      prop(emptyProp)
+    "Diff with self is empty" in check { (x: JValue) =>
+      (x diff x) == Diff(JNothing, JNothing, JNothing)
     }
 
-    "Diff is subset of originals" in {
-      val subsetProp = (x: JObject, y: JObject) => {
+    "Diff is subset of originals" in check { (x: JObject, y: JObject) =>
+      {
         val Diff(c, a, d @ _) = x diff y
-        y must_== (y merge (c merge a))
+        (y == (y merge (c merge a)))
       }
-      prop(subsetProp)
     }
 
-    "Diff result is same when fields are reordered" in {
-      val reorderProp = (x: JObject) => (x diff reorderFields(x)) must_== Diff(JNothing, JNothing, JNothing)
-      prop(reorderProp)
+    "Diff result is same when fields are reordered" in check { (x: JObject) =>
+      ((x diff reorderFields(x)) == Diff(JNothing, JNothing, JNothing))
     }
 
-    "Remove all" in {
-      val removeAllProp = (x: JValue) => (x remove { _ => true }) must_== JNothing
-      prop(removeAllProp)
+    "Remove all" in check { (x: JValue) =>
+      ((x remove { _ => true }) == JNothing)
     }
 
-    "Remove nothing" in {
-      val removeNothingProp = (x: JValue) => (x remove { _ => false }) must_== x
-      prop(removeNothingProp)
+    "Remove nothing" in check { (x: JValue) =>
+      ((x remove { _ => false }) == x)
     }
 
     "Remove removes only matching elements" in {
@@ -93,7 +79,7 @@ class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
           val elemsLeft = removed filter { case _ =>
             true
           }
-          (elemsLeft.forall(_.getClass != x) must beTrue)
+          elemsLeft.forall(_.getClass != x)
         }
       }
     }
@@ -106,51 +92,49 @@ class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
             true
           }
           //noNulls can remove everything in which case we get a JNothing, otherwise there should be no JNulls or JNothings
-          (noNulls must_== JNothing) or
-          (elemsLeft.forall(e => e != JNull && e != JNothing) must beTrue)
+          (noNulls == JNothing) || (elemsLeft.forall(e => e != JNull && e != JNothing))
         }
       }
     }
 
-    "Replace one" in {
-      val anyReplacement = (x: JValue, replacement: JObject) => {
-        def findOnePath(jv: JValue, l: List[String]): List[String] = jv match {
-          case JObject((fn, fv) :: _) => findOnePath(fv, fn :: l)
-          case _ => l
-        }
-
-        val path = findOnePath(x, Nil).reverse
-
-        val result = x.replace(path, replacement)
-
-        def replaced(path: List[String], in: JValue): MatchResult[_] = {
-          path match {
-            case Nil => x must_== in
-
-            case name :: Nil => (in \ name) must_== `replacement`
-
-            case name :: xs =>
-              val value = in \ name
-              (value must_!= JNothing) and replaced(xs, value)
-          }
-        }
-
-        replaced(path, result)
+    val anyReplacement = (x: JValue, replacement: JObject) => {
+      def findOnePath(jv: JValue, l: List[String]): List[String] = jv match {
+        case JObject((fn, fv) :: _) => findOnePath(fv, fn :: l)
+        case _ => l
       }
 
+      val path = findOnePath(x, Nil).reverse
+
+      val result = x.replace(path, replacement)
+
+      def replaced(path: List[String], in: JValue): Boolean = {
+        path match {
+          case Nil =>
+            x == in
+          case name :: Nil =>
+            (in \ name) == `replacement`
+          case name :: xs =>
+            val value = in \ name
+            (value != JNothing) && replaced(xs, value)
+        }
+      }
+
+      replaced(path, result)
+    }
+
+    "Replace one. any" in check {
+      anyReplacement
+    }
+    "Replace one. field" in check {
       // ensure that we test some JObject instances
-      val fieldReplacement = (x: JObject, replacement: JObject) => anyReplacement(x, replacement)
-
-      prop(fieldReplacement)
-      prop(anyReplacement)
-
+      (x: JObject, replacement: JObject) => anyReplacement(x, replacement)
     }
 
     "Replace each element in JArray" in {
 
       implicit val arbArray: Arbitrary[JField] = Arbitrary(genFieldArray)
 
-      prop { (field: JField, replacement: JObject) =>
+      check { (field: JField, replacement: JObject) =>
         val JField(fn, JArray(_)) = field
 
         // ensure that we test a JObject with a JArray Field
@@ -160,7 +144,8 @@ class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
 
         // checks that each element was replaced
         result match {
-          case JObject((_, JArray(xs)) :: _) => forall(xs)(_ must_== replacement)
+          case JObject((_, JArray(xs)) :: _) =>
+            xs.forall(_ == replacement)
         }
 
       }
@@ -171,7 +156,7 @@ class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
 
       implicit def arbArray: Arbitrary[JField] = Arbitrary(genFieldArray)
 
-      prop { (field: JField, replacement: JObject) =>
+      check { (field: JField, replacement: JObject) =>
         val JField(fn, JArray(arr)) = field
 
         // ensure that we test a JObject with a JArray Field
@@ -184,7 +169,13 @@ class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
         // checks that only one element was replaced
         result match {
           case JObject((_, JArray(xs)) :: _) => {
-            foreach(xs.indices)(i => if (i == index) xs(i) must_== replacement else xs(i) must_== arr(i))
+            xs.indices.forall(i =>
+              if (i == index) {
+                (xs(i) == replacement)
+              } else {
+                (xs(i) == arr(i))
+              }
+            )
           }
         }
 
@@ -192,11 +183,10 @@ class JsonAstSpec extends Specification with JValueGen with ScalaCheck {
 
     }
 
-    "equals hashCode" in prop { (x: JObject) =>
+    "equals hashCode" in check { (x: JObject) =>
       val y = JObject(scala.util.Random.shuffle(x.obj))
 
-      x must_== y
-      x.## must_== y.##
+      (x == y) && (x.## == y.##)
     }
   }
 

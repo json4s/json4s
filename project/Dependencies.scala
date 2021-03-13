@@ -13,9 +13,6 @@ object Dependencies {
   )
   lazy val scalaz_core = "org.scalaz" %% "scalaz-core" % "7.3.3"
   lazy val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.8"
-  lazy val specs = Def.setting(
-    "org.specs2" %% "specs2-scalacheck" % "4.10.6" % "test"
-  )
   lazy val scalatest = "org.scalatest" %% "scalatest" % "3.2.6" % "test"
   lazy val scalatestScalacheck = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value) match {
