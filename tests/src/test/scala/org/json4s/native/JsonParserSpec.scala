@@ -1,32 +1,33 @@
 package org.json4s
 
-import org.specs2.ScalaCheck
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.scalacheck.Checkers
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop._
-import org.specs2.mutable.Specification
 import org.json4s.jackson.JsonMethods._
 
 /**
  * System under specification for JSON Parser.
  */
-class JsonParserSpec extends Specification with JValueGen with ScalaCheck {
+class JsonParserSpec extends AnyWordSpec with JValueGen with Checkers {
   import native.{JsonParser, Printer}
   import native.JsonMethods._
 
   "A JSON Parser" should {
-    "Any valid json can be parsed" in {
-      val parsing = (json: JValue) => { parse(Printer.pretty(render(json))); true must beTrue }
-      prop(parsing)
+    "Any valid json can be parsed" in check { (json: JValue) =>
+      parse(Printer.pretty(render(json)))
+      true
     }
 
     "Empty Json is parsed to JObject" in {
-      parse("{}") must_== JObject()
+      assert(parse("{}") == JObject())
     }
 
     "Buffer size does not change parsing result" in {
       val bufSize = Gen.choose(2, 64)
-      val parsing = (x: JValue, s1: Int, s2: Int) => { parseVal(x, s1) must_== parseVal(x, s2) }
-      forAll(genObject, bufSize, bufSize)(parsing)
+      forAll(genObject, bufSize, bufSize) { (x: JValue, s1: Int, s2: Int) =>
+        parseVal(x, s1) == parseVal(x, s2)
+      }
     }
 
     "Parsing is thread safe" in {
@@ -36,65 +37,73 @@ class JsonParserSpec extends Specification with JValueGen with ScalaCheck {
       val executor = Executors.newFixedThreadPool(100)
       val results =
         (0 to 100).map(_ => executor.submit(new Callable[JValue] { def call = parse(json) })).toList.map(_.get)
-      results.zip(results.tail).forall(pair => pair._1 == pair._2) must_== true
+      assert(results.zip(results.tail).forall(pair => pair._1 == pair._2))
     }
 
     "All valid string escape characters can be parsed" in {
-      parse("[\"abc\\\"\\\\\\/\\b\\f\\n\\r\\t\\u00a0\"]") must_== JArray(JString("abc\"\\/\b\f\n\r\t\u00a0") :: Nil)
+      assert(parse("[\"abc\\\"\\\\\\/\\b\\f\\n\\r\\t\\u00a0\"]") == JArray(JString("abc\"\\/\b\f\n\r\t\u00a0") :: Nil))
     }
 
     "Unclosed string literal fails parsing" in {
-      parseOpt("{\"foo\":\"sd") must_== None
-      parseOpt("{\"foo\":\"sd}") must_== None
+      assert(parseOpt("{\"foo\":\"sd") == None)
+      assert(parseOpt("{\"foo\":\"sd}") == None)
     }
 
     "parses doubles as bigdecimal" in {
-      JsonParser.parse("[1.234]", useBigDecimalForDouble = true) must_== JArray(JDecimal(BigDecimal("1.234")) :: Nil)
+      assert(JsonParser.parse("[1.234]", useBigDecimalForDouble = true) == JArray(JDecimal(BigDecimal("1.234")) :: Nil))
     }
 
     "parse -1.40737488355328E+15 as bigdecimal" in {
       val bd = BigDecimal("-1.40737488355328E+15")
-      JsonParser.parse("[-1.40737488355328E+15]", useBigDecimalForDouble = true) must_== JArray(JDecimal(bd) :: Nil)
+      assert(JsonParser.parse("[-1.40737488355328E+15]", useBigDecimalForDouble = true) == JArray(JDecimal(bd) :: Nil))
     }
 
     "parse -1.40737488355328E15 as bigdecimal" in {
       val bd = BigDecimal("-1.40737488355328E15")
-      JsonParser.parse("[-1.40737488355328E15]", useBigDecimalForDouble = true) must_== JArray(JDecimal(bd) :: Nil)
+      assert(JsonParser.parse("[-1.40737488355328E15]", useBigDecimalForDouble = true) == JArray(JDecimal(bd) :: Nil))
     }
 
     "parse -1.40737488355328E-15 as bigdecimal" in {
       val bd = BigDecimal("-1.40737488355328E-15")
-      JsonParser.parse("[-1.40737488355328E-15]", useBigDecimalForDouble = true) must_== JArray(JDecimal(bd) :: Nil)
+      assert(JsonParser.parse("[-1.40737488355328E-15]", useBigDecimalForDouble = true) == JArray(JDecimal(bd) :: Nil))
     }
 
     "parse 9223372036854775808 as bigint" in {
       val bi = BigInt("9223372036854775808")
-      JsonParser.parse("[9223372036854775808]", useBigDecimalForDouble = true, useBigIntForLong = true) must_== JArray(
-        JInt(bi) :: Nil
+      assert(
+        JsonParser.parse("[9223372036854775808]", useBigDecimalForDouble = true, useBigIntForLong = true) == JArray(
+          JInt(bi) :: Nil
+        )
       )
     }
 
     "parse -9223372036854775809 as bigint" in {
       val bi = BigInt("-9223372036854775809")
-      JsonParser.parse("[-9223372036854775809]", useBigDecimalForDouble = true, useBigIntForLong = true) must_== JArray(
-        JInt(bi) :: Nil
+      assert(
+        JsonParser.parse("[-9223372036854775809]", useBigDecimalForDouble = true, useBigIntForLong = true) == JArray(
+          JInt(bi) :: Nil
+        )
       )
     }
 
     "parse 9223372036854775807 as long" in {
       val l = Long.MaxValue
-      JsonParser.parse("[9223372036854775807]", useBigDecimalForDouble = true, useBigIntForLong = false) must_== JArray(
-        JLong(l) :: Nil
+      assert(
+        JsonParser.parse("[9223372036854775807]", useBigDecimalForDouble = true, useBigIntForLong = false) == JArray(
+          JLong(l) :: Nil
+        )
       )
     }
 
     "parse -9223372036854775808 as long" in {
       val l = Long.MinValue
-      JsonParser.parse(
-        "[-9223372036854775808]",
-        useBigDecimalForDouble = true,
-        useBigIntForLong = false
-      ) must_== JArray(JLong(l) :: Nil)
+      assert(
+        JsonParser.parse(
+          "[-9223372036854775808]",
+          useBigDecimalForDouble = true,
+          useBigIntForLong = false
+        ) == JArray(JLong(l) :: Nil)
+      )
     }
 
     "The EOF has reached when the Reader returns EOF" in {
@@ -110,7 +119,7 @@ class JsonParserSpec extends Specification with JValueGen with ScalaCheck {
       }
 
       val json = JsonParser.parse(new StingyReader(""" ["hello"] """))
-      json must_== JArray(JString("hello") :: Nil)
+      assert(json == JArray(JString("hello") :: Nil))
     }
   }
 
