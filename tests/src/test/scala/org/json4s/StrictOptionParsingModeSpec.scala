@@ -1,12 +1,12 @@
 package org.json4s
 
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 class NativeStrictOptionParsingModeSpec extends StrictOptionParsingModeSpec[Document]("Native") with native.JsonMethods
 class JacksonStrictOptionParsingModeSpec extends StrictOptionParsingModeSpec[JValue]("Jackson") with jackson.JsonMethods
 
-abstract class StrictOptionParsingModeSpec[T](mod: String) extends Specification with JsonMethods[T] {
+abstract class StrictOptionParsingModeSpec[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
   implicit lazy val formats: Formats = new DefaultFormats { override val strictOptionParsing = true }
 
@@ -59,81 +59,81 @@ abstract class StrictOptionParsingModeSpec[T](mod: String) extends Specification
 
   (mod + " case class with optional values in strict mode") should {
     "throw an error on parsing a string for an int" in {
-      (parse(stringForIntJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(stringForIntJson).extract[OptionalValueModel]) }
     }
     "throw an error on parsing a boolean for an int" in {
-      (parse(booleanForIntJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(booleanForIntJson).extract[OptionalValueModel]) }
     }
     "throw an error on parsing a map for an int" in {
-      (parse(mapForIntJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(mapForIntJson).extract[OptionalValueModel]) }
     }
     "parse double as an int" in {
       val model = parse(doubleForIntJson).extract[OptionalValueModel]
-      model.someInt must_== Some(10)
+      assert(model.someInt == Some(10))
     }
 
     "throw an error on parsing a string for a double" in {
-      (parse(stringForDoubleJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(stringForDoubleJson).extract[OptionalValueModel]) }
     }
     "throw an error on parsing a boolean for a double" in {
-      (parse(booleanForDoubleJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(booleanForDoubleJson).extract[OptionalValueModel]) }
     }
     "throw an error on parsing a map for a double" in {
-      (parse(mapForDoubleJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(mapForDoubleJson).extract[OptionalValueModel]) }
     }
     "parse int as a double" in {
       val model = parse(intForDoubleJson).extract[OptionalValueModel]
-      model.someInt must_== Some(10.0)
+      assert(model.someInt == Some(10.0))
     }
 
     "throw an error on parsing a int for a boolean" in {
-      (parse(intForBooleanJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(intForBooleanJson).extract[OptionalValueModel]) }
     }
     "throw an error on parsing a double for a boolean" in {
-      (parse(doubleForBooleanJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(doubleForBooleanJson).extract[OptionalValueModel]) }
     }
     "throw an error on parsing a string for a boolean" in {
-      (parse(stringForBooleanJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(stringForBooleanJson).extract[OptionalValueModel]) }
     }
     "throw an error on parsing a map for a boolean" in {
-      (parse(mapForBooleanJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(mapForBooleanJson).extract[OptionalValueModel]) }
     }
 
     "throw an error on parsing a boolean for a string" in {
-      (parse(booleanForStringJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(booleanForStringJson).extract[OptionalValueModel]) }
     }
     "throw an error on parsing a map for a string" in {
-      (parse(mapForStringJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(mapForStringJson).extract[OptionalValueModel]) }
     }
     "parse int as a string" in {
       val model = parse(intForStringJson).extract[OptionalValueModel]
-      model.someString must_== Some("10")
+      assert(model.someString == Some("10"))
     }
     "parse double as a string" in {
       val model = parse(doubleForStringJson).extract[OptionalValueModel]
-      model.someString must_== Some("10.0")
+      assert(model.someString == Some("10.0"))
     }
 
     "throw an error on parsing a int for a map" in {
-      (parse(intForMapJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(intForMapJson).extract[OptionalValueModel]) }
     }
     "throw an error on parsing a double for a map" in {
-      (parse(doubleForMapJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(doubleForMapJson).extract[OptionalValueModel]) }
     }
     "throw an error on parsing a string for a map" in {
-      (parse(stringForMapJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(stringForMapJson).extract[OptionalValueModel]) }
     }
     "throw an error on parsing a boolean for a map" in {
-      (parse(booleanForMapJson).extract[OptionalValueModel]) must throwA[MappingException]
+      assertThrows[MappingException] { (parse(booleanForMapJson).extract[OptionalValueModel]) }
     }
 
     "extract the class if all values are correctly typed" in {
       val model = parse(correctJson).extract[OptionalValueModel]
-      model.someDouble must_== Some(10.0)
-      model.someInt must_== Some(10)
-      model.someString must_== Some("someString")
-      model.someMap must_== Some(Map[String, Any]())
-      model.someBoolean must_== Some(true)
+      assert(model.someDouble == Some(10.0))
+      assert(model.someInt == Some(10))
+      assert(model.someString == Some("someString"))
+      assert(model.someMap == Some(Map[String, Any]()))
+      assert(model.someBoolean == Some(true))
     }
   }
 }
