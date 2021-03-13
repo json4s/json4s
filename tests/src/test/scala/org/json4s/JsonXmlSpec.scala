@@ -16,8 +16,8 @@
 
 package org.json4s
 
-import org.specs2.ScalaCheck
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.scalacheck.Checkers
 import org.scalacheck.Arbitrary
 import org.json4s.native.Document
 
@@ -31,23 +31,22 @@ class JacksonXmlSpec extends JsonXmlSpec[JValue]("Jackson") with jackson.JsonMet
  * System under specification for JSON XML.
  */
 abstract class JsonXmlSpec[T](mod: String)
-  extends Specification
+  extends AnyWordSpec
   with NodeGen
   with JValueGen
-  with ScalaCheck
+  with Checkers
   with JsonMethods[T] {
   import Xml._
   import scala.xml.Node
 
   (mod + " JSON XML Specification") should {
-    "Valid XML can be converted to JSON and back (symmetric op)" in {
-      val conversion = (xml: Node) => { toXml(toJson(xml)).head must_== xml }
-      prop(conversion)
+    "Valid XML can be converted to JSON and back (symmetric op)" in check { (xml: Node) =>
+      toXml(toJson(xml)).head == xml
     }
 
-    "JSON can be converted to XML, and back to valid JSON (non symmetric op)" in {
-      val conversion = (json: JValue) => { parse(compact(render(toJson(toXml(json))))); true must beTrue }
-      prop(conversion)
+    "JSON can be converted to XML, and back to valid JSON (non symmetric op)" in check { (json: JValue) =>
+      parse(compact(render(toJson(toXml(json)))))
+      true
     }
   }
 

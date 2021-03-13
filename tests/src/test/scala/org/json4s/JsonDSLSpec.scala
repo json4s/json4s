@@ -1,19 +1,19 @@
 package org.json4s
 
-import org.specs2.mutable.Specification
-import org.specs2.ScalaCheck
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.scalacheck.Checkers
 
-class JsonDSLSpec extends Specification with JValueGen with ScalaCheck {
+class JsonDSLSpec extends AnyWordSpec with JValueGen with Checkers {
 
   "JSON DSL Specification" should {
     "build Json" in {
       import JsonDSL._
-      val buildProp = (intValue: Int, strValue: String) =>
-        (("intValue" -> intValue) ~ ("strValue" -> strValue)) must_== JObject(
+      check { (intValue: Int, strValue: String) =>
+        (("intValue" -> intValue) ~ ("strValue" -> strValue)) == JObject(
           "intValue" -> JInt(intValue),
           ("strValue", JString(strValue))
         )
-      prop(buildProp)
+      }
     }
 
     "customize value type" in {
@@ -21,17 +21,17 @@ class JsonDSLSpec extends Specification with JValueGen with ScalaCheck {
         override implicit def int2jvalue(x: Int): JValue = JString(x.toString)
       }
       import CustomJsonDSL._
-      val buildProp = (intValue: Int, strValue: String) =>
-        (("intValue" -> intValue) ~ ("strValue" -> strValue)) must_== JObject(
+      check { (intValue: Int, strValue: String) =>
+        (("intValue" -> intValue) ~ ("strValue" -> strValue)) == JObject(
           ("intValue", JString(intValue.toString)),
           ("strValue", JString(strValue))
         )
-      prop(buildProp)
+      }
     }
 
     "short, byte and char to jvalue" in {
       import JsonDSL._
-      val buildProp = (shortValue: Short, byteValue: Byte, charValue: Char) => {
+      check { (shortValue: Short, byteValue: Byte, charValue: Char) =>
         val dslValue = ("shortValue" -> shortValue) ~
           ("byteValue" -> byteValue) ~
           ("charValue" -> charValue) ~
@@ -46,9 +46,8 @@ class JsonDSLSpec extends Specification with JValueGen with ScalaCheck {
           ("byteArray", JArray(List(JInt(byteValue)))),
           ("charArray", JArray(List(JInt(charValue))))
         )
-        dslValue must_== expected
+        dslValue == expected
       }
-      prop(buildProp)
     }
   }
 
