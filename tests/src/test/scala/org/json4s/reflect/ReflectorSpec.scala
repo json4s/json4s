@@ -4,8 +4,8 @@ import java.sql.Timestamp
 import java.util.Date
 
 import org.json4s.{DateTime, DefaultFormats, Formats, JInt, JObject, JString, MappingException, Obj, Objs, reflect}
-import org.specs2.matcher.MatchResult
-import org.specs2.mutable.Specification
+import org.scalatest.Assertion
+import org.scalatest.wordspec.AnyWordSpec
 
 case class RRSimple(id: Int, name: String, items: List[String], createdAt: Date)
 
@@ -119,7 +119,7 @@ object GenericCaseClassWithCompanion {
 }
 case class GenericCaseClassWithCompanion[A](value: A, other: String)
 
-class ReflectorSpec extends Specification {
+class ReflectorSpec extends AnyWordSpec {
   implicit val formats: Formats = DefaultFormats.withCompanions(
     classOf[PathTypes.HasTrait.FromTrait] -> PathTypes.HasTrait,
     classOf[PathTypes.HasTrait.FromTraitRROption] -> PathTypes.HasTrait
@@ -133,16 +133,16 @@ class ReflectorSpec extends Specification {
       val result = org.json4s.Extraction.decompose(
         GenericCaseClassWithCompanion(3)
       )
-      result must_== JObject(List(("value", JInt(3)), ("other", JString("Bar"))))
+      assert(result == JObject(List(("value", JInt(3)), ("other", JString("Bar")))))
     }
 
     "describe a class defined in a class constructor" in {
       val fmts: Formats = formats.withCompanions(classOf[inst.InternalType] -> inst)
       Reflector.describe(manifest[PathTypes.HasTrait.FromTrait], fmts) match {
         case d: ClassDescriptor =>
-          d.constructors must not(beEmpty)
-          d.constructors.head.params.size must_== 2
-          d.properties.size must_== 1
+          assert(d.constructors.nonEmpty)
+          assert(d.constructors.head.params.size == 2)
+          assert(d.properties.size == 1)
         case _ => fail("Expected a class descriptor")
       }
     }
@@ -150,11 +150,11 @@ class ReflectorSpec extends Specification {
     "describe a class defined in a trait constructor" in {
       Reflector.describe[PathTypes.HasTrait.FromTrait] match {
         case d: ClassDescriptor =>
-          d.constructors must not(beEmpty)
-          d.constructors.head.params.size must_== 2
-          d.properties.size must_== 1
-          d.companion.map(_.instance) must_== Some(PathTypes.HasTrait.FromTrait)
-          d.constructors.head.params(0).defaultValue.get() must_== PathTypes.HasTrait
+          assert(d.constructors.nonEmpty)
+          assert(d.constructors.head.params.size == 2)
+          assert(d.properties.size == 1)
+          assert(d.companion.map(_.instance) == Some(PathTypes.HasTrait.FromTrait))
+          assert(d.constructors.head.params(0).defaultValue.get() == PathTypes.HasTrait)
         case _ => fail("Expected a class descriptor")
       }
     }
@@ -163,81 +163,85 @@ class ReflectorSpec extends Specification {
       //      inst.methodWithCaseClass match {
       //        case d: ClassDescriptor =>
       //          println(d)
-      //          d.constructors must not(beEmpty)
+      //          assert(d.constructors.nonEmpty)
       //          d.constructors.head.params.size must_== 1
       //          d.properties.size must_== 1
       //        case _ => fail("Expected a class descriptor")
       //      }
-      inst.methodWithCaseClass must throwA[MappingException]
+      assertThrows[MappingException] { inst.methodWithCaseClass }
     }
 
     "describe a class defined in a closure" in {
-      inst.methodWithClosure must throwA[MappingException]
+      assertThrows[MappingException] { inst.methodWithClosure }
     }
     "describe a case object" in {
       val descr = Reflector.describe(TheObject.getClass).asInstanceOf[ClassDescriptor]
-      val res = descr.mostComprehensive must not(throwAn[Exception])
+      val res = descr.mostComprehensive
       println(Reflector.describe(TheObject.getClass))
       res
     }
 
     "describe primitives" in {
-      Reflector.describe[Int] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Int])
-      Reflector.describe[Byte] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Byte])
-      Reflector.describe[Short] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Short])
-      Reflector.describe[Long] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Long])
-      Reflector.describe[Double] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Double])
-      Reflector.describe[Float] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Float])
-      Reflector.describe[java.lang.Integer] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Integer])
-      Reflector.describe[java.lang.Byte] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Byte])
-      Reflector.describe[java.lang.Short] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Short])
-      Reflector.describe[java.lang.Long] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Long])
-      Reflector.describe[java.lang.Double] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Double])
-      Reflector.describe[java.lang.Float] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Float])
-      Reflector.describe[BigInt] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[BigInt])
-      Reflector.describe[BigDecimal] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[BigDecimal])
-      Reflector.describe[java.math.BigInteger] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.math.BigInteger])
-      Reflector.describe[java.math.BigDecimal] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[java.math.BigDecimal])
-      Reflector.describe[String] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[String])
-      Reflector.describe[Date] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Date])
-      Reflector.describe[Timestamp] must_== PrimitiveDescriptor(Reflector.scalaTypeOf[Timestamp])
+      assert(Reflector.describe[Int] == PrimitiveDescriptor(Reflector.scalaTypeOf[Int]))
+      assert(Reflector.describe[Byte] == PrimitiveDescriptor(Reflector.scalaTypeOf[Byte]))
+      assert(Reflector.describe[Short] == PrimitiveDescriptor(Reflector.scalaTypeOf[Short]))
+      assert(Reflector.describe[Long] == PrimitiveDescriptor(Reflector.scalaTypeOf[Long]))
+      assert(Reflector.describe[Double] == PrimitiveDescriptor(Reflector.scalaTypeOf[Double]))
+      assert(Reflector.describe[Float] == PrimitiveDescriptor(Reflector.scalaTypeOf[Float]))
+      assert(Reflector.describe[java.lang.Integer] == PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Integer]))
+      assert(Reflector.describe[java.lang.Byte] == PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Byte]))
+      assert(Reflector.describe[java.lang.Short] == PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Short]))
+      assert(Reflector.describe[java.lang.Long] == PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Long]))
+      assert(Reflector.describe[java.lang.Double] == PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Double]))
+      assert(Reflector.describe[java.lang.Float] == PrimitiveDescriptor(Reflector.scalaTypeOf[java.lang.Float]))
+      assert(Reflector.describe[BigInt] == PrimitiveDescriptor(Reflector.scalaTypeOf[BigInt]))
+      assert(Reflector.describe[BigDecimal] == PrimitiveDescriptor(Reflector.scalaTypeOf[BigDecimal]))
+      assert(
+        Reflector.describe[java.math.BigInteger] == PrimitiveDescriptor(Reflector.scalaTypeOf[java.math.BigInteger])
+      )
+      assert(
+        Reflector.describe[java.math.BigDecimal] == PrimitiveDescriptor(Reflector.scalaTypeOf[java.math.BigDecimal])
+      )
+      assert(Reflector.describe[String] == PrimitiveDescriptor(Reflector.scalaTypeOf[String]))
+      assert(Reflector.describe[Date] == PrimitiveDescriptor(Reflector.scalaTypeOf[Date]))
+      assert(Reflector.describe[Timestamp] == PrimitiveDescriptor(Reflector.scalaTypeOf[Timestamp]))
     }
 
     "Describe a case class with Type Alias of Genric Types" in {
       val desc = Reflector.describe[PathTypes.TypeAliasOfGenericType].asInstanceOf[ClassDescriptor]
-      desc.properties(0).returnType must_== Reflector.scalaTypeOf[Map[String, Double]]
+      assert(desc.properties(0).returnType == Reflector.scalaTypeOf[Map[String, Double]])
     }
 
     def genericCheckCaseClass(
       desc: ObjectDescriptor
-    )(params: Seq[ConstructorParamDescriptor] => MatchResult[Any]): MatchResult[Any] = {
+    )(params: Seq[ConstructorParamDescriptor] => Assertion): Assertion = {
       val realDesc = desc.asInstanceOf[ClassDescriptor]
 
       // One for c'tor, one for apply
-      realDesc.constructors.size must_== 2
+      assert(realDesc.constructors.size == 2)
 
       params(realDesc.constructors(0).params)
       params(realDesc.constructors(1).params)
     }
 
-    def checkCaseClass[A: Manifest](params: Seq[ConstructorParamDescriptor] => MatchResult[Any]): MatchResult[Any] = {
+    def checkCaseClass[A: Manifest](params: Seq[ConstructorParamDescriptor] => Assertion): Assertion = {
       val desc = Reflector.describe[A].asInstanceOf[ClassDescriptor]
       genericCheckCaseClass(desc)(params)
     }
 
-    def checkCtorParams(createdAtType: ScalaType)(params: Seq[ConstructorParamDescriptor]): MatchResult[Any] = {
-      params(0).name must_== "id"
-      params(0).defaultValue must beNone
-      params(0).argType must_== Reflector.scalaTypeOf[Int]
-      params(1).name must_== "name"
-      params(1).defaultValue must beNone
-      params(1).argType must_== Reflector.scalaTypeOf[String]
-      params(2).name must_== "items"
-      params(2).defaultValue must beNone
-      params(2).argType must_== Reflector.scalaTypeOf[List[String]]
-      params(3).name must_== "createdAt"
-      params(3).defaultValue must beNone
-      params(3).argType must_== createdAtType
+    def checkCtorParams(createdAtType: ScalaType)(params: Seq[ConstructorParamDescriptor]): Assertion = {
+      assert(params(0).name == "id")
+      assert(params(0).defaultValue.isEmpty)
+      assert(params(0).argType == Reflector.scalaTypeOf[Int])
+      assert(params(1).name == "name")
+      assert(params(1).defaultValue.isEmpty)
+      assert(params(1).argType == Reflector.scalaTypeOf[String])
+      assert(params(2).name == "items")
+      assert(params(2).defaultValue.isEmpty)
+      assert(params(2).argType == Reflector.scalaTypeOf[List[String]])
+      assert(params(3).name == "createdAt")
+      assert(params(3).defaultValue.isEmpty)
+      assert(params(3).argType == createdAtType)
     }
 
     "describe a simple case class" in checkCaseClass[RRSimple](checkCtorParams(Reflector.scalaTypeOf[Date]))
@@ -246,155 +250,157 @@ class ReflectorSpec extends Specification {
     )
 
     "Describe a case class with options" in checkCaseClass[RROption] { params =>
-      params(0).name must_== "id"
-      params(0).defaultValue must beNone
-      params(0).argType must_== Reflector.scalaTypeOf[Int]
-      params(1).name must_== "name"
-      params(1).defaultValue must beNone
-      params(1).argType must_== Reflector.scalaTypeOf[String]
-      params(2).name must_== "status"
-      params(2).defaultValue must beNone
-      params(2).argType must_== Reflector.scalaTypeOf[Option[String]]
-      params(2).argType.typeArgs must_== Seq(Reflector.scalaTypeOf[String])
-      params(3).name must_== "code"
-      params(3).defaultValue must beNone
-      params(3).argType must_== Reflector.scalaTypeOf[Option[Int]]
-      params(3).argType must_!= Reflector.scalaTypeOf[Option[String]]
-      params(3).argType.typeArgs must_== Seq(Reflector.scalaTypeOf[Int])
-      params(4).name must_== "createdAt"
-      params(4).defaultValue must beNone
-      params(4).argType must_== Reflector.scalaTypeOf[Date]
-      params(5).name must_== "deletedAt"
-      params(5).defaultValue must beNone
-      params(5).argType must_== Reflector.scalaTypeOf[Option[Date]]
-      params(5).argType.typeArgs must_== Seq(Reflector.scalaTypeOf[Date])
+      assert(params(0).name == "id")
+      assert(params(0).defaultValue.isEmpty)
+      assert(params(0).argType == Reflector.scalaTypeOf[Int])
+      assert(params(1).name == "name")
+      assert(params(1).defaultValue.isEmpty)
+      assert(params(1).argType == Reflector.scalaTypeOf[String])
+      assert(params(2).name == "status")
+      assert(params(2).defaultValue.isEmpty)
+      assert(params(2).argType == Reflector.scalaTypeOf[Option[String]])
+      assert(params(2).argType.typeArgs == Seq(Reflector.scalaTypeOf[String]))
+      assert(params(3).name == "code")
+      assert(params(3).defaultValue.isEmpty)
+      assert(params(3).argType == Reflector.scalaTypeOf[Option[Int]])
+      assert(params(3).argType != Reflector.scalaTypeOf[Option[String]])
+      assert(params(3).argType.typeArgs == Seq(Reflector.scalaTypeOf[Int]))
+      assert(params(4).name == "createdAt")
+      assert(params(4).defaultValue.isEmpty)
+      assert(params(4).argType == Reflector.scalaTypeOf[Date])
+      assert(params(5).name == "deletedAt")
+      assert(params(5).defaultValue.isEmpty)
+      assert(params(5).argType == Reflector.scalaTypeOf[Option[Date]])
+      assert(params(5).argType.typeArgs == Seq(Reflector.scalaTypeOf[Date]))
     }
 
     "describe a type parameterized class" in checkCaseClass[RRTypeParam[Int]] { params =>
-      params(0).name must_== "id"
-      params(0).defaultValue must beNone
-      params(0).argType must_== Reflector.scalaTypeOf[Int]
-      params(1).name must_== "name"
-      params(1).defaultValue must beNone
-      params(1).argType must_== Reflector.scalaTypeOf[String]
-      params(2).name must_== "value"
-      params(2).defaultValue must beNone
-      params(2).argType must_== Reflector.scalaTypeOf[Int]
-      params(3).name must_== "opt"
-      params(3).defaultValue must beNone
-      params(3).argType must_== Reflector.scalaTypeOf[Option[Int]]
-      params(4).name must_== "seq"
-      params(4).defaultValue must beNone
-      params(4).argType must_== Reflector.scalaTypeOf[Seq[Int]]
-      params(5).name must_== "map"
-      params(5).defaultValue must beNone
-      params(5).argType must_== Reflector.scalaTypeOf[Map[String, Int]]
+      assert(params(0).name == "id")
+      assert(params(0).defaultValue.isEmpty)
+      assert(params(0).argType == Reflector.scalaTypeOf[Int])
+      assert(params(1).name == "name")
+      assert(params(1).defaultValue.isEmpty)
+      assert(params(1).argType == Reflector.scalaTypeOf[String])
+      assert(params(2).name == "value")
+      assert(params(2).defaultValue.isEmpty)
+      assert(params(2).argType == Reflector.scalaTypeOf[Int])
+      assert(params(3).name == "opt")
+      assert(params(3).defaultValue.isEmpty)
+      assert(params(3).argType == Reflector.scalaTypeOf[Option[Int]])
+      assert(params(4).name == "seq")
+      assert(params(4).defaultValue.isEmpty)
+      assert(params(4).argType == Reflector.scalaTypeOf[Seq[Int]])
+      assert(params(5).name == "map")
+      assert(params(5).defaultValue.isEmpty)
+      assert(params(5).argType == Reflector.scalaTypeOf[Map[String, Int]])
     }
 
     "describe a type with nested generic types" in checkCaseClass[NestedType] { params =>
-      params(0).name must_== "dat"
-      params(0).defaultValue must beNone
-      params(0).argType must_== Reflector.scalaTypeOf[List[Map[Double, Option[Int]]]]
-      params(1).name must_== "lis"
-      params(1).defaultValue must beNone
-      params(1).argType must_== Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]]
+      assert(params(0).name == "dat")
+      assert(params(0).defaultValue.isEmpty)
+      assert(params(0).argType == Reflector.scalaTypeOf[List[Map[Double, Option[Int]]]])
+      assert(params(1).name == "lis")
+      assert(params(1).defaultValue.isEmpty)
+      assert(params(1).argType == Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]])
     }
 
     "describe a type with nested generic types 2" in checkCaseClass[NestedType3] { params =>
-      params(0).name must_== "dat"
-      params(0).defaultValue must beNone
-      params(0).argType must_== Reflector.scalaTypeOf[List[Map[Double, Option[List[Option[Int]]]]]]
-      params(1).name must_== "lis"
-      params(1).defaultValue must beNone
-      params(1).argType must_== Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]]
+      assert(params(0).name == "dat")
+      assert(params(0).defaultValue.isEmpty)
+      assert(params(0).argType == Reflector.scalaTypeOf[List[Map[Double, Option[List[Option[Int]]]]]])
+      assert(params(1).name == "lis")
+      assert(params(1).defaultValue.isEmpty)
+      assert(params(1).argType == Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]])
     }
 
     "describe a type with nested generic types 3" in checkCaseClass[NestedType4] { params =>
-      params(0).name must_== "dat"
-      params(0).defaultValue must beNone
-      params(0).argType must_== Reflector.scalaTypeOf[List[Map[Double, Option[List[Map[Long, Option[Int]]]]]]]
-      params(1).name must_== "lis"
-      params(1).defaultValue must beNone
-      params(1).argType must_== Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]]
+      assert(params(0).name == "dat")
+      assert(params(0).defaultValue.isEmpty)
+      assert(params(0).argType == Reflector.scalaTypeOf[List[Map[Double, Option[List[Map[Long, Option[Int]]]]]]])
+      assert(params(1).name == "lis")
+      assert(params(1).defaultValue.isEmpty)
+      assert(params(1).argType == Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]])
     }
 
     "describe a type with nested generic types 4" in checkCaseClass[NestedType5] { params =>
-      params(0).name must_== "dat"
-      params(0).defaultValue must beNone
-      params(0).argType must_== Reflector
-        .scalaTypeOf[List[Map[Double, Option[List[Map[Long, Option[Map[Byte, Either[Double, Long]]]]]]]]]
-      params(1).name must_== "lis"
-      params(1).defaultValue must beNone
-      params(1).argType must_== Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]]
+      assert(params(0).name == "dat")
+      assert(params(0).defaultValue.isEmpty)
+      assert(
+        params(0).argType == Reflector
+          .scalaTypeOf[List[Map[Double, Option[List[Map[Long, Option[Map[Byte, Either[Double, Long]]]]]]]]]
+      )
+      assert(params(1).name == "lis")
+      assert(params(1).defaultValue.isEmpty)
+      assert(params(1).argType == Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]])
     }
 
     "describe a type with nested generic types parameters" in checkCaseClass[NestedResType[Double, Int, Option[Int]]] {
       params =>
-        params(0).name must_== "t"
-        params(0).defaultValue must beNone
-        params(0).argType must_== Reflector.scalaTypeOf[Double]
-        params(1).name must_== "v"
-        params(1).defaultValue must beNone
-        params(1).argType must_== Reflector.scalaTypeOf[Option[Int]]
-        params(2).name must_== "dat"
-        params(2).defaultValue must beNone
-        params(2).argType must_== Reflector.scalaTypeOf[List[Map[Double, Option[Int]]]]
-        params(3).name must_== "lis"
-        params(3).defaultValue must beNone
-        params(3).argType must_== Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]]
+        assert(params(0).name == "t")
+        assert(params(0).defaultValue.isEmpty)
+        assert(params(0).argType == Reflector.scalaTypeOf[Double])
+        assert(params(1).name == "v")
+        assert(params(1).defaultValue.isEmpty)
+        assert(params(1).argType == Reflector.scalaTypeOf[Option[Int]])
+        assert(params(2).name == "dat")
+        assert(params(2).defaultValue.isEmpty)
+        assert(params(2).argType == Reflector.scalaTypeOf[List[Map[Double, Option[Int]]]])
+        assert(params(3).name == "lis")
+        assert(params(3).defaultValue.isEmpty)
+        assert(params(3).argType == Reflector.scalaTypeOf[List[List[List[List[List[Int]]]]]])
     }
 
     "describe a class with a wildcard parameter" in checkCaseClass[Objs] { params =>
-      params(0).name must_== "objects"
-      params(0).argType must_== Reflector.scalaTypeOf[List[Obj[_]]]
+      assert(params(0).name == "objects")
+      assert(params(0).argType == Reflector.scalaTypeOf[List[Obj[_]]])
     }
 
     "describe the fields of a class" in {
       val desc = Reflector.describe[NormalClass].asInstanceOf[ClassDescriptor]
-      desc.constructors.size must_== 1
+      assert(desc.constructors.size == 1)
       val params = desc.properties
-      params.size must_== 4
-      params(0).name must_== "complex"
-      params(0).returnType must_== Reflector.scalaTypeOf[RRSimple]
-      params(1).name must_== "string"
-      params(1).returnType must_== Reflector.scalaTypeOf[String]
-      params(2).name must_== "primitive"
-      params(2).returnType must_== Reflector.scalaTypeOf[Int]
-      params(3).name must_== "optPrimitive"
-      params(3).returnType must_== Reflector.scalaTypeOf[Option[Int]]
+      assert(params.size == 4)
+      assert(params(0).name == "complex")
+      assert(params(0).returnType == Reflector.scalaTypeOf[RRSimple])
+      assert(params(1).name == "string")
+      assert(params(1).returnType == Reflector.scalaTypeOf[String])
+      assert(params(2).name == "primitive")
+      assert(params(2).returnType == Reflector.scalaTypeOf[Int])
+      assert(params(3).name == "optPrimitive")
+      assert(params(3).returnType == Reflector.scalaTypeOf[Option[Int]])
     }
 
     "Describe a case class with $outer field" in {
       val desc = Reflector.describe[PathTypes.HasTrait.FromTraitRROption].asInstanceOf[ClassDescriptor]
-      desc.companion.map(_.instance) must_== Some(PathTypes.HasTrait.FromTraitRROption)
-      desc.constructors.head.params(0).defaultValue.get() must_== PathTypes.HasTrait
+      assert(desc.companion.map(_.instance) == Some(PathTypes.HasTrait.FromTraitRROption))
+      assert(desc.constructors.head.params(0).defaultValue.get() == PathTypes.HasTrait)
     }
 
     "Describe a case class with options defined in a trait" in {
       checkCaseClass[PathTypes.HasTrait.FromTraitRROption] { params =>
         val ctorParams = params.filterNot(_.name == ScalaSigReader.OuterFieldName)
-        ctorParams(0).name must_== "id"
-        ctorParams(0).defaultValue must beNone
-        ctorParams(0).argType must_== Reflector.scalaTypeOf[Int]
-        ctorParams(1).name must_== "name"
-        ctorParams(1).defaultValue must beNone
-        ctorParams(1).argType must_== Reflector.scalaTypeOf[String]
-        ctorParams(2).name must_== "status"
-        ctorParams(2).defaultValue must beNone
-        ctorParams(2).argType must_== Reflector.scalaTypeOf[Option[String]]
-        ctorParams(2).argType.typeArgs must_== Seq(Reflector.scalaTypeOf[String])
-        ctorParams(3).name must_== "code"
-        ctorParams(3).defaultValue must beNone
-        ctorParams(3).argType must_== Reflector.scalaTypeOf[Option[Int]]
-        ctorParams(3).argType must_!= Reflector.scalaTypeOf[Option[String]]
-        ctorParams(3).argType.typeArgs must_== Seq(Reflector.scalaTypeOf[Int])
-        ctorParams(4).name must_== "createdAt"
-        ctorParams(4).defaultValue must beNone
-        ctorParams(4).argType must_== Reflector.scalaTypeOf[Date]
-        ctorParams(5).name must_== "deletedAt"
-        ctorParams(5).defaultValue must beNone
-        ctorParams(5).argType must_== Reflector.scalaTypeOf[Option[Date]]
-        ctorParams(5).argType.typeArgs must_== Seq(Reflector.scalaTypeOf[Date])
+        assert(ctorParams(0).name == "id")
+        assert(ctorParams(0).defaultValue.isEmpty)
+        assert(ctorParams(0).argType == Reflector.scalaTypeOf[Int])
+        assert(ctorParams(1).name == "name")
+        assert(ctorParams(1).defaultValue.isEmpty)
+        assert(ctorParams(1).argType == Reflector.scalaTypeOf[String])
+        assert(ctorParams(2).name == "status")
+        assert(ctorParams(2).defaultValue.isEmpty)
+        assert(ctorParams(2).argType == Reflector.scalaTypeOf[Option[String]])
+        assert(ctorParams(2).argType.typeArgs == Seq(Reflector.scalaTypeOf[String]))
+        assert(ctorParams(3).name == "code")
+        assert(ctorParams(3).defaultValue.isEmpty)
+        assert(ctorParams(3).argType == Reflector.scalaTypeOf[Option[Int]])
+        assert(ctorParams(3).argType != Reflector.scalaTypeOf[Option[String]])
+        assert(ctorParams(3).argType.typeArgs == Seq(Reflector.scalaTypeOf[Int]))
+        assert(ctorParams(4).name == "createdAt")
+        assert(ctorParams(4).defaultValue.isEmpty)
+        assert(ctorParams(4).argType == Reflector.scalaTypeOf[Date])
+        assert(ctorParams(5).name == "deletedAt")
+        assert(ctorParams(5).defaultValue.isEmpty)
+        assert(ctorParams(5).argType == Reflector.scalaTypeOf[Option[Date]])
+        assert(ctorParams(5).argType.typeArgs == Seq(Reflector.scalaTypeOf[Date]))
       }
     }
 
@@ -404,14 +410,14 @@ class ReflectorSpec extends Specification {
 
       // the main one (with firstName, lastName Strings) is seen as two distinct ones:
       // as a constructor and an apply method
-      descriptor.constructors.size must_== 4
+      assert(descriptor.constructors.size == 4)
     }
 
     "denote no constructor as primary if there are multiple competing" in {
       val klass = Reflector.scalaTypeOf(classOf[PetOwner])
       val descriptor = Reflector.describeWithFormats(klass).asInstanceOf[reflect.ClassDescriptor]
 
-      descriptor.constructors.count(_.isPrimary) must_== 0
+      assert(descriptor.constructors.count(_.isPrimary) == 0)
     }
 
     "denote the only constructor as primary if only one exists" in {
@@ -419,41 +425,41 @@ class ReflectorSpec extends Specification {
       val descriptor = Reflector.describeWithFormats(klass).asInstanceOf[reflect.ClassDescriptor]
 
       // the only human-visible constructor is visible as two - the constructor and the apply method
-      descriptor.constructors.size must_== 2
-      descriptor.constructors.count(_.isPrimary) must_== 1
-      descriptor.constructors(0).isPrimary must_== true
-      descriptor.constructors(1).isPrimary must_== false
+      assert(descriptor.constructors.size == 2)
+      assert(descriptor.constructors.count(_.isPrimary) == 1)
+      assert(descriptor.constructors(0).isPrimary == true)
+      assert(descriptor.constructors(1).isPrimary == false)
     }
 
     "denote the annotated constructor as primary even if multiple exist" in {
       val klass = Reflector.scalaTypeOf(classOf[Cat])
       val descriptor = Reflector.describeWithFormats(klass).asInstanceOf[reflect.ClassDescriptor]
 
-      descriptor.constructors.size must_== 3
-      descriptor.constructors.count(_.isPrimary) must_== 1
+      assert(descriptor.constructors.size == 3)
+      assert(descriptor.constructors.count(_.isPrimary) == 1)
     }
 
     "retrieve constructors of a class in a deterministic order" in {
       val klass = Reflector.scalaTypeOf(classOf[PetOwner])
       val descriptor = Reflector.describeWithFormats(klass).asInstanceOf[reflect.ClassDescriptor]
 
-      descriptor.constructors.size must_== 4
+      assert(descriptor.constructors.size == 4)
       val first = descriptor.constructors(0)
       val second = descriptor.constructors(1)
       val third = descriptor.constructors(2)
       val fourth = descriptor.constructors(3)
 
-      first.params.map(_.name) must_== Seq("firstName", "lastName")
-      first.constructor.method must_== null
-      first.constructor.constructor must_!= null
+      assert(first.params.map(_.name) == Seq("firstName", "lastName"))
+      assert(first.constructor.method == null)
+      assert(first.constructor.constructor != null)
 
-      second.params.map(_.name) must_== Seq("age")
+      assert(second.params.map(_.name) == Seq("age"))
 
-      third.params.map(_.name) must_== Seq("firstName", "lastName")
-      third.constructor.method must_!= null
-      third.constructor.constructor must_== null
+      assert(third.params.map(_.name) == Seq("firstName", "lastName"))
+      assert(third.constructor.method != null)
+      assert(third.constructor.constructor == null)
 
-      fourth.params.map(_.name) must_== Seq("email")
+      assert(fourth.params.map(_.name) == Seq("email"))
     }
   }
 }
