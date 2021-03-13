@@ -152,7 +152,7 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
 
   def parseEntry[A](parser: EntryParser[A])(index: Int) = toEntry(index) -~ parser
 
-  implicit def entryType(code: Int) = key filter (_ == code)
+  implicit def entryType(code: Int): org.json4s.scalap.Rule[S, S, Int, Nothing] = key filter (_ == code)
 
   val index = read(_.index)
   val key = read(_.entryType)
