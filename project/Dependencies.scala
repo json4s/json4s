@@ -17,7 +17,14 @@ object Dependencies {
     "org.specs2" %% "specs2-scalacheck" % "4.10.6" % "test"
   )
   lazy val scalatest = "org.scalatest" %% "scalatest" % "3.2.6" % "test"
-  lazy val scalatestScalacheck = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.6.0" % "test"
+  lazy val scalatestScalacheck = Def.setting(
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, 11)) =>
+        "org.scalatestplus" %% "scalacheck-1-15" % "3.2.4.0-M1" % "test"
+      case _ =>
+        "org.scalatestplus" %% "scalacheck-1-15" % "3.2.6.0" % "test"
+    }
+  )
   lazy val mockito = "org.mockito" % "mockito-core" % "3.8.0" % "test"
 
   lazy val scalaXml = Def.setting {
