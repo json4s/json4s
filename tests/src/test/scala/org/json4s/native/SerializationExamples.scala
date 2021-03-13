@@ -1,9 +1,11 @@
 package org.json4s
 
 import java.util.Date
-import org.specs2.mutable.Specification
+import org.scalatest.wordspec.AnyWordSpec
 
-object SerializationExamples extends Specification {
+class SerializationExamples extends AnyWordSpec {
+
+  import SerializationExamples._
   import native.Serialization.{read, write => swrite}
 
   implicit val formats: Formats = native.Serialization.formats(NoTypeHints)
@@ -20,69 +22,52 @@ object SerializationExamples extends Specification {
 
   "Project serialization example" in {
     val ser = swrite(project)
-    read[Project](ser) must_== project
-  }
-
-  case class Project(name: String, startDate: Date, lang: Option[Language], teams: List[Team])
-  case class Language(name: String, version: Double)
-  case class Team(role: String, members: List[Employee])
-  case class Employee(name: String, experience: Int)
-
-  case class ArgsTwoLists(name: String, age: Int)(nick: String) {
-    val tmp = nick //nick becomes field of object
+    assert(read[Project](ser) == project)
   }
 
   "Null example" in {
     val ser = swrite(Nullable(null))
-    read[Nullable](ser) must_== Nullable(null)
+    assert(read[Nullable](ser) == Nullable(null))
   }
-
-  case class Nullable(name: String)
-
-  case class SymbolFields(### : Int, !!! : String, +++ : Boolean, %%% : Long, @@@ : List[Double])
 
   "symbol fields" in {
     val j = SymbolFields(42, "foo", true, 99, List(0.5))
 
     val ser = swrite(j)
-    read[SymbolFields](ser) must_== j
-  }
-
-  case class SymbolFieldsArgsTwoLists(!@# : Int, -+> : Int)(%!@# : String) {
-    val ### = %!@#
+    assert(read[SymbolFields](ser) == j)
   }
 
   "symbol two args lists" in {
     val symbolArgsTwoList = SymbolFieldsArgsTwoLists(1, 2)("Adam")
     val ser = swrite(symbolArgsTwoList)
 
-    ser must_== "{\"!@#\":1,\"-+>\":2}"
+    assert(ser == "{\"!@#\":1,\"-+>\":2}")
   }
 
   "Lotto serialization example" in {
     import LottoExample.{Lotto, lotto}
 
     val ser = swrite(lotto)
-    read[Lotto](ser) must_== lotto
+    assert(read[Lotto](ser) == lotto)
   }
 
   "Primitive serialization example" in {
     val primitives = Primitives(124, 123L, 126.5, 127.5.floatValue, "128", Symbol("s"), 125, 129.byteValue, true)
     val ser = swrite(primitives)
-    read[Primitives](ser) must_== primitives
+    assert(read[Primitives](ser) == primitives)
   }
 
   "Args two lists" in {
     val argsToLists = ArgsTwoLists("Adam", 23)("Ady")
     val ser = swrite(argsToLists)
 
-    ser must_== "{\"name\":\"Adam\",\"age\":23}"
+    assert(ser == "{\"name\":\"Adam\",\"age\":23}")
   }
 
   "Multidimensional list example" in {
     val ints = Ints(List(List(1, 2), List(3), List(4, 5)))
     val ser = swrite(ints)
-    read[Ints](ser) must_== ints
+    assert(read[Ints](ser) == ints)
   }
 
   "Map serialization example" in {
@@ -91,7 +76,7 @@ object SerializationExamples extends Specification {
       Map("address1" -> Address("Bulevard", "Helsinki"), "address2" -> Address("Soho", "London"))
     )
     val ser = swrite(p)
-    read[PersonWithAddresses](ser) must_== p
+    assert(read[PersonWithAddresses](ser) == p)
   }
 
   "Recursive type serialization example" in {
@@ -100,127 +85,127 @@ object SerializationExamples extends Specification {
     val r3 = Rec(3, r1 :: r2 :: Nil)
 
     val ser = swrite(r3)
-    read[Rec](ser) must_== r3
+    assert(read[Rec](ser) == r3)
   }
 
   "Set serialization example" in {
     val s = SetContainer(Set("foo", "bar"))
     val ser = swrite(s)
-    read[SetContainer](ser) must_== s
+    assert(read[SetContainer](ser) == s)
   }
 
   "Array serialization example" in {
     val s = ArrayContainer(Array("foo", "bar"))
     val ser = swrite(s)
     val unser = read[ArrayContainer](ser)
-    s.array.toList must_== unser.array.toList
+    assert(s.array.toList == unser.array.toList)
   }
 
   "Seq serialization example" in {
     val s = SeqContainer(List("foo", "bar"))
     val ser = swrite(s)
-    read[SeqContainer](ser) must_== s
+    assert(read[SeqContainer](ser) == s)
   }
 
   "Option serialization example" in {
     val ser = swrite(Some(List(1, 2)))
-    read[Option[List[Int]]](ser) must_== Some(List(1, 2))
-    read[Option[List[Int]]]("") must_== None
+    assert(read[Option[List[Int]]](ser) == Some(List(1, 2)))
+    assert(read[Option[List[Int]]]("") == None)
   }
 
   "None Option of tuple serialization example" in {
     // This is a regression test case, failed in lift json
     val s = OptionOfTupleOfDouble(None)
     val ser = swrite(s)
-    read[OptionOfTupleOfDouble](ser) must_== s
+    assert(read[OptionOfTupleOfDouble](ser) == s)
   }
 
   "Default parameter example" in {
     val pw = PlayerWithDefault("zortan")
     val ser = swrite(pw)
-    ser must_== """{"name":"zortan","credits":5}"""
-    read[PlayerWithDefault]("""{"name":"zortan"}""") must_== pw
+    assert(ser == """{"name":"zortan","credits":5}""")
+    assert(read[PlayerWithDefault]("""{"name":"zortan"}""") == pw)
   }
 
   "Default optional parameter example" in {
     val pw = PlayerWithOptionDefault("zoktan")
     val ser = swrite(pw)
-    ser must_== """{"name":"zoktan","score":6}"""
-    read[PlayerWithOptionDefault]("""{"name":"zoktan"}""") must_== pw
+    assert(ser == """{"name":"zoktan","score":6}""")
+    assert(read[PlayerWithOptionDefault]("""{"name":"zoktan"}""") == pw)
   }
 
   "Default recursive parameter example" in {
     val pw = PlayerWithGimmick("zaotan")
     val ser = swrite(pw)
-    ser must_== """{"name":"zaotan","gimmick":{"name":"default"}}"""
-    read[PlayerWithGimmick]("""{"name":"zaotan"}""") must_== pw
+    assert(ser == """{"name":"zaotan","gimmick":{"name":"default"}}""")
+    assert(read[PlayerWithGimmick]("""{"name":"zaotan"}""") == pw)
   }
 
   "Default for list argument example" in {
     val pw = PlayerWithList("oozton")
     val ser = swrite(pw)
-    ser must_== """{"name":"oozton","badges":["intro","tutorial"]}"""
-    read[PlayerWithList]("""{"name":"oozton"}""") must_== pw
+    assert(ser == """{"name":"oozton","badges":["intro","tutorial"]}""")
+    assert(read[PlayerWithList]("""{"name":"oozton"}""") == pw)
   }
 
   "Case class with internal state example" in {
     val m = Members("s", 1)
     val ser = swrite(m)
-    ser must_== """{"x":"s","y":1}"""
-    read[Members](ser) must_== m
+    assert(ser == """{"x":"s","y":1}""")
+    assert(read[Members](ser) == m)
   }
 
   "Case class from type constructors example" in {
     val p = ProperType(TypeConstructor(Chicken(10)), (25, Player("joe")))
     val ser = swrite(p)
-    read[ProperType](ser) must_== p
+    assert(read[ProperType](ser) == p)
   }
 
   "Generic Map with simple values example" in {
     val pw = PlayerWithGenericMap("zortan", Map("1" -> "asd", "a" -> 3))
     val ser = swrite(pw)
-    ser must_== """{"name":"zortan","infomap":{"1":"asd","a":3}}"""
-    read[PlayerWithGenericMap](ser) must_== pw
+    assert(ser == """{"name":"zortan","infomap":{"1":"asd","a":3}}""")
+    assert(read[PlayerWithGenericMap](ser) == pw)
   }
 
   "Generic Map with case class and type hint example" in {
     implicit val formats: Formats = native.Serialization.formats(ShortTypeHints(List(classOf[Player])))
     val pw = PlayerWithGenericMap("zortan", Map("1" -> "asd", "a" -> 3, "friend" -> Player("joe")))
     val ser = swrite(pw)
-    ser must_== """{"name":"zortan","infomap":{"1":"asd","a":3,"friend":{"jsonClass":"Player","name":"joe"}}}"""
-    read[PlayerWithGenericMap](ser) must_== pw
+    assert(ser == """{"name":"zortan","infomap":{"1":"asd","a":3,"friend":{"jsonClass":"Player","name":"joe"}}}""")
+    assert(read[PlayerWithGenericMap](ser) == pw)
   }
 
   "Generic List with simple values example" in {
     val pw = PlayerWithGenericList("zortan", List("1", 3))
     val ser = swrite(pw)
-    ser must_== """{"name":"zortan","infolist":["1",3]}"""
-    read[PlayerWithGenericList](ser) must_== pw
+    assert(ser == """{"name":"zortan","infolist":["1",3]}""")
+    assert(read[PlayerWithGenericList](ser) == pw)
   }
 
   "Generic List with objects and hints example" in {
     implicit val formats: Formats = native.Serialization.formats(ShortTypeHints(List(classOf[Player])))
     val pw = PlayerWithGenericList("zortan", List("1", 3, Player("joe")))
     val ser = swrite(pw)
-    ser must_== """{"name":"zortan","infolist":["1",3,{"jsonClass":"Player","name":"joe"}]}"""
-    read[PlayerWithGenericList](ser) must_== pw
+    assert(ser == """{"name":"zortan","infolist":["1",3,{"jsonClass":"Player","name":"joe"}]}""")
+    assert(read[PlayerWithGenericList](ser) == pw)
   }
 
   // #246 Double.NaN serializes but does not deserialize
   "NaN Float serializes to null example" in {
     val expected = SingleValue(Float.NaN)
     val serialized = native.Serialization.write(expected)
-    serialized must_== """{"value":null}"""
+    assert(serialized == """{"value":null}""")
   }
   "NaN Double serializes to null example" in {
     val expected = SingleValue(Double.NaN)
     val serialized = native.Serialization.write(expected)
-    serialized must_== """{"value":null}"""
+    assert(serialized == """{"value":null}""")
   }
   "NaN String value won't be null" in {
     val expected = SingleValue("NaN")
     val serialized = native.Serialization.write(expected)
-    serialized must_== """{"value":"NaN"}"""
+    assert(serialized == """{"value":"NaN"}""")
   }
 
   "Unknown type hint should not serialize" in {
@@ -229,7 +214,9 @@ object SerializationExamples extends Specification {
     val toSerialize = Materials(List(Oak(9)), Nil)
     val json = native.Serialization.write(toSerialize)
 
-    read[Materials](json) must throwAn[MappingException]
+    assertThrows[MappingException] {
+      read[Materials](json)
+    }
   }
 
   "Multiple type hints should serialize" in {
@@ -241,8 +228,28 @@ object SerializationExamples extends Specification {
     val toSerialize = Materials(List(Oak(9)), Nil)
     val json = native.Serialization.write(toSerialize)
 
-    json must_== """{"woods":[{"jsonClass":"Oak","hardness":9}],"metals":[]}"""
+    assert(json == """{"woods":[{"jsonClass":"Oak","hardness":9}],"metals":[]}""")
 
+  }
+}
+
+object SerializationExamples {
+
+  case class Project(name: String, startDate: Date, lang: Option[Language], teams: List[Team])
+  case class Language(name: String, version: Double)
+  case class Team(role: String, members: List[Employee])
+  case class Employee(name: String, experience: Int)
+
+  case class ArgsTwoLists(name: String, age: Int)(nick: String) {
+    val tmp = nick //nick becomes field of object
+  }
+
+  case class Nullable(name: String)
+
+  case class SymbolFields(### : Int, !!! : String, +++ : Boolean, %%% : Long, @@@ : List[Double])
+
+  case class SymbolFieldsArgsTwoLists(!@# : Int, -+> : Int)(%!@# : String) {
+    val ### = %!@#
   }
 
   case class Ints(x: List[List[Int]])
@@ -264,12 +271,12 @@ class ShortTypeHintExamples extends TypeHintExamples {
 
   "Deserialization succeeds even if jsonClass is not the first field" in {
     val ser = """{"animals":[],"pet":{"name":"pluto","jsonClass":"Dog"}}"""
-    native.Serialization.read[Animals](ser) must_== Animals(Nil, Dog("pluto"))
+    assert(native.Serialization.read[Animals](ser) == Animals(Nil, Dog("pluto")))
   }
 
   "Deserialization succeeds when a field name matching typeHintFieldName exists" in {
     val ser = """{"jsonClass":"Dog"}"""
-    native.Serialization.read[NotTypeHint](ser) must_== NotTypeHint("Dog")
+    assert(native.Serialization.read[NotTypeHint](ser) == NotTypeHint("Dog"))
   }
 }
 
@@ -280,17 +287,19 @@ class MappedHintExamples extends TypeHintExamples {
   "Serialization provides no type hint when not mapped" in {
     val animals = Animals(Dog("pluto") :: Fish(1.2) :: Turtle(103) :: Nil, Dog("pluto"))
     val ser = native.Serialization.write(animals)
-    ser must_== """{"animals":[{"jsonClass":"dog","name":"pluto"},{"jsonClass":"fish","weight":1.2},{"age":103}],"pet":{"jsonClass":"dog","name":"pluto"}}"""
+    assert(
+      ser == """{"animals":[{"jsonClass":"dog","name":"pluto"},{"jsonClass":"fish","weight":1.2},{"age":103}],"pet":{"jsonClass":"dog","name":"pluto"}}"""
+    )
   }
 
   "Deserialization fails when type is not mapped" in {
     val ser = """{"animals":[],"pet":{"age":103,"jsonClass":"turtle"}}"""
-    native.Serialization.read[Animals](ser) must throwA[MappingException]
+    assertThrows[MappingException] { native.Serialization.read[Animals](ser) }
   }
 
   "Deserialization succeeds when a field name matching typeHintFieldName exists" in {
     val ser = """{"jsonClass":"turtle"}"""
-    native.Serialization.read[NotTypeHint](ser) must_== NotTypeHint("turtle")
+    assert(native.Serialization.read[NotTypeHint](ser) == NotTypeHint("turtle"))
   }
 }
 
@@ -308,40 +317,40 @@ class FullTypeHintExamples extends TypeHintExamples {
     val a = Ambiguous(False())
 
     val ser = swrite(a)
-    read[Ambiguous](ser) must_== a
+    assert(read[Ambiguous](ser) == a)
   }
 
   "Ambiguous parameterized field decomposition example" in {
     val o = AmbiguousP(Chicken(23))
 
     val ser = swrite(o)
-    read[AmbiguousP](ser) must_== o
+    assert(read[AmbiguousP](ser) == o)
   }
 
   "Option of ambiguous field decomposition example" in {
     val o = OptionOfAmbiguous(Some(True()))
 
     val ser = swrite(o)
-    read[OptionOfAmbiguous](ser) must_== o
+    assert(read[OptionOfAmbiguous](ser) == o)
   }
 
   "Option of ambiguous parameterized field decomposition example" in {
     val o = OptionOfAmbiguousP(Some(Falcon(200.0)))
 
     val ser = swrite(o)
-    read[OptionOfAmbiguousP](ser) must_== o
+    assert(read[OptionOfAmbiguousP](ser) == o)
   }
 
   "Default recursive with type hints example" in {
     val pw = PlayerWithBird("zoltan")
     val ser = swrite(pw)
-    ser must_== """{"name":"zoltan","bird":{"jsonClass":"org.json4s.Chicken","eggs":3}}"""
-    read[PlayerWithBird]("""{"name":"zoltan"}""") must_== pw
+    assert(ser == """{"name":"zoltan","bird":{"jsonClass":"org.json4s.Chicken","eggs":3}}""")
+    assert(read[PlayerWithBird]("""{"name":"zoltan"}""") == pw)
   }
 
   "Deserialization succeeds when a field name matching typeHintFieldName exists" in {
     val ser = """{"jsonClass":"org.json4s.Chicken"}"""
-    read[NotTypeHint](ser) must_== NotTypeHint("org.json4s.Chicken")
+    assert(read[NotTypeHint](ser) == NotTypeHint("org.json4s.Chicken"))
   }
 }
 
@@ -356,11 +365,13 @@ class CustomTypeHintFieldNameExample extends TypeHintExamples {
   "Serialized JSON contains configured field name" in {
     val animals = Animals(Dog("pluto") :: Fish(1.2) :: Nil, Dog("pluto"))
     val ser = swrite(animals)
-    ser must_== """{"animals":[{"$type$":"Dog","name":"pluto"},{"$type$":"Fish","weight":1.2}],"pet":{"$type$":"Dog","name":"pluto"}}"""
+    assert(
+      ser == """{"animals":[{"$type$":"Dog","name":"pluto"},{"$type$":"Fish","weight":1.2}],"pet":{"$type$":"Dog","name":"pluto"}}"""
+    )
   }
 }
 
-trait TypeHintExamples extends Specification {
+trait TypeHintExamples extends AnyWordSpec {
   import native.Serialization.{read, write => swrite}
 
   implicit val formats: Formats
@@ -368,19 +379,19 @@ trait TypeHintExamples extends Specification {
   "Polymorphic List serialization example" in {
     val animals = Animals(Dog("pluto") :: Fish(1.2) :: Dog("devil") :: Nil, Dog("pluto"))
     val ser = swrite(animals)
-    read[Animals](ser) must_== animals
+    assert(read[Animals](ser) == animals)
   }
 
   "Parameterized type serialization example" in {
     val objs = Objs(Obj(Fish(1.2)) :: Obj(Dog("pluto")) :: Nil)
     val ser = swrite(objs)
-    read[Objs](ser) must_== objs
+    assert(read[Objs](ser) == objs)
   }
 
   "Tuple serialization example" in {
     val t: (Animal, Animal) = (Fish(1.5), Dog("pluto"))
     val ser = swrite(t)
-    read[(Animal, Animal)](ser) must_== t
+    assert(read[(Animal, Animal)](ser) == t)
   }
 }
 
@@ -394,7 +405,7 @@ case class Turtle(age: Int) extends Animal
 
 case class Objs(objects: List[Obj[_]])
 case class Obj[A](a: A)
-class CustomSerializerExamples extends Specification {
+class CustomSerializerExamples extends AnyWordSpec {
   import native.Serialization.{read, write => swrite}
   import JsonAST._
   import java.util.regex.Pattern
@@ -461,25 +472,25 @@ class CustomSerializerExamples extends Specification {
 
     val i = new Interval(1, 4)
     val ser = swrite(i)
-    ser mustEqual """{"start":1,"end":4}"""
+    assert(ser == """{"start":1,"end":4}""")
     val i2 = read[Interval](ser)
-    i2.startTime mustEqual i.startTime
-    i2.endTime mustEqual i.endTime
+    assert(i2.startTime == i.startTime)
+    assert(i2.endTime == i.endTime)
 
     val pattern = Pattern.compile("^Curly")
     val pser = swrite(pattern)
-    pser mustEqual """{"$pattern":"^Curly"}"""
-    read[Pattern](pser).pattern mustEqual pattern.pattern
+    assert(pser == """{"$pattern":"^Curly"}""")
+    assert(read[Pattern](pser).pattern == pattern.pattern)
 
     val d = new Date(0)
     val dser = swrite(d)
-    dser mustEqual """{"$dt":"1970-01-01T00:00:00.000Z"}"""
-    read[Date](dser) mustEqual d
+    assert(dser == """{"$dt":"1970-01-01T00:00:00.000Z"}""")
+    assert(read[Date](dser) == d)
 
     val xs = Indexed(Vector("a", "b", "c"))
     val iser = swrite(xs)
-    iser mustEqual """{"xs":["a","b","c"]}"""
-    read[Indexed](iser).xs.toList mustEqual List("a", "b", "c")
+    assert(iser == """{"xs":["a","b","c"]}""")
+    assert(read[Indexed](iser).xs.toList == List("a", "b", "c"))
   }
 
 }
@@ -491,7 +502,7 @@ class Interval(start: Long, end: Long) {
   val endTime = end
 }
 
-class CustomClassWithTypeHintsExamples extends Specification {
+class CustomClassWithTypeHintsExamples extends AnyWordSpec {
   import native.Serialization.{read, write => swrite}
   import JsonAST._
 
@@ -510,35 +521,35 @@ class CustomClassWithTypeHintsExamples extends Specification {
     val m = Meeting("The place", new DateTime(1256681210802L))
     val ser = swrite(m)
     val m2 = read[Meeting](ser)
-    m.place must_== m2.place
-    m.time.time must_== m2.time.time
+    assert(m.place == m2.place)
+    assert(m.time.time == m2.time.time)
   }
 
   "List of custom classes example" in {
     val ts = Times(List(new DateTime(123L), new DateTime(234L)))
     val ser = swrite(ts)
     val ts2 = read[Times](ser)
-    ts2.times(0).time must_== 123L
-    ts2.times(1).time must_== 234L
-    ts2.times.size must_== 2
+    assert(ts2.times(0).time == 123L)
+    assert(ts2.times(1).time == 234L)
+    assert(ts2.times.size == 2)
   }
 
   "Custom serializer with default example" in {
     val m = MeetingWithDefault("The place")
     val ser = swrite(m)
-    ser must_== """{"place":"The place","time":{"jsonClass":"DateTime","t":7777}}"""
+    assert(ser == """{"place":"The place","time":{"jsonClass":"DateTime","t":7777}}""")
     val m2 = read[MeetingWithDefault]("""{"place":"The place"}""")
-    m.place must_== m2.place
-    m.time.time must_== m2.time.time
+    assert(m.place == m2.place)
+    assert(m.time.time == m2.time.time)
   }
 
   "List of custom classes with default example" in {
     val ts = TimesWithDefault()
     val ser = swrite(ts)
-    ser must_== """{"times":[{"jsonClass":"DateTime","t":8888}]}"""
+    assert(ser == """{"times":[{"jsonClass":"DateTime","t":8888}]}""")
     val ts2 = read[TimesWithDefault]("{}")
-    ts2.times(0).time must_== 8888L
-    ts2.times.size must_== 1
+    assert(ts2.times(0).time == 8888L)
+    assert(ts2.times.size == 1)
   }
 }
 
