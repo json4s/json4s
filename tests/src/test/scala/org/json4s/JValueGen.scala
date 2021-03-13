@@ -79,23 +79,3 @@ trait JValueGen {
       }
     }
 }
-
-trait NodeGen {
-  import Xml.{XmlNode, XmlElem}
-  import scala.xml.Node
-
-  def genXml: Gen[Node] = frequency((2, delay(genNode)), (3, genElem))
-
-  def genNode = for {
-    name <- genName
-    node <- Gen.containerOfN[List, Node](children, genXml) map { seq => new XmlNode(name, seq) }
-  } yield node
-
-  def genElem = for {
-    name <- genName
-    value <- arbitrary[String]
-  } yield new XmlElem(name, value)
-
-  def genName = frequency((2, identifier), (1, const("const")))
-  private def children = choose(1, 3).sample.get
-}
