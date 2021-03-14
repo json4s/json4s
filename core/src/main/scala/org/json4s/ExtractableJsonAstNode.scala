@@ -1,6 +1,6 @@
 package org.json4s
 
-class ExtractableJsonAstNode(jv: JValue) {
+class ExtractableJsonAstNode(private val jv: JValue) extends AnyVal {
 
   /**
    * Extract a value from a JSON.
