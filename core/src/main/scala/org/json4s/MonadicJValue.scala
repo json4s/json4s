@@ -401,27 +401,27 @@ class MonadicJValue(jv: JValue) {
   }
 
   /**
-   * Camelize all the keys in this org.json4s.JsonAST.JValue
+   * Camelize all the keys in this org.json4s.JValue
    */
   def camelizeKeys: JValue = rewriteJsonAST(this.camelize)
 
   /**
-   * Pascalize all the keys in this org.json4s.JsonAST.JValue
+   * Pascalize all the keys in this org.json4s.JValue
    */
   def pascalizeKeys: JValue = rewriteJsonAST(this.pascalize)
 
   /**
-   * Underscore all the keys in this org.json4s.JsonAST.JValue
+   * Underscore all the keys in this org.json4s.JValue
    */
   def snakizeKeys: JValue = rewriteJsonAST(this.underscore)
 
   /**
-   * Underscore the camel cased only keys in this [[org.json4s.JsonAST.JValue]]
+   * Underscore the camel cased only keys in this [[org.json4s.JValue]]
    */
   def underscoreCamelCaseKeysOnly = rewriteJsonAST(underscoreCamelCasesOnly)
 
   /**
-   * Underscore all the keys in this org.json4s.JsonAST.JValue
+   * Underscore all the keys in this org.json4s.JValue
    */
   def underscoreKeys: JValue = snakizeKeys
 
@@ -431,8 +431,8 @@ class MonadicJValue(jv: JValue) {
     }
 
   /**
-   * Remove the org.json4s.JsonAST.JNothing and org.json4s.JsonAST.JNull from
-   * a org.json4s.JsonAST.JArray or org.json4s.JsonAST.JObject
+   * Remove the org.json4s.JNothing and org.json4s.JNull from
+   * a org.json4s.JArray or org.json4s.JObject
    */
   def noNulls = remove {
     case JNull | JNothing => true

@@ -407,7 +407,6 @@ case class Objs(objects: List[Obj[_]])
 case class Obj[A](a: A)
 class CustomSerializerExamples extends AnyWordSpec {
   import native.Serialization.{read, write => swrite}
-  import JsonAST._
   import java.util.regex.Pattern
 
   class IntervalSerializer
@@ -504,7 +503,6 @@ class Interval(start: Long, end: Long) {
 
 class CustomClassWithTypeHintsExamples extends AnyWordSpec {
   import native.Serialization.{read, write => swrite}
-  import JsonAST._
 
   val hints = new ShortTypeHints(classOf[DateTime] :: Nil) {
     override def serialize: PartialFunction[Any, JObject] = { case t: DateTime =>

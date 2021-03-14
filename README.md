@@ -156,7 +156,7 @@ scala> import org.json4s._
 scala> import org.json4s.native.JsonMethods._
 
 scala> parse(""" { "numbers" : [1, 2, 3, 4] } """)
-res0: org.json4s.JsonAST.JValue =
+res0: org.json4s.JValue =
       JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
 
 scala> parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
@@ -171,7 +171,7 @@ scala> import org.json4s._
 scala> import org.json4s.jackson.JsonMethods._
 
 scala> parse(""" { "numbers" : [1, 2, 3, 4] } """)
-res0: org.json4s.JsonAST.JValue =
+res0: org.json4s.JValue =
       JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
 
 scala> parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
@@ -366,9 +366,9 @@ res0: String =
 }
 
 scala> val Diff(changed, added, deleted) = mergedLotto diff lotto1
-changed: org.json4s.JsonAST.JValue = JNothing
-added: org.json4s.JsonAST.JValue = JNothing
-deleted: org.json4s.JsonAST.JValue = JObject(List((lotto,JObject(List(JField(winners,
+changed: org.json4s.JValue = JNothing
+added: org.json4s.JValue = JNothing
+deleted: org.json4s.JValue = JObject(List((lotto,JObject(List(JField(winners,
 JArray(List(JObject(List((winner-id,JInt(54)), (numbers,JArray(
 List(JInt(52), JInt(3), JInt(12), JInt(11), JInt(18), JInt(22))))))))))))))
 ```
@@ -465,7 +465,7 @@ scala> val json: JObject =
   )
 
 scala> json \\ "spouse"
-res0: org.json4s.JsonAST.JValue = JObject(List(
+res0: org.json4s.JValue = JObject(List(
       (person,JObject(List((name,JString(Marilyn)), (age,JInt(33)))))))
 
 scala> compact(render(res0))
@@ -487,18 +487,18 @@ scala> json findField {
          case JField("name", _) => true
          case _ => false
        }
-res6: Option[org.json4s.JsonAST.JValue] = Some((name,JString(Joe)))
+res6: Option[org.json4s.JValue] = Some((name,JString(Joe)))
 
 scala> json filterField {
          case JField("name", _) => true
          case _ => false
        }
-res7: List[org.json4s.JsonAST.JField] = List(JField(name,JString(Joe)), JField(name,JString(Marilyn)))
+res7: List[org.json4s.JField] = List(JField(name,JString(Joe)), JField(name,JString(Marilyn)))
 
 scala> json transformField {
          case JField("name", JString(s)) => ("NAME", JString(s.toUpperCase))
        }
-res8: org.json4s.JsonAST.JValue = JObject(List((person,JObject(List(
+res8: org.json4s.JValue = JObject(List((person,JObject(List(
 (NAME,JString(JOE)), (age,JInt(35)), (spouse,JObject(List(
 (person,JObject(List((NAME,JString(MARILYN)), (age,JInt(33)))))))))))))
 
@@ -525,16 +525,16 @@ scala> val json = parse("""
        """)
 
 scala> (json \ "children")(0)
-res0: org.json4s.JsonAST.JValue = JObject(List((name,JString(Mary)), (age,JInt(5))))
+res0: org.json4s.JValue = JObject(List((name,JString(Mary)), (age,JInt(5))))
 
 scala> (json \ "children")(1) \ "name"
-res1: org.json4s.JsonAST.JValue = JString(Mazy)
+res1: org.json4s.JValue = JString(Mazy)
 
 scala> json \\ classOf[JInt]
-res2: List[org.json4s.JsonAST.JInt#Values] = List(5, 3)
+res2: List[org.json4s.JInt#Values] = List(5, 3)
 
 scala> json \ "children" \\ classOf[JString]
-res3: List[org.json4s.JsonAST.JString#Values] = List(Mary, Mazy)
+res3: List[org.json4s.JString#Values] = List(Mary, Mazy)
 ```
 
 Extracting values
