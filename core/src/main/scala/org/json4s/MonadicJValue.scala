@@ -2,7 +2,7 @@ package org.json4s
 
 import java.util.Locale.ENGLISH
 
-class MonadicJValue(jv: JValue) {
+object MonadicJValue {
 
   /**
    * Extract path name from "foo[]"
@@ -25,6 +25,22 @@ class MonadicJValue(jv: JValue) {
       case _ => None
     }
   }
+
+  final class JValueWithFilter(self: JValue, p: JValue => Boolean) {
+    def map[T](f: JValue => T): List[T] =
+      self.filter(p).map(f)
+    def flatMap[T](f: JValue => List[T]): List[T] =
+      self.filter(p).flatMap(f)
+    def foreach(f: JValue => Unit): Unit =
+      self.filter(p).foreach(f)
+    def withFilter(q: JValue => Boolean): JValueWithFilter =
+      new JValueWithFilter(self, x => p(x) && q(x))
+  }
+
+}
+
+class MonadicJValue(private val jv: JValue) extends AnyVal {
+  import MonadicJValue._
 
   /**
    * XPath-like expression to query JSON fields by name. Matches only fields on
@@ -329,17 +345,7 @@ class MonadicJValue(jv: JValue) {
   def filter(p: JValue => Boolean): List[JValue] =
     fold(List[JValue]())((acc, e) => if (p(e)) e :: acc else acc).reverse
 
-  def withFilter(p: JValue => Boolean) = new JValueWithFilter(jv, p)
-  class JValueWithFilter(self: JValue, p: JValue => Boolean) {
-    def map[T](f: JValue => T): List[T] =
-      self.filter(p).map(f)
-    def flatMap[T](f: JValue => List[T]): List[T] =
-      self.filter(p).flatMap(f)
-    def foreach(f: JValue => Unit): Unit =
-      self.filter(p).foreach(f)
-    def withFilter(q: JValue => Boolean): JValueWithFilter =
-      new JValueWithFilter(self, x => p(x) && q(x))
-  }
+  def withFilter(p: JValue => Boolean): JValueWithFilter = new JValueWithFilter(jv, p)
 
   /**
    * Return a JSON where all fields matching the given predicate are removed.
