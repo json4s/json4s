@@ -11,7 +11,7 @@ class JacksonJsonMethodsSpec extends AnyWordSpec {
   "JsonMethods.write" should {
     "produce JSON without empty fields" should {
 
-      implicit val format = DefaultFormats.skippingEmptyValues
+      implicit val format: Formats = DefaultFormats.skippingEmptyValues
 
       "from Seq(Some(1), None, None, Some(2))" in {
         val seq = Seq(Some(1), None, None, Some(2))
@@ -28,7 +28,7 @@ class JacksonJsonMethodsSpec extends AnyWordSpec {
 
     "produce JSON with empty fields preserved" should {
 
-      implicit val format = DefaultFormats.preservingEmptyValues
+      implicit val format: Formats = DefaultFormats.preservingEmptyValues
 
       "from Seq(Some(1), None, None, Some(2))" in {
         val seq = Seq(Some(1), None, None, Some(2))

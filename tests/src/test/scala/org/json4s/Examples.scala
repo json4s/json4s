@@ -270,13 +270,13 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
     }
 
     "Tuple2 example" in {
-      implicit val fmts = DefaultFormats
+      implicit val fmts: Formats = DefaultFormats
       val json = """{"blah":123}"""
       assert(Extraction.extract[(String, Int)](parse(json)) == ("blah" -> 123))
     }
 
     "List[Tuple2] example" in {
-      implicit val fmts = DefaultFormats
+      implicit val fmts: Formats = DefaultFormats
       val json = parse("""[{"blah1":13939},{"blah2":3948}]""")
       assert(Extraction.extract[List[(String, Int)]](json) == { "blah1" -> 13939 :: "blah2" -> 3948 :: Nil })
     }
@@ -285,7 +285,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
 //      case class Dog(name: String) extends Animal
 //      case class Fish(weight: Double) extends Animal
       val typeHints = ShortTypeHints(List[Class[_]](classOf[Dog], classOf[Fish]))
-      implicit val fmts = DefaultFormats + typeHints
+      implicit val fmts: Formats = DefaultFormats + typeHints
       val json = parse(
         s"""[{"name":"pluto","${typeHints.typeHintFieldName}":"Dog"},{"weight":1.3,"${typeHints.typeHintFieldName}":"Fish"}]"""
       )
@@ -340,7 +340,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
     }
 
     "#146 Snake support with case classes" in {
-      implicit val f = DefaultFormats
+      implicit val f: Formats = DefaultFormats
       val json = """{"full_name": "Kazuhiro Sera", "github_account_name": "seratch"}"""
       val expected = Issue146CamelCaseClass("Kazuhiro Sera", Some("seratch"))
       val actual = Extraction.extract[Issue146CamelCaseClass](jackson.parseJson(json).camelizeKeys)
@@ -348,7 +348,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
     }
 
     "#714 Camelize double underscores" in {
-      implicit val f = DefaultFormats
+      implicit val f: Formats = DefaultFormats
       val json = """{"full__name": "Kazuhiro Sera", "github___________________account___name": "seratch"}"""
       val expected = Issue146CamelCaseClass("Kazuhiro Sera", Some("seratch"))
       val actual = Extraction.extract[Issue146CamelCaseClass](jackson.parseJson(json).camelizeKeys)
@@ -356,7 +356,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
     }
 
     "#545 snake support with case classes and uuid keys" in {
-      implicit val f = DefaultFormats
+      implicit val f: Formats = DefaultFormats
       val caseClass = Issue545CamelCaseClassWithUUID(Map("565b2803-fdb9-4359-8c39-da1a347d76ca" -> "awesome"))
       val expected = """{"my_map":{"565b2803-fdb9-4359-8c39-da1a347d76ca":"awesome"}}"""
       val unexpected = """{"my_map":{"565b2803_fdb9_4359_8c39_da1a347d76ca":"awesome"}}"""
@@ -367,7 +367,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
     }
 
     "Camelize should not fail on json with empty keys." in {
-      implicit val f = DefaultFormats
+      implicit val f: Formats = DefaultFormats
       val json = """{"full_name": "Kazuhiro Sera", "github_account_name": "seratch", "" : ""}"""
       val expected = Issue146CamelCaseClass("Kazuhiro Sera", Some("seratch"))
       val actual = Extraction.extract[Issue146CamelCaseClass](jackson.parseJson(json).camelizeKeys)
@@ -375,7 +375,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
     }
 
     "Multiple type hint field names should be possible" in {
-      implicit val f = DefaultFormats +
+      implicit val f: Formats = DefaultFormats +
         ShortTypeHints(classOf[Cherry] :: classOf[Oak] :: Nil, "wood") +
         ShortTypeHints(classOf[Iron] :: classOf[IronMaiden] :: Nil, "metal")
 

@@ -189,7 +189,7 @@ object SwaggerSerializers {
           )
         },
         { case x: Parameter =>
-          implicit val fmts = formats
+          implicit val fmts: Formats = formats
           ("name" -> x.name) ~
           ("description" -> x.description) ~
           ("notes" -> x.notes) ~
@@ -206,7 +206,7 @@ object SwaggerSerializers {
     extends CustomSerializer[ModelField](formats =>
       (
         { case json =>
-          implicit val fmts = formats
+          implicit val fmts: Formats = formats
           ModelField(
             name = (json \ "name").extractOrElse(""),
             description = (json \ "description").extractOpt[String],
@@ -230,7 +230,7 @@ object SwaggerSerializers {
     extends CustomSerializer[AllowableValues](formats =>
       (
         { case json =>
-          implicit val fmts = formats
+          implicit val fmts: Formats = formats
           json \ "valueType" match {
             case JString(x) if x.equalsIgnoreCase("LIST") =>
               AllowableValues.AllowableValuesList((json \ "values").extract[List[String]])
@@ -242,7 +242,7 @@ object SwaggerSerializers {
         {
           case AllowableValues.AnyValue => JNothing
           case AllowableValues.AllowableValuesList(values) =>
-            implicit val fmts = formats
+            implicit val fmts: Formats = formats
             ("valueType" -> "LIST") ~ ("values" -> Extraction.decompose(values))
           case AllowableValues.AllowableRangeValues(range) =>
             ("valueType" -> "RANGE") ~ ("min" -> range.start) ~ ("max" -> range.end)

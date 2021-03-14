@@ -2,11 +2,11 @@ package org.json4s.ext
 
 import org.json4s.JsonAST.{JField, JObject, JString}
 import org.json4s.reflect.{Reflector, ScalaType}
-import org.json4s.{CustomSerializer, Extraction, JValue, NoTypeHints, native}
+import org.json4s.{CustomSerializer, Extraction, Formats, JValue, NoTypeHints, native}
 
 class TypeFieldSerializer[T: Manifest](fieldName: String, mapping: Map[String, Class[_ <: T]])
   extends CustomSerializer[T](fm => {
-    implicit val format = native.Serialization.formats(NoTypeHints)
+    implicit val format: Formats = native.Serialization.formats(NoTypeHints)
     val indexByType: Map[ScalaType, String] = mapping.map { case (k, v) => Reflector.scalaTypeOf(v) -> k }
     val indexByName: Map[String, ScalaType] = mapping.mapValues(Reflector.scalaTypeOf).toMap
     val deserialize: PartialFunction[JValue, T] = { case ast =>
