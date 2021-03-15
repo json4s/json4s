@@ -19,7 +19,7 @@ jobs:
         private_key: ${{ secrets.JSON4S_BOT_KEY }}
     - name: Launch Scala Steward
       if: ${{ !github.event.repository.fork }}
-      uses: scala-steward-org/scala-steward-action@v2.12.0
+      uses: scala-steward-org/scala-steward-action@v2.13.0
       with:
         github-token: ${{ steps.generate_token.outputs.token }}
         author-email: "74845451+json4s-bot[bot]@users.noreply.github.com"
