@@ -8,7 +8,7 @@ object MonadicJValue {
    * Extract path name from "foo[]"
    */
   private object ArrayIndex {
-    val R = """^([^\[]+)\[(\d+)\]""".r
+    private[this] val R = """^([^\[]+)\[(\d+)\]""".r
     def unapply(str: String): Option[(String, Int)] = str match {
       case R(name, index) => Option(name, index.toInt)
       case _ => None
@@ -19,7 +19,7 @@ object MonadicJValue {
    * Extract path and index from "foo[index]"
    */
   private object ArrayEach {
-    val R = """^([^\[]+)\[\]""".r
+    private[this] val R = """^([^\[]+)\[\]""".r
     def unapply(str: String): Option[String] = str match {
       case R(name) => Option(name)
       case _ => None
