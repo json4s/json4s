@@ -8,7 +8,7 @@ case class MappedTypeHints(hintMap: Map[Class[_], String], override val typeHint
   require(hintMap.size == hintMap.values.toList.distinct.size, "values in type hint mapping must be distinct")
 
   override val hints: List[Class[_]] = hintMap.keys.toList
-  private val lookup: Map[String, Class[_]] = hintMap.map(_.swap)
+  private[this] val lookup: Map[String, Class[_]] = hintMap.map(_.swap)
 
   def hintFor(clazz: Class[_]) = hintMap.get(clazz)
   def classFor(hint: String, parent: Class[_]) = lookup.get(hint).filter(parent.isAssignableFrom)
