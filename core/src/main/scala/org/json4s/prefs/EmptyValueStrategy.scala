@@ -12,12 +12,12 @@ object EmptyValueStrategy {
   /**
    * Default behaviour - skip empty fields and sequence items.
    */
-  def default = skip
+  def default: EmptyValueStrategy = skip
 
   /**
    * Skip empty fields and sequence items.
    */
-  val skip = new EmptyValueStrategy {
+  val skip: EmptyValueStrategy = new EmptyValueStrategy {
     def noneValReplacement = None
 
     def replaceEmpty(value: JValue) = value
@@ -26,7 +26,7 @@ object EmptyValueStrategy {
   /**
    * Preserve empty fields and sequence items as "null".
    */
-  val preserve = new EmptyValueStrategy {
+  val preserve: EmptyValueStrategy = new EmptyValueStrategy {
 
     def noneValReplacement = Some(JNull)
 
