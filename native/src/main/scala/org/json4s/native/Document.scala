@@ -1,6 +1,7 @@
 package org.json4s.native
 
 import java.io.Writer
+import scala.annotation.tailrec
 
 case object DocNil extends Document
 case object DocBreak extends Document
@@ -29,6 +30,7 @@ sealed abstract class Document extends Product with Serializable {
   def format(width: Int, writer: Writer): Unit = {
     type FmtState = (Int, Boolean, Document)
 
+    @tailrec
     def fits(w: Int, state: List[FmtState]): Boolean = state match {
       case _ if w < 0 =>
         false
@@ -59,6 +61,7 @@ sealed abstract class Document extends Product with Serializable {
       if (rem == 1) { writer write " " }
     }
 
+    @tailrec
     def fmt(k: Int, state: List[FmtState]): Unit = state match {
       case List() => ()
       case (_, _, DocNil) :: z =>
