@@ -118,4 +118,4 @@ lazy val json4sTests = Project(
       |import org.json4s._
       |import reflect._
     """.stripMargin,
-).dependsOn(core, xml, native, json4sExt, scalazExt, jacksonSupport, mongo)
+).dependsOn(core, xml, native, json4sExt, scalazExt, jacksonSupport)
