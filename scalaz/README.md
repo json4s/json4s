@@ -79,6 +79,6 @@ Add dependency to your SBT project description:
 Links
 -----
 
-* [More examples](https://github.com/json4s/json4s/tree/master/tests/src/test/scala/org/json4s/scalaz)
+* [More examples](https://github.com/json4s/json4s/tree/master/scalaz/src/test/scala/org/json4s/scalaz)
 * [Scalaz](https://github.com/scalaz/scalaz)
 * [Kleisli composition](http://www.haskell.org/hoogle/?hoogle=%28a+-%3E+m+b%29+-%3E+%28b+-%3E+m+c%29+-%3E+%28a+-%3E+m+c%29)

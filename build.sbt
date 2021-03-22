@@ -89,6 +89,7 @@ lazy val scalazExt = Project(
   base = file("scalaz"),
 ).settings(
   json4sSettings,
+  libraryDependencies += scalatest,
   libraryDependencies += scalaz_core,
 ).dependsOn(core % "compile;test->test", native % "provided->compile", jacksonSupport % "provided->compile")
 
@@ -118,4 +119,4 @@ lazy val json4sTests = Project(
       |import org.json4s._
       |import reflect._
     """.stripMargin,
-).dependsOn(core, xml, native, json4sExt, scalazExt, jacksonSupport)
+).dependsOn(core, xml, native, json4sExt, jacksonSupport)
