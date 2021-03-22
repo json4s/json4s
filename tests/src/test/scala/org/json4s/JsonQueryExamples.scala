@@ -64,7 +64,8 @@ abstract class JsonQueryExamples[T](mod: String) extends AnyWordSpec with JsonMe
         JField("uptime", JInt(uptime)) <- server
       } yield Server(ip, uptime.longValue)
 
-      assert({ servers sortWith (_.uptime > _.uptime) } == List(
+      assert(
+        servers.sortWith(_.uptime > _.uptime) == List(
           Server("192.168.1.127", 901214),
           Server("192.168.2.125", 453423),
           Server("192.168.2.126", 214312),
