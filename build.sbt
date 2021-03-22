@@ -60,7 +60,7 @@ lazy val json4sExt = Project(
 ).settings(
   json4sSettings,
   libraryDependencies ++= jodaTime,
-).dependsOn(native % "provided->compile;test->test")
+).dependsOn(core)
 
 lazy val jacksonSupport = Project(
   id = "json4s-jackson",
