@@ -10,7 +10,7 @@ import java.util.{Date, TimeZone}
 object DefaultFormats extends DefaultFormats {
   val UTC = TimeZone.getTimeZone("UTC")
 
-  val losslessDate = {
+  private val losslessDate = {
     def createSdf = {
       val f = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
       f.setTimeZone(UTC)
