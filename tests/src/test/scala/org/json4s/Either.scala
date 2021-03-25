@@ -1,6 +1,7 @@
 package org.json4s
 
 import org.scalatest.wordspec.AnyWordSpec
+import org.json4s.native.Document
 
 object EitherTest {
 
@@ -18,7 +19,8 @@ object EitherTest {
 
 }
 
-class JacksonEitherTest extends EitherTest[JValue]("Native") with jackson.JsonMethods
+class JacksonEitherTest extends EitherTest[JValue]("Jackson") with jackson.JsonMethods
+class NativeEitherTest extends EitherTest[Document]("Native") with native.JsonMethods
 
 abstract class EitherTest[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
