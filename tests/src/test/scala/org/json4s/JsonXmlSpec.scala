@@ -25,7 +25,6 @@ import org.json4s.native.Document
 //import JsonMethods._
 
 class NativeJsonXmlSpec extends JsonXmlSpec[Document]("Native") with native.JsonMethods
-class JacksonXmlSpec extends JsonXmlSpec[JValue]("Jackson") with jackson.JsonMethods
 
 /**
  * System under specification for JSON XML.

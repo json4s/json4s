@@ -20,7 +20,6 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 class NativeJsonQueryExamples extends JsonQueryExamples[Document]("Native") with native.JsonMethods
-class JacksonJsonQueryExamples extends JsonQueryExamples[JValue]("Jackson") with jackson.JsonMethods
 
 /**
  * System under specification for JSON Query Examples.

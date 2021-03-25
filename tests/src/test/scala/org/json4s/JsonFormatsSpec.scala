@@ -12,7 +12,6 @@ object Music {
 }
 
 class NativeJsonFormatsSpec extends JsonFormatsSpec[Document]("Native") with native.JsonMethods
-class JacksonJsonFormatsSpec extends JsonFormatsSpec[JValue]("Jackson") with jackson.JsonMethods
 
 /**
  * System under specification for JSON Formats.

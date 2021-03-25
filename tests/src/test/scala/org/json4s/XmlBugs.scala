@@ -20,7 +20,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 class NativeXmlBugs extends XmlBugs[Document]("Native") with native.JsonMethods
-class JacksonXmlBugs extends XmlBugs[JValue]("Jackson") with jackson.JsonMethods
+
 abstract class XmlBugs[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
   import Xml._
 

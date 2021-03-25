@@ -4,7 +4,6 @@ import org.json4s.native.Document
 import org.scalatest.wordspec.AnyWordSpec
 
 class NativeJsonFormatSpec extends JsonFormatSpec[Document]("native") with native.JsonMethods
-class JacksonJsonFormatSpec extends JsonFormatSpec[JValue]("jackson") with jackson.JsonMethods
 
 abstract class JsonFormatSpec[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 

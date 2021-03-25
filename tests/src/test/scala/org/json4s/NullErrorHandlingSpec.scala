@@ -20,7 +20,6 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 class NativeNullErrorHandlingSpec extends NullErrorHandlingSpec[Document]("Native") with native.JsonMethods
-class JacksonNullErrorHandlingSpec extends NullErrorHandlingSpec[JValue]("Jackson") with jackson.JsonMethods
 
 object NullErrorHandlingSpec {
   val NullIntTypeJson = """{"x": null, "y": true, "z": "abc"}"""

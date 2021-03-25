@@ -20,7 +20,6 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 class NativeDiffExamples extends DiffExamples[Document]("Native") with native.JsonMethods
-class JacksonDiffExamples extends DiffExamples[JValue]("Jackson") with jackson.JsonMethods
 
 abstract class DiffExamples[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 

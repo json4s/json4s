@@ -28,11 +28,6 @@ class NativeJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Native") {
   val m: JsonMethods[_] = native.JsonMethods
 }
 
-class JacksonJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Jackson") {
-  val s: Serialization = jackson.Serialization
-  val m: JsonMethods[_] = jackson.JsonMethods
-}
-
 /**
  * System under specification for JodaTimeSerializer.
  */

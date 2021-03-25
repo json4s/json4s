@@ -24,10 +24,6 @@ class NativeURLSerializerSpec extends URLSerializerSpec("Native") {
   val s: Serialization = native.Serialization
 }
 
-class JacksonURLSerializerSpec extends URLSerializerSpec("Jackson") {
-  val s: Serialization = jackson.Serialization
-}
-
 abstract class URLSerializerSpec(mod: String) extends AnyWordSpec {
 
   def s: Serialization

@@ -4,7 +4,6 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 class NativeStrictOptionParsingModeSpec extends StrictOptionParsingModeSpec[Document]("Native") with native.JsonMethods
-class JacksonStrictOptionParsingModeSpec extends StrictOptionParsingModeSpec[JValue]("Jackson") with jackson.JsonMethods
 
 abstract class StrictOptionParsingModeSpec[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 

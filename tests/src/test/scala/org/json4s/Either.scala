@@ -19,7 +19,6 @@ object EitherTest {
 
 }
 
-class JacksonEitherTest extends EitherTest[JValue]("Jackson") with jackson.JsonMethods
 class NativeEitherTest extends EitherTest[Document]("Native") with native.JsonMethods
 
 abstract class EitherTest[T](mod: String) extends AnyWordSpec with JsonMethods[T] {

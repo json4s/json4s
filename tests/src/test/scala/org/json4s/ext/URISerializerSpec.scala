@@ -24,10 +24,6 @@ class NativeURISerializerSpec extends URISerializerSpec("Native") {
   val s: Serialization = native.Serialization
 }
 
-class JacksonURISerializerSpec extends URISerializerSpec("Jackson") {
-  val s: Serialization = jackson.Serialization
-}
-
 abstract class URISerializerSpec(mod: String) extends AnyWordSpec {
 
   def s: Serialization

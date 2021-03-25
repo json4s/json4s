@@ -21,7 +21,7 @@ import org.json4s.native.Document
 
 class NativeMergeExamples extends MergeExamples[Document]("Native") with native.JsonMethods
 object NativeMergeExamples extends NativeMergeExamples
-class JacksonMergeExamples extends MergeExamples[JValue]("Jackson") with jackson.JsonMethods
+
 abstract class MergeExamples[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
   (mod + " Merge Examples") should {

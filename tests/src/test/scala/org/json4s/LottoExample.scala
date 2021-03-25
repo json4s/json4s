@@ -26,13 +26,6 @@ class NativeLottoExample extends LottoExample[Document]("Native") with native.Js
 
   def extractLotto(jv: JValue): Lotto = jv.extract[Lotto]
 }
-class JacksonLottoExample extends LottoExample[JValue]("Jackson") with jackson.JsonMethods {
-  import LottoExample._
-  implicit val formats: Formats = DefaultFormats
-  def extractWinner(jv: JValue): Winner = jv.extract[Winner]
-
-  def extractLotto(jv: _root_.org.json4s.JValue): Lotto = jv.extract[Lotto]
-}
 
 abstract class LottoExample[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
   import LottoExample._

@@ -24,10 +24,6 @@ class NativeUUIDSerializerSpec extends UUIDSerializerSpec("Native") {
   val s: Serialization = native.Serialization
 }
 
-class JacksonUUIDSerializerSpec extends UUIDSerializerSpec("Jackson") {
-  val s: Serialization = jackson.Serialization
-}
-
 /**
  * System under specification for UUIDSerializer.
  */

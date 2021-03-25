@@ -5,14 +5,6 @@ import java.time._
 import org.json4s._
 import org.scalatest.wordspec.AnyWordSpec
 
-class NativeJavaDateTimeSerializerSpec extends JavaDateTimeSerializerSpec("Native") {
-  val s: Serialization = native.Serialization
-}
-
-class JacksonJavaDateTimeSerializerSpec extends JavaDateTimeSerializerSpec("Jackson") {
-  val s: Serialization = jackson.Serialization
-}
-
 /**
  * System under specification for JavaTimeSerializer.
  */

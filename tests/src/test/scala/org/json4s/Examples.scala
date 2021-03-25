@@ -37,8 +37,6 @@ class NativeExamples extends Examples[Document]("Native") with native.JsonMethod
   }
 }
 
-class JacksonExamples extends Examples[JValue]("Jackson") with jackson.JsonMethods
-
 object Examples {
   import JsonDSL._
 

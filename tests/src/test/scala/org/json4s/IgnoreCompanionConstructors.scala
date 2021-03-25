@@ -7,9 +7,6 @@ import org.json4s.native.Document
 class NativeIgnoreCompanionCtorSpec
   extends IgnoreCompanionConstructors[Document]("Native", native.Serialization)
   with native.JsonMethods
-class JacksonIgnoreCompanionCtorSpec
-  extends IgnoreCompanionConstructors[JValue]("Jackson", jackson.Serialization)
-  with jackson.JsonMethods
 
 final case class CompanionCtorSpec(someString: String, someInt: Int, someDouble: Double)
 

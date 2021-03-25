@@ -7,10 +7,6 @@ class NativeTypeFieldSerializerSpec extends TypeFieldSerializerSpec("Native") {
   val s: Serialization = native.Serialization
 }
 
-class JacksonTypeFieldSerializerSpec extends TypeFieldSerializerSpec("Jackson") {
-  val s: Serialization = jackson.Serialization
-}
-
 abstract class TypeFieldSerializerSpec(mod: String) extends AnyWordSpec {
 
   def s: Serialization

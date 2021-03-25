@@ -7,7 +7,6 @@ import java.util
 import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
 
 class NativeExtractionBugs extends ExtractionBugs[Document]("Native") with native.JsonMethods
-class JacksonExtractionBugs extends ExtractionBugs[JValue]("Jackson") with jackson.JsonMethods
 
 trait SharedModule {
   case class SharedObj(name: String, visible: Boolean = false)
