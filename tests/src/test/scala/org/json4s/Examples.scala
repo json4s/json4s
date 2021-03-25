@@ -343,7 +343,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
       implicit val f: Formats = DefaultFormats
       val json = """{"full_name": "Kazuhiro Sera", "github_account_name": "seratch"}"""
       val expected = Issue146CamelCaseClass("Kazuhiro Sera", Some("seratch"))
-      val actual = Extraction.extract[Issue146CamelCaseClass](jackson.parseJson(json).camelizeKeys)
+      val actual = Extraction.extract[Issue146CamelCaseClass](parse(json).camelizeKeys)
       assert(actual == expected)
     }
 
@@ -351,7 +351,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
       implicit val f: Formats = DefaultFormats
       val json = """{"full__name": "Kazuhiro Sera", "github___________________account___name": "seratch"}"""
       val expected = Issue146CamelCaseClass("Kazuhiro Sera", Some("seratch"))
-      val actual = Extraction.extract[Issue146CamelCaseClass](jackson.parseJson(json).camelizeKeys)
+      val actual = Extraction.extract[Issue146CamelCaseClass](parse(json).camelizeKeys)
       assert(actual == expected)
     }
 
@@ -370,7 +370,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
       implicit val f: Formats = DefaultFormats
       val json = """{"full_name": "Kazuhiro Sera", "github_account_name": "seratch", "" : ""}"""
       val expected = Issue146CamelCaseClass("Kazuhiro Sera", Some("seratch"))
-      val actual = Extraction.extract[Issue146CamelCaseClass](jackson.parseJson(json).camelizeKeys)
+      val actual = Extraction.extract[Issue146CamelCaseClass](parse(json).camelizeKeys)
       assert(actual == expected)
     }
 
