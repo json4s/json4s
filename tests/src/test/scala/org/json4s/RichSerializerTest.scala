@@ -1,13 +1,12 @@
 package org.json4s
 
 import org.json4s.Extraction._
-import org.json4s.jackson.JsonMethods
 import org.json4s.reflect.ScalaType
 import org.scalatest.wordspec.AnyWordSpec
 
 import scala.collection.immutable.HashMap
 
-class RichSerializerTest extends AnyWordSpec {
+abstract class RichSerializerTest[A] extends AnyWordSpec with JsonMethods[A] {
 
   object TypeBearerDeserializer extends RichSerializer[TypeBearer[_]] {
     override def deserialize(implicit format: Formats): PartialFunction[(ScalaType, JValue), TypeBearer[_]] = {
@@ -49,7 +48,7 @@ class RichSerializerTest extends AnyWordSpec {
     "deserialize types which have type params" in {
       implicit val formats: Formats = DefaultFormats + CustomTuple2Serializer + TypeBearerDeserializer
       val json = """[{"name": "foo"}, {"name": "bar"}]"""
-      val extracted = JsonMethods.parse(json).extract[(TypeBearer[TypeBearer[String]], TypeBearer[Int])]
+      val extracted = parse(json).extract[(TypeBearer[TypeBearer[String]], TypeBearer[Int])]
       assert(extracted._2.enclosedType == manifest[Int])
       assert(extracted._1.enclosedType == manifest[TypeBearer[String]])
     }
@@ -62,7 +61,7 @@ class RichSerializerTest extends AnyWordSpec {
     "deserialize hash maps correctly" in {
       implicit val formats: Formats = DefaultFormats + HashMapDeserializer
       val json = """{"map":{"foo": null, "bar": 2}}"""
-      val extracted = JsonMethods.parse(json).extract[HashMapHaver]
+      val extracted = parse(json).extract[HashMapHaver]
       assert(extracted == HashMapHaver(HashMap("foo" -> None, "bar" -> Some(2))))
     }
 
@@ -71,7 +70,7 @@ class RichSerializerTest extends AnyWordSpec {
         DefaultFormats + HashMapDeserializer + MappedTypeHints(Map(classOf[HashMapHaver] -> "map_haver"))
       val json = """{"map":{"foo": null, "bar": 2}, "jsonClass": "map_haver"}"""
       val expected = HashMapHaver(HashMap("foo" -> None, "bar" -> Some(2)))
-      val extracted = JsonMethods.parse(json).extract[SomeTrait]
+      val extracted = parse(json).extract[SomeTrait]
       assert(extracted == expected)
     }
   }
