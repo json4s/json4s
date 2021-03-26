@@ -69,7 +69,10 @@ lazy val jacksonSupport = Project(
 ).settings(
   json4sSettings,
   libraryDependencies ++= jackson,
-).dependsOn(core % "compile;test->test")
+).dependsOn(
+  core % "compile;test->test",
+  native % "test->test",
+)
 
 lazy val examples = Project(
   id = "json4s-examples",
