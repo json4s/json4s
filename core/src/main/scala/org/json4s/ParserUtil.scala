@@ -1,13 +1,10 @@
 package org.json4s
 
-import java.nio.charset.Charset
-
 object ParserUtil {
 
   class ParseException(message: String, cause: Exception) extends Exception(message, cause)
 
   private[this] val EOF = -1.asInstanceOf[Char]
-  private[this] val AsciiEncoder = Charset.forName("US-ASCII").newEncoder()
 
   private[this] sealed abstract class StringAppender[T] {
     def append(s: String): T
@@ -40,7 +37,7 @@ object ParserUtil {
         case '\t' => appender.append("\\t")
         case c =>
           val shouldEscape = if (formats.alwaysEscapeUnicode) {
-            !AsciiEncoder.canEncode(c)
+            c >= 0x80
           } else {
             (c >= '\u0000' && c <= '\u001f') || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100')
           }
