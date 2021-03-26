@@ -40,7 +40,7 @@ lazy val core = Project(
   base = file("core"),
 ).settings(
   json4sSettings,
-  libraryDependencies ++= Seq(paranamer),
+  libraryDependencies ++= Seq(paranamer, jaxbApi, scalatest, scalatestScalacheck.value),
   Test / console / initialCommands := """
       |import org.json4s._
       |import reflect._
@@ -113,10 +113,15 @@ lazy val json4sTests = Project(
 ).settings(
   json4sSettings,
   noPublish,
-  libraryDependencies ++= Seq(scalatest, mockito, jaxbApi, scalatestScalacheck.value),
   Test / console / initialCommands :=
     """
       |import org.json4s._
       |import reflect._
     """.stripMargin,
-).dependsOn(core, xml, native, json4sExt, jacksonSupport)
+).dependsOn(
+  core % "compile;test->test",
+  xml,
+  native,
+  json4sExt,
+  jacksonSupport
+)
