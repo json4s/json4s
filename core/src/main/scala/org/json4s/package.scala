@@ -27,6 +27,7 @@ package object json4s {
 
   implicit def convertToJsonInput[A: AsJsonInput](input: A): JsonInput = AsJsonInput.asJsonInput[A](input)
   implicit def jvalue2extractable(jv: JValue): ExtractableJsonAstNode = new ExtractableJsonAstNode(jv)
+  implicit def jvalue2readerSyntax(j: JValue): ReaderSyntax = new ReaderSyntax(j)
   implicit def jvalue2monadic(jv: JValue): MonadicJValue = new MonadicJValue(jv)
   implicit def jsonwritable[T: Writer](a: T): ToJsonWritable[T] = new ToJsonWritable[T](a)
 
