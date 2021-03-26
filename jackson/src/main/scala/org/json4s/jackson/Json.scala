@@ -26,8 +26,8 @@ class Json(fmts: Formats, mapper: ObjectMapper = JsonMethods.mapper) extends Jso
     out
   }
 
-  def parse(json: JsonInput): JValue = meth.parse(json, fmts.wantsBigDecimal, fmts.wantsBigInt)
-  def parseOpt(json: JsonInput): Option[JValue] = meth.parseOpt(json, fmts.wantsBigDecimal, fmts.wantsBigInt)
+  def parse[A: AsJsonInput](json: A): JValue = meth.parse(json, fmts.wantsBigDecimal, fmts.wantsBigInt)
+  def parseOpt[A: AsJsonInput](json: A): Option[JValue] = meth.parseOpt(json, fmts.wantsBigDecimal, fmts.wantsBigInt)
 
   def withFormats(fmts: Formats): JsonUtil = new Json(fmts, mapper)
 }

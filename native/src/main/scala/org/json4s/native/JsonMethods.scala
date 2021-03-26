@@ -6,30 +6,14 @@ import io.Source
 
 trait JsonMethods extends org.json4s.JsonMethods[Document] {
 
-  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): JValue =
-    in match {
-      case StringInput(s) => JsonParser.parse(s, useBigDecimalForDouble, useBigIntForLong)
-      case ReaderInput(rdr) =>
-        JsonParser.parse(rdr, useBigDecimalForDouble = useBigDecimalForDouble, useBigIntForLong = useBigIntForLong)
-      case StreamInput(stream) =>
-        JsonParser.parse(
-          Source.fromInputStream(stream).bufferedReader(),
-          useBigDecimalForDouble = useBigDecimalForDouble,
-          useBigIntForLong = useBigIntForLong
-        )
-      case FileInput(file) =>
-        JsonParser.parse(
-          Source.fromFile(file).bufferedReader(),
-          useBigDecimalForDouble = useBigDecimalForDouble,
-          useBigIntForLong = useBigIntForLong
-        )
-    }
+  def parse[A: AsJsonInput](in: A, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): JValue =
+    JsonParser.parse(in, useBigDecimalForDouble = useBigDecimalForDouble, useBigIntForLong = useBigIntForLong)
 
-  def parseOpt(
-    in: JsonInput,
+  override def parseOpt[A: AsJsonInput](
+    in: A,
     useBigDecimalForDouble: Boolean = false,
     useBigIntForLong: Boolean = true
-  ): Option[JValue] = in match {
+  ): Option[JValue] = AsJsonInput.asJsonInput(in) match {
     case StringInput(s) => JsonParser.parseOpt(s, useBigDecimalForDouble)
     case ReaderInput(rdr) => JsonParser.parseOpt(rdr, useBigDecimalForDouble)
     case StreamInput(stream) =>

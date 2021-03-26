@@ -43,17 +43,35 @@ object JsonParser {
   case object OpenArr extends Token
   case object CloseArr extends Token
 
-  def parse(in: JsonInput, useBigDecimalForDouble: Boolean): JValue = {
+  def parse[A: AsJsonInput](in: A, useBigDecimalForDouble: Boolean): JValue = {
     parse(in, useBigDecimalForDouble, useBigIntForLong = true)
   }
 
-  def parse(in: JsonInput, useBigDecimalForDouble: Boolean, useBigIntForLong: Boolean): JValue = {
-    in match {
-      case StringInput(s) => parse(s, useBigDecimalForDouble, useBigIntForLong)
-      case ReaderInput(rdr) => parse(rdr, useBigDecimalForDouble, useBigIntForLong)
+  def parse[A: AsJsonInput](in: A, useBigDecimalForDouble: Boolean, useBigIntForLong: Boolean): JValue = {
+    AsJsonInput.asJsonInput(in) match {
+      case StringInput(s) =>
+        parseFromString(s, useBigDecimalForDouble, useBigIntForLong)
+      case ReaderInput(rdr) =>
+        parseFromReader(
+          s = rdr,
+          closeAutomatically = true,
+          useBigDecimalForDouble = useBigDecimalForDouble,
+          useBigIntForLong = useBigIntForLong
+        )
       case StreamInput(stream) =>
-        parse(new InputStreamReader(stream, "UTF-8"), useBigDecimalForDouble, useBigIntForLong)
-      case FileInput(file) => parse(new FileReader(file), useBigDecimalForDouble, useBigIntForLong)
+        parseFromReader(
+          s = new InputStreamReader(stream, "UTF-8"),
+          closeAutomatically = true,
+          useBigDecimalForDouble = useBigDecimalForDouble,
+          useBigIntForLong = useBigIntForLong
+        )
+      case FileInput(file) =>
+        parseFromReader(
+          s = new FileReader(file),
+          closeAutomatically = true,
+          useBigDecimalForDouble = useBigDecimalForDouble,
+          useBigIntForLong = useBigIntForLong
+        )
     }
   }
 
@@ -70,11 +88,7 @@ object JsonParser {
   def parse(s: String, useBigDecimalForDouble: Boolean): JValue =
     parse(s, useBigDecimalForDouble = useBigDecimalForDouble, useBigIntForLong = true)
 
-  /**
-   * Return parsed JSON.
-   */
-  @throws[ParserUtil.ParseException]
-  def parse(s: String, useBigDecimalForDouble: Boolean, useBigIntForLong: Boolean): JValue =
+  private[this] def parseFromString(s: String, useBigDecimalForDouble: Boolean, useBigIntForLong: Boolean): JValue =
     parse(new Buffer(new StringReader(s), false), useBigDecimal = useBigDecimalForDouble, useBigInt = useBigIntForLong)
 
   /**
@@ -89,6 +103,18 @@ object JsonParser {
     closeAutomatically: Boolean = true,
     useBigDecimalForDouble: Boolean = false,
     useBigIntForLong: Boolean = true
+  ): JValue = parseFromReader(
+    s = s,
+    closeAutomatically = closeAutomatically,
+    useBigDecimalForDouble = useBigDecimalForDouble,
+    useBigIntForLong = useBigIntForLong
+  )
+
+  private[this] def parseFromReader(
+    s: Reader,
+    closeAutomatically: Boolean,
+    useBigDecimalForDouble: Boolean,
+    useBigIntForLong: Boolean
   ): JValue =
     parse(new Buffer(s, closeAutomatically), useBigDecimal = useBigDecimalForDouble, useBigInt = useBigIntForLong)
 

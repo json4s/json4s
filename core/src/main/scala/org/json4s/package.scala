@@ -25,10 +25,7 @@ package object json4s {
 
   type ParameterNameReader = reflect.ParameterNameReader
 
-  implicit def string2JsonInput(s: String): JsonInput = StringInput(s)
-  implicit def reader2JsonInput(rdr: java.io.Reader): JsonInput = ReaderInput(rdr)
-  implicit def stream2JsonInput(stream: java.io.InputStream): JsonInput = StreamInput(stream)
-  implicit def file2JsonInput(file: java.io.File): JsonInput = FileInput(file)
+  implicit def convertToJsonInput[A: AsJsonInput](input: A): JsonInput = AsJsonInput.asJsonInput[A](input)
   implicit def jvalue2extractable(jv: JValue): ExtractableJsonAstNode = new ExtractableJsonAstNode(jv)
   implicit def jvalue2monadic(jv: JValue): MonadicJValue = new MonadicJValue(jv)
   implicit def jsonwritable[T: Writer](a: T): ToJsonWritable[T] = new ToJsonWritable[T](a)

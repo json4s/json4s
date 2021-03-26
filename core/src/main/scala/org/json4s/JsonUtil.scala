@@ -13,8 +13,8 @@ abstract class JsonUtil(fmts: Formats) {
   def read[A: Manifest](json: JsonInput): A = parse(json).extract[A]
   def readOpt[A: Manifest](json: JsonInput): Option[A] = parseOpt(json) flatMap (_.extractOpt[A])
 
-  def parse(json: JsonInput): JValue
-  def parseOpt(json: JsonInput): Option[JValue]
+  def parse[A: AsJsonInput](json: A): JValue
+  def parseOpt[A: AsJsonInput](json: A): Option[JValue]
 
   def decompose(any: Any) = Extraction.decompose(any)
 

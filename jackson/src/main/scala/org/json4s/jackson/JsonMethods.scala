@@ -17,7 +17,11 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
   }
   def mapper = _defaultMapper
 
-  def parse(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): JValue = {
+  def parse[A: AsJsonInput](
+    in: A,
+    useBigDecimalForDouble: Boolean = false,
+    useBigIntForLong: Boolean = true
+  ): JValue = {
     var reader = mapper.readerFor(classOf[JValue])
     if (useBigDecimalForDouble)
       reader = reader `with` USE_BIG_DECIMAL_FOR_FLOATS
@@ -29,7 +33,7 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
     else
       reader = reader `without` USE_BIG_INTEGER_FOR_INTS
 
-    in match {
+    AsJsonInput.asJsonInput(in) match {
       case StringInput(s) => reader.readValue(s)
       case ReaderInput(rdr) => reader.readValue(rdr)
       case StreamInput(stream) => reader.readValue(stream)
@@ -37,8 +41,8 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
     }
   }
 
-  def parseOpt(
-    in: JsonInput,
+  def parseOpt[A: AsJsonInput](
+    in: A,
     useBigDecimalForDouble: Boolean = false,
     useBigIntForLong: Boolean = true
   ): Option[JValue] = allCatch opt {
