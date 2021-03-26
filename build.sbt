@@ -52,6 +52,7 @@ lazy val native = Project(
   base = file("native"),
 ).settings(
   json4sSettings,
+  libraryDependencies ++= Seq(scalatest, scalatestScalacheck.value),
 ).dependsOn(core % "compile;test->test")
 
 lazy val json4sExt = Project(
@@ -121,7 +122,7 @@ lazy val json4sTests = Project(
 ).dependsOn(
   core % "compile;test->test",
   xml,
-  native,
+  native % "compile;test->test",
   json4sExt,
   jacksonSupport
 )
