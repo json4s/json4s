@@ -116,7 +116,7 @@ case object JYearSerializer
 
 private[ext] case class _JLocalDate(year: Int, month: Int, day: Int)
 object JLocalDateSerializer {
-  def apply() = new ClassSerializer(new ClassType[LocalDate, _JLocalDate]() {
+  def apply(): Serializer[LocalDate] = new ClassSerializer(new ClassType[LocalDate, _JLocalDate]() {
     def unwrap(d: _JLocalDate)(implicit format: Formats) = LocalDate.of(d.year, d.month, d.day)
     def wrap(d: LocalDate)(implicit format: Formats) =
       _JLocalDate(d.getYear(), d.getMonthValue, d.getDayOfMonth)
@@ -125,7 +125,7 @@ object JLocalDateSerializer {
 
 private[ext] case class _JLocalTime(hour: Int, minute: Int, second: Int, millis: Int)
 object JLocalTimeSerializer {
-  def apply() = new ClassSerializer(new ClassType[LocalTime, _JLocalTime]() {
+  def apply(): Serializer[LocalTime] = new ClassSerializer(new ClassType[LocalTime, _JLocalTime]() {
     def unwrap(t: _JLocalTime)(implicit format: Formats) =
       LocalTime.of(t.hour, t.minute, t.second, t.millis)
     def wrap(t: LocalTime)(implicit format: Formats) =
@@ -135,7 +135,7 @@ object JLocalTimeSerializer {
 
 private[ext] case class _JPeriod(year: Int, month: Int, day: Int)
 object JPeriodSerializer {
-  def apply() = new ClassSerializer(new ClassType[Period, _JPeriod]() {
+  def apply(): Serializer[Period] = new ClassSerializer(new ClassType[Period, _JPeriod]() {
     def unwrap(p: _JPeriod)(implicit format: Formats) = Period.of(p.year, p.month, p.day)
     def wrap(p: Period)(implicit format: Formats) = _JPeriod(p.getYears, p.getMonths, p.getDays)
   })
@@ -143,7 +143,7 @@ object JPeriodSerializer {
 
 private[ext] case class _JYearMonth(year: Int, month: Int)
 object JYearMonthSerializer {
-  def apply() = new ClassSerializer(new ClassType[YearMonth, _JYearMonth]() {
+  def apply(): Serializer[YearMonth] = new ClassSerializer(new ClassType[YearMonth, _JYearMonth]() {
     def unwrap(ym: _JYearMonth)(implicit format: Formats) = YearMonth.of(ym.year, ym.month)
     def wrap(ym: YearMonth)(implicit format: Formats) = _JYearMonth(ym.getYear, ym.getMonthValue)
   })
@@ -151,7 +151,7 @@ object JYearMonthSerializer {
 
 private[ext] case class _JMonthDay(month: Int, dayOfMonth: Int)
 object JMonthDaySerializer {
-  def apply() = new ClassSerializer(new ClassType[MonthDay, _JMonthDay]() {
+  def apply(): Serializer[MonthDay] = new ClassSerializer(new ClassType[MonthDay, _JMonthDay]() {
     def unwrap(md: _JMonthDay)(implicit format: Formats) = MonthDay.of(md.month, md.dayOfMonth)
     def wrap(md: MonthDay)(implicit format: Formats) = _JMonthDay(md.getMonthValue, md.getDayOfMonth)
   })
