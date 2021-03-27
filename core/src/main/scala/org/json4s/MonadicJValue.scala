@@ -211,7 +211,7 @@ class MonadicJValue(private val jv: JValue) extends AnyVal {
    * </pre>
    */
   def transformField(f: PartialFunction[JField, JField]): JValue = mapField { x =>
-    if (f.isDefinedAt(x)) f(x) else x
+    f.applyOrElse[JField, JField](x, _ => x)
   }
 
   /**
@@ -223,7 +223,7 @@ class MonadicJValue(private val jv: JValue) extends AnyVal {
    * </pre>
    */
   def transform(f: PartialFunction[JValue, JValue]): JValue = map { x =>
-    if (f.isDefinedAt(x)) f(x) else x
+    f.applyOrElse[JValue, JValue](x, _ => x)
   }
 
   /**
