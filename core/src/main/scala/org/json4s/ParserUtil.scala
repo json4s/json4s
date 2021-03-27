@@ -179,7 +179,7 @@ object ParserUtil {
 
     private[json4s] var segmentSize = 1000
     private[this] val maxNumOfSegments = 10000
-    private[this] var segmentCount = new AtomicInteger(0)
+    private[this] val segmentCount = new AtomicInteger(0)
     private[this] val segments = new ArrayBlockingQueue[Segment](maxNumOfSegments)
     private[json4s] def clear() = segments.clear
 
