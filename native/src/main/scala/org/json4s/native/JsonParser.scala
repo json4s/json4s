@@ -283,7 +283,7 @@ object JsonParser {
       def parseValue(first: Char) = {
         var wasInt = true
         var doubleVal = false
-        val s = new StringBuilder
+        val s = new java.lang.StringBuilder
         s.append(first)
         while (wasInt) {
           val c = buf.next
