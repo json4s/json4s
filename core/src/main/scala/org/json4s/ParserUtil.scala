@@ -99,9 +99,9 @@ object ParserUtil {
    * Buffer is divided to one or more segments (preallocated in Segments pool).
    */
   private[json4s] class Buffer(in: java.io.Reader, closeAutomatically: Boolean) {
-    var offset = 0
-    var curMark = -1
-    var curMarkSegment = -1
+    private[this] var offset = 0
+    private[this] var curMark = -1
+    private[this] var curMarkSegment = -1
     var eofIsFailure = false
     private[this] var segments: Vector[Segment] = Vector(Segments.apply())
     private[this] var segment: Array[Char] = segments.head.seg
