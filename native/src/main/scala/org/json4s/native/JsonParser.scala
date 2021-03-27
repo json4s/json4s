@@ -48,31 +48,12 @@ object JsonParser {
   }
 
   def parse[A: AsJsonInput](in: A, useBigDecimalForDouble: Boolean, useBigIntForLong: Boolean): JValue = {
-    AsJsonInput.asJsonInput(in) match {
-      case StringInput(s) =>
-        parseFromString(s, useBigDecimalForDouble, useBigIntForLong)
-      case ReaderInput(rdr) =>
-        parseFromReader(
-          s = rdr,
-          closeAutomatically = true,
-          useBigDecimalForDouble = useBigDecimalForDouble,
-          useBigIntForLong = useBigIntForLong
-        )
-      case StreamInput(stream) =>
-        parseFromReader(
-          s = new InputStreamReader(stream, "UTF-8"),
-          closeAutomatically = true,
-          useBigDecimalForDouble = useBigDecimalForDouble,
-          useBigIntForLong = useBigIntForLong
-        )
-      case FileInput(file) =>
-        parseFromReader(
-          s = new FileReader(file),
-          closeAutomatically = true,
-          useBigDecimalForDouble = useBigDecimalForDouble,
-          useBigIntForLong = useBigIntForLong
-        )
-    }
+    parseFromReader(
+      s = AsJsonInput.asJsonInput(in).toReader(),
+      closeAutomatically = true,
+      useBigDecimalForDouble = useBigDecimalForDouble,
+      useBigIntForLong = useBigIntForLong
+    )
   }
 
   /**

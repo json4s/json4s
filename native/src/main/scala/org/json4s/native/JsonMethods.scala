@@ -2,7 +2,6 @@ package org.json4s
 package native
 
 import org.json4s.native.Document._
-import io.Source
 
 trait JsonMethods extends org.json4s.JsonMethods[Document] {
 
@@ -13,12 +12,19 @@ trait JsonMethods extends org.json4s.JsonMethods[Document] {
     in: A,
     useBigDecimalForDouble: Boolean = false,
     useBigIntForLong: Boolean = true
-  ): Option[JValue] = AsJsonInput.asJsonInput(in) match {
-    case StringInput(s) => JsonParser.parseOpt(s, useBigDecimalForDouble)
-    case ReaderInput(rdr) => JsonParser.parseOpt(rdr, useBigDecimalForDouble)
-    case StreamInput(stream) =>
-      JsonParser.parseOpt(Source.fromInputStream(stream).bufferedReader(), useBigDecimalForDouble)
-    case FileInput(file) => JsonParser.parseOpt(Source.fromFile(file).bufferedReader(), useBigDecimalForDouble)
+  ): Option[JValue] = {
+    try {
+      JsonParser
+        .parse(
+          s = AsJsonInput.asJsonInput(in).toReader(),
+          useBigDecimalForDouble = useBigDecimalForDouble,
+          useBigIntForLong = useBigIntForLong
+        )
+        .toOption
+    } catch {
+      case _: Exception =>
+        None
+    }
   }
 
   /**
