@@ -1,6 +1,7 @@
 package org.json4s
 
 import java.util.Locale.ENGLISH
+import scala.annotation.tailrec
 
 object MonadicJValue {
 
@@ -297,7 +298,20 @@ class MonadicJValue(private val jv: JValue) extends AnyVal {
   def findField(p: JField => Boolean): Option[JField] = {
     def find(json: JValue): Option[JField] = json match {
       case JObject(fs) => fs.find(p).orElse(fs.flatMap { case (_, v) => find(v) }.headOption)
-      case JArray(l) => l.flatMap(find _).headOption
+      case JArray(l) =>
+        @tailrec
+        def loop(list: List[JValue]): Option[JField] = list match {
+          case x :: xs =>
+            find(x) match {
+              case a @ Some(_) =>
+                a
+              case _ =>
+                loop(xs)
+            }
+          case _ =>
+            None
+        }
+        loop(l)
       case _ => None
     }
     find(jv)
@@ -315,7 +329,20 @@ class MonadicJValue(private val jv: JValue) extends AnyVal {
       if (p(json)) return Some(json)
       json match {
         case JObject(fs) => fs.flatMap { case (_, v) => find(v) }.headOption
-        case JArray(l) => l.flatMap(find _).headOption
+        case JArray(l) =>
+          @tailrec
+          def loop(list: List[JValue]): Option[JValue] = list match {
+            case x :: xs =>
+              find(x) match {
+                case a @ Some(_) =>
+                  a
+                case _ =>
+                  loop(xs)
+              }
+            case _ =>
+              None
+          }
+          loop(l)
         case _ => None
       }
     }
