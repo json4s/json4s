@@ -2,7 +2,6 @@ package org.json4s.reflect
 
 import org.json4s.reflect.DescriptorsSpec.{Company, Citizen, Human}
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers._
 
 object DescriptorsSpec {
   case class Human(firstName: String, lastName: String) {
@@ -38,8 +37,8 @@ class DescriptorsSpec extends AnyWordSpec {
 
       // test
       assert(best.constructor != null)
-      best.method shouldBe null
-      best.getParameterTypes() shouldBe Array(classOf[String], classOf[String])
+      assert(best.method === null)
+      assert(best.getParameterTypes() === Array(classOf[String], classOf[String]))
     }
 
     "pick the one matching argument names" in {
@@ -51,8 +50,8 @@ class DescriptorsSpec extends AnyWordSpec {
       val variant2 = descriptor.bestMatching(List("firstName", "lastName", "idAsANumber")).get.constructor
 
       // test
-      variant1.getParameterTypes() shouldBe Array(classOf[String], classOf[String], classOf[String])
-      variant2.getParameterTypes() shouldBe Array(classOf[String], classOf[String], classOf[Int])
+      assert(variant1.getParameterTypes() === Array(classOf[String], classOf[String], classOf[String]))
+      assert(variant2.getParameterTypes() === Array(classOf[String], classOf[String], classOf[Int]))
     }
 
     "pick the most specific one (i.e. skipping defaults) if values are given" in {
@@ -63,7 +62,7 @@ class DescriptorsSpec extends AnyWordSpec {
       val best = descriptor.bestMatching(List("name", "industry", "yearFounded")).get.constructor
 
       // test
-      best.getParameterTypes() shouldBe Array(classOf[String], classOf[String], classOf[Human], classOf[Int])
+      assert(best.getParameterTypes() === Array(classOf[String], classOf[String], classOf[Human], classOf[Int]))
     }
 
     "pick the most specific one (i.e. skipping defaults) if values are given, and some extras are given" in {
@@ -74,7 +73,7 @@ class DescriptorsSpec extends AnyWordSpec {
       val best = descriptor.bestMatching(List("name", "industry", "yearFounded", "nonExistingProperty")).get.constructor
 
       // test
-      best.getParameterTypes() shouldBe Array(classOf[String], classOf[String], classOf[Human], classOf[Int])
+      assert(best.getParameterTypes() === Array(classOf[String], classOf[String], classOf[Human], classOf[Int]))
     }
 
     "pick the one using default value, not option if a value is not given" in {
@@ -85,7 +84,7 @@ class DescriptorsSpec extends AnyWordSpec {
       val best = descriptor.bestMatching(List("name", "industry")).get.constructor
 
       // test
-      best.getParameterTypes() shouldBe Array(classOf[String], classOf[String], classOf[Human], classOf[Int])
+      assert(best.getParameterTypes() === Array(classOf[String], classOf[String], classOf[Human], classOf[Int]))
     }
 
     "pick the main one if not all values are provided" in {
@@ -96,7 +95,7 @@ class DescriptorsSpec extends AnyWordSpec {
       val best = descriptor.bestMatching(List("firstName", "lastName")).get.constructor
 
       // test
-      best.getParameterTypes() shouldBe Array(classOf[String], classOf[String], classOf[String])
+      assert(best.getParameterTypes() === Array(classOf[String], classOf[String], classOf[String]))
     }
 
     "pick the main one if not all values are provided and some extras are provided" in {
@@ -107,7 +106,7 @@ class DescriptorsSpec extends AnyWordSpec {
       val best = descriptor.bestMatching(List("firstName", "lastName", "newInfoWhichDoesNotExist")).get.constructor
 
       // test
-      best.getParameterTypes() shouldBe Array(classOf[String], classOf[String], classOf[String])
+      assert(best.getParameterTypes() === Array(classOf[String], classOf[String], classOf[String]))
     }
   }
 

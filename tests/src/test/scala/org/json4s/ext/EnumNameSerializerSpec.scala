@@ -2,7 +2,6 @@ package org.json4s
 package ext
 
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers._
 
 object EnumNameSerializerSpec extends native.JsonMethods {
 
