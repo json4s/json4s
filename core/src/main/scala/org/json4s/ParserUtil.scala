@@ -6,24 +6,10 @@ object ParserUtil {
 
   private[this] val EOF = -1.asInstanceOf[Char]
 
-  private[this] sealed abstract class StringAppender[T] {
-    def append(s: String): T
-    def subj: T
-  }
-  private[this] class StringWriterAppender(val subj: java.io.Writer) extends StringAppender[java.io.Writer] {
-    def append(s: String): java.io.Writer = subj.append(s)
-  }
-  private[this] class StringBuilderAppender(val subj: StringBuilder) extends StringAppender[StringBuilder] {
-    def append(s: String): StringBuilder = subj.append(s)
-  }
-
   def quote(s: String)(implicit formats: Formats = DefaultFormats): String =
-    quote(s, new StringBuilderAppender(new StringBuilder)).toString
+    quote(s, new java.lang.StringBuilder).toString
 
-  private[json4s] def quote(s: String, writer: java.io.Writer)(implicit formats: Formats): java.io.Writer =
-    quote(s, new StringWriterAppender(writer))
-
-  private[this] def quote[T](s: String, appender: StringAppender[T])(implicit formats: Formats): T = { // hot path
+  private[json4s] def quote[T <: java.lang.Appendable](s: String, appender: T)(implicit formats: Formats): T = { // hot path
     var i = 0
     val l = s.length
     while (i < l) {
@@ -43,11 +29,11 @@ object ParserUtil {
           }
           if (shouldEscape)
             appender.append("\\u%04X".format(c: Int))
-          else appender.append(c.toString)
+          else appender.append(c)
       }
       i += 1
     }
-    appender.subj
+    appender
   }
 
   def unquote(string: String): String =
