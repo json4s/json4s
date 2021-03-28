@@ -155,7 +155,6 @@ object build {
     ),
     Test / parallelExecution := false,
     manifestSetting,
-    crossVersion := CrossVersion.binary
   )
 
   val noPublish = Seq(
