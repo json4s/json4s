@@ -44,7 +44,7 @@ class Executable private (val method: Method, val constructor: Constructor[_], i
     } else constructor.getDeclaringClass
   }
 
-  def invoke(companion: Option[SingletonDescriptor], args: Seq[Any]) = {
+  def invoke(companion: Option[SingletonDescriptor], args: Seq[Any]): Any = {
     if (method != null) {
       companion match {
         case Some(cmp) => method.invoke(cmp.instance, args.map(_.asInstanceOf[AnyRef]).toArray: _*)
