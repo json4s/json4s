@@ -29,16 +29,6 @@ class JsonParserSpec extends AnyWordSpec with JValueGen with Checkers {
       }
     }
 
-    "Parsing is thread safe" in {
-      import java.util.concurrent._
-
-      val json = Examples.person
-      val executor = Executors.newFixedThreadPool(100)
-      val results =
-        (0 to 100).map(_ => executor.submit(new Callable[JValue] { def call = parse(json) })).toList.map(_.get)
-      assert(results.zip(results.tail).forall(pair => pair._1 == pair._2))
-    }
-
     "All valid string escape characters can be parsed" in {
       assert(parse("[\"abc\\\"\\\\\\/\\b\\f\\n\\r\\t\\u00a0\"]") == JArray(JString("abc\"\\/\b\f\n\r\t\u00a0") :: Nil))
     }
