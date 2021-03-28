@@ -137,13 +137,13 @@ class JsonParserSpec extends AnyWordSpec with JValueGen with Checkers {
   implicit def arbJValue: Arbitrary[JValue] = Arbitrary(genObject)
 
   private def parseVal(json: JValue, bufSize: Int) = {
-    val existingSize = ParserUtil.Segments.segmentSize
+    val existingSize = Segments.segmentSize
     try {
-      ParserUtil.Segments.segmentSize = bufSize
-      ParserUtil.Segments.clear()
+      Segments.segmentSize = bufSize
+      Segments.clear()
       JsonParser.parse(compact(render(json)))
     } finally {
-      ParserUtil.Segments.segmentSize = existingSize
+      Segments.segmentSize = existingSize
     }
   }
 }
