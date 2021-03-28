@@ -1,5 +1,7 @@
 package org.json4s
 
+import scala.annotation.tailrec
+
 package object reflect {
 
   def safeSimpleName(clazz: Class[_]) =
@@ -11,6 +13,7 @@ package object reflect {
         stripDollar(clazz.getName.substring(packageNameLen))
     }
 
+  @tailrec
   def stripDollar(name: String): String = {
     val index = name.lastIndexOf('$')
     if (index == -1) {
