@@ -6,7 +6,10 @@ object MimaSettings {
 
   val previousVersions = Set[Int]().map(patch => s"3.7.$patch")
 
-  val mimaSettings = MimaPlugin.mimaDefaultSettings ++ Seq(
+  val mimaSettings = Def.settings(
+    MimaPlugin.globalSettings,
+    MimaPlugin.buildSettings,
+    MimaPlugin.projectSettings,
     mimaPreviousArtifacts := {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, scalaMajor)) if scalaMajor <= 12 =>
