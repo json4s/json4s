@@ -12,6 +12,10 @@ trait Reader[T] {
   def read(value: JValue): T
 }
 
+object Reader {
+  def apply[A](implicit a: Reader[A]): Reader[A] = a
+}
+
 object DefaultReaders extends DefaultReaders
 trait DefaultReaders extends DefaultReaders0 {
   implicit object IntReader extends Reader[Int] {
@@ -166,6 +170,11 @@ trait DefaultReaders extends DefaultReaders0 {
 trait Writer[-T] {
   def write(obj: T): JValue
 }
+
+object Writer {
+  def apply[A](implicit a: Writer[A]): Writer[A] = a
+}
+
 trait DefaultWriters {
 
   protected abstract class W[-T](fn: T => JValue) extends Writer[T] {
