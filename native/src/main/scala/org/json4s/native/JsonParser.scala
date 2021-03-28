@@ -286,7 +286,7 @@ object JsonParser {
         val s = new java.lang.StringBuilder
         s.append(first)
         while (wasInt) {
-          val c = buf.next
+          val c = buf.next()
           if (c == '.' || c == 'e' || c == 'E') {
             doubleVal = true
             s.append(c)
@@ -305,7 +305,7 @@ object JsonParser {
       }
 
       while (true) {
-        (buf.next: @annotation.switch) match {
+        (buf.next(): @annotation.switch) match {
           case '{' =>
             blocks.addFirst(OBJECT)
             fieldNameMode = true
@@ -321,19 +321,19 @@ object JsonParser {
             }
           case 't' =>
             fieldNameMode = true
-            if (buf.next == 'r' && buf.next == 'u' && buf.next == 'e') {
+            if (buf.next() == 'r' && buf.next() == 'u' && buf.next() == 'e') {
               return BoolVal(true)
             }
             fail("expected boolean")
           case 'f' =>
             fieldNameMode = true
-            if (buf.next == 'a' && buf.next == 'l' && buf.next == 's' && buf.next == 'e') {
+            if (buf.next() == 'a' && buf.next() == 'l' && buf.next() == 's' && buf.next() == 'e') {
               return BoolVal(false)
             }
             fail("expected boolean")
           case 'n' =>
             fieldNameMode = true
-            if (buf.next == 'u' && buf.next == 'l' && buf.next == 'l') {
+            if (buf.next() == 'u' && buf.next() == 'l' && buf.next() == 'l') {
               return NullVal
             }
             fail("expected null")

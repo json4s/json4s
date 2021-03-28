@@ -47,7 +47,7 @@ object ParserUtil {
       var c = '\\'
       while (c != '"') {
         if (c == '\\') {
-          buf.next match {
+          buf.next() match {
             case '"' => s.append('"')
             case '\\' => s.append('\\')
             case '/' => s.append('/')
@@ -57,27 +57,27 @@ object ParserUtil {
             case 'r' => s.append('\r')
             case 't' => s.append('\t')
             case 'u' =>
-              val chars = Array(buf.next, buf.next, buf.next, buf.next)
+              val chars = Array(buf.next(), buf.next(), buf.next(), buf.next())
               val codePoint = Integer.parseInt(new String(chars), 16)
               s.appendCodePoint(codePoint)
             case _ => s.append('\\')
           }
         } else s.append(c)
-        c = buf.next
+        c = buf.next()
       }
       s.toString
     }
 
     buf.eofIsFailure = true
     buf.mark()
-    var c = buf.next
+    var c = buf.next()
     while (c != '"') {
       if (c == '\\') {
         val s = unquote0(buf, buf.substring)
         buf.eofIsFailure = false
         return s
       }
-      c = buf.next
+      c = buf.next()
     }
     buf.eofIsFailure = false
     buf.substring
@@ -96,11 +96,11 @@ object ParserUtil {
     private[this] var cur = 0 // Pointer which points current parsing location
     private[this] var curSegmentIdx = 0 // Pointer which points current segment
 
-    def mark() = { curMark = cur; curMarkSegment = curSegmentIdx }
-    def back() = cur = cur - 1
+    def mark(): Unit = { curMark = cur; curMarkSegment = curSegmentIdx }
+    def back(): Unit = cur = cur - 1
 
-    def next: Char = {
-      if (cur == offset && read < 0) {
+    def next(): Char = {
+      if (cur == offset && read() < 0) {
         if (eofIsFailure) throw new ParseException("unexpected eof", null) else EOF
       } else {
         val c = segment(cur)
@@ -109,7 +109,7 @@ object ParserUtil {
       }
     }
 
-    def substring = {
+    def substring: String = {
       if (curSegmentIdx == curMarkSegment) new String(segment, curMark, cur - curMark - 1)
       else { // slower path for case when string is in two or more segments
         var parts: List[(Int, Int, Array[Char])] = Nil
@@ -139,13 +139,13 @@ object ParserUtil {
       }
     }
 
-    def near = new String(segment, (cur - 20) max 0, 20 min cur)
+    def near: String = new String(segment, (cur - 20) max 0, 20 min cur)
 
-    def release() = segments.foreach(Segments.release)
+    def release(): Unit = segments.foreach(Segments.release)
 
-    private[json4s] def automaticClose() = if (closeAutomatically) in.close
+    private[json4s] def automaticClose(): Unit = if (closeAutomatically) in.close()
 
-    private[this] def read = {
+    private[this] def read(): Int = {
       if (offset >= segment.length) {
         val newSegment = Segments.apply()
         offset = 0
@@ -171,7 +171,7 @@ object ParserUtil {
     private[this] val maxNumOfSegments = 10000
     private[this] val segmentCount = new AtomicInteger(0)
     private[this] val segments = new ArrayBlockingQueue[Segment](maxNumOfSegments)
-    private[json4s] def clear() = segments.clear
+    private[json4s] def clear(): Unit = segments.clear()
 
     def apply(): Segment = {
       val s = acquire
@@ -189,7 +189,7 @@ object ParserUtil {
       if (createNew) RecycledSegment(new Array(segmentSize)) else segments.poll
     }
 
-    def release(s: Segment) = s match {
+    def release(s: Segment): Unit = s match {
       case _: RecycledSegment => segments.offer(s)
       case _ =>
     }
