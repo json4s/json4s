@@ -104,15 +104,15 @@ object Merge {
 
   private[json4s] trait Mergeable extends MergeDeps {
     implicit def j2m[A <: JValue](json: A): MergeSyntax[A] = new MergeSyntax(json)
+  }
 
-    class MergeSyntax[A <: JValue](json: A) {
+  class MergeSyntax[A <: JValue](private val json: A) extends AnyVal {
 
-      /**
-       * Return merged JSON.
-       * @see org.json4s.Merge#merge
-       */
-      def merge[B <: JValue, R <: JValue](other: B)(implicit instance: MergeDep[A, B, R]): R =
-        Merge.merge(json, other)(instance)
-    }
+    /**
+     * Return merged JSON.
+     * @see org.json4s.Merge#merge
+     */
+    def merge[B <: JValue, R <: JValue](other: B)(implicit instance: MergeDep[A, B, R]): R =
+      Merge.merge(json, other)(instance)
   }
 }
