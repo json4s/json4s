@@ -1,5 +1,7 @@
 package org.json4s
 
+import scala.annotation.tailrec
+
 object ParserUtil {
 
   class ParseException(message: String, cause: Exception) extends Exception(message, cause)
@@ -121,16 +123,18 @@ object ParserUtil {
         }
         val len = parts.map(p => p._2 - p._1 - 1).sum
         val chars = new Array[Char](len)
-        i = 0
-        var pos = 0
 
-        while (i < parts.size) {
-          val (start, end, b) = parts(i)
-          val partLen = end - start - 1
-          System.arraycopy(b, start, chars, pos, partLen)
-          pos = pos + partLen
-          i = i + 1
+        @tailrec
+        def loop(xs: List[(Int, Int, Array[Char])], pos: Int): Unit = {
+          xs match {
+            case (start, end, b) :: tail =>
+              val partLen = end - start - 1
+              System.arraycopy(b, start, chars, pos, partLen)
+              loop(tail, pos + partLen)
+            case _ =>
+          }
         }
+        loop(parts, 0)
         new String(chars)
       }
     }
