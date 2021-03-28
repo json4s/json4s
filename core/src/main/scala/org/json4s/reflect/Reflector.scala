@@ -48,7 +48,8 @@ object Reflector {
     stringTypes.clear()
   }
 
-  def isPrimitive(t: Type, extra: Set[Type] = Set.empty): Boolean = (primitives ++ extra) contains t
+  def isPrimitive(t: Type, extra: Set[Type] = Set.empty): Boolean =
+    primitives(t) || extra(t)
 
   def scalaTypeOf[T](implicit mf: Manifest[T]): ScalaType = ScalaType(mf)
   def scalaTypeOf(clazz: Class[_]): ScalaType = ScalaType(ManifestFactory.manifestOf(clazz))
