@@ -118,6 +118,7 @@ lazy val nativeCore = CrossProject(
 )(JVMPlatform, JSPlatform, NativePlatform)
   .settings(
     json4sSettings(cross = true),
+    Test / unmanagedResourceDirectories += baseDirectory.value.getParentFile / "shared/src/test/resources",
     libraryDependencies ++= Seq(scalatest.value, scalatestScalacheck.value),
   )
   .jsSettings(

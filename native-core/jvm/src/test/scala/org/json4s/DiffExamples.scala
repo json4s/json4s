@@ -18,6 +18,7 @@ package org.json4s
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
+import org.json4s.MonadicJValue._
 
 class NativeDiffExamples extends DiffExamples[Document]("Native") with native.JsonMethods
 
