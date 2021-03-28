@@ -9,6 +9,17 @@ class JacksonJsonMethodsSpec extends AnyWordSpec {
   import org.json4s.JsonDSL._
   import JsonMethods._
 
+  "A JValue can be converted to a JsonNode." in {
+    val jv = parse(""" { "numbers" : [1, 2], "foo": "bar" } """)
+    println(asJsonNode(jv))
+    parse(asJsonNode(jv).toString) == jv
+  }
+
+  "A JsonNode can be converted to a JValue." in {
+    val jv = parse(""" { "numbers" : [1, 2], "foo": "bar" } """)
+    fromJsonNode(asJsonNode(jv)) == jv
+  }
+
   "JsonMethods.write" should {
     "produce JSON without empty fields" should {
 
