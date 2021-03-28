@@ -37,7 +37,7 @@ object ManifestFactory {
   }
 
   def manifestOf(erasure: Class[_], typeArgs: Seq[Manifest[_]]): Manifest[_] = {
-    if (typeArgs.size == 0) {
+    if (typeArgs.isEmpty) {
       fromClass(erasure)
     } else {
       val normalizedErasure =
