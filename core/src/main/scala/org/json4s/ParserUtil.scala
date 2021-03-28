@@ -1,6 +1,6 @@
 package org.json4s
 
-import scala.annotation.tailrec
+import scala.annotation.{switch, tailrec}
 
 object ParserUtil {
 
@@ -47,7 +47,7 @@ object ParserUtil {
       var c = '\\'
       while (c != '"') {
         if (c == '\\') {
-          buf.next() match {
+          (buf.next(): @switch) match {
             case '"' => s.append('"')
             case '\\' => s.append('\\')
             case '/' => s.append('/')
