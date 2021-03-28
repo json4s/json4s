@@ -28,7 +28,7 @@ object JsonParser {
   /**
    * Parsed tokens from low level pull parser.
    */
-  sealed abstract class Token
+  sealed abstract class Token extends Product with Serializable
   case object OpenObj extends Token
   case object CloseObj extends Token
   case class FieldStart(name: String) extends Token
