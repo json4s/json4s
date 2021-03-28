@@ -85,7 +85,7 @@ object Merge {
         }
     }
 
-    mergeRec(List(), vs1, vs2)
+    mergeRec(Nil, vs1, vs2)
   }
 
   private[json4s] def mergeVals(vs1: List[JValue], vs2: List[JValue]): List[JValue] = {
@@ -99,7 +99,7 @@ object Merge {
         }
     }
 
-    mergeRec(List(), vs1, vs2)
+    mergeRec(Nil, vs1, vs2)
   }
 
   private[json4s] trait Mergeable extends MergeDeps {
