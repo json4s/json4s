@@ -28,7 +28,7 @@ object EmptyValueStrategy {
    */
   val preserve: EmptyValueStrategy = new EmptyValueStrategy {
 
-    def noneValReplacement = Some(JNull)
+    override val noneValReplacement = Some(JNull)
 
     def replaceEmpty(value: JValue): JValue = value match {
       case JArray(items) => JArray(items map replaceEmpty)
