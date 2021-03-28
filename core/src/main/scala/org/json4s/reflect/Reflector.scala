@@ -41,14 +41,14 @@ object Reflector {
     )
   }
 
-  def clearCaches() = {
+  def clearCaches(): Unit = {
     rawClasses.clear()
     unmangledNames.clear()
     descriptors.clear()
     stringTypes.clear()
   }
 
-  def isPrimitive(t: Type, extra: Set[Type] = Set.empty) = (primitives ++ extra) contains t
+  def isPrimitive(t: Type, extra: Set[Type] = Set.empty): Boolean = (primitives ++ extra) contains t
 
   def scalaTypeOf[T](implicit mf: Manifest[T]): ScalaType = ScalaType(mf)
   def scalaTypeOf(clazz: Class[_]): ScalaType = ScalaType(ManifestFactory.manifestOf(clazz))
@@ -266,7 +266,7 @@ object Reflector {
       }
     }
 
-    def result = {
+    def result: ClassDescriptor = {
       val constructors = constructorsAndCompanion
       ClassDescriptor(tpe.simpleName, tpe.fullName, tpe, companion, constructors, properties)
     }
@@ -292,9 +292,9 @@ object Reflector {
     }
   )
 
-  def unmangleName(name: String) = unmangledNames(name, scala.reflect.NameTransformer.decode)
+  def unmangleName(name: String): String = unmangledNames(name, scala.reflect.NameTransformer.decode)
 
-  def mkParameterizedType(owner: Type, typeArgs: Seq[Type]) =
+  def mkParameterizedType(owner: Type, typeArgs: Seq[Type]): ParameterizedType =
     new ParameterizedType {
       def getActualTypeArguments = typeArgs.toArray
       def getOwnerType = owner
