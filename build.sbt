@@ -42,18 +42,61 @@ lazy val scalap = Project(
   libraryDependencies ++= Seq(jaxbApi, scalatest.value, scalatestScalacheck.value),
 )
 
+lazy val disableScala211 = Def.settings(
+  Seq(Compile, Test).map { x =>
+    (x / sources) := {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 11)) =>
+          Nil
+        case _ =>
+          (x / sources).value
+      }
+    }
+  },
+  Test / test := {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, 11)) =>
+        ()
+      case _ =>
+        (Test / test).value
+    }
+  },
+  publish / skip := {
+    CrossVersion.partialVersion(scalaVersion.value) == Some((2, 11))
+  },
+)
+
 lazy val xml = CrossProject(
   id = "json4s-xml",
   base = file("xml"),
 )(JVMPlatform, JSPlatform, NativePlatform)
   .settings(
     json4sSettings(cross = true),
+    libraryDependencies ++= Seq(scalaXml.value, scalatest.value, scalatestScalacheck.value),
+  )
+  .jvmSettings(
     libraryDependencies += scalaXml.value,
+  )
+  .platformsSettings(JSPlatform, NativePlatform)(
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 11)) =>
+          Nil
+        case _ =>
+          Seq(scalaXml.value)
+      }
+    },
+    // scala-xml_sjs1_2.11 and scala-xml_native0.4_2.11 does not available
+    // https://repo1.maven.org/maven2/org/scala-lang/modules/
+    disableScala211,
   )
   .jsSettings(
     scalajsProjectSettings
   )
-  .dependsOn(ast)
+  .dependsOn(
+    ast % "compile;test->test",
+    nativeCore % "test",
+  )
 
 lazy val xmlJVM = xml.jvm
 
@@ -187,7 +230,7 @@ lazy val json4sTests = Project(
     """.stripMargin,
 ).dependsOn(
   core % "compile;test->test",
-  xmlJVM,
+  xmlJVM % "compile;test->test",
   native % "compile;test->test",
   json4sExt,
   jacksonSupport
