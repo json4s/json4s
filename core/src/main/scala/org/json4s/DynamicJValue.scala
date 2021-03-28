@@ -11,7 +11,7 @@ class DynamicJValue(val raw: JValue) extends Dynamic {
    * JObject(JField("name",JString("joe"))::Nil).name == JString("joe")
    * </pre>
    */
-  def selectDynamic(name: String) = new DynamicJValue(raw \ name)
+  def selectDynamic(name: String): DynamicJValue = new DynamicJValue(raw \ name)
 
   override def hashCode(): Int = raw.hashCode
 
