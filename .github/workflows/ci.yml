@@ -13,7 +13,11 @@ jobs:
       matrix:
         include:
           - java: 8
-            scala: 2
+            scala: 2_11
+          - java: 8
+            scala: 2_12
+          - java: 8
+            scala: 2_13
           - java: 8
             scala: 3
           - java: 11
@@ -27,8 +31,17 @@ jobs:
     - run: |
         export TZ=Australia/Canberra
         case ${{ matrix.scala }} in
+          2_11)
+            sbt -v scalafmtSbtCheck SetScala211 scalafmtCheckAll test
+            ;;
+          2_12)
+            sbt -v scalafmtSbtCheck SetScala212 scalafmtCheckAll test
+            ;;
+          2_13)
+            sbt -v scalafmtSbtCheck SetScala213 scalafmtCheckAll test
+            ;;
           2)
-            sbt -v scalafmtSbtCheck "+ scalafmtCheckAll" "+ test"
+            sbt -v scalafmtSbtCheck scalafmtCheckAll test
             ;;
           3)
             sbt -v \
