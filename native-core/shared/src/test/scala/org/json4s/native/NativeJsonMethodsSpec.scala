@@ -3,6 +3,7 @@ package native
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.prefs.EmptyValueStrategy
+import org.json4s.MonadicJValue._
 
 class NativeJsonMethodsSpec extends AnyWordSpec {
 
