@@ -18,6 +18,7 @@ package org.json4s
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
+import org.json4s.MonadicJValue._
 
 class NativeJsonQueryExamples extends JsonQueryExamples[Document]("Native") with native.JsonMethods
 
@@ -30,13 +31,6 @@ abstract class JsonQueryExamples[T](mod: String) extends AnyWordSpec with JsonMe
     "List of IPs" in {
       val ips = for { JString(ip) <- json \\ "ip" } yield ip
       assert(ips == List("192.168.1.125", "192.168.1.126", "192.168.1.127", "192.168.2.125", "192.168.2.126"))
-    }
-
-    "List of IPs converted to XML" in {
-      val ips = <ips>{for { JString(ip) <- json \\ "ip" } yield <ip>{ip}</ip>}</ips>
-      assert(
-        ips == <ips><ip>192.168.1.125</ip><ip>192.168.1.126</ip><ip>192.168.1.127</ip><ip>192.168.2.125</ip><ip>192.168.2.126</ip></ips>
-      )
     }
 
     "List of IPs in cluster2" in {
