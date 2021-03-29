@@ -20,8 +20,12 @@ class JsonParserSpecJVM extends AnyWordSpec {
       }
     }"""
     val executor = Executors.newFixedThreadPool(100)
-    val results =
-      (0 to 100).map(_ => executor.submit(new Callable[JValue] { def call = parse(json) })).toList.map(_.get)
-    assert(results.zip(results.tail).forall(pair => pair._1 == pair._2))
+    try {
+      val results =
+        (0 to 100).map(_ => executor.submit(new Callable[JValue] { def call = parse(json) })).toList.map(_.get)
+      assert(results.zip(results.tail).forall(pair => pair._1 == pair._2))
+    } finally {
+      executor.shutdown()
+    }
   }
 }
