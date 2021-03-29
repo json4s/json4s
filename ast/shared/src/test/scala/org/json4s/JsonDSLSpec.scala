@@ -39,12 +39,12 @@ class JsonDSLSpec extends AnyWordSpec with JValueGen with Checkers {
           ("byteArray" -> List[Byte](byteValue)) ~
           ("charArray" -> List[Char](charValue))
         val expected = JObject(
-          ("shortValue", JInt(shortValue)),
-          ("byteValue", JInt(byteValue)),
-          ("charValue", JInt(charValue)),
-          ("shortArray", JArray(List(JInt(shortValue)))),
-          ("byteArray", JArray(List(JInt(byteValue)))),
-          ("charArray", JArray(List(JInt(charValue))))
+          ("shortValue", JInt(shortValue: Long)),
+          ("byteValue", JInt(byteValue: Long)),
+          ("charValue", JInt(charValue: Long)),
+          ("shortArray", JArray(List(JInt(shortValue: Long)))),
+          ("byteArray", JArray(List(JInt(byteValue: Long)))),
+          ("charArray", JArray(List(JInt(charValue: Long))))
         )
         dslValue == expected
       }
