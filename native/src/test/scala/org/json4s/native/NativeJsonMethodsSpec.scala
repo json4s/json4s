@@ -46,7 +46,6 @@ class NativeJsonMethodsSpec extends AnyWordSpec {
   "JsonMethods.write" should {
 
     "produce JSON without empty fields" should {
-      implicit val formats: Formats = DefaultFormats.skippingEmptyValues
 
       "from Seq(Some(1), None, None, Some(2))" in {
         val seq = Seq(Some(1), None, None, Some(2))
