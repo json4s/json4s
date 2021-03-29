@@ -86,6 +86,6 @@ abstract class DiffExamples[T](mod: String) extends AnyWordSpec with JsonMethods
   }
 
   private def read(resource: String) =
-    parse(getClass.getResourceAsStream(resource))
+    parse(TestUtils.readFile(resource))
 
 }

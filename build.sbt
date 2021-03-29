@@ -27,8 +27,10 @@ lazy val ast = CrossProject(
     }
   )
   .platformsSettings(JVMPlatform, NativePlatform)(
-    Compile / unmanagedSourceDirectories += {
-      baseDirectory.value.getParentFile / "jvm_native/src/main/scala"
+    Seq(Compile, Test).map { c =>
+      c / unmanagedSourceDirectories += {
+        baseDirectory.value.getParentFile / "jvm_native/src" / Defaults.nameForSrc(c.name) / "scala"
+      }
     }
   )
 
