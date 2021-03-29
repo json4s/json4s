@@ -1,6 +1,6 @@
 package org.json4s
 
-import java.io.{File, InputStream}
+import java.io.InputStream
 
 sealed abstract class JsonInput extends Product with Serializable {
   private[json4s] def toReader(): java.io.Reader = this match {
