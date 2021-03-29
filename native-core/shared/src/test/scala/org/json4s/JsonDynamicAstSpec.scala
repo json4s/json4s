@@ -1,6 +1,7 @@
 package org.json4s
 
 import org.scalatest.wordspec.AnyWordSpec
+import org.json4s.MonadicJValue._
 
 class JsonDynamicAstSpec extends AnyWordSpec {
 
