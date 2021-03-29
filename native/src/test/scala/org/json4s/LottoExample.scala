@@ -17,15 +17,6 @@
 package org.json4s
 
 import org.scalatest.wordspec.AnyWordSpec
-import org.json4s.native.Document
-
-class NativeLottoExample extends LottoExample[Document]("Native") with native.JsonMethods {
-  import LottoExample._
-  implicit val formats: Formats = DefaultFormats
-  def extractWinner(jv: JValue): Winner = jv.extract[Winner]
-
-  def extractLotto(jv: JValue): Lotto = jv.extract[Lotto]
-}
 
 abstract class LottoExample[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
   import LottoExample._
