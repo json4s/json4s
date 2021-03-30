@@ -160,7 +160,7 @@ res0: org.json4s.JValue =
       JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
 
 scala> parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
-res1: org.json4s.package.JValue =
+res1: org.json4s.JValue =
       JObject(List((name,JString(Toy)), (price,JDecimal(35.35))))
 ```
 
@@ -175,7 +175,7 @@ res0: org.json4s.JValue =
       JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
 
 scala> parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
-res1: org.json4s.package.JValue =
+res1: org.json4s.JValue =
       JObject(List((name,JString(Toy)), (price,JDecimal(35.35))))
 ```
 
