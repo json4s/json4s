@@ -1,5 +1,4 @@
 import sbtcrossproject.CrossProject
-import Dependencies._
 import build._
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -7,11 +6,10 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 json4sSettings(cross = false)
 noPublish
 
-lazy val ast = CrossProject(
-  id = "json4s-ast",
-  base = file("ast"),
-)(JVMPlatform, JSPlatform, NativePlatform)
+lazy val ast = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+  .in(file("ast"))
   .settings(
+    name := "json4s-ast",
     json4sSettings(cross = true),
     buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
     buildInfoPackage := "org.json4s",
@@ -35,13 +33,13 @@ lazy val ast = CrossProject(
 
 lazy val astJVM = ast.jvm
 
-lazy val scalap = Project(
-  id = "json4s-scalap",
-  base = file("scalap"),
-).settings(
-  json4sSettings(cross = false),
-  libraryDependencies ++= Seq(jaxbApi),
-)
+lazy val scalap = project
+  .in(file("scalap"))
+  .settings(
+    name := "json4s-scalap",
+    json4sSettings(cross = false),
+    libraryDependencies ++= Seq(Dependencies.jaxbApi),
+  )
 
 lazy val disableScala211 = Def.settings(
   Seq(Compile, Test).map { x =>
@@ -67,16 +65,14 @@ lazy val disableScala211 = Def.settings(
   },
 )
 
-lazy val xml = CrossProject(
-  id = "json4s-xml",
-  base = file("xml"),
-)(JVMPlatform, JSPlatform, NativePlatform)
+lazy val xml = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+  .in(file("xml"))
   .settings(
+    name := "json4s-xml",
     json4sSettings(cross = true),
-    libraryDependencies ++= Seq(scalaXml.value),
   )
   .jvmSettings(
-    libraryDependencies += scalaXml.value,
+    libraryDependencies += Dependencies.scalaXml.value,
   )
   .platformsSettings(JSPlatform, NativePlatform)(
     libraryDependencies ++= {
@@ -84,7 +80,7 @@ lazy val xml = CrossProject(
         case Some((2, 11)) =>
           Nil
         case _ =>
-          Seq(scalaXml.value)
+          Seq(Dependencies.scalaXml.value)
       }
     },
     // scala-xml_sjs1_2.11 and scala-xml_native0.4_2.11 does not available
@@ -101,23 +97,23 @@ lazy val xml = CrossProject(
 
 lazy val xmlJVM = xml.jvm
 
-lazy val core = Project(
-  id = "json4s-core",
-  base = file("core"),
-).settings(
-  json4sSettings(cross = false),
-  libraryDependencies ++= Seq(paranamer),
-  Test / console / initialCommands := """
-      |import org.json4s._
-      |import reflect._
-    """.stripMargin,
-).dependsOn(astJVM % "compile;test->test", scalap)
-
-lazy val nativeCore = CrossProject(
-  id = "json4s-native-core",
-  base = file("native-core"),
-)(JVMPlatform, JSPlatform, NativePlatform)
+lazy val core = project
+  .in(file("core"))
   .settings(
+    name := "json4s-core",
+    json4sSettings(cross = false),
+    libraryDependencies ++= Seq(Dependencies.paranamer),
+    Test / console / initialCommands := """
+        |import org.json4s._
+        |import reflect._
+      """.stripMargin,
+  )
+  .dependsOn(astJVM % "compile;test->test", scalap)
+
+lazy val nativeCore = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+  .in(file("native-core"))
+  .settings(
+    name := "json4s-native-core",
     json4sSettings(cross = true),
     Test / unmanagedResourceDirectories += baseDirectory.value.getParentFile / "shared/src/test/resources",
   )
@@ -128,65 +124,68 @@ lazy val nativeCore = CrossProject(
 
 lazy val nativeCoreJVM = nativeCore.jvm
 
-lazy val native = Project(
-  id = "json4s-native",
-  base = file("native"),
-).settings(
-  json4sSettings(cross = false),
-).dependsOn(
-  core % "compile;test->test",
-  nativeCoreJVM % "compile;test->test",
-)
-
-lazy val json4sExt = Project(
-  id = "json4s-ext",
-  base = file("ext"),
-).settings(
-  json4sSettings(cross = false),
-  libraryDependencies ++= jodaTime,
-).dependsOn(core)
-
-lazy val jacksonCore = Project(
-  id = "json4s-jackson-core",
-  base = file("jackson-core"),
-).settings(
-  json4sSettings(cross = false),
-  libraryDependencies ++= jackson,
-).dependsOn(astJVM % "compile;test->test")
-
-lazy val jacksonSupport = Project(
-  id = "json4s-jackson",
-  base = file("jackson"),
-).settings(
-  json4sSettings(cross = false),
-  libraryDependencies ++= jackson,
-).dependsOn(
-  core % "compile;test->test",
-  native % "test->test",
-  jacksonCore % "compile;test->test",
-)
-
-lazy val examples = Project(
-  id = "json4s-examples",
-  base = file("examples"),
-).settings(
-  json4sSettings(cross = false),
-  noPublish,
-).dependsOn(
-  core % "compile;test->test",
-  native % "compile;test->test",
-  jacksonSupport % "compile;test->test",
-  json4sExt,
-  mongo
-)
-
-lazy val scalazExt = CrossProject(
-  id = "json4s-scalaz",
-  base = file("scalaz"),
-)(JVMPlatform, JSPlatform, NativePlatform)
+lazy val native = project
+  .in(file("native"))
   .settings(
+    name := "json4s-native",
+    json4sSettings(cross = false),
+  )
+  .dependsOn(
+    core % "compile;test->test",
+    nativeCoreJVM % "compile;test->test",
+  )
+
+lazy val ext = project
+  .in(file("ext"))
+  .settings(
+    name := "json4s-ext",
+    json4sSettings(cross = false),
+    libraryDependencies ++= Dependencies.jodaTime,
+  )
+  .dependsOn(core)
+
+lazy val jacksonCore = project
+  .in(file("jackson-core"))
+  .settings(
+    name := "json4s-jackson-core",
+    json4sSettings(cross = false),
+    libraryDependencies ++= Dependencies.jackson,
+  )
+  .dependsOn(astJVM % "compile;test->test")
+
+lazy val jackson = project
+  .in(file("jackson"))
+  .settings(
+    name := "json4s-jackson",
+    json4sSettings(cross = false),
+  )
+  .dependsOn(
+    core % "compile;test->test",
+    native % "test->test",
+    jacksonCore % "compile;test->test",
+  )
+
+lazy val examples = project
+  .in(file("examples"))
+  .settings(
+    name := "json4s-examples",
+    json4sSettings(cross = false),
+    noPublish,
+  )
+  .dependsOn(
+    core % "compile;test->test",
+    native % "compile;test->test",
+    jackson % "compile;test->test",
+    ext,
+    mongo
+  )
+
+lazy val scalaz = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+  .in(file("scalaz"))
+  .settings(
+    name := "json4s-scalaz",
     json4sSettings(cross = true),
-    libraryDependencies += scalaz_core.value,
+    libraryDependencies += Dependencies.scalaz_core.value,
   )
   .jsSettings(
     scalajsProjectSettings
@@ -201,34 +200,35 @@ lazy val scalazExt = CrossProject(
     )
   )
 
-lazy val mongo = Project(
-  id = "json4s-mongo",
-  base = file("mongo"),
-).settings(
-  json4sSettings(cross = false),
-  libraryDependencies ++= Seq(
-    "org.mongodb" % "mongo-java-driver" % "3.12.8"
-  ),
-).dependsOn(
-  core % "compile;test->test",
-  jacksonSupport % "test",
-)
+lazy val mongo = project
+  .in(file("mongo"))
+  .settings(
+    name := "json4s-mongo",
+    json4sSettings(cross = false),
+    libraryDependencies ++= Seq(
+      "org.mongodb" % "mongo-java-driver" % "3.12.8"
+    ),
+  )
+  .dependsOn(
+    core % "compile;test->test",
+    jackson % "test",
+  )
 
-lazy val json4sTests = Project(
-  id = "json4s-tests",
-  base = file("tests"),
-).settings(
-  json4sSettings(cross = false),
-  noPublish,
-  Test / console / initialCommands :=
-    """
-      |import org.json4s._
-      |import reflect._
-    """.stripMargin,
-).dependsOn(
-  core % "compile;test->test",
-  xmlJVM % "compile;test->test",
-  native % "compile;test->test",
-  json4sExt,
-  jacksonSupport
-)
+lazy val tests = project
+  .in(file("tests"))
+  .settings(
+    json4sSettings(cross = false),
+    noPublish,
+    Test / console / initialCommands :=
+      """
+        |import org.json4s._
+        |import reflect._
+      """.stripMargin,
+  )
+  .dependsOn(
+    core % "compile;test->test",
+    xmlJVM % "compile;test->test",
+    native % "compile;test->test",
+    ext,
+    jackson
+  )

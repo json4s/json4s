@@ -48,9 +48,9 @@ jobs:
             scalafmtSbtCheck \
             '++ 3.0.0-RC1!' \
             scalafmtCheckAll \
-            "all json4s-astJVM/test json4s-scalap/test" \
+            "all astJVM/test scalap/test" \
             '++ 3.0.0-RC2!' \
-            "all json4s-astJS/compile json4s-astJVM/compile json4s-jackson-core/compile json4s-native-coreJS/compile json4s-native-coreJVM/compile json4s-scalap/compile json4s-scalazJS/compile json4s-scalazJVM/compile json4s-xmlJS/compile json4s-xmlJVM/compile"
+            "all astJS/compile astJVM/compile jacksonCore/compile nativeCoreJS/compile nativeCoreJVM/compile scalap/compile scalazJS/compile scalazJVM/compile xmlJS/compile xmlJVM/compile"
             ;;
           *)
             echo "unknown scala version"
