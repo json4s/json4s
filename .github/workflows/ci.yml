@@ -50,7 +50,7 @@ jobs:
             scalafmtCheckAll \
             "all astJVM/test scalap/test" \
             '++ 3.0.0-RC2!' \
-            "all astJS/compile astJVM/compile jacksonCore/compile nativeCoreJS/compile nativeCoreJVM/compile scalap/compile scalazJS/compile scalazJVM/compile xmlJS/compile xmlJVM/compile"
+            "all astJS/compile astJVM/compile jacksonCore/compile nativeCoreJS/compile nativeCoreJVM/compile scalap/compile scalazJS/compile scalazJVM/compile xmlJS/compile xmlJVM/compile jackson/compile mongo/compile ext/compile"
             ;;
           *)
             echo "unknown scala version"

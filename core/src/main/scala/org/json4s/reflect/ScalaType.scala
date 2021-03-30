@@ -56,22 +56,42 @@ object ScalaType {
   // Deal with the most common cases as an optimization
   /* optimization */
   private val IntType: ScalaType = new PrimitiveScalaType(Manifest.Int)
-  private val NumberType: ScalaType = new PrimitiveScalaType(manifest[Number])
+  private val NumberType: ScalaType = new PrimitiveScalaType(Manifest.classType(classOf[Number]))
   private val LongType: ScalaType = new PrimitiveScalaType(Manifest.Long)
   private val ByteType: ScalaType = new PrimitiveScalaType(Manifest.Byte)
   private val ShortType: ScalaType = new PrimitiveScalaType(Manifest.Short)
   private val BooleanType: ScalaType = new PrimitiveScalaType(Manifest.Boolean)
   private val FloatType: ScalaType = new PrimitiveScalaType(Manifest.Float)
   private val DoubleType: ScalaType = new PrimitiveScalaType(Manifest.Double)
-  private val StringType: ScalaType = new PrimitiveScalaType(manifest[java.lang.String])
-  private val SymbolType: ScalaType = new PrimitiveScalaType(manifest[Symbol])
-  private val BigDecimalType: ScalaType = new PrimitiveScalaType(manifest[BigDecimal])
-  private val BigIntType: ScalaType = new PrimitiveScalaType(manifest[BigInt])
-  private val JValueType: ScalaType = new PrimitiveScalaType(manifest[JValue])
-  private val JObjectType: ScalaType = new PrimitiveScalaType(manifest[JObject])
-  private val JArrayType: ScalaType = new PrimitiveScalaType(manifest[JArray])
-  private val DateType: ScalaType = new PrimitiveScalaType(manifest[java.util.Date])
-  private val TimestampType: ScalaType = new PrimitiveScalaType(manifest[java.sql.Timestamp])
+  private val StringType: ScalaType = new PrimitiveScalaType(Manifest.classType(classOf[java.lang.String]))
+  private val SymbolType: ScalaType = new PrimitiveScalaType(Manifest.classType(classOf[Symbol]))
+  private val BigDecimalType: ScalaType = new PrimitiveScalaType(Manifest.classType(classOf[BigDecimal]))
+  private val BigIntType: ScalaType = new PrimitiveScalaType(Manifest.classType(classOf[BigInt]))
+  private val JValueType: ScalaType = new PrimitiveScalaType(Manifest.classType(classOf[JValue]))
+  private val JObjectType: ScalaType = new PrimitiveScalaType(Manifest.classType(classOf[JObject]))
+  private val JArrayType: ScalaType = new PrimitiveScalaType(Manifest.classType(classOf[JArray]))
+  private val DateType: ScalaType = new PrimitiveScalaType(Manifest.classType(classOf[java.util.Date]))
+  private val TimestampType: ScalaType = new PrimitiveScalaType(Manifest.classType(classOf[java.sql.Timestamp]))
+
+  private[json4s] val ListObject: ScalaType =
+    new ScalaType(
+      Manifest.classType(
+        classOf[List[_]],
+        Manifest.Object
+      )
+    )
+
+  private[json4s] val Object: ScalaType =
+    new ScalaType(Manifest.Object)
+
+  private[json4s] val MapStringObject: ScalaType =
+    new ScalaType(
+      Manifest.classType(
+        classOf[Map[_, _]],
+        Manifest.classType(classOf[String]),
+        Manifest.Object
+      )
+    )
 
   private class PrimitiveScalaType(mf: Manifest[_]) extends ScalaType(mf) {
     override val isPrimitive = true

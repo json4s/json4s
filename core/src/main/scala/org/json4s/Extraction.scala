@@ -471,15 +471,15 @@ object Extraction {
   private[this] def extractDetectingNonTerminal(jvalue: JValue, typeArg: ScalaType)(implicit formats: Formats) =
     jvalue match {
       case subArr: JArray if typeArg.erasure == Manifest.Object.runtimeClass =>
-        extract(subArr, Reflector.scalaTypeOf[List[Object]])
+        extract(subArr, ScalaType.ListObject)
       case subObj: JObject
           if typeArg.erasure == Manifest.Object.runtimeClass && subObj.obj
             .exists(
               _._1 == formats.typeHints.typeHintFieldName
             ) =>
-        extract(subObj, Reflector.scalaTypeOf[Object])
+        extract(subObj, ScalaType.Object)
       case subObj: JObject if typeArg.erasure == Manifest.Object.runtimeClass =>
-        extract(subObj, Reflector.scalaTypeOf[Map[String, Object]])
+        extract(subObj, ScalaType.MapStringObject)
       case value => extract(value, typeArg)
     }
 
@@ -660,7 +660,7 @@ object Extraction {
           default.getOrElse(throw new MappingException("Expected value but got null"))
         case value =>
           Option(extract(value, descr.argType)).getOrElse {
-            if (descr.defaultValue.isEmpty && descr.argType <:< ScalaType(manifest[AnyVal])) {
+            if (descr.defaultValue.isEmpty && descr.argType <:< ScalaType(Manifest.AnyVal)) {
               throw new MappingException("Null invalid value for a sub-type of AnyVal")
             } else {
               default.orNull
