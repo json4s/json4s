@@ -13,18 +13,26 @@ object Dependencies {
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.12.2"
   )
   lazy val scalaz_core = Def.setting(
-    "org.scalaz" %%% "scalaz-core" % "7.3.3"
+    "org.scalaz" %%% "scalaz-core" % "7.3.3" cross CrossVersion.for3Use2_13
   )
   lazy val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.8"
   lazy val scalatest = Def.setting(
-    "org.scalatest" %%% "scalatest-wordspec" % "3.2.6" % "test"
+    if (scalaVersion.value == "3.0.0-RC2") {
+      Nil
+    } else {
+      Seq("org.scalatest" %%% "scalatest-wordspec" % "3.2.6" % "test")
+    }
   )
   lazy val scalatestScalacheck = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 11)) =>
-        "org.scalatestplus" %%% "scalacheck-1-15" % "3.2.4.0-M1" % "test"
+        Seq("org.scalatestplus" %%% "scalacheck-1-15" % "3.2.4.0-M1" % "test")
       case _ =>
-        "org.scalatestplus" %%% "scalacheck-1-15" % "3.2.6.0" % "test"
+        if (scalaVersion.value == "3.0.0-RC2") {
+          Nil
+        } else {
+          Seq("org.scalatestplus" %%% "scalacheck-1-15" % "3.2.6.0" % "test")
+        }
     }
   )
 

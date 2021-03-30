@@ -15,7 +15,6 @@ lazy val ast = CrossProject(
     json4sSettings(cross = true),
     buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
     buildInfoPackage := "org.json4s",
-    libraryDependencies ++= Seq(scalatest.value, scalatestScalacheck.value),
   )
   .enablePlugins(BuildInfoPlugin)
   .jsSettings(
@@ -41,7 +40,7 @@ lazy val scalap = Project(
   base = file("scalap"),
 ).settings(
   json4sSettings(cross = false),
-  libraryDependencies ++= Seq(jaxbApi, scalatest.value, scalatestScalacheck.value),
+  libraryDependencies ++= Seq(jaxbApi),
 )
 
 lazy val disableScala211 = Def.settings(
@@ -74,7 +73,7 @@ lazy val xml = CrossProject(
 )(JVMPlatform, JSPlatform, NativePlatform)
   .settings(
     json4sSettings(cross = true),
-    libraryDependencies ++= Seq(scalaXml.value, scalatest.value, scalatestScalacheck.value),
+    libraryDependencies ++= Seq(scalaXml.value),
   )
   .jvmSettings(
     libraryDependencies += scalaXml.value,
@@ -107,7 +106,7 @@ lazy val core = Project(
   base = file("core"),
 ).settings(
   json4sSettings(cross = false),
-  libraryDependencies ++= Seq(paranamer, scalatest.value, scalatestScalacheck.value),
+  libraryDependencies ++= Seq(paranamer),
   Test / console / initialCommands := """
       |import org.json4s._
       |import reflect._
@@ -121,7 +120,6 @@ lazy val nativeCore = CrossProject(
   .settings(
     json4sSettings(cross = true),
     Test / unmanagedResourceDirectories += baseDirectory.value.getParentFile / "shared/src/test/resources",
-    libraryDependencies ++= Seq(scalatest.value, scalatestScalacheck.value),
   )
   .jsSettings(
     scalajsProjectSettings
@@ -135,7 +133,6 @@ lazy val native = Project(
   base = file("native"),
 ).settings(
   json4sSettings(cross = false),
-  libraryDependencies ++= Seq(scalatest.value, scalatestScalacheck.value),
 ).dependsOn(
   core % "compile;test->test",
   nativeCoreJVM % "compile;test->test",
@@ -189,7 +186,6 @@ lazy val scalazExt = CrossProject(
 )(JVMPlatform, JSPlatform, NativePlatform)
   .settings(
     json4sSettings(cross = true),
-    libraryDependencies += scalatest.value,
     libraryDependencies += scalaz_core.value,
   )
   .jsSettings(
@@ -211,7 +207,6 @@ lazy val mongo = Project(
 ).settings(
   json4sSettings(cross = false),
   libraryDependencies ++= Seq(
-    scalatest.value,
     "org.mongodb" % "mongo-java-driver" % "3.12.8"
   ),
 ).dependsOn(
@@ -225,7 +220,6 @@ lazy val json4sTests = Project(
 ).settings(
   json4sSettings(cross = false),
   noPublish,
-  libraryDependencies ++= Seq(scalatest.value, scalatestScalacheck.value),
   Test / console / initialCommands :=
     """
       |import org.json4s._

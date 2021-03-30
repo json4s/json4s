@@ -72,6 +72,7 @@ object build {
       "-language:implicitConversions",
       "-language:higherKinds",
     ),
+    libraryDependencies ++= Seq(scalatest.value, scalatestScalacheck.value).flatten,
     (Compile / doc / scalacOptions) ++= {
       val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
