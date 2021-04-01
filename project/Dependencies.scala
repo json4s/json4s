@@ -17,22 +17,14 @@ object Dependencies {
   )
   lazy val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.8"
   lazy val scalatest = Def.setting(
-    if (scalaVersion.value == "3.0.0-RC2") {
-      Nil
-    } else {
-      Seq("org.scalatest" %%% "scalatest-wordspec" % "3.2.6" % "test")
-    }
+    Seq("org.scalatest" %%% "scalatest-wordspec" % "3.2.7" % "test")
   )
   lazy val scalatestScalacheck = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 11)) =>
         Seq("org.scalatestplus" %%% "scalacheck-1-15" % "3.2.4.0-M1" % "test")
       case _ =>
-        if (scalaVersion.value == "3.0.0-RC2") {
-          Nil
-        } else {
-          Seq("org.scalatestplus" %%% "scalacheck-1-15" % "3.2.6.0" % "test")
-        }
+        Seq("org.scalatestplus" %%% "scalacheck-1-15" % "3.2.7.0" % "test")
     }
   )
 

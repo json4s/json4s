@@ -46,11 +46,9 @@ jobs:
           3)
             sbt -v \
             scalafmtSbtCheck \
-            '++ 3.0.0-RC1!' \
-            scalafmtCheckAll \
-            "all astJVM/test scalap/test" \
             '++ 3.0.0-RC2!' \
-            "all astJS/compile astJVM/compile jacksonCore/compile nativeCoreJS/compile nativeCoreJVM/compile scalap/compile scalazJS/compile scalazJVM/compile xmlJS/compile xmlJVM/compile jackson/compile mongo/compile ext/compile"
+            scalafmtCheckAll \
+            "all astJVM/test jacksonCore/test nativeCoreJVM/test scalap/test scalazJVM/compile xmlJVM/test jackson/compile mongo/compile ext/compile"
             ;;
           *)
             echo "unknown scala version"
