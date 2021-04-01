@@ -14,6 +14,7 @@ import org.scalatest.wordspec.AnyWordSpec
 class ValidationExample extends AnyWordSpec {
 
   case class Person(name: String, age: Int)
+  object Person extends ((String, Int) => Person)
 
   "Validation" should {
     def min(x: Int): Int => Result[Int] = (y: Int) => if (y < x) Fail("min", s"$y < $x") else y.success
@@ -36,6 +37,7 @@ class ValidationExample extends AnyWordSpec {
   }
 
   case class Range(start: Int, end: Int)
+  object Range extends ((Int, Int) => Range)
 
   // This example shows:
   // * a validation where result depends on more than one value

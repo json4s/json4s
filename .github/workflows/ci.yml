@@ -48,7 +48,7 @@ jobs:
             scalafmtSbtCheck \
             '++ 3.0.0-RC2!' \
             scalafmtCheckAll \
-            "all astJVM/test jacksonCore/test nativeCoreJVM/test scalap/test scalazJVM/compile xmlJVM/test jackson/compile mongo/compile ext/compile"
+            "all astJVM/test jacksonCore/test nativeCoreJVM/test scalap/test scalazJVM/test xmlJVM/test jackson/compile mongo/compile ext/compile"
             ;;
           *)
             echo "unknown scala version"

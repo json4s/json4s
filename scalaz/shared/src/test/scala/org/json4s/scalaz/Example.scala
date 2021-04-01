@@ -12,7 +12,9 @@ import org.scalatest.wordspec.AnyWordSpec
 class Example extends AnyWordSpec {
 
   case class Address(street: String, zipCode: String)
+  object Address extends ((String, String) => Address)
   case class Person(name: String, age: Int, address: Address)
+  object Person extends ((String, Int, Address) => Person)
 
   "Parse address in an Applicative style" in {
     val json = parse(""" {"street": "Manhattan 2", "zip": "00223" } """)

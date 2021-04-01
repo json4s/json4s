@@ -9,7 +9,9 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class LottoExample extends AnyWordSpec {
   case class Winner(winnerId: Long, numbers: List[Int])
+  object Winner extends ((Long, List[Int]) => Winner)
   case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[String])
+  object Lotto extends ((Long, List[Int], List[Winner], Option[String]) => Lotto)
 
   val json = parse(
     """{"id":5,"winning-numbers":[2,45,34,23,7,5],"winners":[{"winner-id":23,"numbers":[2,45,34,23,3,5]},{"winner-id":54,"numbers":[52,3,12,11,18,22]}]}"""
