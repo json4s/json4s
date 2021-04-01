@@ -47,11 +47,11 @@ private[json4s] trait LowPriorityMergeDep {
 }
 
 private[json4s] trait MergeDeps extends LowPriorityMergeDep {
-  implicit object ooo extends MergeDep[JObject, JObject, JObject] {
+  implicit val ooo: MergeDep[JObject, JObject, JObject] = new MergeDep[JObject, JObject, JObject] {
     def apply(val1: JObject, val2: JObject): JObject = JObject(Merge.mergeFields(val1.obj, val2.obj))
   }
 
-  implicit object aaa extends MergeDep[JArray, JArray, JArray] {
+  implicit val aaa: MergeDep[JArray, JArray, JArray] = new MergeDep[JArray, JArray, JArray] {
     def apply(val1: JArray, val2: JArray): JArray = JArray(Merge.mergeVals(val1.arr, val2.arr))
   }
 }

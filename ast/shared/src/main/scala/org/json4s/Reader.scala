@@ -17,7 +17,7 @@ object Reader {
 
 object DefaultReaders extends DefaultReaders
 trait DefaultReaders extends DefaultReaders0 {
-  implicit object IntReader extends Reader[Int] {
+  implicit val IntReader: Reader[Int] = new Reader[Int] {
     def read(value: JValue): Int = value match {
       case JInt(x) => x.intValue
       case JLong(x) => x.intValue
@@ -27,7 +27,7 @@ trait DefaultReaders extends DefaultReaders0 {
     }
   }
 
-  implicit object BigIntReader extends Reader[BigInt] {
+  implicit val BigIntReader: Reader[BigInt] = new Reader[BigInt] {
     def read(value: JValue): BigInt = value match {
       case JInt(x) => x
       case JLong(x) => BigInt(x)
@@ -37,7 +37,7 @@ trait DefaultReaders extends DefaultReaders0 {
     }
   }
 
-  implicit object LongReader extends Reader[Long] {
+  implicit val LongReader: Reader[Long] = new Reader[Long] {
     def read(value: JValue): Long = value match {
       case JInt(x) => x.longValue
       case JLong(x) => x
@@ -47,7 +47,7 @@ trait DefaultReaders extends DefaultReaders0 {
     }
   }
 
-  implicit object ShortReader extends Reader[Short] {
+  implicit val ShortReader: Reader[Short] = new Reader[Short] {
     def read(value: JValue): Short = value match {
       case JInt(x) => x.shortValue
       case JLong(x) => x.shortValue
@@ -58,7 +58,7 @@ trait DefaultReaders extends DefaultReaders0 {
     }
   }
 
-  implicit object ByteReader extends Reader[Byte] {
+  implicit val ByteReader: Reader[Byte] = new Reader[Byte] {
     def read(value: JValue): Byte = value match {
       case JInt(x) => x.byteValue
       case JLong(x) => x.byteValue
@@ -69,7 +69,7 @@ trait DefaultReaders extends DefaultReaders0 {
     }
   }
 
-  implicit object FloatReader extends Reader[Float] {
+  implicit val FloatReader: Reader[Float] = new Reader[Float] {
     def read(value: JValue): Float = value match {
       case JInt(x) => x.floatValue
       case JLong(x) => x.floatValue
@@ -80,7 +80,7 @@ trait DefaultReaders extends DefaultReaders0 {
     }
   }
 
-  implicit object DoubleReader extends Reader[Double] {
+  implicit val DoubleReader: Reader[Double] = new Reader[Double] {
     def read(value: JValue): Double = value match {
       case JInt(x) => x.doubleValue
       case JLong(x) => x.doubleValue
@@ -91,7 +91,7 @@ trait DefaultReaders extends DefaultReaders0 {
     }
   }
 
-  implicit object BigDecimalReader extends Reader[BigDecimal] {
+  implicit val BigDecimalReader: Reader[BigDecimal] = new Reader[BigDecimal] {
     def read(value: JValue): BigDecimal = value match {
       case JInt(x) => BigDecimal(x)
       case JLong(x) => BigDecimal(x)
@@ -102,7 +102,7 @@ trait DefaultReaders extends DefaultReaders0 {
     }
   }
 
-  implicit object BooleanReader extends Reader[Boolean] {
+  implicit val BooleanReader: Reader[Boolean] = new Reader[Boolean] {
     def read(value: JValue): Boolean = value match {
       case JBool(v) => v
       case JNull => false
@@ -110,7 +110,7 @@ trait DefaultReaders extends DefaultReaders0 {
     }
   }
 
-  implicit object StringReader extends Reader[String] {
+  implicit val StringReader: Reader[String] = new Reader[String] {
     def read(value: JValue): String = value match {
       case JInt(x) => x.toString
       case JLong(x) => x.toString
@@ -137,18 +137,18 @@ trait DefaultReaders extends DefaultReaders0 {
     }
   }
 
-  implicit object JValueReader extends Reader[JValue] {
+  implicit val JValueReader: Reader[JValue] = new Reader[JValue] {
     def read(value: JValue): JValue = value
   }
 
-  implicit object JObjectReader extends Reader[JObject] {
+  implicit val JObjectReader: Reader[JObject] = new Reader[JObject] {
     def read(value: JValue): JObject = value match {
       case x: JObject => x
       case x => throw new MappingException(s"JObject expected, but got ${x}.")
     }
   }
 
-  implicit object JArrayReader extends Reader[JArray] {
+  implicit val JArrayReader: Reader[JArray] = new Reader[JArray] {
     def read(value: JValue): JArray = value match {
       case x: JArray => x
       case x => throw new MappingException(s"JArray expected, but got ${x}.")

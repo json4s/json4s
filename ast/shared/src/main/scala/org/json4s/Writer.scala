@@ -16,17 +16,17 @@ object Writer {
 
 trait DefaultWriters {
 
-  protected abstract class W[-T](fn: T => JValue) extends Writer[T] {
+  protected[this] class W[-T](fn: T => JValue) extends Writer[T] {
     def write(obj: T): JValue = fn(obj)
   }
 
-  implicit object IntWriter extends W[Int](JInt(_))
-  implicit object ByteWriter extends W[Byte](x => JInt(x: Long))
-  implicit object ShortWriter extends W[Short](x => JInt(x: Long))
-  implicit object LongWriter extends W[Long](JInt(_))
-  implicit object BigIntWriter extends W[BigInt](JInt(_))
-  implicit object BooleanWriter extends W[Boolean](JBool(_))
-  implicit object StringWriter extends W[String](JString(_))
+  implicit val IntWriter: Writer[Int] = new W[Int](JInt(_))
+  implicit val ByteWriter: Writer[Byte] = new W[Byte](x => JInt(x: Long))
+  implicit val ShortWriter: Writer[Short] = new W[Short](x => JInt(x: Long))
+  implicit val LongWriter: Writer[Long] = new W[Long](JInt(_))
+  implicit val BigIntWriter: Writer[BigInt] = new W[BigInt](JInt(_))
+  implicit val BooleanWriter: Writer[Boolean] = new W[Boolean](JBool(_))
+  implicit val StringWriter: Writer[String] = new W[String](JString(_))
   implicit def arrayWriter[T](implicit valueWriter: Writer[T]): Writer[Array[T]] = new Writer[Array[T]] {
     def write(obj: Array[T]): JValue = JArray(obj.map(valueWriter.write(_)).toList)
   }
@@ -36,7 +36,7 @@ trait DefaultWriters {
         obj.map({ case (k, v) => k -> valueWriter.write(v) }).toList
       )
     }
-  implicit object JValueWriter extends W[JValue](identity)
+  implicit val JValueWriter: Writer[JValue] = new W[JValue](identity)
   implicit def OptionWriter[T](implicit valueWriter: Writer[T]): Writer[Option[T]] = new Writer[Option[T]] {
     def write(obj: Option[T]): JValue = obj match {
       case Some(v) => valueWriter.write(v)
@@ -46,15 +46,15 @@ trait DefaultWriters {
 }
 
 trait DoubleWriters extends DefaultWriters {
-  implicit object FloatWriter extends W[Float](x => JDouble(x: Double))
-  implicit object DoubleWriter extends W[Double](JDouble(_))
-  implicit object BigDecimalWriter extends W[BigDecimal](d => JDouble(d.doubleValue))
+  implicit val FloatWriter: Writer[Float] = new W[Float](x => JDouble(x: Double))
+  implicit val DoubleWriter: Writer[Double] = new W[Double](JDouble(_))
+  implicit val BigDecimalWriter: Writer[BigDecimal] = new W[BigDecimal](d => JDouble(d.doubleValue))
 }
 
 trait BigDecimalWriters extends DefaultWriters {
-  implicit object FloatWriter extends W[Float](x => JDecimal(x: Double))
-  implicit object DoubleWriter extends W[Double](JDecimal(_))
-  implicit object BigDecimalWriter extends W[BigDecimal](d => JDecimal(d))
+  implicit val FloatWriter: Writer[Float] = new W[Float](x => JDecimal(x: Double))
+  implicit val DoubleWriter: Writer[Double] = new W[Double](JDecimal(_))
+  implicit val BigDecimalWriter: Writer[BigDecimal] = new W[BigDecimal](d => JDecimal(d))
 }
 
 object BigDecimalWriters extends BigDecimalWriters
