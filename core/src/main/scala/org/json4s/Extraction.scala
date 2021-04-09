@@ -635,8 +635,8 @@ object Extraction {
           buildMandatoryCtorArg(json, descr)
         }
       } catch {
-        case e @ MappingException(msg, _) =>
-          fail("No usable value for " + descr.name + "\n" + msg, e)
+        case e: MappingException =>
+          fail("No usable value for " + descr.name + "\n" + e.msg, e)
       }
     }
 

@@ -35,7 +35,7 @@ case object UUIDSerializer
             UUID.fromString(s)
           } catch {
             case NonFatal(e) =>
-              throw MappingException(e.getMessage, new java.lang.IllegalArgumentException(e))
+              throw new MappingException(e.getMessage, new java.lang.IllegalArgumentException(e))
           }
         case JNull => null
       },
