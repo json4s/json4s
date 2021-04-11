@@ -30,6 +30,9 @@ trait DefaultWriters {
   implicit def arrayWriter[T](implicit valueWriter: Writer[T]): Writer[Array[T]] = new Writer[Array[T]] {
     def write(obj: Array[T]): JValue = JArray(obj.map(valueWriter.write(_)).toList)
   }
+  implicit def seqWriter[T: Writer]: Writer[collection.Seq[T]] = new Writer[collection.Seq[T]] {
+    def write(a: collection.Seq[T]) = JArray(a.map(Writer[T].write(_)).toList)
+  }
   implicit def mapWriter[V](implicit valueWriter: Writer[V]): Writer[immutable.Map[String, V]] =
     new Writer[Map[String, V]] {
       def write(obj: Map[String, V]): JValue = JObject(
