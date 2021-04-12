@@ -72,6 +72,10 @@ object build {
       "-language:implicitConversions",
       "-language:higherKinds",
     ),
+    Compile / packageSrc / mappings ++= (Compile / managedSources).value.map { f =>
+      // to merge generated sources into sources.jar as well
+      (f, f.relativeTo((Compile / sourceManaged).value).get.getPath)
+    },
     libraryDependencies ++= Seq(scalatest.value, scalatestScalacheck.value).flatten,
     (Compile / doc / scalacOptions) ++= {
       val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
@@ -113,6 +117,21 @@ object build {
       }
     },
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
+    Seq(Compile, Test).map { scope =>
+      (scope / unmanagedSourceDirectories) += {
+        val base = if (cross) {
+          baseDirectory.value.getParentFile / "shared" / "src" / Defaults.nameForSrc(scope.name)
+        } else {
+          baseDirectory.value / "src" / Defaults.nameForSrc(scope.name)
+        }
+        CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((2, _)) =>
+            base / "scala-2"
+          case _ =>
+            base / "scala-3"
+        }
+      }
+    },
     Seq(Compile, Test).map { scope =>
       (scope / unmanagedSourceDirectories) += {
         val base = if (cross) {

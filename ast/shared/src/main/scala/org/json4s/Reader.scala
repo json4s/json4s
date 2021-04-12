@@ -19,7 +19,7 @@ trait Reader[T] { self =>
     }
 }
 
-object Reader {
+object Reader extends ReaderFunctions {
   def apply[A](implicit a: Reader[A]): Reader[A] = a
   def from[A](f: JValue => Either[MappingException, A]): Reader[A] =
     new Reader[A] {

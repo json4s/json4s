@@ -11,6 +11,18 @@ lazy val ast = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .settings(
     name := "json4s-ast",
     json4sSettings(cross = true),
+    Compile / sourceGenerators += task {
+      val v = CrossVersion.partialVersion(scalaVersion.value)
+      Seq(
+        ("ReaderFunctions.scala", CodeGen.reader(v == Some((2, 11)))),
+        ("WriterFunctions.scala", CodeGen.writer(v == Some((2, 13)) || v.exists(_._1 == 3))),
+        ("FormatFunctions.scala", CodeGen.format)
+      ).map { case (fileName, src) =>
+        val f = (Compile / sourceManaged).value / "org" / "json4s" / fileName
+        IO.write(f, src)
+        f
+      }
+    },
     buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
     buildInfoPackage := "org.json4s",
   )

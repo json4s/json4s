@@ -10,7 +10,7 @@ trait Writer[-T] {
   def write(obj: T): JValue
 }
 
-object Writer {
+object Writer extends WriterFunctions {
   def apply[A](implicit a: Writer[A]): Writer[A] = a
 }
 

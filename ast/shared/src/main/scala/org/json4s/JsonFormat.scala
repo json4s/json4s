@@ -2,6 +2,14 @@ package org.json4s
 
 import annotation.implicitNotFound
 
+object JsonFormat extends FormatFunctions {
+  implicit def GenericFormat[T](implicit reader: Reader[T], writer: Writer[T]): JsonFormat[T] = new JsonFormat[T] {
+    def write(obj: T): JValue = writer.write(obj)
+    def read(value: JValue): T = reader.read(value)
+    def readEither(value: JValue) = reader.readEither(value)
+  }
+}
+
 @implicitNotFound(
   "No Json formatter found for type ${T}. Try to implement an implicit JsonFormat for this type."
 )
@@ -11,12 +19,4 @@ trait DoubleJsonFormats extends DefaultJsonFormats with DefaultReaders with Doub
 object BigDecimalJsonFormats extends BigDecimalJsonFormats
 object DoubleJsonFormats extends DoubleJsonFormats
 object DefaultJsonFormats extends DoubleJsonFormats
-
-trait DefaultJsonFormats {
-
-  implicit def GenericFormat[T](implicit reader: Reader[T], writer: Writer[T]): JsonFormat[T] = new JsonFormat[T] {
-    def write(obj: T): JValue = writer.write(obj)
-    def read(value: JValue): T = reader.read(value)
-    def readEither(value: JValue) = reader.readEither(value)
-  }
-}
+trait DefaultJsonFormats extends DefaultReaders
