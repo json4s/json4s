@@ -6,8 +6,14 @@ import scala.annotation.implicitNotFound
 @implicitNotFound(
   "No JSON serializer found for type ${T}. Try to implement an implicit Writer or JsonFormat for this type."
 )
-trait Writer[-T] {
+trait Writer[-T] { self =>
   def write(obj: T): JValue
+
+  def contramap[A](f: A => T): Writer[A] =
+    new Writer[A] {
+      def write(obj: A): JValue =
+        self.write(f(obj))
+    }
 }
 
 object Writer extends WriterFunctions {
