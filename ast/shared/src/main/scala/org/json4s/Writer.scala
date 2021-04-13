@@ -39,10 +39,13 @@ trait DefaultWriters {
   implicit def seqWriter[T: Writer]: Writer[collection.Seq[T]] = new Writer[collection.Seq[T]] {
     def write(a: collection.Seq[T]) = JArray(a.map(Writer[T].write(_)).toList)
   }
-  implicit def mapWriter[V](implicit valueWriter: Writer[V]): Writer[immutable.Map[String, V]] =
-    new Writer[Map[String, V]] {
-      def write(obj: Map[String, V]): JValue = JObject(
-        obj.map({ case (k, v) => k -> valueWriter.write(v) }).toList
+  implicit def mapWriter[K, V](implicit
+    keyWriter: JsonKeyWriter[K],
+    valueWriter: Writer[V]
+  ): Writer[immutable.Map[K, V]] =
+    new Writer[Map[K, V]] {
+      def write(obj: Map[K, V]): JValue = JObject(
+        obj.map({ case (k, v) => keyWriter.write(k) -> valueWriter.write(v) }).toList
       )
     }
   implicit val JValueWriter: Writer[JValue] = new W[JValue](identity)
