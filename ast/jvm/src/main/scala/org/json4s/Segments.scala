@@ -6,6 +6,8 @@ private[json4s] object Segments {
   import java.util.concurrent.ArrayBlockingQueue
   import java.util.concurrent.atomic.AtomicInteger
 
+  private[this] val enableSegments: Boolean = sys.props.get("json4s.segments.enable") != Some("false")
+
   private[json4s] var segmentSize: Int = ParserUtil.defaultSegmentSize
   private[this] val maxNumOfSegments = 10000
   private[this] val segmentCount = new AtomicInteger(0)
@@ -13,9 +15,13 @@ private[json4s] object Segments {
   private[json4s] def clear(): Unit = segments.clear()
 
   def apply(): Segment = {
-    val s = acquire
-    // Give back a disposable segment if pool is exhausted.
-    if (s != null) s else DisposableSegment(new Array(segmentSize))
+    if (enableSegments) {
+      val s = acquire
+      // Give back a disposable segment if pool is exhausted.
+      if (s != null) s else DisposableSegment(new Array(segmentSize))
+    } else {
+      DisposableSegment(new Array(segmentSize))
+    }
   }
 
   private[this] def acquire: Segment = {
