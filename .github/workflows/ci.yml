@@ -46,7 +46,7 @@ jobs:
           3)
             sbt -v \
             scalafmtSbtCheck \
-            '++ 3.0.0-RC2!' \
+            '++ 3.0.0-RC3!' \
             scalafmtCheckAll \
             "all astJVM/test astJS/test jacksonCore/test nativeCoreJVM/test nativeCoreJS/test scalap/test scalazJVM/test scalazJS/test xmlJVM/test xmlJS/test jackson/compile mongo/test ext/compile core/test"
             ;;
