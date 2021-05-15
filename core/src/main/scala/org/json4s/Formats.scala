@@ -27,7 +27,10 @@ import scala.annotation.implicitNotFound
 
 object Formats {
 
-  def read[T](json: JValue)(implicit reader: Reader[T]): T = reader.read(json)
+  def read[T](json: JValue)(implicit reader: Reader[T]): T = reader.readEither(json) match {
+    case Right(x) => x
+    case Left(x) => throw x
+  }
 
   def write[T](obj: T)(implicit writer: Writer[T]): JValue = writer.write(obj)
 

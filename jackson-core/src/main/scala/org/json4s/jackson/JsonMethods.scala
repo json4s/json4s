@@ -70,7 +70,10 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
   }
 
   def asJValue[T](obj: T)(implicit writer: Writer[T]): JValue = writer.write(obj)
-  def fromJValue[T](json: JValue)(implicit reader: Reader[T]): T = reader.read(json)
+  def fromJValue[T](json: JValue)(implicit reader: Reader[T]): T = reader.readEither(json) match {
+    case Right(x) => x
+    case Left(x) => throw x
+  }
 
   def asJsonNode(jv: JValue): JsonNode = mapper.valueToTree[JsonNode](jv)
   def fromJsonNode(jn: JsonNode): JValue = mapper.treeToValue[JValue](jn, classOf[JValue])

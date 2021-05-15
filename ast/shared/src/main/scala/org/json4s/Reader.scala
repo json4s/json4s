@@ -8,12 +8,10 @@ import scala.reflect.ClassTag
   "No JSON deserializer found for type ${T}. Try to implement an implicit Reader or JsonFormat for this type."
 )
 trait Reader[T] { self =>
-  def read(value: JValue): T
   def readEither(value: JValue): Either[MappingException, T]
+
   def map[A](f: T => A): Reader[A] =
     new Reader[A] {
-      def read(value: JValue): A =
-        f(self.read(value))
       def readEither(value: JValue): Either[MappingException, A] =
         self.readEither(value).right.map(f)
     }
@@ -25,11 +23,6 @@ object Reader extends ReaderFunctions {
     new Reader[A] {
       override def readEither(value: JValue): Either[MappingException, A] =
         f(value)
-      override def read(value: JValue): A =
-        f(value) match {
-          case Right(x) => x
-          case Left(x) => throw x
-        }
     }
 
   def fromPartialFunction[A](f: PartialFunction[JValue, A])(error: JValue => MappingException): Reader[A] =
@@ -39,12 +32,6 @@ object Reader extends ReaderFunctions {
           Right(f(value))
         } else {
           Left(error(value))
-        }
-      override def read(value: JValue): A =
-        if (f.isDefinedAt(value)) {
-          f(value)
-        } else {
-          throw error(value)
         }
     }
 }
@@ -173,11 +160,10 @@ trait DefaultReaders extends DefaultReaders0 {
   }
 
   implicit def OptionReader[T](implicit valueReader: Reader[T]): Reader[Option[T]] = new Reader[Option[T]] {
-    def read(value: JValue): Option[T] = {
-      import scala.util.control.Exception.catching
-      catching(classOf[RuntimeException], classOf[MappingException]) opt { valueReader read value }
-    }
     def readEither(value: JValue) =
-      Right(read(value))
+      valueReader.readEither(value) match {
+        case Right(x) => Right(Some(x))
+        case Left(x) => Right(None)
+      }
   }
 }

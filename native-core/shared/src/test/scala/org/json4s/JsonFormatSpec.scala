@@ -9,16 +9,16 @@ abstract class JsonFormatSpec[T](mod: String) extends AnyWordSpec with JsonMetho
 
   import DefaultReaders._
 
-  def read[A](value: JValue)(implicit reader: Reader[A]): A = reader.read(value)
+  implicit def jvalue2readerSyntax(j: JValue): ReaderSyntax = new ReaderSyntax(j)
 
   s"$mod JsonFormat" should {
     "read a JLong" in {
       val value: JValue = JLong(42L)
 
-      assert(read[Byte](value) == (42: Byte))
-      assert(read[Short](value) == (42: Short))
-      assert(read[Int](value) == 42)
-      assert(read[Long](value) == 42L)
+      assert(value.as[Byte] == (42: Byte))
+      assert(value.as[Short] == (42: Short))
+      assert(value.as[Int] == 42)
+      assert(value.as[Long] == 42L)
     }
   }
 }
