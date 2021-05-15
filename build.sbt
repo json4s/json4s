@@ -6,6 +6,10 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 json4sSettings(cross = false)
 noPublish
 
+lazy val nativeSettings = Def.settings(
+  disableScala3,
+)
+
 lazy val ast = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("ast"))
   .settings(
@@ -27,6 +31,9 @@ lazy val ast = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     buildInfoPackage := "org.json4s",
   )
   .enablePlugins(BuildInfoPlugin)
+  .nativeSettings(
+    nativeSettings
+  )
   .jsSettings(
     scalajsProjectSettings
   )
@@ -52,6 +59,37 @@ lazy val scalap = project
     json4sSettings(cross = false),
     libraryDependencies ++= Seq(Dependencies.jaxbApi),
   )
+
+val isScala3 = Def.setting(
+  CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 3)
+)
+
+lazy val disableScala3 = Def.settings(
+  libraryDependencies := {
+    if (isScala3.value) {
+      Nil
+    } else {
+      libraryDependencies.value
+    }
+  },
+  Seq(Compile, Test).map { x =>
+    (x / sources) := {
+      if (isScala3.value) {
+        Nil
+      } else {
+        (x / sources).value
+      }
+    }
+  },
+  Test / test := {
+    if (isScala3.value) {
+      ()
+    } else {
+      (Test / test).value
+    }
+  },
+  publish / skip := isScala3.value,
+)
 
 lazy val disableScala211 = Def.settings(
   Seq(Compile, Test).map { x =>
@@ -99,6 +137,9 @@ lazy val xml = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     // https://repo1.maven.org/maven2/org/scala-lang/modules/
     disableScala211,
   )
+  .nativeSettings(
+    nativeSettings
+  )
   .jsSettings(
     scalajsProjectSettings
   )
@@ -129,6 +170,9 @@ lazy val nativeCore = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     json4sSettings(cross = true),
     Test / unmanagedResourceDirectories += baseDirectory.value.getParentFile / "shared/src/test/resources",
   )
+  .nativeSettings(
+    nativeSettings
+  )
   .jsSettings(
     scalajsProjectSettings
   )
@@ -141,6 +185,7 @@ lazy val native = project
   .settings(
     name := "json4s-native",
     json4sSettings(cross = false),
+    disableScala3,
   )
   .dependsOn(
     core % "compile;test->test",
@@ -170,6 +215,7 @@ lazy val jackson = project
   .settings(
     name := "json4s-jackson",
     json4sSettings(cross = false),
+    disableScala3,
   )
   .dependsOn(
     core % "compile;test->test",
@@ -182,6 +228,7 @@ lazy val examples = project
   .settings(
     name := "json4s-examples",
     json4sSettings(cross = false),
+    disableScala3,
     noPublish,
   )
   .dependsOn(
@@ -198,6 +245,9 @@ lazy val scalaz = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     name := "json4s-scalaz",
     json4sSettings(cross = true),
     libraryDependencies += Dependencies.scalaz_core.value,
+  )
+  .nativeSettings(
+    nativeSettings
   )
   .jsSettings(
     scalajsProjectSettings
@@ -231,6 +281,7 @@ lazy val tests = project
   .settings(
     json4sSettings(cross = false),
     noPublish,
+    disableScala3,
     Test / console / initialCommands :=
       """
         |import org.json4s._

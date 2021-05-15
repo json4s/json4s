@@ -56,14 +56,16 @@ object build {
   val Scala211 = "2.11.12"
   val Scala212 = "2.12.13"
   val Scala213 = "2.13.5"
+  val Scala3_0 = "3.0.0"
 
   def json4sSettings(cross: Boolean) = mavenCentralFrouFrou ++ Def.settings(
     organization := "org.json4s",
     scalaVersion := Scala212,
-    crossScalaVersions := Seq(Scala211, Scala212, Scala213),
+    crossScalaVersions := Seq(Scala211, Scala212, Scala213, Scala3_0),
     addCommandAlias("SetScala211", s"++ ${Scala211}!"),
     addCommandAlias("SetScala212", s"++ ${Scala212}!"),
     addCommandAlias("SetScala213", s"++ ${Scala213}!"),
+    addCommandAlias("SetScala3_0", s"++ ${Scala3_0}!"),
     scalacOptions ++= Seq(
       "-unchecked",
       "-deprecation",
