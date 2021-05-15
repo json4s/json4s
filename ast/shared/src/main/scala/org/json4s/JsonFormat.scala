@@ -5,7 +5,6 @@ import annotation.implicitNotFound
 object JsonFormat extends FormatFunctions {
   implicit def GenericFormat[T](implicit reader: Reader[T], writer: Writer[T]): JsonFormat[T] = new JsonFormat[T] {
     def write(obj: T): JValue = writer.write(obj)
-    def read(value: JValue): T = reader.read(value)
     def readEither(value: JValue) = reader.readEither(value)
   }
 }

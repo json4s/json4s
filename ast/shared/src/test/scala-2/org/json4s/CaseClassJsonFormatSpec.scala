@@ -4,9 +4,10 @@ import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.Properties
 import org.scalacheck.Prop
+import org.scalatest.EitherValues
 import org.json4s.DefaultJsonFormats._
 
-class CaseClassJsonFormatSpec extends Properties("case class JsonFormat") {
+class CaseClassJsonFormatSpec extends Properties("case class JsonFormat") with EitherValues {
   private[this] val format1: JsonFormat[CaseClass22] =
     JsonFormat.format22(CaseClass22.apply, CaseClass22.unapply(_: CaseClass22).get)(
       "1",
@@ -37,6 +38,6 @@ class CaseClassJsonFormatSpec extends Properties("case class JsonFormat") {
     Arbitrary(Gen.resultOf(CaseClass22.tupled))
 
   property("case class JsonFormat") = Prop.forAll { (a: CaseClass22) =>
-    format1.read(format1.write(a)) == a
+    format1.readEither(format1.write(a)).value == a
   }
 }

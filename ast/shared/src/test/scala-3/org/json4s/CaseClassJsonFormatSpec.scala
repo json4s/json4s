@@ -4,9 +4,10 @@ import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.Properties
 import org.scalacheck.Prop
+import org.scalatest.EitherValues
 import org.json4s.DefaultJsonFormats._
 
-class CaseClassJsonFormatSpec extends Properties("case class JsonFormat") {
+class CaseClassJsonFormatSpec extends Properties("case class JsonFormat") with EitherValues {
   private[this] val writerAuto: Writer[CaseClass22] =
     Writer.writerAuto(Tuple.fromProductTyped[CaseClass22])
 
@@ -66,10 +67,10 @@ class CaseClassJsonFormatSpec extends Properties("case class JsonFormat") {
     Arbitrary(Gen.resultOf(CaseClass22.apply))
 
   property("case class JsonFormat") = Prop.forAll { (a: CaseClass22) =>
-    format1.read(format1.write(a)) == a
+    format1.readEither(format1.write(a)).value == a
   }
 
   property("writerAuto") = Prop.forAll { (a: CaseClass22) =>
-    reader.read(writerAuto.write(a)) == a
+    reader.readEither(writerAuto.write(a)).value == a
   }
 }

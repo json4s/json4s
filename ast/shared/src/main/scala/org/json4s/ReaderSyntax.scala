@@ -15,7 +15,10 @@ class ReaderSyntax(private val jv: JValue) extends AnyVal {
    *   JObject(JField("name", JString("Joe")) :: Nil).as[Person]
    * }}}
    */
-  def as[A](implicit reader: Reader[A]): A = reader.read(jv)
+  def as[A](implicit reader: Reader[A]): A = reader.readEither(jv) match {
+    case Right(x) => x
+    case Left(x) => throw x
+  }
 
   /**
    * Given that an implicit reader of type `A` is in scope
@@ -30,9 +33,10 @@ class ReaderSyntax(private val jv: JValue) extends AnyVal {
    *   JObject(JField("name", JString("Joe")) :: Nil).getAs[Person]
    * }}}
    */
-  def getAs[A](implicit reader: Reader[A]): Option[A] = try {
-    Option(reader.read(jv))
-  } catch { case _: Throwable => None }
+  def getAs[A](implicit reader: Reader[A]): Option[A] = reader.readEither(jv) match {
+    case Right(x) => Some(x)
+    case Left(x) => None
+  }
 
   /**
    * Given that an implicit reader of type `A` is in scope
