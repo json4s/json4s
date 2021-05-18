@@ -1,8 +1,5 @@
 package org.json4s
 
-import org.scalacheck.Arbitrary
-import org.scalacheck.Gen
-
 case class CaseClass22(
   a1: String,
   a2: Boolean,
