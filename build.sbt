@@ -18,7 +18,7 @@ lazy val ast = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     Compile / sourceGenerators += task {
       val v = CrossVersion.partialVersion(scalaVersion.value)
       Seq(
-        ("ReaderFunctions.scala", CodeGen.reader(v == Some((2, 11)))),
+        ("ReaderFunctions.scala", CodeGen.reader),
         ("WriterFunctions.scala", CodeGen.writer(v == Some((2, 13)) || v.exists(_._1 == 3))),
         ("FormatFunctions.scala", CodeGen.format)
       ).map { case (fileName, src) =>
@@ -98,51 +98,12 @@ lazy val disableScala3 = Def.settings(
   publish / skip := isScala3.value,
 )
 
-lazy val disableScala211 = Def.settings(
-  Seq(Compile, Test).map { x =>
-    (x / sources) := {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 11)) =>
-          Nil
-        case _ =>
-          (x / sources).value
-      }
-    }
-  },
-  Test / test := {
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 11)) =>
-        ()
-      case _ =>
-        (Test / test).value
-    }
-  },
-  publish / skip := {
-    CrossVersion.partialVersion(scalaVersion.value) == Some((2, 11))
-  },
-)
-
 lazy val xml = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("xml"))
   .settings(
     name := "json4s-xml",
     json4sSettings(cross = true),
-  )
-  .jvmSettings(
     libraryDependencies += Dependencies.scalaXml.value,
-  )
-  .platformsSettings(JSPlatform, NativePlatform)(
-    libraryDependencies ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 11)) =>
-          Nil
-        case _ =>
-          Seq(Dependencies.scalaXml.value)
-      }
-    },
-    // scala-xml_sjs1_2.11 and scala-xml_native0.4_2.11 does not available
-    // https://repo1.maven.org/maven2/org/scala-lang/modules/
-    disableScala211,
   )
   .nativeSettings(
     nativeSettings
