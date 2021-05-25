@@ -1,20 +1,27 @@
 import sbt._, Keys._
 import com.typesafe.tools.mima.plugin.MimaPlugin
 import com.typesafe.tools.mima.plugin.MimaKeys._
+import sbtcrossproject.CrossPlugin.autoImport.crossProjectPlatform
+import sbtcrossproject.JVMPlatform
+import scalajscrossproject.JSPlatform
+import scalanativecrossproject.NativePlatform
 
 object MimaSettings {
 
-  val previousVersions = Set[Int]().map(patch => s"3.7.$patch")
+  val previousVersions = Set[Int](0).map(patch => s"4.0.$patch")
 
   val mimaSettings = Def.settings(
     MimaPlugin.globalSettings,
     MimaPlugin.buildSettings,
     MimaPlugin.projectSettings,
     mimaPreviousArtifacts := {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, scalaMajor)) if scalaMajor <= 12 =>
-          previousVersions.map { organization.value % s"${name.value}_${scalaBinaryVersion.value}" % _ }
-        case _ => Set.empty
+      val platform = (crossProjectPlatform.?.value: @unchecked) match {
+        case None | Some(JVMPlatform) => ""
+        case Some(JSPlatform) => "_sjs1"
+        case Some(NativePlatform) => "_native0.4"
+      }
+      previousVersions.map {
+        organization.value % s"${name.value}${platform}_${scalaBinaryVersion.value}" % _
       }
     },
     (Test / test) := {
