@@ -65,6 +65,13 @@ val isScala3 = Def.setting(
 )
 
 lazy val disableScala3 = Def.settings(
+  mimaPreviousArtifacts := {
+    if (isScala3.value) {
+      Set.empty
+    } else {
+      mimaPreviousArtifacts.value
+    }
+  },
   libraryDependencies := {
     if (isScala3.value) {
       Nil
