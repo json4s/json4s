@@ -59,6 +59,7 @@ object build {
   val Scala3_0 = "3.0.0"
 
   def json4sSettings(cross: Boolean) = mavenCentralFrouFrou ++ Def.settings(
+    mimaSettings,
     organization := "org.json4s",
     scalaVersion := Scala212,
     crossScalaVersions := Seq(Scala211, Scala212, Scala213, Scala3_0),
