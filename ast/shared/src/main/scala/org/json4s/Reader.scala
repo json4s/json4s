@@ -13,7 +13,7 @@ trait Reader[T] { self =>
   def map[A](f: T => A): Reader[A] =
     new Reader[A] {
       def readEither(value: JValue): Either[MappingException, A] =
-        self.readEither(value).right.map(f)
+        self.readEither(value).map(f)
     }
 }
 
