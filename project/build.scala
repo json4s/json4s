@@ -54,7 +54,7 @@ object build {
   )
 
   val Scala211 = "2.11.12"
-  val Scala212 = "2.12.13"
+  val Scala212 = "2.12.14"
   val Scala213 = "2.13.6"
   val Scala3_0 = "3.0.1-RC2"
 
