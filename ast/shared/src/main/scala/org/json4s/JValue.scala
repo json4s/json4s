@@ -110,7 +110,7 @@ case class JString(s: String) extends JValue {
   type Values = String
   def values = s
 }
-trait JNumber
+sealed trait JNumber extends JValue
 case class JDouble(num: Double) extends JValue with JNumber {
   type Values = Double
   def values = num
