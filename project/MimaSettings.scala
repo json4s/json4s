@@ -8,7 +8,7 @@ import scalanativecrossproject.NativePlatform
 
 object MimaSettings {
 
-  val previousVersions = Set[Int](0).map(patch => s"4.0.$patch")
+  val previousVersions = Set[Int](0, 1).map(patch => s"4.0.$patch")
 
   val mimaSettings = Def.settings(
     MimaPlugin.globalSettings,
