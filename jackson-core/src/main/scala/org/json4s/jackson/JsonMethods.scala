@@ -35,10 +35,10 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
       reader = reader `without` USE_BIG_INTEGER_FOR_INTS
 
     AsJsonInput.asJsonInput(in) match {
-      case StringInput(s) => reader.readValue(s)
-      case ReaderInput(rdr) => reader.readValue(rdr)
-      case StreamInput(stream) => reader.readValue(stream)
-      case FileInput(file) => reader.readValue(file)
+      case StringInput(s) => reader.readValue[JValue](s)
+      case ReaderInput(rdr) => reader.readValue[JValue](rdr)
+      case StreamInput(stream) => reader.readValue[JValue](stream)
+      case FileInput(file) => reader.readValue[JValue](file)
     }
   }
 
