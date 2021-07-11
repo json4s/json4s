@@ -128,21 +128,6 @@ object build {
           baseDirectory.value / "src" / Defaults.nameForSrc(scope.name)
         }
         CrossVersion.partialVersion(scalaVersion.value) match {
-          case Some((2, _)) =>
-            base / "scala-2"
-          case _ =>
-            base / "scala-3"
-        }
-      }
-    },
-    Seq(Compile, Test).map { scope =>
-      (scope / unmanagedSourceDirectories) += {
-        val base = if (cross) {
-          baseDirectory.value.getParentFile / "shared" / "src" / Defaults.nameForSrc(scope.name)
-        } else {
-          baseDirectory.value / "src" / Defaults.nameForSrc(scope.name)
-        }
-        CrossVersion.partialVersion(scalaVersion.value) match {
           case Some((2, v)) if v <= 12 =>
             base / s"scala-2.13-"
           case _ =>
