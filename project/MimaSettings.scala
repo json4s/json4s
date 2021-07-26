@@ -14,7 +14,7 @@ object MimaSettings {
     MimaPlugin.globalSettings,
     MimaPlugin.buildSettings,
     MimaPlugin.projectSettings,
-    previousVersions := (0 to 2).map(patch => s"4.0.$patch"),
+    previousVersions := (0 to 3).map(patch => s"4.0.$patch"),
     mimaPreviousArtifacts := {
       val platform = (crossProjectPlatform.?.value: @unchecked) match {
         case None | Some(JVMPlatform) => ""
