@@ -201,6 +201,13 @@ lazy val native = project
     name := "json4s-native",
     json4sSettings(cross = false),
     disableScala3,
+    MimaSettings.previousVersions --= {
+      if (scalaBinaryVersion.value == "3") {
+        Seq("4.0.0", "4.0.1")
+      } else {
+        Nil
+      }
+    },
   )
   .dependsOn(
     core % "compile;test->test",
@@ -231,6 +238,13 @@ lazy val jackson = project
     name := "json4s-jackson",
     json4sSettings(cross = false),
     disableScala3,
+    MimaSettings.previousVersions --= {
+      if (scalaBinaryVersion.value == "3") {
+        Seq("4.0.0", "4.0.1")
+      } else {
+        Nil
+      }
+    },
   )
   .dependsOn(
     core % "compile;test->test",

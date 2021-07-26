@@ -8,21 +8,22 @@ import scalanativecrossproject.NativePlatform
 
 object MimaSettings {
 
-  val previousVersions = Set[Int](0, 1).map(patch => s"4.0.$patch")
+  val previousVersions = settingKey[Seq[String]]("")
 
   val mimaSettings = Def.settings(
     MimaPlugin.globalSettings,
     MimaPlugin.buildSettings,
     MimaPlugin.projectSettings,
+    previousVersions := Seq(0, 1).map(patch => s"4.0.$patch"),
     mimaPreviousArtifacts := {
       val platform = (crossProjectPlatform.?.value: @unchecked) match {
         case None | Some(JVMPlatform) => ""
         case Some(JSPlatform) => "_sjs1"
         case Some(NativePlatform) => "_native0.4"
       }
-      previousVersions.map {
+      previousVersions.value.map {
         organization.value % s"${name.value}${platform}_${scalaBinaryVersion.value}" % _
-      }
+      }.toSet
     },
     (Test / test) := {
       mimaReportBinaryIssues.value
