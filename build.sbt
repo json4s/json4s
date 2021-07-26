@@ -64,6 +64,18 @@ val isScala3 = Def.setting(
   CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 3)
 )
 
+// TODO remove this workaround when new Scala 3 version released which contains https://github.com/lampepfl/dotty/pull/13142
+// https://github.com/json4s/json4s/issues/827
+lazy val disableScala3Tests = Def.settings(
+  Test / sources := {
+    if (isScala3.value) {
+      Nil
+    } else {
+      (Test / sources).value
+    }
+  }
+)
+
 lazy val disableScala3 = Def.settings(
   mimaPreviousArtifacts := {
     if (isScala3.value) {
@@ -170,6 +182,7 @@ lazy val core = project
   .settings(
     name := "json4s-core",
     json4sSettings(cross = false),
+    disableScala3Tests, // TODO
     libraryDependencies ++= Seq(Dependencies.paranamer),
     Test / console / initialCommands := """
         |import org.json4s._
@@ -200,6 +213,7 @@ lazy val native = project
   .settings(
     name := "json4s-native",
     json4sSettings(cross = false),
+    disableScala3Tests, // TODO
     MimaSettings.previousVersions --= {
       if (scalaBinaryVersion.value == "3") {
         Seq("4.0.0", "4.0.1")
@@ -236,6 +250,7 @@ lazy val jackson = project
   .settings(
     name := "json4s-jackson",
     json4sSettings(cross = false),
+    disableScala3Tests, // TODO
     MimaSettings.previousVersions --= {
       if (scalaBinaryVersion.value == "3") {
         Seq("4.0.0", "4.0.1")
@@ -255,6 +270,7 @@ lazy val examples = project
   .settings(
     name := "json4s-examples",
     json4sSettings(cross = false),
+    disableScala3, // TODO remove
     noPublish,
   )
   .dependsOn(
@@ -307,6 +323,7 @@ lazy val tests = project
   .settings(
     json4sSettings(cross = false),
     noPublish,
+    disableScala3, // TODO
     Test / console / initialCommands :=
       """
         |import org.json4s._
