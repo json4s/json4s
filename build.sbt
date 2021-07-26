@@ -200,7 +200,6 @@ lazy val native = project
   .settings(
     name := "json4s-native",
     json4sSettings(cross = false),
-    disableScala3,
     MimaSettings.previousVersions --= {
       if (scalaBinaryVersion.value == "3") {
         Seq("4.0.0", "4.0.1")
@@ -237,7 +236,6 @@ lazy val jackson = project
   .settings(
     name := "json4s-jackson",
     json4sSettings(cross = false),
-    disableScala3,
     MimaSettings.previousVersions --= {
       if (scalaBinaryVersion.value == "3") {
         Seq("4.0.0", "4.0.1")
@@ -257,7 +255,6 @@ lazy val examples = project
   .settings(
     name := "json4s-examples",
     json4sSettings(cross = false),
-    disableScala3,
     noPublish,
   )
   .dependsOn(
@@ -310,7 +307,6 @@ lazy val tests = project
   .settings(
     json4sSettings(cross = false),
     noPublish,
-    disableScala3,
     Test / console / initialCommands :=
       """
         |import org.json4s._

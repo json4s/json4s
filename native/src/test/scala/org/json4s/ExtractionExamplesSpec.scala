@@ -22,6 +22,7 @@ import org.json4s
 import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 import org.json4s.prefs.ExtractionNullStrategy
+import scala.reflect.ClassTag
 
 class NativeExtractionExamples
   extends ExtractionExamples[Document]("Native", native.Serialization)
@@ -614,7 +615,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
               JString("")
             }
           )
-        )
+        )(ClassTag.Null)
       assert(
         parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](
           notNullFormats + CustomNull,
@@ -636,7 +637,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
               JString("")
             }
           )
-        )
+        )(ClassTag.Null)
       assert(
         parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](
           nullAsAbsentFormats + CustomNull,
