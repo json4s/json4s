@@ -153,7 +153,6 @@ lazy val native = project
   .settings(
     name := "json4s-native",
     json4sSettings(cross = false),
-    disableScala3,
   )
   .dependsOn(
     core % "compile;test->test",
@@ -183,7 +182,6 @@ lazy val jackson = project
   .settings(
     name := "json4s-jackson",
     json4sSettings(cross = false),
-    disableScala3,
   )
   .dependsOn(
     core % "compile;test->test",
@@ -196,7 +194,6 @@ lazy val examples = project
   .settings(
     name := "json4s-examples",
     json4sSettings(cross = false),
-    disableScala3,
     noPublish,
   )
   .dependsOn(
@@ -249,7 +246,6 @@ lazy val tests = project
   .settings(
     json4sSettings(cross = false),
     noPublish,
-    disableScala3,
     Test / console / initialCommands :=
       """
         |import org.json4s._
