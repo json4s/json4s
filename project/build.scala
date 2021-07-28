@@ -55,7 +55,7 @@ object build {
 
   val Scala212 = "2.12.14"
   val Scala213 = "2.13.6"
-  val Scala3_0 = "3.0.3-RC1-bin-20210725-7b4091b-NIGHTLY"
+  val Scala3_0 = "3.0.3-RC1-bin-20210726-372930e-NIGHTLY"
 
   def json4sSettings(cross: Boolean) = mavenCentralFrouFrou ++ Def.settings(
     organization := "org.json4s",
