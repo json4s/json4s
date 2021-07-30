@@ -3,7 +3,7 @@ on:
   push:
     branches: [ master ]
   schedule:
-  - cron: '0 0 * * *'
+  - cron: '0 5 * * *'
   workflow_dispatch:
 jobs:
   scala-steward:
