@@ -37,7 +37,7 @@ object Serialization extends Serialization {
    * Serialize to String.
    */
   def write[A](a: A)(implicit formats: Formats): String = {
-    (write(a, new StringWriter)(formats)).toString
+    write(a, new StringWriter)(formats).toString
   }
 
   /**
@@ -51,7 +51,7 @@ object Serialization extends Serialization {
    * Serialize to String (pretty format).
    */
   def writePretty[A](a: A)(implicit formats: Formats): String =
-    (writePretty(a, new StringWriter)(formats)).toString
+    writePretty(a, new StringWriter)(formats).toString
 
   /**
    * Serialize to Writer (pretty format).
@@ -64,7 +64,7 @@ object Serialization extends Serialization {
    * Serialize to String (pretty format).
    */
   def writePrettyOld[A](a: A)(implicit formats: Formats): String =
-    (writePrettyOld(a, new StringWriter)(formats)).toString
+    writePrettyOld(a, new StringWriter)(formats).toString
 
   /**
    * Serialize to Writer (pretty format).

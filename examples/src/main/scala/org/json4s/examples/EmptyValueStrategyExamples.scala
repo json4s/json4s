@@ -17,7 +17,7 @@ object EmptyValueTreatmentExamples {
     Some("sunday laziness")
   )
 
-  private[this] val eventAsMap = Map(("eventType" -> Some("event")), ("duration" -> None))
+  private[this] val eventAsMap = Map("eventType" -> Some("event"), "duration" -> None)
 
   private[this] val eventAsCaseClass = EventAsCaseClass("dinner")
 

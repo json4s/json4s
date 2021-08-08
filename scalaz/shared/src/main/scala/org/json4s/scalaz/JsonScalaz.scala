@@ -68,7 +68,7 @@ trait Types {
   type EitherNel[a] = NonEmptyList[Error] \/ a
   def validate[A: JSONR](name: String): Kleisli[EitherNel, JValue, A] =
     Kleisli(field[A](name)).mapK[EitherNel, A](_.toDisjunction)
-  implicit def function2EitherNel[A](f: A => Result[A]): (A => EitherNel[A]) = (a: A) => f(a).toDisjunction
+  implicit def function2EitherNel[A](f: A => Result[A]): A => EitherNel[A] = (a: A) => f(a).toDisjunction
   implicit def kleisli2Result[A](v: Kleisli[EitherNel, JValue, A]): JValue => Result[A] = v.run.andThen(_.toValidation)
 
   def makeObj(fields: Iterable[(String, JValue)]): JObject =
