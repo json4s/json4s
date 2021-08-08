@@ -48,7 +48,7 @@ object ScalaSigParser {
 
     scalaSig match {
       // No entries in ScalaSig attribute implies that the signature is stored in the annotation
-      case Some(ScalaSig(_, _, entries)) if entries.length == 0 =>
+      case Some(ScalaSig(_, _, entries)) if entries.isEmpty =>
         scalaSigFromAnnotation(classFile)
       case x => x
     }
