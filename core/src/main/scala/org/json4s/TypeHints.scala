@@ -93,7 +93,7 @@ private[json4s] object TypeHints {
 
     def classFor(hint: String, parent: Class[_]): Option[Class[_]] = {
       def hasClass(h: TypeHints) =
-        scala.util.control.Exception.allCatch opt (h.classFor(hint, parent)) exists (_.isDefined)
+        scala.util.control.Exception.allCatch opt h.classFor(hint, parent) exists (_.isDefined)
 
       components find hasClass flatMap (_.classFor(hint, parent))
     }

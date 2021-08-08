@@ -53,7 +53,7 @@ object Formats {
 
   private[json4s] def customRichSerializer(a: Any)(implicit format: Formats): PartialFunction[Any, JValue] = {
     format.richSerializers
-      .collectFirst { case (x) if x.serialize.isDefinedAt(a) => x.serialize }
+      .collectFirst { case x if x.serialize.isDefinedAt(a) => x.serialize }
       .getOrElse(PartialFunction.empty[Any, JValue])
   }
 
