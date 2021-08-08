@@ -13,6 +13,6 @@ object DateParser {
     ZonedInstant(instant, timezone)
   }
 
-  case class ZonedInstant(val instant: Long, val timezone: TimeZone)
+  case class ZonedInstant(instant: Long, timezone: TimeZone)
 
 }

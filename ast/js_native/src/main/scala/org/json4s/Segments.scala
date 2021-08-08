@@ -11,4 +11,4 @@ private[json4s] object Segments {
   private[json4s] def clear(): Unit = ()
 }
 
-private[json4s] final case class Segment(val seg: Array[Char])
+private[json4s] final case class Segment(seg: Array[Char])
