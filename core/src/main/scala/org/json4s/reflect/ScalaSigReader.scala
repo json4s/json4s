@@ -130,6 +130,7 @@ object ScalaSigReader {
     c.children.collectFirst { case m: MethodSymbol if m.name == name => m }
 
   def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndex: Int): Class[_] = {
+    @tailrec
     def findPrimitive(t: Type): Option[Symbol] = {
       t match {
         case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol) =>

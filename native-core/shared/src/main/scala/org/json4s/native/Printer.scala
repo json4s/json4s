@@ -1,6 +1,8 @@
 package org.json4s
 package native
 
+import scala.annotation.tailrec
+
 /**
  * Printer converts JSON to String.
  * Before printing a <code>JValue</code> needs to be rendered into [[Document]].
@@ -24,6 +26,7 @@ trait Printer {
    * Compact printing (no whitespace etc.)
    */
   def compact[A <: Writer](d: Document, out: A): A = {
+    @tailrec
     def layout(docs: List[Document]): Unit = docs match {
       case Nil =>
       case DocText(s) :: rs => out.write(s); layout(rs)
