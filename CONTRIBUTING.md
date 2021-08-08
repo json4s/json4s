@@ -1,4 +1,4 @@
-## json4s Contributers' Guide
+## json4s Contributors' Guide
 
 ### Issues
 
