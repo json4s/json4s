@@ -10,6 +10,6 @@ object MappingException {
       msg = errors.map(_.msg).mkString(", "),
       cause = cause
     ) {
-    def this(errors: Seq[MappingException]) = this(errors, errors.headOption.getOrElse(null))
+    def this(errors: Seq[MappingException]) = this(errors, errors.headOption.orNull)
   }
 }
