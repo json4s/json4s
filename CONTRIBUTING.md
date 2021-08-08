@@ -23,13 +23,13 @@
 
 ##### 4.0
 
-- The version 4.0 series maintainance branch
+- The version 4.0 series maintenance branch
 - This branch must be able to build against Scala 2.11, 2.12, 2.13 and 3
 - This branch requires Java 8+ for all Scala versions
 
 ##### 3.6
 
-- The version 3.6 series maintainance branch
+- The version 3.6 series maintenance branch
 - This branch must be able to build against Scala 2.10, 2.11, 2.12, and 2.13
 - This branch requires Java 8+ for all Scala versions
 
