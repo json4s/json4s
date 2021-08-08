@@ -12,6 +12,8 @@
 
 package org.json4s.scalap
 
+import scala.annotation.tailrec
+
 trait Name {
   def name: String
   override def toString = name
@@ -111,6 +113,7 @@ trait StateRules {
    *      @param rules the rules to apply in sequence.
    */
   def allOf[A, X](rules: Seq[Rule[A, X]]) = {
+    @tailrec
     def rep(in: S, rules: List[Rule[A, X]], results: List[A]): Result[S, List[A], X] = {
       rules match {
         case Nil => Success(in, results.reverse)
@@ -134,6 +137,7 @@ trait StateRules {
   /** Repeatedly apply a rule from initial value until finished condition is met. */
   def repeatUntil[T, X](rule: Rule[T => T, X])(finished: T => Boolean)(initial: T) = apply {
     // more compact using HoF but written this way so it's tail-recursive
+    @tailrec
     def rep(in: S, t: T): Result[S, T, X] = {
       if (finished(t)) Success(in, t)
       else

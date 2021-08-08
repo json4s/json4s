@@ -12,6 +12,8 @@
 
 package org.json4s.scalap
 
+import scala.annotation.tailrec
+
 /**
  * A Rule is a function from some input to a Result.  The result may be:
  * <ul>
@@ -202,6 +204,7 @@ trait Choice[-In, +Out, +A, +X] extends Rule[In, Out, A, X] {
   def choices: List[Rule[In, Out, A, X]]
 
   def apply(in: In) = {
+    @tailrec
     def oneOf(list: List[Rule[In, Out, A, X]]): Result[Out, A, X] = list match {
       case Nil => Failure
       case first :: rest =>
