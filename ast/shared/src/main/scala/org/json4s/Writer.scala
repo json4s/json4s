@@ -10,10 +10,7 @@ trait Writer[-T] { self =>
   def write(obj: T): JValue
 
   def contramap[A](f: A => T): Writer[A] =
-    new Writer[A] {
-      def write(obj: A): JValue =
-        self.write(f(obj))
-    }
+    (obj: A) => self.write(f(obj))
 }
 
 object Writer extends WriterFunctions {
@@ -33,28 +30,24 @@ trait DefaultWriters {
   implicit val BigIntWriter: Writer[BigInt] = new W[BigInt](JInt(_))
   implicit val BooleanWriter: Writer[Boolean] = new W[Boolean](JBool(_))
   implicit val StringWriter: Writer[String] = new W[String](JString(_))
-  implicit def arrayWriter[T](implicit valueWriter: Writer[T]): Writer[Array[T]] = new Writer[Array[T]] {
-    def write(obj: Array[T]): JValue = JArray(obj.map(valueWriter.write(_)).toList)
-  }
-  implicit def seqWriter[T: Writer]: Writer[collection.Seq[T]] = new Writer[collection.Seq[T]] {
-    def write(a: collection.Seq[T]) = JArray(a.map(Writer[T].write(_)).toList)
-  }
+  implicit def arrayWriter[T](implicit valueWriter: Writer[T]): Writer[Array[T]] = (obj: Array[T]) =>
+    JArray(obj.map(valueWriter.write(_)).toList)
+  implicit def seqWriter[T: Writer]: Writer[collection.Seq[T]] = (a: collection.Seq[T]) =>
+    JArray(a.map(Writer[T].write(_)).toList)
   implicit def mapWriter[K, V](implicit
     keyWriter: JsonKeyWriter[K],
     valueWriter: Writer[V]
   ): Writer[immutable.Map[K, V]] =
-    new Writer[Map[K, V]] {
-      def write(obj: Map[K, V]): JValue = JObject(
+    (obj: Map[K, V]) =>
+      JObject(
         obj.map({ case (k, v) => keyWriter.write(k) -> valueWriter.write(v) }).toList
       )
-    }
   implicit val JValueWriter: Writer[JValue] = new W[JValue](identity)
-  implicit def OptionWriter[T](implicit valueWriter: Writer[T]): Writer[Option[T]] = new Writer[Option[T]] {
-    def write(obj: Option[T]): JValue = obj match {
+  implicit def OptionWriter[T](implicit valueWriter: Writer[T]): Writer[Option[T]] = (obj: Option[T]) =>
+    obj match {
       case Some(v) => valueWriter.write(v)
       case _ => JNull
     }
-  }
 }
 
 trait DoubleWriters extends DefaultWriters {

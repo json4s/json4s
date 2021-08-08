@@ -11,29 +11,21 @@ trait Reader[T] { self =>
   def readEither(value: JValue): Either[MappingException, T]
 
   def map[A](f: T => A): Reader[A] =
-    new Reader[A] {
-      def readEither(value: JValue): Either[MappingException, A] =
-        self.readEither(value).map(f)
-    }
+    (value: JValue) => self.readEither(value).map(f)
 }
 
 object Reader extends ReaderFunctions {
   def apply[A](implicit a: Reader[A]): Reader[A] = a
   def from[A](f: JValue => Either[MappingException, A]): Reader[A] =
-    new Reader[A] {
-      override def readEither(value: JValue): Either[MappingException, A] =
-        f(value)
-    }
+    (value: JValue) => f(value)
 
   def fromPartialFunction[A](f: PartialFunction[JValue, A])(error: JValue => MappingException): Reader[A] =
-    new Reader[A] {
-      override def readEither(value: JValue): Either[MappingException, A] =
-        if (f.isDefinedAt(value)) {
-          Right(f(value))
-        } else {
-          Left(error(value))
-        }
-    }
+    (value: JValue) =>
+      if (f.isDefinedAt(value)) {
+        Right(f(value))
+      } else {
+        Left(error(value))
+      }
 }
 
 object DefaultReaders extends DefaultReaders
@@ -159,11 +151,9 @@ trait DefaultReaders extends DefaultReaders0 {
       Left(new MappingException(s"JArray expected, but got ${x}."))
   }
 
-  implicit def OptionReader[T](implicit valueReader: Reader[T]): Reader[Option[T]] = new Reader[Option[T]] {
-    def readEither(value: JValue) =
-      valueReader.readEither(value) match {
-        case Right(x) => Right(Some(x))
-        case Left(x) => Right(None)
-      }
-  }
+  implicit def OptionReader[T](implicit valueReader: Reader[T]): Reader[Option[T]] = (value: JValue) =>
+    valueReader.readEither(value) match {
+      case Right(x) => Right(Some(x))
+      case Left(x) => Right(None)
+    }
 }

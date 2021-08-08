@@ -49,9 +49,8 @@ trait Types {
 
   trait JSON[A] extends JSONR[A] with JSONW[A]
 
-  implicit def Result2JSONR[A](f: JValue => Result[A]): JSONR[A] = new JSONR[A] {
-    def read(json: JValue) = f(json)
-  }
+  implicit def Result2JSONR[A](f: JValue => Result[A]): JSONR[A] =
+    (json: JValue) => f(json)
 
   def fromJSON[A: JSONR](json: JValue): Result[A] = implicitly[JSONR[A]].read(json)
   def toJSON[A: JSONW](value: A): JValue = implicitly[JSONW[A]].write(value)

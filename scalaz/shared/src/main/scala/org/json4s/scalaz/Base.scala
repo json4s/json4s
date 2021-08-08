@@ -82,16 +82,14 @@ trait Base { this: Types =>
     def write(value: JValue) = value
   }
 
-  implicit def listJSONR[A: JSONR]: JSONR[List[A]] = new JSONR[List[A]] {
-    def read(json: JValue) = json match {
+  implicit def listJSONR[A: JSONR]: JSONR[List[A]] = (json: JValue) =>
+    json match {
       case JArray(xs) =>
         xs.map(fromJSON[A]).sequence[({ type λ[t] = ValidationNel[Error, t] })#λ, A]
       case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JArray]))
     }
-  }
-  implicit def listJSONW[A: JSONW]: JSONW[List[A]] = new JSONW[List[A]] {
-    def write(values: List[A]) = JArray(values.map(x => toJSON(x)))
-  }
+  implicit def listJSONW[A: JSONW]: JSONW[List[A]] =
+    (values: List[A]) => JArray(values.map(x => toJSON(x)))
 
   implicit def optionJSONR[A: JSONR]: JSONR[Option[A]] = new JSONR[Option[A]] {
     def read(json: JValue) = json match {
@@ -99,12 +97,11 @@ trait Base { this: Types =>
       case x => fromJSON[A](x).map(some)
     }
   }
-  implicit def optionJSONW[A: JSONW]: JSONW[Option[A]] = new JSONW[Option[A]] {
-    def write(value: Option[A]) = value.map(x => toJSON(x)).getOrElse(JNull)
-  }
+  implicit def optionJSONW[A: JSONW]: JSONW[Option[A]] = (value: Option[A]) =>
+    value.map(x => toJSON(x)).getOrElse(JNull)
 
-  implicit def mapJSONR[A: JSONR]: JSONR[Map[String, A]] = new JSONR[Map[String, A]] {
-    def read(json: JValue) = json match {
+  implicit def mapJSONR[A: JSONR]: JSONR[Map[String, A]] = (json: JValue) =>
+    json match {
       case JObject(fs) =>
         val m = fs.map(f => fromJSON[A](f._2) map (f._1 -> _))
         val mm = m.sequence[({ type λ[t] = ValidationNel[Error, t] })#λ, (String, A)]
@@ -115,8 +112,6 @@ trait Base { this: Types =>
 //        r.map(_.toMap)
       case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JObject]))
     }
-  }
-  implicit def mapJSONW[A: JSONW]: JSONW[Map[String, A]] = new JSONW[Map[String, A]] {
-    def write(values: Map[String, A]) = JObject(values.map { case (k, v) => JField(k, toJSON(v)) }.toList)
-  }
+  implicit def mapJSONW[A: JSONW]: JSONW[Map[String, A]] = (values: Map[String, A]) =>
+    JObject(values.map { case (k, v) => JField(k, toJSON(v)) }.toList)
 }
