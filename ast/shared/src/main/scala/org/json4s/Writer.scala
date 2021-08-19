@@ -40,7 +40,7 @@ trait DefaultWriters {
   ): Writer[immutable.Map[K, V]] =
     (obj: Map[K, V]) =>
       JObject(
-        obj.map({ case (k, v) => keyWriter.write(k) -> valueWriter.write(v) }).toList
+        obj.map { case (k, v) => keyWriter.write(k) -> valueWriter.write(v) }.toList
       )
   implicit val JValueWriter: Writer[JValue] = new W[JValue](identity)
   implicit def OptionWriter[T](implicit valueWriter: Writer[T]): Writer[Option[T]] = (obj: Option[T]) =>

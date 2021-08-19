@@ -418,7 +418,7 @@ object Extraction {
         )
       )
     } else if (scalaType.isMap) {
-      customOrElse(scalaType, json)({
+      customOrElse(scalaType, json) {
         case JObject(xs) =>
           val kta = scalaType.typeArgs(0)
           val ta = scalaType.typeArgs(1)
@@ -436,7 +436,7 @@ object Extraction {
           if (scalaType.isMutableMap) scala.collection.mutable.Map.empty else Map.empty
         }
         case x => fail("Expected object but got " + x)
-      })
+      }
     } else if (scalaType.isCollection) {
       customOrElse(scalaType, json)(new CollectionBuilder(_, scalaType).result)
     } else if (

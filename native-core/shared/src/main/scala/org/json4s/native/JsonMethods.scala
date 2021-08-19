@@ -56,13 +56,13 @@ trait JsonMethods extends org.json4s.JsonMethods[Document] {
       case JSet(set) =>
         text("[") :: series(trimArr(set).map(render(_, alwaysEscapeUnicode, emptyValueStrategy))) :: text("]")
       case JObject(obj) =>
-        val nested = break :: fields(trimObj(obj).map({ case (n, v) =>
+        val nested = break :: fields(trimObj(obj).map { case (n, v) =>
           text("\"" + ParserUtil.quote(n, alwaysEscapeUnicode) + "\":") :: render(
             v,
             alwaysEscapeUnicode,
             emptyValueStrategy
           )
-        }))
+        })
         text("{") :: nest(2, nested) :: break :: text("}")
     }
 
