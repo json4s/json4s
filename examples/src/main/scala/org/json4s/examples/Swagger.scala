@@ -212,14 +212,14 @@ object SwaggerSerializers {
             description = (json \ "description").extractOpt[String],
             `type` = deserializeDataType("type", json),
             defaultValue = (json \ "defaultValue").extractOpt[String],
-            enum = json \ "enum" \\ classOf[JString],
+            `enum` = json \ "enum" \\ classOf[JString],
             required = (json \ "required").extractOrElse(true)
           )
         },
         { case x: ModelField =>
           val c = ("description" -> x.description) ~
             ("defaultValue" -> x.defaultValue) ~
-            ("enum" -> x.enum) ~
+            ("enum" -> x.`enum`) ~
             ("required" -> x.required)
           c merge serializeDataType("type", x.`type`)
         }
@@ -320,7 +320,7 @@ case class ModelField(
   description: Option[String],
   `type`: DataType.DataType,
   defaultValue: Option[String] = None,
-  enum: List[String] = Nil,
+  `enum`: List[String] = Nil,
   required: Boolean = true
 )
 
