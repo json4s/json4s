@@ -3,6 +3,7 @@ package org.json4s
 import java.util.Locale.ENGLISH
 import scala.annotation.tailrec
 import org.json4s.JsonAST.JField
+import org.json4s.JValue.ValuesType
 
 object MonadicJValue {
 
@@ -111,8 +112,8 @@ class MonadicJValue(private val jv: JValue) extends AnyVal {
    * json \ classOf[JInt]
    * </pre>
    */
-  def \[A <: JValue](clazz: Class[A]): List[A#Values] =
-    findDirect(jv.children, typePredicate(clazz) _).asInstanceOf[List[A]] map { _.values.asInstanceOf[A#Values] }
+  def \[A <: JValue](clazz: Class[A]): List[ValuesType[A]] =
+    findDirect(jv.children, typePredicate(clazz) _).asInstanceOf[List[A]] map { _.values.asInstanceOf[ValuesType[A]] }
 
   /**
    * XPath-like expression to query JSON fields by type. Returns all matching fields.
@@ -121,8 +122,8 @@ class MonadicJValue(private val jv: JValue) extends AnyVal {
    * json \\ classOf[JInt]
    * </pre>
    */
-  def \\[A <: JValue](clazz: Class[A]): List[A#Values] =
-    (jv filter typePredicate(clazz) _).asInstanceOf[List[A]] map { _.values.asInstanceOf[A#Values] }
+  def \\[A <: JValue](clazz: Class[A]): List[ValuesType[A]] =
+    (jv filter typePredicate(clazz) _).asInstanceOf[List[A]] map { _.values.asInstanceOf[ValuesType[A]] }
 
   private def typePredicate[A <: JValue](clazz: Class[A])(json: JValue) = json match {
     case x if x.getClass == clazz => true

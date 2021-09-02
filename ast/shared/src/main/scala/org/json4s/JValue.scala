@@ -18,7 +18,7 @@ package org.json4s
 
 import org.json4s.JsonAST.JField
 
-object JValue extends Merge.Mergeable
+object JValue extends Merge.Mergeable with JValueParent
 
 /**
  * Data type for JSON AST.

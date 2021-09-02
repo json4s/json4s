@@ -101,8 +101,6 @@ object build {
           Seq("-Xsource:3")
         case _ =>
           Seq(
-            "-source",
-            "3.0-migration",
           )
       }
     },
