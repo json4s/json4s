@@ -164,16 +164,6 @@ lazy val ext = project
   .settings(
     name := "json4s-ext",
     json4sSettings(cross = false),
-    scalacOptions ++= {
-      if (isScala3.value) {
-        Seq(
-          "-source",
-          "3.0-migration", // TODO avoid `scala.Enumeration#Value`
-        )
-      } else {
-        Nil
-      }
-    },
     libraryDependencies ++= Dependencies.jodaTime,
   )
   .dependsOn(core)

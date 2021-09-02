@@ -19,17 +19,17 @@ package ext
 
 import scala.reflect.ClassTag
 
-class EnumSerializer[E <: Enumeration: ClassTag](enumeration: E) extends Serializer[E#Value] {
+class EnumSerializer[E <: Enumeration: ClassTag](enumeration: E) extends Serializer[EnumValue[E]] {
   import JsonDSL._
 
-  val EnumerationClass = classOf[E#Value]
+  val EnumerationClass = classOf[EnumValue[E]]
 
   private[this] def isValid(json: JValue) = json match {
     case JInt(value) => enumeration.values.toSeq.map(_.id).contains(value.toInt)
     case _ => false
   }
 
-  def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), E#Value] = {
+  def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), EnumValue[E]] = {
     case (TypeInfo(EnumerationClass, _), json) if isValid(json) =>
       json match {
         case JInt(value) => enumeration(value.toInt)
@@ -38,16 +38,16 @@ class EnumSerializer[E <: Enumeration: ClassTag](enumeration: E) extends Seriali
   }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case i: E#Value if enumeration.values.exists(_ == i) => i.id
+    case i: EnumValue[E] if enumeration.values.exists(_ == i) => i.id
   }
 }
 
-class EnumNameSerializer[E <: Enumeration: ClassTag](enumeration: E) extends Serializer[E#Value] {
+class EnumNameSerializer[E <: Enumeration: ClassTag](enumeration: E) extends Serializer[EnumValue[E]] {
   import JsonDSL._
 
-  val EnumerationClass = classOf[E#Value]
+  val EnumerationClass = classOf[EnumValue[E]]
 
-  def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), E#Value] = {
+  def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), EnumValue[E]] = {
     case (_ @TypeInfo(EnumerationClass, _), json) if isValid(json) => {
       json match {
         case JString(value) => enumeration.withName(value)
@@ -62,6 +62,6 @@ class EnumNameSerializer[E <: Enumeration: ClassTag](enumeration: E) extends Ser
   }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case i: E#Value if enumeration.values.exists(_ == i) => i.toString
+    case i: EnumValue[E] if enumeration.values.exists(_ == i) => i.toString
   }
 }
