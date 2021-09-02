@@ -39,7 +39,7 @@ jobs:
             sbt -v scalafmtSbtCheck scalafmtCheckAll test
             ;;
           3)
-            sbt -v scalafmtSbtCheck SetScala3_0 scalafmtCheckAll test
+            sbt -v scalafmtSbtCheck SetScala3 scalafmtCheckAll test
             ;;
           *)
             echo "unknown scala version"
