@@ -21,25 +21,26 @@ jobs:
           - java: 11
             scala: 2
     steps:
-    - uses: olafurpg/setup-scala@v13
+    - uses: actions/setup-java@v2
       with:
-        java-version: "adopt@1.${{matrix.java}}"
+        java-version: ${{matrix.java}}
+        distribution: temurin
     - uses: actions/checkout@v2.3.4
     - uses: coursier/cache-action@v6
     - run: |
         export TZ=Australia/Canberra
         case ${{ matrix.scala }} in
           2_12)
-            sbt -v scalafmtSbtCheck SetScala212 scalafmtCheckAll test
+            ./sbt -v scalafmtSbtCheck SetScala212 scalafmtCheckAll test
             ;;
           2_13)
-            sbt -v scalafmtSbtCheck SetScala213 scalafmtCheckAll test
+            ./sbt -v scalafmtSbtCheck SetScala213 scalafmtCheckAll test
             ;;
           2)
-            sbt -v scalafmtSbtCheck scalafmtCheckAll test
+            ./sbt -v scalafmtSbtCheck scalafmtCheckAll test
             ;;
           3)
-            sbt -v scalafmtSbtCheck SetScala3 scalafmtCheckAll test
+            ./sbt -v scalafmtSbtCheck SetScala3 scalafmtCheckAll test
             ;;
           *)
             echo "unknown scala version"
