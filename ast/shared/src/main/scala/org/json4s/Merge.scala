@@ -39,8 +39,10 @@ private[json4s] trait LowPriorityMergeDep {
     private def merge(val1: JValue, val2: JValue): JValue = (val1, val2) match {
       case (JObject(xs), JObject(ys)) => JObject(Merge.mergeFields(xs, ys))
       case (JArray(xs), JArray(ys)) => JArray(Merge.mergeVals(xs, ys))
-      case (JNothing, x) => x
-      case (x, JNothing) => x
+      case (JNothing, JNull) => JNull
+      case (JNull, JNothing) => JNull
+      case (JNothing | JNull, x) => x
+      case (x, JNothing | JNull) => x
       case (_, y) => y
     }
   }
