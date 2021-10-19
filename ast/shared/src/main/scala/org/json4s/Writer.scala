@@ -46,7 +46,7 @@ trait DefaultWriters {
   implicit def OptionWriter[T](implicit valueWriter: Writer[T]): Writer[Option[T]] = (obj: Option[T]) =>
     obj match {
       case Some(v) => valueWriter.write(v)
-      case _ => JNull
+      case _ => JNothing
     }
 }
 
