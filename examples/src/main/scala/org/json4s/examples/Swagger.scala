@@ -212,7 +212,7 @@ object SwaggerSerializers {
             description = (json \ "description").extractOpt[String],
             `type` = deserializeDataType("type", json),
             defaultValue = (json \ "defaultValue").extractOpt[String],
-            enum = (json \ "enum" \\ classOf[JString]),
+            enum = json \ "enum" \\ classOf[JString],
             required = (json \ "required").extractOrElse(true)
           )
         },
@@ -331,7 +331,7 @@ object ModelField {
 case class Model(id: String, description: Option[String], properties: Map[String, ModelField]) {
 
   def setRequired(property: String, required: Boolean) =
-    copy(properties = (properties + (property -> properties(property).copy(required = required))))
+    copy(properties = properties + (property -> properties(property).copy(required = required)))
 }
 
 object Model {
