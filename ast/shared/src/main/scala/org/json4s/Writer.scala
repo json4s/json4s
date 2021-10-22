@@ -45,7 +45,7 @@ trait DefaultWriters {
   ): Writer[immutable.Map[K, V]] =
     new Writer[Map[K, V]] {
       def write(obj: Map[K, V]): JValue = JObject(
-        obj.map({ case (k, v) => keyWriter.write(k) -> valueWriter.write(v) }).toList
+        obj.map { case (k, v) => keyWriter.write(k) -> valueWriter.write(v) }.toList
       )
     }
   implicit val JValueWriter: Writer[JValue] = new W[JValue](identity)
