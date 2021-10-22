@@ -24,7 +24,7 @@ object Dependencies {
       case Some((2, 11)) =>
         Seq("org.scalatestplus" %%% "scalacheck-1-15" % "3.2.4.0-M1" % "test")
       case _ =>
-        Seq("org.scalatestplus" %%% "scalacheck-1-15" % "3.2.9.0" % "test")
+        Seq("org.scalatestplus" %%% "scalacheck-1-15" % "3.2.10.0" % "test")
     }
   )
 
