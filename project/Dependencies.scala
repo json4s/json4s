@@ -10,21 +10,22 @@ object Dependencies {
     "org.joda" % "joda-convert" % "2.2.1"
   )
   lazy val jackson = Seq(
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.12.4"
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.12.5"
   )
   lazy val scalaz_core = Def.setting(
-    "org.scalaz" %%% "scalaz-core" % "7.3.4" cross CrossVersion.for3Use2_13
+    "org.scalaz" %%% "scalaz-core" % "7.3.5" cross CrossVersion.for3Use2_13
   )
   lazy val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.8"
+  private def scalatestVersion = "3.2.10"
   lazy val scalatest = Def.setting(
-    Seq("org.scalatest" %%% "scalatest-wordspec" % "3.2.9" % "test")
+    Seq("org.scalatest" %%% "scalatest-wordspec" % scalatestVersion % "test")
   )
   lazy val scalatestScalacheck = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 11)) =>
         Seq("org.scalatestplus" %%% "scalacheck-1-15" % "3.2.4.0-M1" % "test")
       case _ =>
-        Seq("org.scalatestplus" %%% "scalacheck-1-15" % "3.2.9.0" % "test")
+        Seq("org.scalatestplus" %%% "scalacheck-1-15" % s"${scalatestVersion}.0" % "test")
     }
   )
 
