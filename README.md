@@ -266,13 +266,14 @@ Example
 -------
 
 ```scala
-object JsonExample extends App {
-  import org.json4s._
-  import org.json4s.JsonDSL._
-  import org.json4s.jackson.JsonMethods._
+import org.json4s._
+import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods._
 
-  case class Winner(id: Long, numbers: List[Int])
-  case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[java.util.Date])
+case class Winner(id: Long, numbers: List[Int])
+case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[java.util.Date])
+
+object JsonExample {
 
   val winners = List(Winner(23, List(2, 45, 34, 23, 3, 5)), Winner(54, List(52, 3, 12, 11, 18, 22)))
   val lotto = Lotto(5, List(2, 45, 34, 23, 7, 5, 3), winners, None)
@@ -287,12 +288,14 @@ object JsonExample extends App {
           (("winner-id" -> w.id) ~
            ("numbers" -> w.numbers))}))
 
-  println(compact(render(json)))
+  def main(args: Array[String]): Unit = {
+    println(compact(render(json)))
+  }
 }
 ```
 
 ```scala
-scala> JsonExample
+scala> JsonExample.main(Array.empty[String])
 {"lotto":{"lotto-id":5,"winning-numbers":[2,45,34,23,7,5,3],"winners":
 [{"winner-id":23,"numbers":[2,45,34,23,3,5]},{"winner-id":54,"numbers":[52,3,12,11,18,22]}]}}
 ```
