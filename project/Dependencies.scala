@@ -21,7 +21,7 @@ object Dependencies {
         Seq("org.specs2" %% "specs2-scalacheck" % "4.10.6" % "test")
     }
   }
-  lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "3.8.0" % "test"
+  lazy val mockito      = "org.mockito"                  %  "mockito-core"         % "3.12.4" % "test"
 
   def scalaXml(scalaVersion: String) = {
     PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion)){
