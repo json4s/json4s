@@ -22,4 +22,4 @@ jobs:
         github-token: ${{ steps.generate_token.outputs.token }}
         author-email: "74845451+json4s-bot[bot]@users.noreply.github.com"
         author-name: json4s-bot[bot]
-        branches: 4.0
+        branches: "4.0"
