@@ -22,8 +22,8 @@ class DynamicJValue(val raw: JValue) extends Dynamic {
 }
 
 trait DynamicJValueImplicits {
-  implicit def dynamic2Jv(dynJv: DynamicJValue) = dynJv.raw
-  implicit def dynamic2monadic(dynJv: DynamicJValue) = new MonadicJValue(dynJv.raw)
+  implicit def dynamic2Jv(dynJv: DynamicJValue): JValue = dynJv.raw
+  implicit def dynamic2monadic(dynJv: DynamicJValue): MonadicJValue = new MonadicJValue(dynJv.raw)
   def dyn(jv:JValue) = new DynamicJValue(jv)
 }
 
