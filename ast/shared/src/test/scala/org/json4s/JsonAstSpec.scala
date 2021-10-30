@@ -93,7 +93,7 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
           val elemsLeft = noNulls filter { case _ =>
             true
           }
-          //noNulls can remove everything in which case we get a JNothing, otherwise there should be no JNulls or JNothings
+          // noNulls can remove everything in which case we get a JNothing, otherwise there should be no JNulls or JNothings
           (noNulls == JNothing) || (elemsLeft.forall(e => e != JNull && e != JNothing))
         }
       }

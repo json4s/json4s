@@ -32,7 +32,7 @@ class MapSerializationExamples extends AnyWordSpec {
   }
 
   "Map with Date key" in {
-    //months are zero indexed
+    // months are zero indexed
     val gc = new GregorianCalendar(2013, 0, 1)
     val d2013 = gc.getTime
     gc.set(2014, 0, 1)
