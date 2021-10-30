@@ -171,7 +171,7 @@ object ClassFileParser extends ByteCodeReader {
     case 'B' | 'C' | 'D' | 'F' | 'I' | 'J' | 'S' | 'Z' | 's' => u2 ^^ ConstValueIndex
     case 'e' => u2 ~ u2 ^~^ EnumConstValue
     case 'c' => u2 ^^ ClassInfoIndex
-    case '@' => annotation //nested annotation
+    case '@' => annotation // nested annotation
     case '[' => u2 >> element_value.times ^^ ArrayValue
   }
 
