@@ -241,7 +241,7 @@ object SerializationExamples {
   case class Employee(name: String, experience: Int)
 
   case class ArgsTwoLists(name: String, age: Int)(nick: String) {
-    val tmp = nick //nick becomes field of object
+    val tmp = nick // nick becomes field of object
   }
 
   case class Nullable(name: String)
