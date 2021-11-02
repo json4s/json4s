@@ -235,7 +235,7 @@ object Reflector {
                 defaultValue(comp.erasure.erasure, comp.instance, index, pattern)
               case _ => None
             }
-            //println(s"$paramName $index $tpe $ctorParameterNames ${genParams(index)}")
+            // println(s"$paramName $index $tpe $ctorParameterNames ${genParams(index)}")
             val theType = ctorParamType(
               paramName,
               index,
