@@ -6,7 +6,7 @@ object Dependencies {
 
   lazy val jodaTime     = Seq(
     "joda-time" % "joda-time"    % "2.10.13",
-    "org.joda"  % "joda-convert" % "2.2.1"
+    "org.joda"  % "joda-convert" % "2.2.2"
   )
   lazy val jackson      = Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.10.8"
