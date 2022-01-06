@@ -7,7 +7,32 @@ json4sSettings(cross = false)
 noPublish
 
 lazy val nativeSettings = Def.settings(
-  disableScala3,
+  Compile / doc / scalacOptions --= {
+    // TODO remove this workaround
+    // https://github.com/scala-native/scala-native/issues/2503
+    if (isScala3.value) {
+      (Compile / doc / scalacOptions).value.filter(_.contains("-Xplugin"))
+    } else {
+      Nil
+    }
+  },
+  // TODO enable tests if scalatest released
+  libraryDependencies := {
+    if (isScala3.value) {
+      libraryDependencies.value.filterNot {
+        _.organization.contains("org.scalatest")
+      }
+    } else {
+      libraryDependencies.value
+    }
+  },
+  Test / sources := {
+    if (isScala3.value) {
+      Nil
+    } else {
+      (Test / sources).value
+    }
+  },
 )
 
 lazy val ast = crossProject(JVMPlatform, JSPlatform, NativePlatform)
@@ -106,7 +131,8 @@ lazy val xml = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     libraryDependencies += Dependencies.scalaXml.value,
   )
   .nativeSettings(
-    nativeSettings
+    nativeSettings,
+    disableScala3,
   )
   .jsSettings(
     scalajsProjectSettings
@@ -212,7 +238,8 @@ lazy val scalaz = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     libraryDependencies += Dependencies.scalaz_core.value,
   )
   .nativeSettings(
-    nativeSettings
+    nativeSettings,
+    disableScala3,
   )
   .jsSettings(
     scalajsProjectSettings
