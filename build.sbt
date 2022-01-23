@@ -7,7 +7,14 @@ json4sSettings(cross = false)
 noPublish
 
 lazy val nativeSettings = Def.settings(
-  disableScala3,
+  disableScala3Tests, // TODO https://github.com/scalatest/scalatest/issues/2097
+  MimaSettings.previousVersions --= {
+    if (scalaBinaryVersion.value == "3") {
+      (0 to 3).map(n => s"4.0.${n}")
+    } else {
+      Nil
+    }
+  },
 )
 
 lazy val ast = crossProject(JVMPlatform, JSPlatform, NativePlatform)
@@ -64,9 +71,17 @@ val isScala3 = Def.setting(
   CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 3)
 )
 
-// TODO remove this workaround when new Scala 3 version released which contains https://github.com/lampepfl/dotty/pull/13142
-// https://github.com/json4s/json4s/issues/827
 lazy val disableScala3Tests = Def.settings(
+  libraryDependencies := {
+    if (scalaBinaryVersion.value == "3") {
+      libraryDependencies.value.filterNot(x =>
+        // https://github.com/scalatest/scalatest/issues/2097
+        x.organization.contains("org.scalatest")
+      )
+    } else {
+      libraryDependencies.value
+    }
+  },
   Test / sources := {
     if (isScala3.value) {
       Nil
@@ -165,7 +180,8 @@ lazy val xml = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     disableScala211,
   )
   .nativeSettings(
-    nativeSettings
+    nativeSettings,
+    disableScala3, // TODO https://github.com/scala/scala-xml/pull/584
   )
   .jsSettings(
     scalajsProjectSettings
@@ -182,7 +198,6 @@ lazy val core = project
   .settings(
     name := "json4s-core",
     json4sSettings(cross = false),
-    disableScala3Tests, // TODO
     libraryDependencies ++= Seq(Dependencies.paranamer),
     Test / console / initialCommands := """
         |import org.json4s._
@@ -213,7 +228,6 @@ lazy val native = project
   .settings(
     name := "json4s-native",
     json4sSettings(cross = false),
-    disableScala3Tests, // TODO
     MimaSettings.previousVersions --= {
       if (scalaBinaryVersion.value == "3") {
         Seq("4.0.0", "4.0.1")
@@ -250,7 +264,6 @@ lazy val jackson = project
   .settings(
     name := "json4s-jackson",
     json4sSettings(cross = false),
-    disableScala3Tests, // TODO
     MimaSettings.previousVersions --= {
       if (scalaBinaryVersion.value == "3") {
         Seq("4.0.0", "4.0.1")
