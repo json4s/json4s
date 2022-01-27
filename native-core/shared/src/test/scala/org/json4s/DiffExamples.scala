@@ -89,6 +89,7 @@ abstract class DiffExamples[T](mod: String) extends AnyWordSpec with JsonMethods
     val original = JObject("a" -> JInt(1), "b" -> JNothing)
     val same = parse(compact(render(original)))
     assert((original diff same) == Diff(JNothing, JNothing, JNothing))
+    assert((same diff original) == Diff(JNothing, JNothing, JNothing))
   }
 
   private def read(resource: String) =
