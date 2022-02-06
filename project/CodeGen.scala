@@ -42,7 +42,7 @@ ${if (addAuto) (2 to max).map(writerAutoN).mkString("\n") else ""}
   private[this] def writerAutoN(n: Int): String = {
     val A = (1 to n).map("A" + _)
     def signature(name: String): String = s"""def ${name}[${A.mkString(", ")}, X <: Product](f: X => (${A
-      .mkString(", ")}))(implicit
+        .mkString(", ")}))(implicit
     ${A.map(a => s"${a}: Writer[${a}]").mkString(", ")}
   ): Writer[X]"""
 
@@ -63,7 +63,7 @@ ${if (addAuto) (2 to max).map(writerAutoN).mkString("\n") else ""}
   private[this] def writerN(n: Int): String = {
     val A = (1 to n).map("A" + _)
     def signature(name: String): String = s"""def ${name}[${A.mkString(", ")}, X](f: X => (${A
-      .mkString(", ")}))(${(1 to n).map("key" + _ + ": String").mkString(", ")})(implicit
+        .mkString(", ")}))(${(1 to n).map("key" + _ + ": String").mkString(", ")})(implicit
     ${A.map(a => s"${a}: Writer[${a}]").mkString(", ")}
   ): Writer[X]"""
 
