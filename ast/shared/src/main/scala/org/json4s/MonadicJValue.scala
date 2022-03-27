@@ -258,7 +258,7 @@ class MonadicJValue(private val jv: JValue) extends AnyVal {
         case (ArrayIndex(name, index) :: xs, JObject(fields)) =>
           JObject(
             fields.map {
-              case JField(`name`, JArray(array)) if array.length > index =>
+              case JField(`name`, JArray(array)) if array.lengthCompare(index) > 0 =>
                 JField(name, JArray(array.updated(index, if (xs == Nil) replacement else rep(xs, array(index)))))
               case field => field
             }
