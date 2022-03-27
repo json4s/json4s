@@ -556,7 +556,7 @@ object Extraction {
     private[this] def constructor = {
       if (_constructor == null) {
         _constructor =
-          if (descr.constructors.size == 1) descr.constructors.head
+          if (descr.constructors.lengthCompare(1) == 0) descr.constructors.head
           else {
             val argNames = json match {
               case JObject(fs) => fs.map(_._1)
