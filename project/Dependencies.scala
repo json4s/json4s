@@ -34,7 +34,7 @@ object Dependencies {
       case Some((2, 11)) =>
         "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
       case _ =>
-        "org.scala-lang.modules" %%% "scala-xml" % "2.0.1"
+        "org.scala-lang.modules" %%% "scala-xml" % "2.1.0"
     }
   }
 }
