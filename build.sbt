@@ -89,40 +89,6 @@ val isScala3 = Def.setting(
   CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 3)
 )
 
-lazy val disableScala3 = Def.settings(
-  mimaPreviousArtifacts := {
-    if (isScala3.value) {
-      Set.empty
-    } else {
-      mimaPreviousArtifacts.value
-    }
-  },
-  libraryDependencies := {
-    if (isScala3.value) {
-      Nil
-    } else {
-      libraryDependencies.value
-    }
-  },
-  Seq(Compile, Test).map { x =>
-    (x / sources) := {
-      if (isScala3.value) {
-        Nil
-      } else {
-        (x / sources).value
-      }
-    }
-  },
-  Test / test := {
-    if (isScala3.value) {
-      ()
-    } else {
-      (Test / test).value
-    }
-  },
-  publish / skip := isScala3.value,
-)
-
 lazy val xml = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("xml"))
   .settings(
@@ -132,7 +98,6 @@ lazy val xml = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   )
   .nativeSettings(
     nativeSettings,
-    disableScala3,
   )
   .jsSettings(
     scalajsProjectSettings
@@ -239,7 +204,6 @@ lazy val scalaz = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   )
   .nativeSettings(
     nativeSettings,
-    disableScala3,
   )
   .jsSettings(
     scalajsProjectSettings
