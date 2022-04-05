@@ -181,7 +181,13 @@ lazy val xml = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   )
   .nativeSettings(
     nativeSettings,
-    disableScala3, // TODO https://github.com/scala/scala-xml/pull/584
+    MimaSettings.previousVersions --= {
+      if (scalaBinaryVersion.value == "3") {
+        Seq("4.0.4")
+      } else {
+        Nil
+      }
+    },
   )
   .jsSettings(
     scalajsProjectSettings
