@@ -13,7 +13,7 @@ object build {
   val manifestSetting = packageOptions += {
     val (title, v, vendor) = (name.value, version.value, organization.value)
     Package.ManifestAttributes(
-      "Created-By" -> "Simple Build Tool",
+      "Created-By" -> "sbt",
       "Built-By" -> System.getProperty("user.name"),
       "Build-Jdk" -> System.getProperty("java.version"),
       "Specification-Title" -> title,
