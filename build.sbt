@@ -16,23 +16,6 @@ lazy val nativeSettings = Def.settings(
       Nil
     }
   },
-  // TODO enable tests if scalatest released
-  libraryDependencies := {
-    if (isScala3.value) {
-      libraryDependencies.value.filterNot {
-        _.organization.contains("org.scalatest")
-      }
-    } else {
-      libraryDependencies.value
-    }
-  },
-  Test / sources := {
-    if (isScala3.value) {
-      Nil
-    } else {
-      (Test / sources).value
-    }
-  },
 )
 
 lazy val ast = crossProject(JVMPlatform, JSPlatform, NativePlatform)
