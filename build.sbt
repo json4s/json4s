@@ -7,7 +7,6 @@ json4sSettings(cross = false)
 noPublish
 
 lazy val nativeSettings = Def.settings(
-  disableScala3Tests, // TODO https://github.com/scalatest/scalatest/issues/2097
   MimaSettings.previousVersions --= {
     if (scalaBinaryVersion.value == "3") {
       (0 to 3).map(n => s"4.0.${n}")
@@ -69,26 +68,6 @@ lazy val scalap = project
 
 val isScala3 = Def.setting(
   CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 3)
-)
-
-lazy val disableScala3Tests = Def.settings(
-  libraryDependencies := {
-    if (scalaBinaryVersion.value == "3") {
-      libraryDependencies.value.filterNot(x =>
-        // https://github.com/scalatest/scalatest/issues/2097
-        x.organization.contains("org.scalatest")
-      )
-    } else {
-      libraryDependencies.value
-    }
-  },
-  Test / sources := {
-    if (isScala3.value) {
-      Nil
-    } else {
-      (Test / sources).value
-    }
-  }
 )
 
 lazy val disableScala3 = Def.settings(
