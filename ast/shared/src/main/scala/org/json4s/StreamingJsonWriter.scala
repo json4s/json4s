@@ -189,7 +189,7 @@ private final class ArrayStreamingJsonWriter[T <: JWriter](
   }
 }
 private final class RootStreamingJsonWriter[T <: JWriter](
-  protected[this] val nodes: T = new StringWriter(),
+  protected[this] val nodes: T = new StringWriter,
   protected[this] val pretty: Boolean = false,
   protected[this] val spaces: Int = 2,
   protected[this] val alwaysEscapeUnicode: Boolean = false

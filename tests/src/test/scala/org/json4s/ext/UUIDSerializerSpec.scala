@@ -32,7 +32,7 @@ abstract class UUIDSerializerSpec(mod: String) extends AnyWordSpec {
   def s: Serialization
   implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JavaTypesSerializers.all
 
-  (mod + " UUIDSerializer Specification") should {
+  mod + " UUIDSerializer Specification" should {
     "Serialize UUID's" in {
       val x = SubjectWithUUID(id = UUID.randomUUID())
       val ser = s.write(x)

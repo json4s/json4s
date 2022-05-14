@@ -31,24 +31,24 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
     }
 
     "Monoid identity" in check { (json: JValue) =>
-      ({ json ++ JNothing } == json) && ({ JNothing ++ json } == json)
+      { json ++ JNothing } == json && { JNothing ++ json } == json
     }
 
     "Monoid associativity" in check { (x: JValue, y: JValue, z: JValue) =>
-      (x ++ (y ++ z)) == ((x ++ y) ++ z)
+      x ++ (y ++ z) == x ++ y ++ z
     }
 
     "Merge identity" in check { (json: JValue) =>
-      ((json merge JNothing) == json) && ((JNothing merge json) == json)
+      (json merge JNothing) == json && (JNothing merge json) == json
     }
 
     "Merge idempotency" in check { (x: JValue) =>
-      ((x merge x) == x)
+      (x merge x) == x
     }
 
     "Diff identity" in check { (json: JValue) =>
-      ((json diff JNothing) == Diff(JNothing, JNothing, json)) &&
-      ((JNothing diff json) == Diff(JNothing, json, JNothing))
+      (json diff JNothing) == Diff(JNothing, JNothing, json) &&
+      (JNothing diff json) == Diff(JNothing, json, JNothing)
     }
 
     "Diff with self is empty" in check { (x: JValue) =>
@@ -63,15 +63,15 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
     }
 
     "Diff result is same when fields are reordered" in check { (x: JObject) =>
-      ((x diff reorderFields(x)) == Diff(JNothing, JNothing, JNothing))
+      (x diff reorderFields(x)) == Diff(JNothing, JNothing, JNothing)
     }
 
     "Remove all" in check { (x: JValue) =>
-      ((x remove { _ => true }) == JNothing)
+      (x remove { _ => true }) == JNothing
     }
 
     "Remove nothing" in check { (x: JValue) =>
-      ((x remove { _ => false }) == x)
+      (x remove { _ => false }) == x
     }
 
     "Remove removes only matching elements" in {
@@ -94,14 +94,15 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
             true
           }
           // noNulls can remove everything in which case we get a JNothing, otherwise there should be no JNulls or JNothings
-          (noNulls == JNothing) || (elemsLeft.forall(e => e != JNull && e != JNothing))
+          noNulls == JNothing || elemsLeft.forall(
+          e => e != JNull && e != JNothing)
         }
       }
     }
 
     val anyReplacement = (x: JValue, replacement: JObject) => {
       def findOnePath(jv: JValue, l: List[String]): List[String] = jv match {
-        case JObject((fn, fv) :: _) => findOnePath(fv, fn :: l)
+        case JObject(fn, fv :: _) => findOnePath(fv, fn :: l)
         case _ => l
       }
 
@@ -114,10 +115,10 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
           case Nil =>
             x == in
           case name :: Nil =>
-            (in \ name) == `replacement`
+            in \ name == `replacement`
           case name :: xs =>
             val value = in \ name
-            (value != JNothing) && replaced(xs, value)
+            value != JNothing && replaced(xs, value)
         }
       }
 
@@ -146,7 +147,7 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
 
         // checks that each element was replaced
         result match {
-          case JObject((_, JArray(xs)) :: _) =>
+          case JObject(_, JArray(xs) :: _) =>
             xs.forall(_ == replacement)
         }
 
@@ -170,7 +171,7 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
 
         // checks that only one element was replaced
         result match {
-          case JObject((_, JArray(xs)) :: _) => {
+          case JObject(_, JArray(xs) :: _) => {
             xs.indices.forall(i =>
               if (i == index) {
                 (xs(i) == replacement)
@@ -188,7 +189,7 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
     "equals hashCode" in check { (x: JObject) =>
       val y = JObject(scala.util.Random.shuffle(x.obj))
 
-      (x == y) && (x.## == y.##)
+      x == y && x.## == y.##
     }
   }
 

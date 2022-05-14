@@ -19,7 +19,7 @@ abstract class TypeFieldSerializerSpec(mod: String) extends AnyWordSpec {
   implicit lazy val formats1: Formats = s.formats(NoTypeHints) +
     new TypeFieldSerializer[BaseTrait]("type", map)
 
-  (mod + " TypeFieldSerializer Specification") should {
+  mod + " TypeFieldSerializer Specification" should {
     "Serialize concrete type" in {
       val x = Concrete1()
       val ser = s.write(x)

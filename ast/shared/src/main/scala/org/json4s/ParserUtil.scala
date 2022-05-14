@@ -31,7 +31,7 @@ object ParserUtil {
           val shouldEscape = if (alwaysEscapeUnicode) {
             c >= 0x80
           } else {
-            (c >= '\u0000' && c <= '\u001f') || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100')
+            c >= '\u0000' && c <= '\u001f' || c >= '\u0080' && c < '\u00a0' || c >= '\u2000' && c < '\u2100'
           }
           if (shouldEscape)
             appender.append("\\u%04X".format(c: Int))
@@ -131,7 +131,7 @@ object ParserUtil {
         @tailrec
         def loop(xs: List[(Int, Int, Array[Char])], pos: Int): Unit = {
           xs match {
-            case (start, end, b) :: tail =>
+            case start, end, b :: tail =>
               val partLen = end - start - 1
               System.arraycopy(b, start, chars, pos, partLen)
               loop(tail, pos + partLen)
@@ -143,7 +143,7 @@ object ParserUtil {
       }
     }
 
-    def near: String = new String(segment, (cur - 20) max 0, 20 min cur)
+    def near: String = new String(segment, cur - 20 max 0, 20 min cur)
 
     def release(): Unit = segments.foreach(Segments.release)
 

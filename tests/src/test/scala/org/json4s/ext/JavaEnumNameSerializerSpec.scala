@@ -10,7 +10,7 @@ abstract class JavaEnumNameSerializerSpec(
 ) extends AnyWordSpec {
 
   implicit val formats: Formats =
-    DefaultFormats + new JavaEnumNameSerializer[JavaDayEnum]()
+    DefaultFormats + new JavaEnumNameSerializer[JavaDayEnum]
 
   "An java enum serializer" should {
     "serialize and deserialize with name" in {

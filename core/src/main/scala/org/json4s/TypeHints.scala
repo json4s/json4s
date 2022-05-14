@@ -87,7 +87,7 @@ private[json4s] object TypeHints {
             )
         )
       }
-      sortWith ((x, y) => (ClassDelta.delta(x._2, clazz) - ClassDelta.delta(y._2, clazz)) <= 0)).headOption
+      sortWith ((x, y) => ClassDelta.delta(x._2, clazz) - ClassDelta.delta(y._2, clazz) <= 0)).headOption
         .flatMap(_._1)
     }
 

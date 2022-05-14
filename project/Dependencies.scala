@@ -22,7 +22,7 @@ object Dependencies {
   )
   lazy val scalatestScalacheck = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 11)) =>
+      case Some(2, 11) =>
         Seq("org.scalatestplus" %%% "scalacheck-1-15" % "3.2.4.0-M1" % "test")
       case _ =>
         Seq("org.scalatestplus" %%% "scalacheck-1-16" % s"${scalatestVersion}.0" % "test")
@@ -31,7 +31,7 @@ object Dependencies {
 
   lazy val scalaXml = Def.setting {
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 11)) =>
+      case Some(2, 11) =>
         "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
       case _ =>
         "org.scala-lang.modules" %%% "scala-xml" % "2.1.0"

@@ -15,7 +15,7 @@ trait Benchmark {
       else if (t > 10) 3
       else 4
     val padding = 32 - name.size + extra
-    println(name + (" " * padding) + t + "ms  ")
+    println(name + " " * padding + t + "ms  ")
   }
 
   def repeat(count: Int)(f: => Any) = {

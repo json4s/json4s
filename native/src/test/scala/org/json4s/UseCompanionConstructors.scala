@@ -18,7 +18,7 @@ abstract class UseCompanionConstructors[T](mod: String) extends AnyWordSpec with
   val useCtorSpec1 = """{ "someString": "Foo", "someInt": 123 }"""
   val useCtorSpec2 = """{ "someString": "Foo", "someInt": 123, "someDouble": 456.1 }"""
 
-  (mod + " case class with a companion ctor") should {
+  mod + " case class with a companion ctor" should {
     "use companion ctor" in {
       val model = parse(useCtorSpec1).extract[UseCompanionCtorSpec]
       assert(model.someString == "Foo")

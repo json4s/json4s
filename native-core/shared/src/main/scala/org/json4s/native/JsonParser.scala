@@ -189,7 +189,7 @@ object JsonParser {
       }
 
       vals.peekOption match {
-        case Some((name: String, _)) =>
+        case Some(name: String, _) =>
           vals.pop(classOf[JField])
           val obj = vals.peek(classOf[JObject])
           vals.replace(JObject((name, toJValue(v)) :: obj.obj))
@@ -243,7 +243,7 @@ object JsonParser {
 
   private class ValStack(parser: Parser) {
     import java.util.LinkedList
-    private[this] val stack = new LinkedList[Any]()
+    private[this] val stack = new LinkedList[Any]
 
     def popAny = stack.poll
     def pop[A](expectedType: Class[A]) = convert(stack.poll, expectedType)
@@ -264,7 +264,7 @@ object JsonParser {
   class Parser(buf: Buffer, useBigDecimalForDouble: Boolean, useBigIntForLong: Boolean) {
     import java.util.LinkedList
 
-    private[this] val blocks = new LinkedList[BlockMode]()
+    private[this] val blocks = new LinkedList[BlockMode]
     private[this] var fieldNameMode = true
 
     def fail(msg: String) = throw new ParseException(s"$msg\nNear: ${buf.near}", null)

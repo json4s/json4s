@@ -9,7 +9,7 @@ class JsonDSLSpec extends AnyWordSpec with JValueGen with Checkers {
     "build Json" in {
       import JsonDSL._
       check { (intValue: Int, strValue: String) =>
-        (("intValue" -> intValue) ~ ("strValue" -> strValue)) == JObject(
+        ("intValue" -> intValue) ~ ("strValue" -> strValue) == JObject(
           "intValue" -> JInt(intValue),
           ("strValue", JString(strValue))
         )
@@ -22,7 +22,7 @@ class JsonDSLSpec extends AnyWordSpec with JValueGen with Checkers {
       }
       import CustomJsonDSL._
       check { (intValue: Int, strValue: String) =>
-        (("intValue" -> intValue) ~ ("strValue" -> strValue)) == JObject(
+        ("intValue" -> intValue) ~ ("strValue" -> strValue) == JObject(
           ("intValue", JString(intValue.toString)),
           ("strValue", JString(strValue))
         )

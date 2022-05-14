@@ -26,7 +26,7 @@ abstract class XmlExamples[T](mod: String) extends AnyWordSpec with JsonMethods[
   import Xml._
   import scala.xml.{Group, Text}
 
-  (mod + " XML Examples") should {
+  mod + " XML Examples" should {
     "Basic conversion example" in {
       val json = toJson(users1)
       assert(

@@ -22,7 +22,7 @@ import org.json4s.MonadicJValue._
 abstract class LottoExample[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
   import LottoExample._
 
-  ("The " + mod + " Lotto Examples") should {
+  "The " + mod + " Lotto Examples" should {
     "pass" in {
       assert(
         compact(
@@ -30,7 +30,7 @@ abstract class LottoExample[T](mod: String) extends AnyWordSpec with JsonMethods
         ) == """{"lotto":{"id":5,"winning-numbers":[2,45,34,23,7,5,3],"winners":[{"winner-id":23,"numbers":[2,45,34,23,3,5]},{"winner-id":54,"numbers":[52,3,12,11,18,22]}]}}"""
       )
       val exp: Winner = Winner(23, List(2, 45, 34, 23, 3, 5))
-      val winn: Winner = extractWinner((json \ "lotto" \ "winners")(0))
+      val winn: Winner = extractWinner(json \ "lotto" \ "winners" (0))
       assert(winn.`winner-id` == exp.`winner-id`)
 
       assert(extractLotto(json \ "lotto") == lotto)
@@ -71,8 +71,8 @@ object LottoExample {
     ("draw-date" -> lotto.`draw-date`.map(_.toString)) ~
     ("winners" ->
     lotto.winners.map { w =>
-      (("winner-id" -> w.`winner-id`) ~
-      ("numbers" -> w.numbers))
+      ("winner-id" -> w.`winner-id`) ~
+      ("numbers" -> w.numbers)
     })
 
 }

@@ -56,7 +56,7 @@ abstract class StrictOptionParsingModeSpec[T](mod: String) extends AnyWordSpec w
   val correctJson =
     """{ "someDouble": 10.0, "someString": "someString", "someInt": 10, "someMap": {}, "someBoolean": true }"""
 
-  (mod + " case class with optional values in strict mode") should {
+  mod + " case class with optional values in strict mode" should {
     "throw an error on parsing a string for an int" in {
       assertThrows[MappingException] { (parse(stringForIntJson).extract[OptionalValueModel]) }
     }

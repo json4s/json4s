@@ -12,14 +12,14 @@ import org.scalatest.wordspec.AnyWordSpec
 class Example extends AnyWordSpec {
 
   case class Address(street: String, zipCode: String)
-  object Address extends ((String, String) => Address)
+  object Address extends (String, String) => Address
   case class Person(name: String, age: Int, address: Address)
-  object Person extends ((String, Int, Address) => Person)
+  object Person extends (String, Int, Address) => Person
 
   "Parse address in an Applicative style" in {
     val json = parse(""" {"street": "Manhattan 2", "zip": "00223" } """)
     val a1 = field[String]("zip")(json) ap (field[String]("street")(json) map Address.curried)
-    val a2 = (field[String]("street")(json) |@| field[String]("zip")(json)) { Address }
+    val a2 = field[String]("street")(json) |@| field[String]("zip")(json) { Address }
     val a3 = Address.applyJSON(field[String]("street"), field[String]("zip"))(json)
     assert(a2 == Success(Address("Manhattan 2", "00223")))
     assert(a3 == a2)
@@ -28,7 +28,7 @@ class Example extends AnyWordSpec {
 
   "Failed address parsing" in {
     val json = parse(""" {"street": "Manhattan 2", "zip": "00223" } """)
-    val a = (field[String]("streets")(json) |@| field[String]("zip")(json)) { Address }
+    val a = field[String]("streets")(json) |@| field[String]("zip")(json) { Address }
     assert(a.swap.toOption.get.list == IList(NoSuchFieldError("streets", json)))
   }
 

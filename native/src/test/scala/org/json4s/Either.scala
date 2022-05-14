@@ -27,7 +27,7 @@ abstract class EitherTest[T](mod: String) extends AnyWordSpec with JsonMethods[T
 
   implicit val formats: Formats = DefaultFormats + ShortTypeHints(List(classOf[Either[_, _]], classOf[List[_]]))
 
-  (mod + " EitherTest Specification") should {
+  mod + " EitherTest Specification" should {
     "See that it works for Option[Int]" in {
       val opt = OptionInt(Some(39))
       assert(Extraction.decompose(opt).extract[OptionInt].i.get == 39)

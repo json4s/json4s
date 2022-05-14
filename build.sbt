@@ -86,7 +86,7 @@ lazy val disableScala3 = Def.settings(
     }
   },
   Seq(Compile, Test).map { x =>
-    (x / sources) := {
+    x / sources := {
       if (isScala3.value) {
         Nil
       } else {
@@ -106,9 +106,9 @@ lazy val disableScala3 = Def.settings(
 
 lazy val disableScala211 = Def.settings(
   Seq(Compile, Test).map { x =>
-    (x / sources) := {
+    x / sources := {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 11)) =>
+        case Some(2, 11) =>
           Nil
         case _ =>
           (x / sources).value
@@ -117,7 +117,7 @@ lazy val disableScala211 = Def.settings(
   },
   mimaPreviousArtifacts := {
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 11)) =>
+      case Some(2, 11) =>
         Set.empty
       case _ =>
         mimaPreviousArtifacts.value
@@ -125,7 +125,7 @@ lazy val disableScala211 = Def.settings(
   },
   Test / test := {
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 11)) =>
+      case Some(2, 11) =>
         ()
       case _ =>
         (Test / test).value
@@ -148,7 +148,7 @@ lazy val xml = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .platformsSettings(JSPlatform, NativePlatform)(
     libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 11)) =>
+        case Some(2, 11) =>
           Nil
         case _ =>
           Seq(Dependencies.scalaXml.value)

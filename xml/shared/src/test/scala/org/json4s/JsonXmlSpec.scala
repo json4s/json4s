@@ -38,7 +38,7 @@ abstract class JsonXmlSpec[T](mod: String)
   import Xml._
   import scala.xml.Node
 
-  (mod + " JSON XML Specification") should {
+  mod + " JSON XML Specification" should {
     "Valid XML can be converted to JSON and back (symmetric op)" in check { (xml: Node) =>
       toXml(toJson(xml)).head == xml
     }

@@ -159,7 +159,7 @@ object Extraction {
         val n = prop.name
         fs match {
           case Some(fieldSerializer) =>
-            val ff = (fieldSerializer.serializer orElse Map((n, fieldVal) -> Some((n, fieldVal))))((n, fieldVal))
+            val ff = fieldSerializer.serializer orElse Map((n, fieldVal) -> Some((n, fieldVal))) ((n, fieldVal))
             ff.foreach { case (nn, vv) =>
               val vvv = if (fieldSerializer.includeLazyVal) loadLazyValValue(a, nn, vv) else vv
               addField(nn, vvv, obj)
@@ -578,7 +578,7 @@ object Extraction {
 
         formats.fieldSerializer(a.getClass) foreach { serializer =>
           val jsonSerializers = (fields map { f =>
-            val JField(n, v) = (serializer.deserializer orElse idPf)(f)
+            val JField(n, v) = serializer.deserializer orElse idPf (f)
             (n, (n, v))
           }).toMap
 
@@ -588,7 +588,7 @@ object Extraction {
                 formats.fieldSerializers.find { case (clazz, _) => clazz == a.getClass }
               }
               maybeClassSerializer match {
-                case Some((_, fieldSerializer)) =>
+                case Some(_, fieldSerializer) =>
                   fields.map { field =>
                     Try { fieldSerializer.deserializer.apply(field) }.getOrElse(field)
                   }
@@ -678,7 +678,7 @@ object Extraction {
             val idPf: PartialFunction[JField, JField] = { case f => f }
 
             JObject(fields map { f =>
-              (serializer.deserializer orElse idPf)(f)
+              serializer.deserializer orElse idPf (f)
             })
           } getOrElse json
         case other: JValue => other

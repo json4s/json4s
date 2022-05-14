@@ -10,7 +10,7 @@ import org.json4s.prefs.EmptyValueStrategy
 trait JsonMethods extends org.json4s.JsonMethods[JValue] {
 
   private[this] lazy val _defaultMapper = {
-    val m = new ObjectMapper()
+    val m = new ObjectMapper
     m.registerModule(new Json4sScalaModule)
     // for backwards compatibility
     m.configure(USE_BIG_INTEGER_FOR_INTS, true)

@@ -29,7 +29,7 @@ abstract class URLSerializerSpec(mod: String) extends AnyWordSpec {
   def s: Serialization
   implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JavaTypesSerializers.all
 
-  (mod + " URLSerializer Specification") should {
+  mod + " URLSerializer Specification" should {
     "Serialize URL's" in {
       val x = SubjectWithURL(url = new URL("http://www.example.com/"))
       val ser = s.write(x)

@@ -24,7 +24,7 @@ class NativeXmlBugs extends XmlBugs[Document]("Native") with native.JsonMethods
 abstract class XmlBugs[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
   import Xml._
 
-  (mod + " XML Bugs") should {
+  mod + " XML Bugs" should {
     "HarryH's XML parses correctly" in {
       val xml1 = <venue><id>123</id></venue>
       val xml2 = <venue> <id>{"1"}{"23"}</id> </venue>

@@ -101,7 +101,7 @@ object ClassFileParser extends ByteCodeReader {
 
   // NOTE currently most constants just evaluate to a string description
   // TODO evaluate to useful values
-  val utf8String = (u2 >> bytes) ^^ add1 { raw => pool => raw.fromUTF8StringAndBytes }
+  val utf8String = u2 >> bytes ^^ add1 { raw => pool => raw.fromUTF8StringAndBytes }
   val intConstant = u4 ^^ add1 { x => pool => x }
   val floatConstant = bytes(4) ^^ add1 { raw => pool => "Float: TODO" }
   val longConstant = bytes(8) ^^ add2 { raw => pool => raw.toLong }

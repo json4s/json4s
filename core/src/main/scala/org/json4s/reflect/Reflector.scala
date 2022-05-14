@@ -96,7 +96,7 @@ object Reflector {
     var triedCompanion = false
 
     def fields(clazz: Class[_]): List[PropertyDescriptor] = {
-      val lb = new mutable.ListBuffer[PropertyDescriptor]()
+      val lb = new mutable.ListBuffer[PropertyDescriptor]
       val ls = allCatch.withApply(_ => fail("Case classes defined in function bodies are not supported.")) {
         clazz.getDeclaredFields.iterator
       }

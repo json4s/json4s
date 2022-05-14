@@ -80,7 +80,7 @@ object build {
       (f, f.relativeTo((Compile / sourceManaged).value).get.getPath)
     },
     libraryDependencies ++= Seq(scalatest.value, scalatestScalacheck.value).flatten,
-    (Compile / doc / scalacOptions) ++= {
+    Compile / doc / scalacOptions ++= {
       val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
       Seq(
@@ -92,7 +92,7 @@ object build {
     },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, v)) if v <= 12 =>
+        case Some(2, v) if v <= 12 =>
           Seq("-Xfuture", "-Ypartial-unification")
         case _ =>
           Nil
@@ -100,7 +100,7 @@ object build {
     },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, _)) =>
+        case Some(2, _) =>
           Seq("-Xsource:3")
         case _ =>
           Seq(
@@ -111,9 +111,9 @@ object build {
     },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 11)) =>
+        case Some(2, 11) =>
           Seq("-Ywarn-unused-import", "-Xsource:2.12")
-        case Some((2, _)) =>
+        case Some(2, _) =>
           Seq("-Ywarn-unused:imports")
         case _ =>
           Nil
@@ -121,14 +121,14 @@ object build {
     },
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
     Seq(Compile, Test).map { scope =>
-      (scope / unmanagedSourceDirectories) += {
+      scope / unmanagedSourceDirectories += {
         val base = if (cross) {
           baseDirectory.value.getParentFile / "shared" / "src" / Defaults.nameForSrc(scope.name)
         } else {
           baseDirectory.value / "src" / Defaults.nameForSrc(scope.name)
         }
         CrossVersion.partialVersion(scalaVersion.value) match {
-          case Some((2, v)) if v <= 12 =>
+          case Some(2, v) if v <= 12 =>
             base / s"scala-2.13-"
           case _ =>
             base / s"scala-2.13+"
@@ -166,7 +166,7 @@ object build {
       val a = (LocalRootProject / baseDirectory).value.toURI.toString
       val g = "https://raw.githubusercontent.com/json4s/json4s/" + hash
       val key = CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((3, _)) =>
+        case Some(3, _) =>
           "-scalajs-mapSourceURI"
         case _ =>
           "-P:scalajs:mapSourceURI"

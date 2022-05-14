@@ -25,7 +25,7 @@ object MimaSettings {
         organization.value % s"${name.value}${platform}_${scalaBinaryVersion.value}" % _
       }.toSet
     },
-    (Test / test) := {
+    Test / test := {
       mimaReportBinaryIssues.value
       (Test / test).value
     }
