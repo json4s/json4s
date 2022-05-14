@@ -35,7 +35,7 @@ class ClassFileParserSpec extends AnyWordSpec {
   }
 
   private def getBytes(in: InputStream): Array[Byte] = {
-    val out = new ByteArrayOutputStream()
+    val out = new ByteArrayOutputStream
     val buffer = new Array[Byte](1024)
     @annotation.tailrec
     def read(): Unit = {

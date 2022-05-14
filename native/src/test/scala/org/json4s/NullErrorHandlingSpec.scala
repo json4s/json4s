@@ -32,7 +32,7 @@ abstract class NullErrorHandlingSpec[T](mod: String) extends AnyWordSpec with Js
 
   implicit lazy val formats: Formats = DefaultFormats
 
-  (mod + " case class modeling json type") should {
+  mod + " case class modeling json type" should {
     "throw an error explaining the cause when parsing null int" in {
       val json = parse(NullIntTypeJson)
       try {

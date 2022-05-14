@@ -29,7 +29,7 @@ abstract class URISerializerSpec(mod: String) extends AnyWordSpec {
   def s: Serialization
   implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JavaTypesSerializers.all
 
-  (mod + " URISerializer Specification") should {
+  mod + " URISerializer Specification" should {
     "Serialize URI's" in {
       val x = SubjectWithURI(uri = URI.create("/test"))
       val ser = s.write(x)

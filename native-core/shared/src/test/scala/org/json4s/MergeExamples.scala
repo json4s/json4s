@@ -24,7 +24,7 @@ object NativeMergeExamples extends NativeMergeExamples
 
 abstract class MergeExamples[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
-  (mod + " Merge Examples") should {
+  mod + " Merge Examples" should {
     "Merge example" in {
       assert((scala1 merge scala2) == expectedMergeResult)
     }

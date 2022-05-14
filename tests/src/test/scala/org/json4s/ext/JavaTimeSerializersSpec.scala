@@ -13,7 +13,7 @@ abstract class JavaDateTimeSerializerSpec(mod: String) extends AnyWordSpec {
   def s: Serialization
   implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JavaTimeSerializers.all
 
-  (mod + " JavaTimeSerializer Specification") should {
+  mod + " JavaTimeSerializer Specification" should {
     "Serialize java time types" in {
       val x = JavaTypes(
         Duration.ofDays(1),

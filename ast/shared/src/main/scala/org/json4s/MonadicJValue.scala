@@ -99,7 +99,7 @@ class MonadicJValue(private val jv: JValue) extends AnyVal {
       case _ => Nil
     }
     find(jv) match {
-      case (_, x) :: Nil => x
+      case _, x :: Nil => x
       case xs => JObject(xs)
     }
   }

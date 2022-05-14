@@ -14,7 +14,7 @@ import org.scalatest.wordspec.AnyWordSpec
 class ValidationExample extends AnyWordSpec {
 
   case class Person(name: String, age: Int)
-  object Person extends ((String, Int) => Person)
+  object Person extends (String, Int) => Person
 
   "Validation" should {
     def min(x: Int): Int => Result[Int] = (y: Int) => if (y < x) Fail("min", s"$y < $x") else y.success
@@ -37,7 +37,7 @@ class ValidationExample extends AnyWordSpec {
   }
 
   case class Range(start: Int, end: Int)
-  object Range extends ((Int, Int) => Range)
+  object Range extends (Int, Int) => Range
 
   // This example shows:
   // * a validation where result depends on more than one value
@@ -45,7 +45,7 @@ class ValidationExample extends AnyWordSpec {
   "Range filtering" should {
     val json = native.JsonParser.parse(""" [{"s":10,"e":17},{"s":12,"e":13},{"s":11,"e":8}] """)
 
-    val ascending: (Int, Int) => (NonEmptyList[Error] \/ (Int, Int)) = (x1, x2) =>
+    val ascending: (Int, Int) => NonEmptyList[Error] \/ (Int, Int) = (x1, x2) =>
       {
         if (x1 > x2) Fail[(Int, Int)]("asc", s"${x1} > ${x2}") else (x1, x2).successNel[Error]
       }.toDisjunction
@@ -53,7 +53,7 @@ class ValidationExample extends AnyWordSpec {
     // Valid range is a range having start <= end
     implicit def rangeJSON: JSONR[Range] = new JSONR[Range] {
       def read(json: JValue) =
-        ((field[Int]("s")(json) |@| field[Int]("e")(json))(ascending).toDisjunction.join map Range.tupled).toValidation
+        (field[Int]("s")(json) |@| field[Int]("e")(json) (ascending).toDisjunction.join map Range.tupled).toValidation
     }
 
     "fail if lists contains invalid ranges" in {

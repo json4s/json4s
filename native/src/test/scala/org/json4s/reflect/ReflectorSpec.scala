@@ -110,7 +110,7 @@ object PetOwner {
 
 case class Dog(name: String)
 
-case class Cat @PrimaryConstructor() (name: String) {
+case class Cat @PrimaryConstructor(name: String) {
   def this(owner: PetOwner) = this(s"${owner.firstName}'s favorite pet'")
 }
 

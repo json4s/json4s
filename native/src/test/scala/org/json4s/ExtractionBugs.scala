@@ -33,7 +33,7 @@ object ExtractionBugs {
     def this(name: String, email: String) = this(0, name, "Doe", email)
   }
 
-  case class ManyConstructorsWithPrimary @PrimaryConstructor() (
+  case class ManyConstructorsWithPrimary @PrimaryConstructor(
     id: Long,
     name: String,
     lastName: String,
@@ -46,8 +46,8 @@ object ExtractionBugs {
     }
   }
 
-  case class ManyPrimaryConstructors @PrimaryConstructor() () {
-    @PrimaryConstructor def this(name: String) = this()
+  case class ManyPrimaryConstructors @PrimaryConstructor {
+    @PrimaryConstructor def this(name: String) = this
   }
 
   case class ExtractWithAnyRef()
@@ -146,7 +146,7 @@ object ExtractionBugs {
   class MapImplementationSerializer
     extends CustomSerializer[MapImplementation](formats =>
       (
-        { case MapImplementationSerializer.strangeSerialization => new MapImplementation() },
+        { case MapImplementationSerializer.strangeSerialization => new MapImplementation },
         { case _: MapImplementation => MapImplementationSerializer.strangeSerialization }
       )
     )
@@ -159,7 +159,7 @@ abstract class ExtractionBugs[T](mod: String) extends AnyWordSpec with JsonMetho
 
   import ExtractionBugs._
   implicit val formats: Formats =
-    DefaultFormats.withCompanions(classOf[PingPongGame.SharedObj] -> PingPongGame) + new MapImplementationSerializer()
+    DefaultFormats.withCompanions(classOf[PingPongGame.SharedObj] -> PingPongGame) + new MapImplementationSerializer
 
   "Primitive type should not hang" in {
     assertThrows[MappingException] {
@@ -168,7 +168,7 @@ abstract class ExtractionBugs[T](mod: String) extends AnyWordSpec with JsonMetho
     }
   }
 
-  (mod + " Extraction bugs Specification") should {
+  mod + " Extraction bugs Specification" should {
     "ClassCastException (BigInt) regression 2 must pass" in {
       val opt = OptionOfInt(Some(39))
       assert(Extraction.decompose(opt).extract[OptionOfInt].opt.get == 39)
@@ -264,12 +264,12 @@ abstract class ExtractionBugs[T](mod: String) extends AnyWordSpec with JsonMetho
     }
 
     "Extraction should extract a java.util.ArrayList as array. empty" in {
-      assert(Extraction.decompose(new util.ArrayList[String]()) == JArray(Nil))
+      assert(Extraction.decompose(new util.ArrayList[String]) == JArray(Nil))
     }
 
     "Extraction should extract a java.util.ArrayList as array. non empty" in {
       val json = parse("""["one", "two"]""")
-      val lst = new util.ArrayList[String]()
+      val lst = new util.ArrayList[String]
       lst.add("one")
       lst.add("two")
       assert(json.extract[util.ArrayList[String]] == lst)
@@ -328,14 +328,14 @@ abstract class ExtractionBugs[T](mod: String) extends AnyWordSpec with JsonMetho
     }
 
     "An implementation of Map should serialize with a CustomSerializer" in {
-      assert(Extraction.decompose(new MapImplementation()) == MapImplementationSerializer.strangeSerialization)
+      assert(Extraction.decompose(new MapImplementation) == MapImplementationSerializer.strangeSerialization)
     }
 
     "An implementation of Map should deserialize with a CustomSerializer" in {
       assert(
         Extraction.extract[MapImplementation](
           MapImplementationSerializer.strangeSerialization
-        ) == new MapImplementation()
+        ) == new MapImplementation
       )
     }
 

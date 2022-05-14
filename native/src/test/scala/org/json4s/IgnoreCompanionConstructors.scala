@@ -30,7 +30,7 @@ abstract class IgnoreCompanionConstructors[T](mod: String, ser: json4s.Serializa
   val ignoreCtorSpec2 = """{ "someString": "Foo", "someInt": 123, "someDouble": 456.1 }"""
   val ignoreWithTypeParamSpec = """{ "someType": "Bar" }"""
 
-  (mod + " case class with a companion ctor") should {
+  mod + " case class with a companion ctor" should {
     "ignore companion ctor" in {
       assertThrows[MappingException] {
         (parse(ignoreCtorSpec1).extract[CompanionCtorSpec])

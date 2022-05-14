@@ -127,7 +127,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
   import Examples._
   import JsonDSL._
 
-  (mod + " Examples") should {
+  mod + " Examples" should {
 
     "Lotto example" in {
       val json = parse(lotto)
@@ -152,13 +152,13 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
 
     "Remove Field example" in {
       val json = parse(person) removeField { _ == JField("name", "Marilyn") }
-      assert((json \\ "name") == JString("Joe"))
+      assert(json \\ "name" == JString("Joe"))
       assert(compact(render(json \\ "name")) == "\"Joe\"")
     }
 
     "Remove example" in {
       val json = parse(person) remove { _ == JString("Marilyn") }
-      assert((json \\ "name") == JString("Joe"))
+      assert(json \\ "name" == JString("Joe"))
       assert(compact(render(json \\ "name")) == "\"Joe\"")
     }
 
@@ -167,7 +167,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
       val addition = parse("""{"lotto-two": {"lotto-id": 6}}""")
       val json2 = json merge addition removeField { _ == JField("lotto-id", 6) }
 
-      assert((json2 \\ "lotto-id") == (json \\ "lotto-id"))
+      assert(json2 \\ "lotto-id" == json \\ "lotto-id")
     }
 
     "Queries on person example" in {
@@ -188,8 +188,8 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
     "Object array example" in {
       val json = parse(objArray)
       assert(compact(render(json \ "children" \ "name")) == """["Mary","Mazy"]""")
-      assert(compact(render((json \ "children")(0) \ "name")) == "\"Mary\"")
-      assert(compact(render((json \ "children")(1) \ "name")) == "\"Mazy\"")
+      assert(compact(render(json \ "children" (0) \ "name")) == "\"Mary\"")
+      assert(compact(render(json \ "children" (1) \ "name")) == "\"Mazy\"")
       assert((for {
         JObject(o) <- json
         JField("name", JString(y)) <- o
@@ -273,7 +273,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
     "Tuple2 example" in {
       implicit val fmts: Formats = DefaultFormats
       val json = """{"blah":123}"""
-      assert(Extraction.extract[(String, Int)](parse(json)) == ("blah" -> 123))
+      assert(Extraction.extract[(String, Int)](parse(json)) == "blah" -> 123)
     }
 
     "List[Tuple2] example" in {

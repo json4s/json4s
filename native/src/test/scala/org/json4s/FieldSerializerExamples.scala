@@ -38,7 +38,7 @@ class FieldSerializerExamples extends AnyWordSpec {
     assert(dog2.color == dog.color)
     assert(dog2.owner == null)
     assert(dog2.size == dog.size)
-    assert((parse(ser) \ "animalname") == JString("pluto"))
+    assert(parse(ser) \ "animalname" == JString("pluto"))
   }
 
   "Selects best matching serializer" in {

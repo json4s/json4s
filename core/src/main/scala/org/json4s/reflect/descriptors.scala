@@ -49,8 +49,8 @@ case class ClassDescriptor(
   def bestMatching(argNames: List[String]): Option[ConstructorDescriptor] = {
     case class Score(detailed: Int, optionalCount: Int, defaultCount: Int) {
       def isBetterThan(other: Score) = {
-        (this.detailed == other.detailed && (this.optionalCount < other.optionalCount)) ||
-        (this.detailed == other.detailed && (this.defaultCount > other.defaultCount)) ||
+        this.detailed == other.detailed && this.optionalCount < other.optionalCount ||
+        this.detailed == other.detailed && this.defaultCount > other.defaultCount ||
         this.detailed > other.detailed
       }
     }

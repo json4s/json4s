@@ -59,10 +59,10 @@ object SerBench extends Benchmark {
   val projJson = Extraction.decompose(project)(DefaultFormats)
 
   val projectJValue = {
-    projJson merge (JObject(JField("name", JString("test" + counter.incrementAndGet()))))
+    projJson merge JObject(JField("name", JString("test" + counter.incrementAndGet())))
   }
 
-  val mapper = new ObjectMapper()
+  val mapper = new ObjectMapper
 
   def main(args: Array[String]): Unit = {
     println("## Serialization  ")
@@ -93,19 +93,19 @@ object SerBench extends Benchmark {
     println()
 
     println("### Custom serializer")
-    new Bench()(DefaultFormats + new ProjectSerializer)
+    new Bench(DefaultFormats + new ProjectSerializer)
     println()
 
     println("### No type hints")
-    new Bench()(DefaultFormats)
+    new Bench(DefaultFormats)
     println()
 
     println("### Short type hints")
-    new Bench()(native.Serialization.formats(ShortTypeHints(classes)))
+    new Bench(native.Serialization.formats(ShortTypeHints(classes)))
     println()
 
     println("### Full type hints")
-    new Bench()(DefaultFormats + FullTypeHints(classes))
+    new Bench(DefaultFormats + FullTypeHints(classes))
     println()
   }
 
@@ -113,7 +113,7 @@ object SerBench extends Benchmark {
   def parseBenchmark(name: String)(f: => Any) = run(name, 150000, 150000)(f)
 
   def serialize(project: Project) = {
-    val baos = new ByteArrayOutputStream()
+    val baos = new ByteArrayOutputStream
     val oos = new ObjectOutputStream(baos)
     oos.writeObject(project)
     baos.toByteArray
@@ -145,7 +145,7 @@ object SerBench extends Benchmark {
   class ProjectSerializer
     extends CustomSerializer[org.json4s.examples.Project](implicit formats =>
       (
-        { case jv @ JObject(("name", JString(name)) :: ("startDate", JString(startDate)) :: _) =>
+        { case jv @ JObject("name", JString(name) :: "startDate", JString(startDate) :: _) =>
           val lang = (jv \ "lang") match {
             case JNothing => None
             case lj =>

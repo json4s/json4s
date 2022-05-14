@@ -46,7 +46,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
 
   def treeFormats[T] = ser.formats(ShortTypeHints(List(classOf[Node[T]], classOf[Leaf[T]], EmptyLeaf.getClass)))
 
-  (mod + " Extraction Examples Specification") should {
+  mod + " Extraction Examples Specification" should {
     "Extraction example" in {
       val json = parse(testJson)
       assert(
@@ -109,8 +109,8 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
     "Simple value extraction example" in {
       val json = parse(testJson)
       assert(json.extract[Name] == Name("joe"))
-      assert((json \ "children")(0).extract[Name] == Name("Mary"))
-      assert((json \ "children")(1).extract[Name] == Name("Mazy"))
+      assert(json \ "children" (0).extract[Name] == Name("Mary"))
+      assert(json \ "children" (1).extract[Name] == Name("Mazy"))
     }
 
     "Primitive value extraction example" in {
@@ -118,7 +118,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
       assert((json \ "name").extract[String] == "joe")
       assert((json \ "name").extractOpt[String] == Some("joe"))
       assert((json \ "name").extractOpt[Int] == None)
-      assert(((json \ "children")(0) \ "birthdate").extract[Date] == date("2004-09-04T18:06:22Z"))
+      assert((json \ "children" (0) \ "birthdate").extract[Date] == date("2004-09-04T18:06:22Z"))
 
       assert(JInt(1).extract[Int] == 1)
       assert(JInt(1).extract[String] == "1")

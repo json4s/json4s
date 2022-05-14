@@ -29,7 +29,7 @@ class JValueDeserializer(klass: Class[_]) extends JsonDeserializer[Object] {
         case JsonTokenId.ID_FALSE => JBool.False
 
         case JsonTokenId.ID_START_ARRAY =>
-          val values = new mutable.ListBuffer[JValue]()
+          val values = new mutable.ListBuffer[JValue]
           jp.nextToken()
           while (jp.getCurrentToken != JsonToken.END_ARRAY) {
             values += _deserialize(jp, ctxt).asInstanceOf[JValue]

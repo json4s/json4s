@@ -38,7 +38,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends AnyWordSpec {
 
   implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JodaTimeSerializers.all
 
-  (mod + " JodaTimeSerializer Specification") should {
+  mod + " JodaTimeSerializer Specification" should {
     "Serialize joda time types with default format" in {
       val x = JodaTypes(
         new Duration(10 * 1000),

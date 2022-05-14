@@ -27,7 +27,7 @@ class NativeJsonQueryExamples extends JsonQueryExamples[Document]("Native") with
  */
 abstract class JsonQueryExamples[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
-  (mod + " JSON Query Examples") should {
+  mod + " JSON Query Examples" should {
     "List of IPs" in {
       val ips = for { JString(ip) <- json \\ "ip" } yield ip
       assert(ips == List("192.168.1.125", "192.168.1.126", "192.168.1.127", "192.168.2.125", "192.168.2.126"))

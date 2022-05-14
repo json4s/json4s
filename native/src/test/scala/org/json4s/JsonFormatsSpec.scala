@@ -24,7 +24,7 @@ abstract class JsonFormatsSpec[T](mod: String) extends AnyWordSpec with TypeHint
   val hintsForDog = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Dog]).get
   val hintsForAnimal = FullTypeHintExamples.formats.typeHints.hintFor(classOf[Animal]).get
 
-  (mod + " JsonFormats Specification") should {
+  mod + " JsonFormats Specification" should {
     "hintsFor across composite formats" in {
       assert(formats.typeHints.hintFor(classOf[Fish]) == Some(hintsForFish))
       assert(formats.typeHints.hintFor(classOf[Dog]) == Some(hintsForDog))
@@ -33,16 +33,16 @@ abstract class JsonFormatsSpec[T](mod: String) extends AnyWordSpec with TypeHint
 
     "classFor across composite formats" in {
       assert(
-        formats.typeHints.classFor(hintsForFish, classOf[Animal]) == (FullTypeHintExamples.formats.typeHints
-          .classFor(hintsForFish, classOf[Animal]))
+        formats.typeHints.classFor(hintsForFish, classOf[Animal]) == FullTypeHintExamples.formats.typeHints
+          .classFor(hintsForFish, classOf[Animal])
       )
       assert(
-        formats.typeHints.classFor(hintsForDog, classOf[Animal]) == (FullTypeHintExamples.formats.typeHints
-          .classFor(hintsForDog, classOf[Animal]))
+        formats.typeHints.classFor(hintsForDog, classOf[Animal]) == FullTypeHintExamples.formats.typeHints
+          .classFor(hintsForDog, classOf[Animal])
       )
       assert(
-        formats.typeHints.classFor(hintsForAnimal, classOf[Animal]) == (FullTypeHintExamples.formats.typeHints
-          .classFor(hintsForAnimal, classOf[Animal]))
+        formats.typeHints.classFor(hintsForAnimal, classOf[Animal]) == FullTypeHintExamples.formats.typeHints
+          .classFor(hintsForAnimal, classOf[Animal])
       )
     }
 

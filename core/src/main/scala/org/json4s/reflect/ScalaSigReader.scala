@@ -158,7 +158,7 @@ object ScalaSigReader {
 
   def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndexes: List[Int]): Class[_] = {
     @tailrec def findPrimitive(t: Type, curr: Int): Symbol = {
-      val ii = (typeArgIndexes.length - 1) min curr
+      val ii = typeArgIndexes.length - 1 min curr
       t match {
         case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol) => symbol
         case TypeRefType(_, symbol, Nil) => symbol
