@@ -156,7 +156,7 @@ object SwaggerSerializers {
     jv \ key match {
       case JString("Array") =>
         val arrayType = ((jv \ "items" \ "type").extractOpt[String] orElse
-          (jv \ "items" \ "$ref").extractOpt[String])
+          jv \ "items" \ "$ref".extractOpt[String])
           .getOrElse(throw new MappingException(s"Can't get the array type for $jv"))
         jv \ "required" match {
           case JBool(true) =>
