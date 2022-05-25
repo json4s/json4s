@@ -17,7 +17,7 @@ class TypeHintTest extends AnyWordSpec {
       val dump = Serialization.write(Foo(1))
       // : MyTrait is important for reproducing the behavior reported in https://github.com/json4s/json4s/issues/617
       assertThrows[MappingException] {
-        (JsonMethods.parse(dump).extract[Bar]: MyTrait)
+        JsonMethods.parse(dump).extract[Bar]: MyTrait
       }
     }
 

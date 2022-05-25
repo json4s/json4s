@@ -75,7 +75,7 @@ object build {
       "-language:implicitConversions",
       "-language:higherKinds",
     ),
-    Compile / packageSrc / mappings ++= (Compile / managedSources).value.map { f =>
+    Compile / packageSrc / mappings ++= Compile / managedSources.value.map { f =>
       // to merge generated sources into sources.jar as well
       (f, f.relativeTo((Compile / sourceManaged).value).get.getPath)
     },
