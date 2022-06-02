@@ -43,7 +43,7 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
     }
 
     "Merge idempotency" in check { (x: JValue) =>
-      ((x merge x) == x)
+      (x merge x) == x
     }
 
     "Diff identity" in check { (json: JValue) =>
@@ -58,20 +58,20 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
     "Diff is subset of originals" in check { (x: JObject, y: JObject) =>
       {
         val Diff(c, a, d @ _) = x diff y
-        (y == (y merge (c merge a)))
+        y == (y merge (c merge a))
       }
     }
 
     "Diff result is same when fields are reordered" in check { (x: JObject) =>
-      ((x diff reorderFields(x)) == Diff(JNothing, JNothing, JNothing))
+      (x diff reorderFields(x)) == Diff(JNothing, JNothing, JNothing)
     }
 
     "Remove all" in check { (x: JValue) =>
-      ((x remove { _ => true }) == JNothing)
+      (x remove { _ => true }) == JNothing
     }
 
     "Remove nothing" in check { (x: JValue) =>
-      ((x remove { _ => false }) == x)
+      (x remove { _ => false }) == x
     }
 
     "Remove removes only matching elements" in {
@@ -173,9 +173,9 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
           case JObject((_, JArray(xs)) :: _) => {
             xs.indices.forall(i =>
               if (i == index) {
-                (xs(i) == replacement)
+                xs(i) == replacement
               } else {
-                (xs(i) == arr(i))
+                xs(i) == arr(i)
               }
             )
           }
