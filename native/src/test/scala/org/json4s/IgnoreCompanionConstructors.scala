@@ -33,7 +33,7 @@ abstract class IgnoreCompanionConstructors[T](mod: String, ser: json4s.Serializa
   (mod + " case class with a companion ctor") should {
     "ignore companion ctor" in {
       assertThrows[MappingException] {
-        (parse(ignoreCtorSpec1).extract[CompanionCtorSpec])
+        parse(ignoreCtorSpec1).extract[CompanionCtorSpec]
       }
     }
     "successfully parse using primary ctor" in {

@@ -71,8 +71,8 @@ object LottoExample {
     ("draw-date" -> lotto.`draw-date`.map(_.toString)) ~
     ("winners" ->
     lotto.winners.map { w =>
-      (("winner-id" -> w.`winner-id`) ~
-      ("numbers" -> w.numbers))
+      ("winner-id" -> w.`winner-id`) ~
+      ("numbers" -> w.numbers)
     })
 
 }
