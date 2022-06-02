@@ -58,13 +58,13 @@ abstract class StrictOptionParsingModeSpec[T](mod: String) extends AnyWordSpec w
 
   (mod + " case class with optional values in strict mode") should {
     "throw an error on parsing a string for an int" in {
-      assertThrows[MappingException] { (parse(stringForIntJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(stringForIntJson).extract[OptionalValueModel] }
     }
     "throw an error on parsing a boolean for an int" in {
-      assertThrows[MappingException] { (parse(booleanForIntJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(booleanForIntJson).extract[OptionalValueModel] }
     }
     "throw an error on parsing a map for an int" in {
-      assertThrows[MappingException] { (parse(mapForIntJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(mapForIntJson).extract[OptionalValueModel] }
     }
     "parse double as an int" in {
       val model = parse(doubleForIntJson).extract[OptionalValueModel]
@@ -72,13 +72,13 @@ abstract class StrictOptionParsingModeSpec[T](mod: String) extends AnyWordSpec w
     }
 
     "throw an error on parsing a string for a double" in {
-      assertThrows[MappingException] { (parse(stringForDoubleJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(stringForDoubleJson).extract[OptionalValueModel] }
     }
     "throw an error on parsing a boolean for a double" in {
-      assertThrows[MappingException] { (parse(booleanForDoubleJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(booleanForDoubleJson).extract[OptionalValueModel] }
     }
     "throw an error on parsing a map for a double" in {
-      assertThrows[MappingException] { (parse(mapForDoubleJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(mapForDoubleJson).extract[OptionalValueModel] }
     }
     "parse int as a double" in {
       val model = parse(intForDoubleJson).extract[OptionalValueModel]
@@ -86,23 +86,23 @@ abstract class StrictOptionParsingModeSpec[T](mod: String) extends AnyWordSpec w
     }
 
     "throw an error on parsing a int for a boolean" in {
-      assertThrows[MappingException] { (parse(intForBooleanJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(intForBooleanJson).extract[OptionalValueModel] }
     }
     "throw an error on parsing a double for a boolean" in {
-      assertThrows[MappingException] { (parse(doubleForBooleanJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(doubleForBooleanJson).extract[OptionalValueModel] }
     }
     "throw an error on parsing a string for a boolean" in {
-      assertThrows[MappingException] { (parse(stringForBooleanJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(stringForBooleanJson).extract[OptionalValueModel] }
     }
     "throw an error on parsing a map for a boolean" in {
-      assertThrows[MappingException] { (parse(mapForBooleanJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(mapForBooleanJson).extract[OptionalValueModel] }
     }
 
     "throw an error on parsing a boolean for a string" in {
-      assertThrows[MappingException] { (parse(booleanForStringJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(booleanForStringJson).extract[OptionalValueModel] }
     }
     "throw an error on parsing a map for a string" in {
-      assertThrows[MappingException] { (parse(mapForStringJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(mapForStringJson).extract[OptionalValueModel] }
     }
     "parse int as a string" in {
       val model = parse(intForStringJson).extract[OptionalValueModel]
@@ -114,16 +114,16 @@ abstract class StrictOptionParsingModeSpec[T](mod: String) extends AnyWordSpec w
     }
 
     "throw an error on parsing a int for a map" in {
-      assertThrows[MappingException] { (parse(intForMapJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(intForMapJson).extract[OptionalValueModel] }
     }
     "throw an error on parsing a double for a map" in {
-      assertThrows[MappingException] { (parse(doubleForMapJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(doubleForMapJson).extract[OptionalValueModel] }
     }
     "throw an error on parsing a string for a map" in {
-      assertThrows[MappingException] { (parse(stringForMapJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(stringForMapJson).extract[OptionalValueModel] }
     }
     "throw an error on parsing a boolean for a map" in {
-      assertThrows[MappingException] { (parse(booleanForMapJson).extract[OptionalValueModel]) }
+      assertThrows[MappingException] { parse(booleanForMapJson).extract[OptionalValueModel] }
     }
 
     "extract the class if all values are correctly typed" in {
