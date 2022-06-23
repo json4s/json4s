@@ -22,7 +22,7 @@ import scala.reflect.ClassTag
 class EnumSerializer[E <: Enumeration: ClassTag](enumeration: E) extends Serializer[E#Value] {
   import JsonDSL._
 
-  val EnumerationClass = classOf[E#Value]
+  val EnumerationClass: Class[?] = classOf[Enumeration].getClasses.find(_.getSimpleName == "Value").get
 
   private[this] def isValid(json: JValue) = json match {
     case JInt(value) => enumeration.values.toSeq.map(_.id).contains(value.toInt)
@@ -45,7 +45,7 @@ class EnumSerializer[E <: Enumeration: ClassTag](enumeration: E) extends Seriali
 class EnumNameSerializer[E <: Enumeration: ClassTag](enumeration: E) extends Serializer[E#Value] {
   import JsonDSL._
 
-  val EnumerationClass = classOf[E#Value]
+  val EnumerationClass: Class[?] = classOf[Enumeration].getClasses.find(_.getSimpleName == "Value").get
 
   def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), E#Value] = {
     case (_ @TypeInfo(EnumerationClass, _), json) if isValid(json) => {
