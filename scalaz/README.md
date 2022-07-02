@@ -3,12 +3,14 @@ Scalaz support for json4s
 
 This project adds a type class to parse JSON:
 
-    trait JSON[A] {
-      def read(json: JValue): Result[A]
-      def write(value: A): JValue
-    }
+```scala
+trait JSON[A] {
+  def read(json: JValue): Result[A]
+  def write(value: A): JValue
+}
 
-    type Result[A] = ValidationNEL[Error, A]
+type Result[A] = ValidationNel[Error, A]
+```
 
 Function 'read' returns an Applicative Functor, enabling parsing in an applicative style.
 
@@ -81,4 +83,4 @@ Links
 
 * [More examples](https://github.com/json4s/json4s/tree/master/scalaz/src/test/scala/org/json4s/scalaz)
 * [Scalaz](https://github.com/scalaz/scalaz)
-* [Kleisli composition](http://www.haskell.org/hoogle/?hoogle=%28a+-%3E+m+b%29+-%3E+%28b+-%3E+m+c%29+-%3E+%28a+-%3E+m+c%29)
+* [Kleisli composition](https://hoogle.haskell.org/?hoogle=%28a+-%3E+m+b%29+-%3E+%28b+-%3E+m+c%29+-%3E+%28a+-%3E+m+c%29)
