@@ -2,6 +2,7 @@ package org.json4s
 package reflect
 
 import java.lang.reflect.Field
+import java.util
 
 sealed abstract class Descriptor extends Product with Serializable
 
@@ -55,7 +56,10 @@ case class ClassDescriptor(
       }
     }
 
-    val names = Set(argNames: _*)
+    val names = new util.HashSet[String]() {
+      argNames.foreach(x => add(x))
+    }
+
     def score(args: List[ConstructorParamDescriptor]): Score =
       Score(
         detailed = args.foldLeft(0)((s, arg) =>
