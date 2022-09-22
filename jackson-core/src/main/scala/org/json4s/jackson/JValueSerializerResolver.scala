@@ -6,7 +6,11 @@ import com.fasterxml.jackson.databind.{BeanDescription, JavaType, SerializationC
 
 private object JValueSerializerResolver extends Serializers.Base {
   private[this] val JVALUE = classOf[JValue]
-  override def findSerializer(config: SerializationConfig, theType: JavaType, beanDesc: BeanDescription) = {
+  override def findSerializer(
+    config: SerializationConfig,
+    theType: JavaType,
+    beanDesc: BeanDescription
+  ): JValueSerializer = {
     if (!JVALUE.isAssignableFrom(theType.getRawClass)) null
     else new JValueSerializer
   }

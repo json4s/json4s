@@ -5,7 +5,7 @@ package org.json4s
  */
 case object NoTypeHints extends TypeHints {
   val hints: List[Class[_]] = Nil
-  def hintFor(clazz: Class[_]) = None
-  def classFor(hint: String, parent: Class[_]) = None
+  def hintFor(clazz: Class[_]): None.type = None
+  def classFor(hint: String, parent: Class[_]): None.type = None
   override def shouldExtractHints(clazz: Class[_]) = false
 }

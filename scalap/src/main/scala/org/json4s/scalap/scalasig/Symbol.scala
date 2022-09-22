@@ -13,9 +13,9 @@ trait Symbol extends Flags {
 
 case object NoSymbol extends Symbol {
   def name = "<no symbol>"
-  def parent = None
+  def parent: None.type = None
   def hasFlag(flag: Long) = false
-  def children = Nil
+  def children: Nil.type = Nil
 }
 
 abstract class ScalaSigSymbol extends Symbol {
@@ -59,7 +59,7 @@ abstract class SymbolInfoSymbol extends ScalaSigSymbol {
 
   def entry = symbolInfo.entry
   def name = symbolInfo.name
-  def parent = Some(symbolInfo.owner)
+  def parent: Some[Symbol] = Some(symbolInfo.owner)
   def hasFlag(flag: Long) = (symbolInfo.flags & flag) != 0L
 
   lazy val infoType = applyRule(parseEntry(typeEntry)(symbolInfo.info))

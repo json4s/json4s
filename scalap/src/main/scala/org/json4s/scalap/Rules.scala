@@ -153,5 +153,5 @@ trait StateRules {
 }
 
 trait RulesWithState extends Rules with StateRules {
-  val factory = this
+  val factory: RulesWithState = this
 }
