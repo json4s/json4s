@@ -97,7 +97,14 @@ lazy val core = project
   .settings(
     name := "json4s-core",
     json4sSettings(cross = false),
-    libraryDependencies ++= Seq(Dependencies.paranamer),
+    libraryDependencies ++= {
+      scalaBinaryVersion.value match {
+        case "2.12" =>
+          Seq(Dependencies.paranamer)
+        case _ =>
+          Nil
+      }
+    },
     Test / console / initialCommands := """
         |import org.json4s._
         |import reflect._

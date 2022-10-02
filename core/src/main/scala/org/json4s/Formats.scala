@@ -116,7 +116,7 @@ trait Formats extends Serializable { self: Formats =>
   def considerCompanionConstructors: Boolean = true
 
   /**
-   * Parameter name reading strategy. By default 'paranamer' is used.
+   * Parameter name reading strategy.
    */
   def parameterNameReader: reflect.ParameterNameReader = reflect.ParanamerReader
 
