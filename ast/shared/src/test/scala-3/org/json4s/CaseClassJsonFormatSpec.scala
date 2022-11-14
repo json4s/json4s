@@ -1,11 +1,11 @@
-package org.json4s
+package com.tt.json4s
 
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.Properties
 import org.scalacheck.Prop
 import org.scalatest.EitherValues
-import org.json4s.DefaultJsonFormats._
+import com.tt.json4s.DefaultJsonFormats._
 
 class CaseClassJsonFormatSpec extends Properties("case class JsonFormat") with EitherValues {
   private[this] val writerAuto: Writer[CaseClass22] =

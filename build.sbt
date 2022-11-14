@@ -29,13 +29,13 @@ lazy val ast = crossProject(JVMPlatform, JSPlatform, NativePlatform)
         ("WriterFunctions.scala", CodeGen.writer(v == Some((2, 13)) || v.exists(_._1 == 3))),
         ("FormatFunctions.scala", CodeGen.format)
       ).map { case (fileName, src) =>
-        val f = (Compile / sourceManaged).value / "org" / "json4s" / fileName
+        val f = (Compile / sourceManaged).value / "com" / "tt" / "json4s" / fileName
         IO.write(f, src)
         f
       }
     },
     buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
-    buildInfoPackage := "org.json4s",
+    buildInfoPackage := "com.tt.json4s",
   )
   .enablePlugins(BuildInfoPlugin)
   .nativeSettings(
@@ -206,7 +206,7 @@ lazy val core = project
     json4sSettings(cross = false),
     libraryDependencies ++= Seq(Dependencies.paranamer),
     Test / console / initialCommands := """
-        |import org.json4s._
+        |import com.tt.json4s._
         |import reflect._
       """.stripMargin,
   )
@@ -345,7 +345,7 @@ lazy val tests = project
     disableScala3, // TODO
     Test / console / initialCommands :=
       """
-        |import org.json4s._
+        |import com.tt.json4s._
         |import reflect._
       """.stripMargin,
   )

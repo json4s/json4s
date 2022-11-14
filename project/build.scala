@@ -60,7 +60,7 @@ object build {
 
   def json4sSettings(cross: Boolean) = mavenCentralFrouFrou ++ Def.settings(
     mimaSettings,
-    organization := "org.json4s",
+    organization := "com.tt.json4s",
     scalaVersion := Scala212,
     crossScalaVersions := Seq(Scala211, Scala212, Scala213, Scala3),
     addCommandAlias("SetScala211", s"++ ${Scala211}!"),

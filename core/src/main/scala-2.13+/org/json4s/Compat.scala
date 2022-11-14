@@ -1,4 +1,4 @@
-package org.json4s
+package com.tt.json4s
 
 import scala.language.reflectiveCalls
 

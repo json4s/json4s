@@ -1,4 +1,4 @@
-package org.json4s
+package com.tt.json4s
 
 private[json4s] trait DefaultReaders0 {
   implicit def iterableReader[F[_], V](implicit

@@ -2,7 +2,7 @@ object CodeGen {
   private[this] def max = 22
 
   def format: String = {
-    s"""package org.json4s
+    s"""package com.tt.json4s
 
 trait FormatFunctions { self: JsonFormat.type =>
 ${(2 to max).map(formatN).mkString("\n")}
@@ -29,7 +29,7 @@ ${(2 to max).map(formatN).mkString("\n")}
   }
 
   def writer(addAuto: Boolean): String = {
-    s"""package org.json4s
+    s"""package com.tt.json4s
 
 trait WriterFunctions { self: Writer.type =>
 ${(2 to max).map(writerN).mkString("\n")}
@@ -95,7 +95,7 @@ ${if (addAuto) (2 to max).map(writerAutoN).mkString("\n") else ""}
       ""
     }
 
-    s"""package org.json4s
+    s"""package com.tt.json4s
 
 trait ReaderFunctions { self: Reader.type =>
 ${scala211compat}

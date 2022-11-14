@@ -1,4 +1,4 @@
-# JSON4S [![Maven Central](https://img.shields.io/maven-central/v/org.json4s/json4s-core_2.12.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:org.json4s%20AND%20a:json4s-core_2.12)
+# JSON4S [![Maven Central](https://img.shields.io/maven-central/v/com.tt.json4s/json4s-core_2.12.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:com.tt.json4s%20AND%20a:json4s-core_2.12)
 
 [![Join the chat at https://gitter.im/json4s/json4s](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/json4s/json4s?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -19,8 +19,8 @@ So the native package in this library is in fact verbatim lift-json in a differe
 your import statements will change if you use this library.
 
 ```scala
-import org.json4s._
-import org.json4s.native.JsonMethods._
+import com.tt.json4s._
+import com.tt.json4s.native.JsonMethods._
 ```
 
 After that everything works exactly the same as it would with lift-json
@@ -34,8 +34,8 @@ lift-json AST.
 To use jackson instead of the native parser:
 
 ```scala
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
+import com.tt.json4s._
+import com.tt.json4s.jackson.JsonMethods._
 ```
 
 Be aware that the default behavior of the jackson integration is to close the stream when it's done.
@@ -43,7 +43,7 @@ If you want to change that:
 
 ```scala
 import com.fasterxml.jackson.databind.SerializationFeature
-org.json4s.jackson.JsonMethods.mapper.configure(SerializationFeature.CLOSE_CLOSEABLE, false)
+com.tt.json4s.jackson.JsonMethods.mapper.configure(SerializationFeature.CLOSE_CLOSEABLE, false)
 ```
 
 ## Guide
@@ -95,20 +95,20 @@ You can add the json4s as a dependency in following ways. Note, replace {latestV
 
 You can find available versions here:
 
-https://search.maven.org/search?q=org.json4s
+https://search.maven.org/search?q=com.tt.json4s
 
 ### SBT users
 
 For the native support add the following dependency to your project description:
 
 ```scala
-val json4sNative = "org.json4s" %% "json4s-native" % "{latestVersion}"
+val json4sNative = "com.tt.json4s" %% "json4s-native" % "{latestVersion}"
 ```
 
 For the Jackson support add the following dependency to your project description:
 
 ```scala
-val json4sJackson = "org.json4s" %% "json4s-jackson" % "{latestVersion}"
+val json4sJackson = "com.tt.json4s" %% "json4s-jackson" % "{latestVersion}"
 ```
 
 ### Maven users
@@ -117,7 +117,7 @@ For the native support add the following dependency to your pom:
 
 ```xml
 <dependency>
-  <groupId>org.json4s</groupId>
+  <groupId>com.tt.json4s</groupId>
   <artifactId>json4s-native_${scala.version}</artifactId>
   <version>{latestVersion}</version>
 </dependency>
@@ -127,7 +127,7 @@ For the jackson support add the following dependency to your pom:
 
 ```xml
 <dependency>
-  <groupId>org.json4s</groupId>
+  <groupId>com.tt.json4s</groupId>
   <artifactId>json4s-jackson_${scala.version}</artifactId>
   <version>{latestVersion}</version>
 </dependency>
@@ -152,30 +152,30 @@ Any valid json can be parsed into internal AST format.
 For native support:
 
 ```scala
-scala> import org.json4s._
-scala> import org.json4s.native.JsonMethods._
+scala> import com.tt.json4s._
+scala> import com.tt.json4s.native.JsonMethods._
 
 scala> parse(""" { "numbers" : [1, 2, 3, 4] } """)
-res0: org.json4s.JValue =
+res0: com.tt.json4s.JValue =
       JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
 
 scala> parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
-res1: org.json4s.JValue =
+res1: com.tt.json4s.JValue =
       JObject(List((name,JString(Toy)), (price,JDecimal(35.35))))
 ```
 
 For jackson support:
 
 ```scala
-scala> import org.json4s._
-scala> import org.json4s.jackson.JsonMethods._
+scala> import com.tt.json4s._
+scala> import com.tt.json4s.jackson.JsonMethods._
 
 scala> parse(""" { "numbers" : [1, 2, 3, 4] } """)
-res0: org.json4s.JValue =
+res0: com.tt.json4s.JValue =
       JObject(List((numbers,JArray(List(JInt(1), JInt(2), JInt(3), JInt(4))))))
 
 scala> parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
-res1: org.json4s.JValue =
+res1: com.tt.json4s.JValue =
       JObject(List((name,JString(Toy)), (price,JDecimal(35.35))))
 ```
 
@@ -188,15 +188,15 @@ into JDoubles, and the latter into JDecimals.
 For the double mode dsl use:
 
 ```scala
-import org.json4s.JsonDSL._
+import com.tt.json4s.JsonDSL._
 // or
-import org.json4s.JsonDSL.WithDouble._
+import com.tt.json4s.JsonDSL.WithDouble._
 ```
 
 For the big decimal mode dsl use:
 
 ```scala
-import org.json4s.JsonDSL.WithBigDecimal._
+import com.tt.json4s.JsonDSL.WithBigDecimal._
 ```
 
 
@@ -266,9 +266,9 @@ Example
 -------
 
 ```scala
-import org.json4s._
-import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods._
+import com.tt.json4s._
+import com.tt.json4s.JsonDSL._
+import com.tt.json4s.jackson.JsonMethods._
 
 case class Winner(id: Long, numbers: List[Int])
 case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[java.util.Date])
@@ -327,8 +327,8 @@ Two JSONs can be merged and diffed with each other.
 Please see more examples in [MergeExamples.scala](https://github.com/json4s/json4s/blob/3.6/tests/src/test/scala/org/json4s/MergeExamples.scala) and [DiffExamples.scala](https://github.com/json4s/json4s/blob/3.6/tests/src/test/scala/org/json4s/DiffExamples.scala).
 
 ```scala
-scala> import org.json4s._
-scala> import org.json4s.jackson.JsonMethods._
+scala> import com.tt.json4s._
+scala> import com.tt.json4s.jackson.JsonMethods._
 
 scala> val lotto1 = parse("""{
          "lotto":{
@@ -369,9 +369,9 @@ res0: String =
 }
 
 scala> val Diff(changed, added, deleted) = mergedLotto diff lotto1
-changed: org.json4s.JValue = JNothing
-added: org.json4s.JValue = JNothing
-deleted: org.json4s.JValue = JObject(List((lotto,JObject(List(JField(winners,
+changed: com.tt.json4s.JValue = JNothing
+added: com.tt.json4s.JValue = JNothing
+deleted: com.tt.json4s.JValue = JObject(List((lotto,JObject(List(JField(winners,
 JArray(List(JObject(List((winner-id,JInt(54)), (numbers,JArray(
 List(JInt(52), JInt(3), JInt(12), JInt(11), JInt(18), JInt(22))))))))))))))
 ```
@@ -386,8 +386,8 @@ JSON values can be extracted using for-comprehensions.
 Please see more examples in [JsonQueryExamples.scala](https://github.com/json4s/json4s/blob/3.6/tests/src/test/scala/org/json4s/JsonQueryExamples.scala).
 
 ```scala
-scala> import org.json4s._
-scala> import org.json4s.native.JsonMethods._
+scala> import com.tt.json4s._
+scala> import com.tt.json4s.native.JsonMethods._
 
 scala> val json = parse("""
          { "name": "joe",
@@ -445,15 +445,15 @@ The example json is:
 Translated to DSL syntax:
 
 ```scala
-scala> import org.json4s._
-scala> import org.json4s.native.JsonMethods._
+scala> import com.tt.json4s._
+scala> import com.tt.json4s.native.JsonMethods._
 ```
 
 or
 
 ```scala
-scala> import org.json4s.jackson.JsonMethods._
-scala> import org.json4s.JsonDSL._
+scala> import com.tt.json4s.jackson.JsonMethods._
+scala> import com.tt.json4s.JsonDSL._
 
 scala> val json: JObject =
   ("person" ->
@@ -468,7 +468,7 @@ scala> val json: JObject =
   )
 
 scala> json \\ "spouse"
-res0: org.json4s.JValue = JObject(List(
+res0: com.tt.json4s.JValue = JObject(List(
       (person,JObject(List((name,JString(Marilyn)), (age,JInt(33)))))))
 
 scala> compact(render(res0))
@@ -490,18 +490,18 @@ scala> json findField {
          case JField("name", _) => true
          case _ => false
        }
-res6: Option[org.json4s.JValue] = Some((name,JString(Joe)))
+res6: Option[com.tt.json4s.JValue] = Some((name,JString(Joe)))
 
 scala> json filterField {
          case JField("name", _) => true
          case _ => false
        }
-res7: List[org.json4s.JField] = List(JField(name,JString(Joe)), JField(name,JString(Marilyn)))
+res7: List[com.tt.json4s.JField] = List(JField(name,JString(Joe)), JField(name,JString(Marilyn)))
 
 scala> json transformField {
          case JField("name", JString(s)) => ("NAME", JString(s.toUpperCase))
        }
-res8: org.json4s.JValue = JObject(List((person,JObject(List(
+res8: com.tt.json4s.JValue = JObject(List((person,JObject(List(
 (NAME,JString(JOE)), (age,JInt(35)), (spouse,JObject(List(
 (person,JObject(List((NAME,JString(MARILYN)), (age,JInt(33)))))))))))))
 
@@ -528,16 +528,16 @@ scala> val json = parse("""
        """)
 
 scala> (json \ "children")(0)
-res0: org.json4s.JValue = JObject(List((name,JString(Mary)), (age,JInt(5))))
+res0: com.tt.json4s.JValue = JObject(List((name,JString(Mary)), (age,JInt(5))))
 
 scala> (json \ "children")(1) \ "name"
-res1: org.json4s.JValue = JString(Mazy)
+res1: com.tt.json4s.JValue = JString(Mazy)
 
 scala> json \\ classOf[JInt]
-res2: List[org.json4s.JInt#Values] = List(5, 3)
+res2: List[com.tt.json4s.JInt#Values] = List(5, 3)
 
 scala> json \ "children" \\ classOf[JString]
-res3: List[org.json4s.JString#Values] = List(Mary, Mazy)
+res3: List[com.tt.json4s.JString#Values] = List(Mary, Mazy)
 ```
 
 Extracting values
@@ -548,8 +548,8 @@ Case classes can be used to extract values from parsed JSON. Non-existent values
 Please see more examples in [ExtractionExampleSpec.scala](https://github.com/json4s/json4s/blob/3.6/tests/src/test/scala/org/json4s/ExtractionExamplesSpec.scala).
 
 ```scala
-scala> import org.json4s._
-scala> import org.json4s.jackson.JsonMethods._
+scala> import com.tt.json4s._
+scala> import com.tt.json4s.jackson.JsonMethods._
 
 scala> implicit val formats: Formats = DefaultFormats // Brings in default date formats etc.
 
@@ -608,8 +608,8 @@ scala> json transformField {
 If the json field names are snake case (i.e., separated_by_underscores), but the case class uses camel case (i.e., firstLetterLowercaseAndNextWordsCapitalized), you can convert the keys during the extraction using `camelizeKeys`:
 
 ```scala
-scala> import org.json4s._
-scala> import org.json4s.native.JsonMethods._
+scala> import com.tt.json4s._
+scala> import com.tt.json4s.native.JsonMethods._
 scala> implicit val formats: Formats = DefaultFormats
 scala> val json = parse("""{"first_name":"Mary"}""")
 scala> case class Person(firstName: String)
@@ -742,9 +742,9 @@ Serialization
 Case classes can be serialized and deserialized. Please see other examples in [SerializationExamples.scala](https://github.com/json4s/json4s/blob/3.6/tests/src/test/scala/org/json4s/native/SerializationExamples.scala).
 
 ```scala
-scala> import org.json4s._
-scala> import org.json4s.native.Serialization
-scala> import org.json4s.native.Serialization.{read, write}
+scala> import com.tt.json4s._
+scala> import com.tt.json4s.native.Serialization
+scala> import com.tt.json4s.native.Serialization.{read, write}
 
 scala> implicit val formats: Formats = Serialization.formats(NoTypeHints)
 
@@ -757,9 +757,9 @@ res1: Child = Child(Mary,5,None)
 If you're using jackson instead of the native one:
 
 ```scala
-scala> import org.json4s._
-scala> import org.json4s.jackson.Serialization
-scala> import org.json4s.jackson.Serialization.{read, write}
+scala> import com.tt.json4s._
+scala> import com.tt.json4s.jackson.Serialization
+scala> import com.tt.json4s.jackson.Serialization.{read, write}
 
 scala> implicit val formats: Formats = Serialization.formats(NoTypeHints)
 
@@ -926,15 +926,15 @@ Module json4s-ext contains extensions to extraction and serialization. The follo
 
 ```scala
 // Scala enums
-implicit val formats: Formats = org.json4s.DefaultFormats + new org.json4s.ext.EnumSerializer(MyEnum)
+implicit val formats: Formats = com.tt.json4s.DefaultFormats + new com.tt.json4s.ext.EnumSerializer(MyEnum)
 // or
-implicit val formats: Formats = org.json4s.DefaultFormats + new org.json4s.ext.EnumNameSerializer(MyEnum)
+implicit val formats: Formats = com.tt.json4s.DefaultFormats + new com.tt.json4s.ext.EnumNameSerializer(MyEnum)
 
 // Joda Time
-implicit val formats: Formats = org.json4s.DefaultFormats ++ org.json4s.ext.JodaTimeSerializers.all
+implicit val formats: Formats = com.tt.json4s.DefaultFormats ++ com.tt.json4s.ext.JodaTimeSerializers.all
 
 // Java 8 Date & Time
-implicit val formats: Formats = org.json4s.DefaultFormats ++ org.json4s.ext.JavaTimeSerializers.all
+implicit val formats: Formats = com.tt.json4s.DefaultFormats ++ com.tt.json4s.ext.JavaTimeSerializers.all
 ```
 
 XML support
@@ -944,7 +944,7 @@ JSON structure can be converted to XML nodes and vice versa.
 Please see more examples in [XmlExamples.scala](https://github.com/json4s/json4s/blob/3.6/tests/src/test/scala/org/json4s/XmlExamples.scala).
 
 ```scala
-scala> import org.json4s.Xml.{toJson, toXml}
+scala> import com.tt.json4s.Xml.{toJson, toXml}
 scala> val xml =
          <users>
            <user>
