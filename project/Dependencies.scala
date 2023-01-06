@@ -17,7 +17,7 @@ object Dependencies {
   )
   lazy val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.8"
   lazy val scalatest = Def.setting(
-    Seq("org.scalatest" %%% "scalatest-wordspec" % "3.2.14" % "test")
+    Seq("org.scalatest" %%% "scalatest-wordspec" % "3.2.15" % "test")
   )
   lazy val scalatestScalacheck = Def.setting(
     Seq("org.scalatestplus" %%% "scalacheck-1-17" % "3.2.14.0" % "test")
