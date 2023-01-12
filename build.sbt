@@ -16,23 +16,6 @@ lazy val nativeSettings = Def.settings(
       Nil
     }
   },
-  // TODO enable tests if scalatest released
-  libraryDependencies := {
-    if (isScala3.value) {
-      libraryDependencies.value.filterNot {
-        _.organization.contains("org.scalatest")
-      }
-    } else {
-      libraryDependencies.value
-    }
-  },
-  Test / sources := {
-    if (isScala3.value) {
-      Nil
-    } else {
-      (Test / sources).value
-    }
-  },
 )
 
 lazy val ast = crossProject(JVMPlatform, JSPlatform, NativePlatform)
@@ -89,40 +72,6 @@ val isScala3 = Def.setting(
   CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 3)
 )
 
-lazy val disableScala3 = Def.settings(
-  mimaPreviousArtifacts := {
-    if (isScala3.value) {
-      Set.empty
-    } else {
-      mimaPreviousArtifacts.value
-    }
-  },
-  libraryDependencies := {
-    if (isScala3.value) {
-      Nil
-    } else {
-      libraryDependencies.value
-    }
-  },
-  Seq(Compile, Test).map { x =>
-    (x / sources) := {
-      if (isScala3.value) {
-        Nil
-      } else {
-        (x / sources).value
-      }
-    }
-  },
-  Test / test := {
-    if (isScala3.value) {
-      ()
-    } else {
-      (Test / test).value
-    }
-  },
-  publish / skip := isScala3.value,
-)
-
 lazy val xml = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("xml"))
   .settings(
@@ -132,7 +81,6 @@ lazy val xml = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   )
   .nativeSettings(
     nativeSettings,
-    disableScala3,
   )
   .jsSettings(
     scalajsProjectSettings
@@ -149,7 +97,14 @@ lazy val core = project
   .settings(
     name := "json4s-core",
     json4sSettings(cross = false),
-    libraryDependencies ++= Seq(Dependencies.paranamer),
+    libraryDependencies ++= {
+      scalaBinaryVersion.value match {
+        case "2.12" =>
+          Seq(Dependencies.paranamer)
+        case _ =>
+          Nil
+      }
+    },
     Test / console / initialCommands := """
         |import org.json4s._
         |import reflect._
@@ -239,7 +194,6 @@ lazy val scalaz = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   )
   .nativeSettings(
     nativeSettings,
-    disableScala3,
   )
   .jsSettings(
     scalajsProjectSettings
@@ -260,7 +214,7 @@ lazy val mongo = project
     name := "json4s-mongo",
     json4sSettings(cross = false),
     libraryDependencies ++= Seq(
-      "org.mongodb" % "mongo-java-driver" % "3.12.10"
+      "org.mongodb" % "mongo-java-driver" % "3.12.11"
     ),
   )
   .dependsOn(
