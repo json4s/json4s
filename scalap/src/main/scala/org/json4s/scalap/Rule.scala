@@ -133,28 +133,28 @@ trait Rule[-In, +Out, +A, +X] extends (In => Result[Out, A, X]) {
   /**
    * ^~^(f) is equivalent to ^^ { case b1 ~ b2 => f(b1, b2) }
    */
-  def ^~^[B1, B2, B >: A, C](f: (B1, B2) => C)(implicit A: A => (B1 ~ B2)) = map { a =>
+  def ^~^[B1, B2, B >: A, C](f: (B1, B2) => C)(implicit A: A => B1 ~ B2) = map { a =>
     A(a) match { case b1 ~ b2 => f(b1, b2) }
   }
 
   /**
    * ^~~^(f) is equivalent to ^^ { case b1 ~ b2 ~ b3 => f(b1, b2, b3) }
    */
-  def ^~~^[B1, B2, B3, B >: A, C](f: (B1, B2, B3) => C)(implicit A: A => (B1 ~ B2 ~ B3)) = map { a =>
+  def ^~~^[B1, B2, B3, B >: A, C](f: (B1, B2, B3) => C)(implicit A: A => B1 ~ B2 ~ B3) = map { a =>
     A(a) match { case b1 ~ b2 ~ b3 => f(b1, b2, b3) }
   }
 
   /**
    * ^~~~^(f) is equivalent to ^^ { case b1 ~ b2 ~ b3 ~ b4 => f(b1, b2, b3, b4) }
    */
-  def ^~~~^[B1, B2, B3, B4, B >: A, C](f: (B1, B2, B3, B4) => C)(implicit A: A => (B1 ~ B2 ~ B3 ~ B4)) = map { a =>
+  def ^~~~^[B1, B2, B3, B4, B >: A, C](f: (B1, B2, B3, B4) => C)(implicit A: A => B1 ~ B2 ~ B3 ~ B4) = map { a =>
     A(a) match { case b1 ~ b2 ~ b3 ~ b4 => f(b1, b2, b3, b4) }
   }
 
   /**
    * ^~~~~^(f) is equivalent to ^^ { case b1 ~ b2 ~ b3 ~ b4 ~ b5 => f(b1, b2, b3, b4, b5) }
    */
-  def ^~~~~^[B1, B2, B3, B4, B5, B >: A, C](f: (B1, B2, B3, B4, B5) => C)(implicit A: A => (B1 ~ B2 ~ B3 ~ B4 ~ B5)) =
+  def ^~~~~^[B1, B2, B3, B4, B5, B >: A, C](f: (B1, B2, B3, B4, B5) => C)(implicit A: A => B1 ~ B2 ~ B3 ~ B4 ~ B5) =
     map { a =>
       A(a) match { case b1 ~ b2 ~ b3 ~ b4 ~ b5 => f(b1, b2, b3, b4, b5) }
     }
@@ -164,7 +164,7 @@ trait Rule[-In, +Out, +A, +X] extends (In => Result[Out, A, X]) {
    */
   def ^~~~~~^[B1, B2, B3, B4, B5, B6, B >: A, C](
     f: (B1, B2, B3, B4, B5, B6) => C
-  )(implicit A: A => (B1 ~ B2 ~ B3 ~ B4 ~ B5 ~ B6)) = map { a =>
+  )(implicit A: A => B1 ~ B2 ~ B3 ~ B4 ~ B5 ~ B6) = map { a =>
     A(a) match { case b1 ~ b2 ~ b3 ~ b4 ~ b5 ~ b6 => f(b1, b2, b3, b4, b5, b6) }
   }
 
@@ -173,7 +173,7 @@ trait Rule[-In, +Out, +A, +X] extends (In => Result[Out, A, X]) {
    */
   def ^~~~~~~^[B1, B2, B3, B4, B5, B6, B7, B >: A, C](
     f: (B1, B2, B3, B4, B5, B6, B7) => C
-  )(implicit A: A => (B1 ~ B2 ~ B3 ~ B4 ~ B5 ~ B6 ~ B7)) = map { a =>
+  )(implicit A: A => B1 ~ B2 ~ B3 ~ B4 ~ B5 ~ B6 ~ B7) = map { a =>
     A(a) match {
       case b1 ~ b2 ~ b3 ~ b4 ~ b5 ~ b6 ~ b7 => f(b1, b2, b3, b4, b5, b6, b7)
     }
@@ -182,7 +182,7 @@ trait Rule[-In, +Out, +A, +X] extends (In => Result[Out, A, X]) {
   /**
    * >~>(f) is equivalent to >> { case b1 ~ b2 => f(b1, b2) }
    */
-  def >~>[Out2, B1, B2, B >: A, C, X2 >: X](f: (B1, B2) => Out => Result[Out2, C, X2])(implicit A: A => (B1 ~ B2)) =
+  def >~>[Out2, B1, B2, B >: A, C, X2 >: X](f: (B1, B2) => Out => Result[Out2, C, X2])(implicit A: A => B1 ~ B2) =
     flatMap { a =>
       A(a) match { case b1 ~ b2 => f(b1, b2) }
     }
@@ -195,7 +195,7 @@ trait Rule[-In, +Out, +A, +X] extends (In => Result[Out, A, X]) {
   /**
    * ^~>~^(f) is equivalent to ^^ { case b2 ~ b3 => b1 => f(b1, b2, b3) }
    */
-  def ^~>~^[B1, B2, B3, B >: A, C](f: (B1, B2, B3) => C)(implicit A: A => (B2 ~ B3)) = map { a =>
+  def ^~>~^[B1, B2, B3, B >: A, C](f: (B1, B2, B3) => C)(implicit A: A => B2 ~ B3) = map { a =>
     A(a) match { case b2 ~ b3 => (b1: B1) => f(b1, b2, b3) }
   }
 }
