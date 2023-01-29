@@ -53,7 +53,6 @@ object build {
     }
   )
 
-  val Scala211 = "2.11.12"
   val Scala212 = "2.12.17"
   val Scala213 = "2.13.8"
   val Scala3 = "3.1.1"
@@ -62,8 +61,7 @@ object build {
     mimaSettings,
     organization := "org.json4s",
     scalaVersion := Scala212,
-    crossScalaVersions := Seq(Scala211, Scala212, Scala213, Scala3),
-    addCommandAlias("SetScala211", s"++ ${Scala211}!"),
+    crossScalaVersions := Seq(Scala212, Scala213, Scala3),
     addCommandAlias("SetScala212", s"++ ${Scala212}!"),
     addCommandAlias("SetScala213", s"++ ${Scala213}!"),
     addCommandAlias("SetScala3", s"++ ${Scala3}!"),
@@ -111,8 +109,6 @@ object build {
     },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 11)) =>
-          Seq("-Ywarn-unused-import", "-Xsource:2.12")
         case Some((2, _)) =>
           Seq("-Ywarn-unused:imports")
         case _ =>
