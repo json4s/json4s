@@ -81,24 +81,10 @@ ${if (addAuto) (2 to max).map(writerAutoN).mkString("\n") else ""}
 """
   }
 
-  def reader(isScala211: Boolean): String = {
-    val scala211compat = if (isScala211) {
-      s"""
-  implicit class Scala211CompatEither[A, B](e: Either[A, B]) {
-    def flatMap[C](f: B => Either[A, C]): Either[A, C] =
-      e.right.flatMap(f)
-  }
-  implicit class Scala211CompatRight[A, B](e: Right[A, B]) {
-    def value: B = e.b
-  }"""
-    } else {
-      ""
-    }
-
+  def reader: String = {
     s"""package org.json4s
 
 trait ReaderFunctions { self: Reader.type =>
-${scala211compat}
 ${(2 to max).map(readerN).mkString("\n")}
 }
 """
