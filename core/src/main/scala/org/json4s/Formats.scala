@@ -16,10 +16,10 @@
 
 package org.json4s
 
+import org.json4s.Formats.StrictOptionParsing
 import reflect.ScalaType
 
 import java.lang.reflect.Type
-
 import org.json4s.prefs.EmptyValueStrategy
 import org.json4s.prefs.ExtractionNullStrategy
 
@@ -33,6 +33,22 @@ object Formats {
   }
 
   def write[T](obj: T)(implicit writer: Writer[T]): JValue = writer.write(obj)
+
+  case class StrictOptionParsing(
+    requireOptionValues: Boolean,
+    validateOptionValues: Boolean
+  )
+
+  object StrictOptionParsing {
+    def enabled: StrictOptionParsing = StrictOptionParsing(
+      requireOptionValues = true,
+      validateOptionValues = true
+    )
+    def disabled: StrictOptionParsing = StrictOptionParsing(
+      requireOptionValues = false,
+      validateOptionValues = false
+    )
+  }
 
   // ---------------------------------
   // internal utilities
@@ -101,7 +117,7 @@ trait Formats extends Serializable { self: Formats =>
   def primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
   def companions: List[(Class[_], AnyRef)] = Nil
   def extractionNullStrategy: ExtractionNullStrategy = ExtractionNullStrategy.Keep
-  def strictOptionParsing: Boolean = false
+  def strictOptionParsing: StrictOptionParsing = StrictOptionParsing.disabled
   def strictArrayExtraction: Boolean = false
   def strictMapExtraction: Boolean = false
   def alwaysEscapeUnicode: Boolean = false
@@ -135,7 +151,7 @@ trait Formats extends Serializable { self: Formats =>
     withPrimitives: Set[Type] = self.primitives,
     wCompanions: List[(Class[_], AnyRef)] = self.companions,
     wExtractionNullStrategy: ExtractionNullStrategy = self.extractionNullStrategy,
-    wStrictOptionParsing: Boolean = self.strictOptionParsing,
+    wStrictOptionParsing: StrictOptionParsing = self.strictOptionParsing,
     wStrictArrayExtraction: Boolean = self.strictArrayExtraction,
     wStrictMapExtraction: Boolean = self.strictMapExtraction,
     wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
@@ -156,7 +172,7 @@ trait Formats extends Serializable { self: Formats =>
       override def primitives: Set[Type] = withPrimitives
       override def companions: List[(Class[_], AnyRef)] = wCompanions
       override def extractionNullStrategy: ExtractionNullStrategy = wExtractionNullStrategy
-      override def strictOptionParsing: Boolean = wStrictOptionParsing
+      override def strictOptionParsing: StrictOptionParsing = wStrictOptionParsing
       override def strictArrayExtraction: Boolean = wStrictArrayExtraction
       override def strictMapExtraction: Boolean = wStrictMapExtraction
       override def alwaysEscapeUnicode: Boolean = wAlwaysEscapeUnicode
@@ -183,7 +199,7 @@ trait Formats extends Serializable { self: Formats =>
 
   def withEscapeUnicode: Formats = copy(wAlwaysEscapeUnicode = true)
 
-  def withStrictOptionParsing: Formats = copy(wStrictOptionParsing = true)
+  def withStrictOptionParsing: Formats = copy(wStrictOptionParsing = StrictOptionParsing.enabled)
 
   def withStrictArrayExtraction: Formats = copy(wStrictArrayExtraction = true)
 
@@ -198,10 +214,18 @@ trait Formats extends Serializable { self: Formats =>
    */
   def withPre36DeserializationBehavior: Formats = copy(wConsiderCompanionConstructors = false)
 
-  def strict: Formats = copy(wStrictOptionParsing = true, wStrictArrayExtraction = true, wStrictMapExtraction = true)
+  def strict: Formats = copy(
+    wStrictOptionParsing = StrictOptionParsing.enabled,
+    wStrictArrayExtraction = true,
+    wStrictMapExtraction = true
+  )
 
   def nonStrict: Formats =
-    copy(wStrictOptionParsing = false, wStrictArrayExtraction = false, wStrictMapExtraction = false)
+    copy(
+      wStrictOptionParsing = StrictOptionParsing.disabled,
+      wStrictArrayExtraction = false,
+      wStrictMapExtraction = false
+    )
 
   @deprecated(message = "Use withNullExtractionStrategy instead", since = "3.7.0")
   def disallowNull: Formats = copy(wExtractionNullStrategy = ExtractionNullStrategy.Disallow)

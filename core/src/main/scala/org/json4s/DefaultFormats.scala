@@ -1,6 +1,8 @@
 package org.json4s
 
+import org.json4s.Formats.StrictOptionParsing
 import org.json4s.prefs.{EmptyValueStrategy, ExtractionNullStrategy}
+
 import java.lang.reflect.Type
 import java.util.{Date, TimeZone}
 
@@ -35,7 +37,8 @@ trait DefaultFormats extends Formats {
   override val wantsBigDecimal: Boolean = false
   override val primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
   override val companions: List[(Class[_], AnyRef)] = Nil
-  override val strictOptionParsing: Boolean = false
+  override val strictOptionParsing: StrictOptionParsing =
+    StrictOptionParsing(requireOptionValues = false, validateOptionValues = false)
   override val emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
   override val extractionNullStrategy: ExtractionNullStrategy = ExtractionNullStrategy.Keep
   override def strictFieldDeserialization: Boolean = false
