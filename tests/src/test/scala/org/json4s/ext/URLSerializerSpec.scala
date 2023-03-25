@@ -17,6 +17,7 @@
 package org.json4s
 package ext
 
+import java.net.URI
 import java.net.URL
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -31,7 +32,7 @@ abstract class URLSerializerSpec(mod: String) extends AnyWordSpec {
 
   (mod + " URLSerializer Specification") should {
     "Serialize URL's" in {
-      val x = SubjectWithURL(url = new URL("http://www.example.com/"))
+      val x = SubjectWithURL(url = new URI("http://www.example.com/").toURL)
       val ser = s.write(x)
       assert(s.read[SubjectWithURL](ser) == x)
     }
