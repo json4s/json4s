@@ -28,9 +28,9 @@ object build {
 
   val mavenCentralFrouFrou = Seq(
     publishTo := sonatypePublishToBundle.value,
-    homepage := Some(new URL("https://github.com/json4s/json4s")),
+    homepage := Some(url("https://github.com/json4s/json4s")),
     startYear := Some(2009),
-    licenses := Seq(("Apache-2.0", new URL("http://www.apache.org/licenses/LICENSE-2.0"))),
+    licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))),
     pomExtra := {
       pomExtra.value ++ Group(
         <scm>
