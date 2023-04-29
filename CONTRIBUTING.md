@@ -11,7 +11,7 @@
 - Pull requests basically should be sent toward "master" branch
 - Source/binary compatibility always must be kept as far as possible
 - Prefer creating scala source code for each class/object/trait (of course, except for sealed trait)
-- json4s build checks binary compatibility by using [MiMa](https://github.com/typesafehub/migration-manager/wiki/Sbt-plugin) for maintenance releases (e.g. 3.3.x).
+- json4s build checks binary compatibility by using [MiMa](https://github.com/lightbend/mima) for maintenance releases (e.g. 3.3.x).
 
 #### Branches
 
