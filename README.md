@@ -672,8 +672,17 @@ res0: PersonWithAddresses("joe", Map("address1" -> Address("Bulevard", "Helsinki
                                      "address2" -> Address("Soho", "London")))
 ```
 
+### Strict parsing
+
+You can configure how strict Options, Arrays and Maps will be parsed with the settings `strictOptionParsing`, `strictArrayExtraction` and `strictMapExtraction`, or enable all of them can be enabled with
+
+```scala
+val formats: Formats = DefaultFormats.strict
+```
+
+#### StrictOptionParsing
 Note that when the extraction of an `Option[_]` fails, the default behavior of `extract` is to return `None`.
-You can make it fail with a [MappingException] by using a custom `Formats` object:
+You can make it fail with a `MappingException` by using a custom `Formats` object:
 
 ```scala
 val formats: Formats = DefaultFormats.withStrictOptionParsing
@@ -683,13 +692,23 @@ or
 
 ```scala
 val formats: Formats = new DefaultFormats {
-  override val strictOptionParsing: Boolean = true
+  override val strictOptionParsing: StrictOptionParsing = StrictOptionParsing.enabled
 }
 ```
 
-Same happens with collections(for example, List and Map...), the default behavior of `extract`
+If you want the `Formats` to not require optional values, but fail with a `MappingException` in case an invalid value is provided for an optional field, you can do so as follows: 
+
+```scala
+val formats: Formats = new DefaultFormats {
+  override val strictOptionParsing: StrictOptionParsing =
+    StrictOptionParsing(requireOptionValues = false, validateOptionValues = true)
+}
+```
+
+#### StrictArrayExtraction and StrictMapExtraction
+Same happens with collections (for example, List and Map...), the default behavior of `extract`
 is to return an empty instance of the collection. 
-You can make it fail with a [MappingException] by using a custom `Formats` object:
+You can make it fail with a `MappingException` by using a custom `Formats` object:
 
 ```scala
 val formats: Formats = DefaultFormats.withStrictArrayExtraction
@@ -715,11 +734,7 @@ val formats: Formats = new DefaultFormats {
 }
 ```
 
-These settings (`strictOptionParsing`, `strictArrayExtraction` and `strictMapExtraction`) can be enabled with
-
-```scala
-val formats: Formats = DefaultFormats.strict
-```
+#### Companion Object apply method
 
 With Json4s 3.6 and higher, `apply` functions in companion objects will be evaluated for use during extraction.  If this behavior is not desired, you can disable it using the `considerCompanionConstructors` on a custom `Formats` object:
 ```scala 

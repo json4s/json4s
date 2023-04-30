@@ -67,7 +67,7 @@ object Extraction {
    */
   def extractOpt[A](json: JValue)(implicit formats: Formats, mf: Manifest[A]): Option[A] =
     try { Option(extract(json)(formats, mf)) }
-    catch { case _: MappingException if !formats.strictOptionParsing => None }
+    catch { case _: MappingException if !formats.strictOptionParsing.validateOptionValues => None }
 
   def extract(json: JValue, target: TypeInfo)(implicit formats: Formats): Any = extract(json, ScalaType(target))
 
@@ -412,11 +412,11 @@ object Extraction {
         Right(extract(json, scalaType.typeArgs(1)))
       })).getOrElse(fail("Expected value but got " + json))
     } else if (scalaType.isOption) {
-      customOrElse(scalaType, json)(v =>
-        (if (formats.strictOptionParsing) v.toSome else v.toOption) flatMap (j =>
+      customOrElse(scalaType, json)(v => {
+        (if (formats.strictOptionParsing.requireOptionValues) v.toSome else v.toOption) flatMap (j => {
           Option(extract(j, scalaType.typeArgs.head))
-        )
-      )
+        })
+      })
     } else if (scalaType.isMap) {
       customOrElse(scalaType, json) {
         case JObject(xs) =>
@@ -616,7 +616,7 @@ object Extraction {
             }
           }
         }
-        if (formats.strictOptionParsing) {
+        if (formats.strictOptionParsing.requireOptionValues) {
           val diff = fieldsToSet.filter(_.returnType.isOption).map(_.name).diff(fieldsActuallySet)
 
           if (diff.nonEmpty) {
@@ -643,11 +643,13 @@ object Extraction {
     private[this] def buildOptionalCtorArg(json: JValue, descr: ConstructorParamDescriptor) = {
       lazy val default = descr.defaultValue.map(_.apply()).getOrElse(None)
       json \ descr.name match {
-        case JNothing if json.isInstanceOf[JObject] || !formats.strictOptionParsing => default
+        case JNothing if json.isInstanceOf[JObject] || !formats.strictOptionParsing.validateOptionValues => default
         case JNothing => fail(s"No value set for Option property: ${descr.name}")
         case value =>
           try { Option(extract(value, descr.argType)).getOrElse(default) }
-          catch { case _: MappingException if !formats.strictOptionParsing => default }
+          catch {
+            case _: MappingException if !(formats.strictOptionParsing.validateOptionValues) => default
+          }
       }
     }
 
@@ -757,7 +759,8 @@ object Extraction {
 
     def result: Any =
       json match {
-        case JNull if formats.strictOptionParsing && descr.properties.exists(_.returnType.isOption) =>
+        case JNull
+            if formats.strictOptionParsing.requireOptionValues && descr.properties.exists(_.returnType.isOption) =>
           fail(
             s"No value set for Option property: ${descr.properties.filter(_.returnType.isOption).map(_.name).mkString(", ")}"
           )
