@@ -64,7 +64,7 @@ abstract class NullErrorHandlingSpec[T](mod: String) extends AnyWordSpec with Js
 }
 
 case class NullErrorHandlingJson(
-  val x: Int,
-  val y: Boolean,
-  val z: String
+  x: Int,
+  y: Boolean,
+  z: String
 )

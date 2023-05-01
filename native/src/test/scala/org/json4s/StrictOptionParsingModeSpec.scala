@@ -138,9 +138,9 @@ abstract class StrictOptionParsingModeSpec[T](mod: String) extends AnyWordSpec w
 }
 
 case class OptionalValueModel(
-  val someInt: Option[Int],
-  val someDouble: Option[Double],
-  val someString: Option[String],
-  val someMap: Option[Map[String, Any]],
-  val someBoolean: Option[Boolean]
+  someInt: Option[Int],
+  someDouble: Option[Double],
+  someString: Option[String],
+  someMap: Option[Map[String, Any]],
+  someBoolean: Option[Boolean]
 )
