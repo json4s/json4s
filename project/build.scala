@@ -53,7 +53,7 @@ object build {
     }
   )
 
-  def Scala212 = "2.12.17"
+  def Scala212 = "2.12.18"
 
   val json4sSettings = mavenCentralFrouFrou ++ mimaSettings ++ Def.settings(
     organization := "org.json4s",
