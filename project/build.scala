@@ -54,7 +54,7 @@ object build {
   )
 
   val Scala212 = "2.12.17"
-  val Scala213 = "2.13.8"
+  val Scala213 = "2.13.11"
   val Scala3 = "3.1.1"
 
   def json4sSettings(cross: Boolean) = mavenCentralFrouFrou ++ Def.settings(
