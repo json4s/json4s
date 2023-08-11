@@ -29,16 +29,19 @@ class EnumSerializer[E <: Enumeration: ClassTag](enumeration: E) extends Seriali
     case _ => false
   }
 
+  private[this] def enumerationValueToEnumValueOfE(value: enumeration.Value): EnumValue[E] =
+    value.asInstanceOf[EnumValue[E]]
+
   def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), EnumValue[E]] = {
     case (TypeInfo(EnumerationClass, _), json) if isValid(json) =>
       json match {
-        case JInt(value) => enumeration(value.toInt)
+        case JInt(value) => enumerationValueToEnumValueOfE(enumeration(value.toInt))
         case value => throw new MappingException(s"Can't convert $value to $EnumerationClass")
       }
   }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case i: EnumValue[E] if enumeration.values.exists(_ == i) => i.id
+    case i: Enumeration#Value if enumeration.values.exists(_ == i) => i.id
   }
 }
 
@@ -47,10 +50,13 @@ class EnumNameSerializer[E <: Enumeration: ClassTag](enumeration: E) extends Ser
 
   private[this] val EnumerationClass = classOf[Enumeration#Value]
 
+  private[this] def enumerationValueToEnumValueOfE(value: enumeration.Value): EnumValue[E] =
+    value.asInstanceOf[EnumValue[E]]
+
   def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), EnumValue[E]] = {
     case (_ @TypeInfo(EnumerationClass, _), json) if isValid(json) => {
       json match {
-        case JString(value) => enumeration.withName(value)
+        case JString(value) => enumerationValueToEnumValueOfE(enumeration.withName(value))
         case value => throw new MappingException(s"Can't convert $value to $EnumerationClass")
       }
     }
@@ -62,6 +68,6 @@ class EnumNameSerializer[E <: Enumeration: ClassTag](enumeration: E) extends Ser
   }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case i: EnumValue[E] if enumeration.values.exists(_ == i) => i.toString
+    case i: Enumeration#Value if enumeration.values.exists(_ == i) => i.toString
   }
 }
