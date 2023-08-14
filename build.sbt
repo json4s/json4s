@@ -7,15 +7,6 @@ json4sSettings(cross = false)
 noPublish
 
 lazy val nativeSettings = Def.settings(
-  Compile / doc / scalacOptions --= {
-    // TODO remove this workaround
-    // https://github.com/scala-native/scala-native/issues/2503
-    if (isScala3.value) {
-      (Compile / doc / scalacOptions).value.filter(_.contains("-Xplugin"))
-    } else {
-      Nil
-    }
-  },
 )
 
 lazy val ast = crossProject(JVMPlatform, JSPlatform, NativePlatform)
@@ -214,7 +205,7 @@ lazy val mongo = project
     name := "json4s-mongo",
     json4sSettings(cross = false),
     libraryDependencies ++= Seq(
-      "org.mongodb" % "mongo-java-driver" % "3.12.11"
+      "org.mongodb" % "mongo-java-driver" % "3.12.14"
     ),
   )
   .dependsOn(

@@ -28,9 +28,9 @@ object build {
 
   val mavenCentralFrouFrou = Seq(
     publishTo := sonatypePublishToBundle.value,
-    homepage := Some(new URL("https://github.com/json4s/json4s")),
+    homepage := Some(url("https://github.com/json4s/json4s")),
     startYear := Some(2009),
-    licenses := Seq(("Apache-2.0", new URL("http://www.apache.org/licenses/LICENSE-2.0"))),
+    licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))),
     pomExtra := {
       pomExtra.value ++ Group(
         <scm>
@@ -53,9 +53,9 @@ object build {
     }
   )
 
-  val Scala212 = "2.12.17"
-  val Scala213 = "2.13.10"
-  val Scala3 = "3.2.1"
+  val Scala212 = "2.12.18"
+  val Scala213 = "2.13.11"
+  val Scala3 = "3.3.0"
 
   def json4sSettings(cross: Boolean) = mavenCentralFrouFrou ++ Def.settings(
     organization := "org.json4s",

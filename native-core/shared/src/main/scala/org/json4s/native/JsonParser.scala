@@ -365,7 +365,7 @@ object JsonParser {
       End
     }
 
-    sealed abstract class BlockMode
+    sealed abstract class BlockMode extends Product with Serializable
     case object ARRAY extends BlockMode
     case object OBJECT extends BlockMode
   }

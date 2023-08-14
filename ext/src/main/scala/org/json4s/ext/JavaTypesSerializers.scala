@@ -49,7 +49,7 @@ case object URLSerializer
   extends CustomSerializer[URL](format =>
     (
       {
-        case JString(s) => new URL(s)
+        case JString(s) => new URI(s).toURL
         case JNull => null
       },
       { case x: URL =>
