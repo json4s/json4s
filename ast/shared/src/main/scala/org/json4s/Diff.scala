@@ -89,7 +89,7 @@ object Diff {
         }
     }
 
-    diffRec(vs1, vs2)
+    diffRec(vs1.filterNot(_._2 == JNothing), vs2.filterNot(_._2 == JNothing))
   }
 
   private def diffVals(vs1: List[JValue], vs2: List[JValue]) = {
