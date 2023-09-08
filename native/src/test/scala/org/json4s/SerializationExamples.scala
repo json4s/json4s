@@ -359,7 +359,7 @@ class CustomTypeHintFieldNameExample extends TypeHintExamples {
 
   implicit val formats: Formats = new Formats {
     val dateFormat = DefaultFormats.lossless.dateFormat
-    override val typeHints = ShortTypeHints(classOf[Fish] :: classOf[Dog] :: Nil, "$type$")
+    override val typeHints: TypeHints = ShortTypeHints(classOf[Fish] :: classOf[Dog] :: Nil, "$type$")
   }
 
   "Serialized JSON contains configured field name" in {
