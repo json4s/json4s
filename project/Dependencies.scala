@@ -16,7 +16,7 @@ object Dependencies {
     "org.scalaz" %%% "scalaz-core" % "7.3.7"
   )
   lazy val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.8"
-  private def scalatestVersion = "3.2.16"
+  private def scalatestVersion = "3.2.17"
   lazy val scalatest = Def.setting(
     Seq("org.scalatest" %%% "scalatest-wordspec" % scalatestVersion % "test")
   )
