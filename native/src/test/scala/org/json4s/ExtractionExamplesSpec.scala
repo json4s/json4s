@@ -33,11 +33,11 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
   implicit lazy val formats: Formats = DefaultFormats
 
   val notNullFormats = new DefaultFormats {
-    override val extractionNullStrategy = ExtractionNullStrategy.Disallow
+    override val extractionNullStrategy: ExtractionNullStrategy = ExtractionNullStrategy.Disallow
   }
 
   val nullAsAbsentFormats = new DefaultFormats {
-    override val extractionNullStrategy = ExtractionNullStrategy.TreatAsAbsent
+    override val extractionNullStrategy: ExtractionNullStrategy = ExtractionNullStrategy.TreatAsAbsent
   }
 
   val strictFormats = formats.strict
