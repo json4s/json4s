@@ -29,7 +29,7 @@ trait Base { this: Types =>
       case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JBool]))
     }
 
-    def write(value: Boolean) = JBool(value)
+    def write(value: Boolean): JValue = JBool(value)
   }
 
   implicit def intJSON: JSON[Int] = new JSON[Int] {
@@ -38,7 +38,7 @@ trait Base { this: Types =>
       case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JInt]))
     }
 
-    def write(value: Int) = JInt(BigInt(value))
+    def write(value: Int): JValue = JInt(BigInt(value))
   }
 
   implicit def longJSON: JSON[Long] = new JSON[Long] {
@@ -47,7 +47,7 @@ trait Base { this: Types =>
       case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JInt]))
     }
 
-    def write(value: Long) = JInt(BigInt(value))
+    def write(value: Long): JValue = JInt(BigInt(value))
   }
 
   implicit def doubleJSON: JSON[Double] = new JSON[Double] {
@@ -56,7 +56,7 @@ trait Base { this: Types =>
       case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JDouble]))
     }
 
-    def write(value: Double) = JDouble(value)
+    def write(value: Double): JValue = JDouble(value)
   }
 
   implicit def stringJSON: JSON[String] = new JSON[String] {
@@ -65,7 +65,7 @@ trait Base { this: Types =>
       case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JString]))
     }
 
-    def write(value: String) = JString(value)
+    def write(value: String): JValue = JString(value)
   }
 
   implicit def bigintJSON: JSON[BigInt] = new JSON[BigInt] {
@@ -74,7 +74,7 @@ trait Base { this: Types =>
       case x => Validation.failureNel(UnexpectedJSONError(x, classOf[JInt]))
     }
 
-    def write(value: BigInt) = JInt(value)
+    def write(value: BigInt): JValue = JInt(value)
   }
 
   implicit def jvalueJSON: JSON[JValue] = new JSON[JValue] {

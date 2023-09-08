@@ -299,7 +299,7 @@ object Reflector {
     new ParameterizedType {
       def getActualTypeArguments = typeArgs.toArray
       def getOwnerType = owner
-      def getRawType = rawClassOf(owner)
+      def getRawType: Class[?] = rawClassOf(owner)
       override def toString = getOwnerType().toString + "[" + getActualTypeArguments().mkString(",") + "]"
     }
 

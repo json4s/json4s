@@ -134,7 +134,7 @@ trait DefaultReaders extends DefaultReaders0 {
 
   implicit val JValueReader: Reader[JValue] = new Reader[JValue] {
     def read(value: JValue): JValue = value
-    def readEither(value: JValue) = Right(value)
+    def readEither(value: JValue): Either[MappingException, JValue] = Right(value)
   }
 
   implicit val JObjectReader: Reader[JObject] = Reader.from[JObject] {
