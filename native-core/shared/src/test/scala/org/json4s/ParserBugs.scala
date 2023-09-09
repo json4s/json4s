@@ -9,7 +9,7 @@ class ParserBugs extends AnyWordSpec {
 
   "For ParserBugs" should {
     "Unicode ffff is a valid char in string literal" in {
-      assert(parseOpt(""" {"x":"\uffff"} """).isDefined)
+      assert(parseOpt("{\"x\":\"\uffff\"} ").isDefined)
     }
 
     "Does not hang when parsing 2.2250738585072012e-308" in {
