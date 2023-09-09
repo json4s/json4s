@@ -1,6 +1,6 @@
 package org.json4s.ext
 
-import org.json4s.{JField, JObject, JString}
+import org.json4s.{JField, JObject, JString, jvalue2monadic}
 import org.json4s.reflect.{Reflector, ScalaType}
 import org.json4s.{CustomSerializer, DefaultFormats, Extraction, Formats, JValue, NoTypeHints}
 
