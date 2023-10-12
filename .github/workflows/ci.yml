@@ -20,7 +20,7 @@ jobs:
             scala: 3
           - java: 11
             scala: 2
-          - java: 17
+          - java: 21
             scala: 2
     steps:
     - uses: actions/setup-java@v3
