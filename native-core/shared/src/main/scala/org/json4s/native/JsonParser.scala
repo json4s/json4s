@@ -254,8 +254,8 @@ object JsonParser {
 
     private def convert[A](x: Any, expectedType: Class[A]): A = {
       if (x == null) parser.fail("expected object or array")
-      try { x.asInstanceOf[A] }
-      catch { case _: ClassCastException => parser.fail(s"unexpected $x") }
+      if (expectedType.isInstance(x)) x.asInstanceOf[A]
+      else parser.fail(s"unexpected $x")
     }
 
     def peekOption = if (stack.isEmpty) None else Some(stack.peek)
