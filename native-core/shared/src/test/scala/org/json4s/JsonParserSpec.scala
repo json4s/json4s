@@ -1,5 +1,6 @@
 package org.json4s
 
+import org.json4s.ParserUtil.ParseException
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.Checkers
 import org.scalacheck.{Arbitrary, Gen}
@@ -13,6 +14,12 @@ class JsonParserSpec extends AnyWordSpec with JValueGen with Checkers {
   import native.JsonMethods._
 
   "A JSON Parser" should {
+    "avoid ClassCastException" in {
+      // https://github.com/json4s/json4s/pull/1394
+      val e = intercept[ParseException](parse("{[]]"))
+      assert(e.getCause == null)
+    }
+
     "Any valid json can be parsed" in check { (json: JValue) =>
       parse(Printer.pretty(render(json)))
       true
