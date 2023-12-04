@@ -16,8 +16,10 @@ class JsonParserSpec extends AnyWordSpec with JValueGen with Checkers {
   "A JSON Parser" should {
     "avoid ClassCastException" in {
       // https://github.com/json4s/json4s/pull/1394
-      val e = intercept[ParseException](parse("{[]]"))
-      assert(e.getCause == null)
+      Seq("{[]]", "{ \"foo\" : }").foreach { str =>
+        val e = intercept[ParseException](parse(str))
+        assert(e.getCause == null, str)
+      }
     }
 
     "Any valid json can be parsed" in check { (json: JValue) =>
