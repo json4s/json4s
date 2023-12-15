@@ -1,15 +1,25 @@
 package org.json4s.ext
 
-import org.json4s.{JField, JObject, JString}
+import org.json4s.{
+  CustomSerializer,
+  DefaultFormats,
+  Extraction,
+  Formats,
+  JField,
+  JObject,
+  JString,
+  JValue,
+  NoTypeHints,
+  TypeHints,
+  jvalue2monadic
+}
 import org.json4s.reflect.{Reflector, ScalaType}
-import org.json4s.{CustomSerializer, DefaultFormats, Extraction, Formats, JValue, NoTypeHints}
-import org.json4s.jvalue2monadic
 
 class TypeFieldSerializer[T: Manifest](fieldName: String, mapping: Map[String, Class[_ <: T]])
   extends CustomSerializer[T](fm => {
     implicit val format: Formats = new Formats {
       val dateFormat = DefaultFormats.lossless.dateFormat
-      override val typeHints = NoTypeHints
+      override val typeHints: TypeHints = NoTypeHints
     }
     val indexByType: Map[ScalaType, String] = mapping.map { case (k, v) => Reflector.scalaTypeOf(v) -> k }
     val indexByName: Map[String, ScalaType] = mapping.mapValues(Reflector.scalaTypeOf).toMap

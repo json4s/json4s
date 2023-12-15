@@ -4,7 +4,7 @@ Migration from older versions
 3.3.0 ->
 --------
 
-json4s 3.3 basically should be source code compatible with 3.2.x. Since json4s 3.3.0, We've started using [MiMa](https://github.com/typesafehub/migration-manager) for binary compatibility verification not to repeat the bin compatibility issue described [here](https://github.com/json4s/json4s/issues/225).
+json4s 3.3 basically should be source code compatible with 3.2.x. Since json4s 3.3.0, We've started using [MiMa](https://github.com/lightbend/mima) for binary compatibility verification not to repeat the bin compatibility issue described [here](https://github.com/json4s/json4s/issues/225).
 
 The behavior of `.toOption` on JValue has changed. Now both `JNothing` and `JNull` return None.
 For the old behavior you can use `toSome` which will only turn a `JNothing` into a None.

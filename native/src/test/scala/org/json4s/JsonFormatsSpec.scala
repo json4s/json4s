@@ -48,9 +48,11 @@ abstract class JsonFormatsSpec[T](mod: String) extends AnyWordSpec with TypeHint
 
     "parameter name reading strategy can be changed" in {
       object TestReader extends ParameterNameReader {
-        def lookupParameterNames(constructor: reflect.Executable) = List("name", "age")
+        def lookupParameterNames(constructor: reflect.Executable): Seq[String] = List("name", "age")
       }
-      implicit val formats: Formats = new DefaultFormats { override val parameterNameReader = TestReader }
+      implicit val formats: Formats = new DefaultFormats {
+        override val parameterNameReader: ParameterNameReader = TestReader
+      }
       val json = parse("""{"name":"joe","age":35}""")
       assert(json.extract[NamesNotSameAsInJson] == NamesNotSameAsInJson("joe", 35))
     }
@@ -65,7 +67,7 @@ abstract class JsonFormatsSpec[T](mod: String) extends AnyWordSpec with TypeHint
     }
 
     "Unicode escaping can be changed" should {
-      val json = parse("""{"Script Small G": "\u210A"}""")
+      val json = parse("{\"Script Small G\": \"\u210A\"}")
 
       "escaped" in {
         assert(compact(render(json, alwaysEscapeUnicode = true)) == "{\"Script Small G\":\"\\u210A\"}")

@@ -205,7 +205,7 @@ lazy val mongo = project
     name := "json4s-mongo",
     json4sSettings(cross = false),
     libraryDependencies ++= Seq(
-      "org.mongodb" % "mongo-java-driver" % "3.12.12"
+      "org.mongodb" % "mongo-java-driver" % "3.12.14"
     ),
   )
   .dependsOn(

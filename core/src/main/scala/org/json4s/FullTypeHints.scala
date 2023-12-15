@@ -7,7 +7,7 @@ import org.json4s.reflect.Reflector
  */
 case class FullTypeHints(hints: List[Class[_]], override val typeHintFieldName: String = "jsonClass")
   extends TypeHints {
-  def hintFor(clazz: Class[_]) = Some(clazz.getName)
+  def hintFor(clazz: Class[_]): Option[String] = Some(clazz.getName)
   def classFor(hint: String, parent: Class[_]) = {
     Reflector
       .scalaTypeOf(hint)

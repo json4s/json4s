@@ -120,7 +120,7 @@ trait StateRules {
         case rule :: tl =>
           rule(in) match {
             case Failure => Failure
-            case Error(x) => Error(x)
+            case x @ Error(_) => x
             case Success(out, v) => rep(out, tl, v :: results)
           }
       }
@@ -144,7 +144,7 @@ trait StateRules {
         rule(in) match {
           case Success(out, f) => rep(out, f(t)) // SI-5189 f.asInstanceOf[T => T]
           case Failure => Failure
-          case Error(x) => Error(x)
+          case x @ Error(_) => x
         }
     }
     in => rep(in, initial)
@@ -153,5 +153,5 @@ trait StateRules {
 }
 
 trait RulesWithState extends Rules with StateRules {
-  val factory = this
+  val factory: Rules = this
 }

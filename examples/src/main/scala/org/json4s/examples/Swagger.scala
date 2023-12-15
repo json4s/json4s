@@ -97,7 +97,7 @@ object Api {
   lazy val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
 
   implicit val formats: Formats = new DefaultFormats {
-    override val dateFormat = new DateFormat {
+    override val dateFormat: DateFormat = new DateFormat {
       def format(d: JDate) = new DateTime(d).toString(Iso8601Date)
       def parse(s: String) = try {
         Option(Iso8601Date.parseDateTime(s).toDate)

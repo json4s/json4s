@@ -405,7 +405,7 @@ abstract class ExtractionBugs[T](mod: String) extends AnyWordSpec with JsonMetho
       JString("---"),
       JArray(Nil)
     ).foreach { obj =>
-      s"Extract should fail when requireOptionValues is off, validateOptionValues is on and extracting from ${obj.toString}" in {
+      s"Extract should fail when requireOptionValues is off, validateOptionValues is on and extracting from ${obj}" in {
         implicit val formats: Formats = new DefaultFormats {
           override val strictOptionParsing: StrictOptionParsing = StrictOptionParsing(
             requireOptionValues = false,

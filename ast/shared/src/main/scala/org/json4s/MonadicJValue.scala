@@ -59,7 +59,7 @@ class MonadicJValue(private val jv: JValue) extends AnyVal {
     case JArray(xs) =>
       JArray(findDirectByName(xs, nameToFind)) match {
         case JArray(Nil) => JNothing
-        case JArray(x) => JArray(x)
+        case x @ JArray(_) => x
       }
     case _ =>
       findDirectByName(jv :: Nil, nameToFind) match {
