@@ -305,7 +305,7 @@ class MappedHintExamples extends TypeHintExamples {
 
 object FullTypeHintExamples {
   val formats = native.Serialization.formats(
-    FullTypeHints(List[Class[_]](classOf[Animal], classOf[True], classOf[False], classOf[Falcon], classOf[Chicken]))
+    FullTypeHints(List[Class[?]](classOf[Animal], classOf[True], classOf[False], classOf[Falcon], classOf[Chicken]))
   )
 }
 class FullTypeHintExamples extends TypeHintExamples {
@@ -403,7 +403,7 @@ case class Dog(name: String) extends Animal
 case class Fish(weight: Double) extends Animal
 case class Turtle(age: Int) extends Animal
 
-case class Objs(objects: List[Obj[_]])
+case class Objs(objects: List[Obj[?]])
 case class Obj[A](a: A)
 class CustomSerializerExamples extends AnyWordSpec {
   import native.Serialization.{read, write => swrite}
@@ -448,19 +448,19 @@ class CustomSerializerExamples extends AnyWordSpec {
       )
     )
 
-  class IndexedSeqSerializer extends Serializer[IndexedSeq[_]] {
+  class IndexedSeqSerializer extends Serializer[IndexedSeq[?]] {
     def deserialize(implicit format: Formats) = {
-      case (TypeInfo(clazz, ptype), json) if classOf[IndexedSeq[_]].isAssignableFrom(clazz) =>
+      case (TypeInfo(clazz, ptype), json) if classOf[IndexedSeq[?]].isAssignableFrom(clazz) =>
         json match {
           case JArray(xs) =>
             val t = ptype.getOrElse(throw new MappingException("parameterized type not known"))
-            xs.map(x => Extraction.extract(x, TypeInfo(t.getActualTypeArguments()(0).asInstanceOf[Class[_]], None)))
+            xs.map(x => Extraction.extract(x, TypeInfo(t.getActualTypeArguments()(0).asInstanceOf[Class[?]], None)))
               .toIndexedSeq
           case x => throw new MappingException(s"Can't convert $x to IndexedSeq")
         }
     }
 
-    def serialize(implicit format: Formats) = { case i: IndexedSeq[_] =>
+    def serialize(implicit format: Formats) = { case i: IndexedSeq[?] =>
       JArray(i.map(Extraction.decompose).toList)
     }
   }

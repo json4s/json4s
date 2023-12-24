@@ -59,7 +59,7 @@ class SeqRule[S, +A, +X](rule: Rule[S, S, A, X]) {
     def rep(in: S, acc: List[A]): Result[S, List[A], X] = rule(in) match {
       case Success(out, a) => rep(out, a :: acc)
       case Failure => Success(in, acc.reverse)
-      case err: Error[_] => err
+      case err: Error[?] => err
     }
     in => rep(in, Nil)
   }
@@ -104,7 +104,7 @@ class SeqRule[S, +A, +X](rule: Rule[S, S, A, X]) {
             rep(a :: result, i + 1, out)
           }
           case Failure => Failure
-          case err: Error[_] => err
+          case err: Error[?] => err
         }
     }
     in => rep(Nil, 0, in)

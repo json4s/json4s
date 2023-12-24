@@ -46,7 +46,7 @@ trait JValueGen {
   def genField: Gen[JField] = genField(genJValue)
   def genFieldArray: Gen[JField] = genField(genArray)
 
-  def genJValueClass: Gen[Class[_ <: JValue]] = oneOf(
+  def genJValueClass: Gen[Class[? <: JValue]] = oneOf(
     JNull.getClass.asInstanceOf[Class[JValue]],
     JNothing.getClass.asInstanceOf[Class[JValue]],
     classOf[JInt],

@@ -42,7 +42,7 @@ class FieldSerializerBugs extends AnyWordSpec {
 
   "FieldSerializer's manifest should not be overridden when it's added to Formats" in {
     val fieldSerializer = FieldSerializer[Type1](FieldSerializer.renameTo("num", "yum"))
-    implicit val formats: Formats = DefaultFormats + (fieldSerializer: FieldSerializer[_])
+    implicit val formats: Formats = DefaultFormats + (fieldSerializer: FieldSerializer[?])
     val expected1 = JObject(JField("yum", JInt(123)))
     val expected2 = JObject(JField("num", JInt(456)))
     assert(Extraction.decompose(Type1(123)) == expected1)

@@ -75,7 +75,7 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
     }
 
     "Remove removes only matching elements" in {
-      forAllNoShrink(genJValue, genJValueClass) { (json: JValue, x: Class[_ <: JValue]) =>
+      forAllNoShrink(genJValue, genJValueClass) { (json: JValue, x: Class[? <: JValue]) =>
         {
           val removed = json remove typePredicate(x)
           val elemsLeft = removed filter { _ =>
@@ -87,7 +87,7 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
     }
 
     "noNulls removes JNulls and JNothings" in {
-      forAllNoShrink(genJValue, genJValueClass) { (json: JValue, x: Class[_ <: JValue]) =>
+      forAllNoShrink(genJValue, genJValueClass) { (json: JValue, x: Class[? <: JValue]) =>
         {
           val noNulls = json.noNulls
           val elemsLeft = noNulls filter { _ =>
@@ -197,7 +197,7 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
     case x => x
   }
 
-  private def typePredicate(clazz: Class[_])(json: JValue) = json match {
+  private def typePredicate(clazz: Class[?])(json: JValue) = json match {
     case x if x.getClass == clazz => true
     case _ => false
   }

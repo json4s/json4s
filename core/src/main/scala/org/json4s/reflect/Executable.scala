@@ -8,13 +8,13 @@ import org.json4s.MappingException
 /**
  * This class is intended as a workaround until we are able to use Java 8's java.lang.reflect.Executable class.
  */
-class Executable private (val method: Method, val constructor: Constructor[_], isPrimaryCtor: Boolean) {
+class Executable private (val method: Method, val constructor: Constructor[?], isPrimaryCtor: Boolean) {
 
   def this(method: Method) = {
     this(method, null, false)
   }
 
-  def this(constructor: Constructor[_], isPrimaryCtor: Boolean) = {
+  def this(constructor: Constructor[?], isPrimaryCtor: Boolean) = {
     this(null, constructor, isPrimaryCtor)
   }
 
@@ -32,13 +32,13 @@ class Executable private (val method: Method, val constructor: Constructor[_], i
     } else constructor.getGenericParameterTypes
   }
 
-  def getParameterTypes(): scala.Array[Class[_]] = {
+  def getParameterTypes(): scala.Array[Class[?]] = {
     if (method != null) {
       method.getParameterTypes
     } else constructor.getParameterTypes
   }
 
-  def getDeclaringClass(): Class[_] = {
+  def getDeclaringClass(): Class[?] = {
     if (method != null) {
       method.getDeclaringClass
     } else constructor.getDeclaringClass

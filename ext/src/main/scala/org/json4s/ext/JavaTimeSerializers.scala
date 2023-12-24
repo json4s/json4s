@@ -7,7 +7,7 @@ import org.json4s._
 
 object JavaTimeSerializers {
 
-  def all: List[Serializer[_]] = List[Serializer[_]](
+  def all: List[Serializer[?]] = List[Serializer[?]](
     JLocalDateTimeSerializer,
     JZonedDateTimeSerializer,
     JOffsetDateTimeSerializer,

@@ -4,7 +4,7 @@ import scala.collection.generic.CanBuildFrom
 
 private[json4s] trait DefaultReaders0 {
   implicit def iterableReader[F[_], V](implicit
-    cbf: CanBuildFrom[F[_], V, F[V]],
+    cbf: CanBuildFrom[F[?], V, F[V]],
     valueReader: Reader[V]
   ): Reader[F[V]] =
     Reader.from[F[V]] {

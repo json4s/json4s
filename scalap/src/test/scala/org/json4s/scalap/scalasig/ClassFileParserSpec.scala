@@ -23,7 +23,7 @@ class ClassFileParserSpec extends AnyWordSpec {
     }
   }
 
-  private def getModuleInfo(c: Class[_]): Array[Byte] = {
+  private def getModuleInfo(c: Class[?]): Array[Byte] = {
     val jarFile = new JarFile(new File(c.getProtectionDomain.getCodeSource.getLocation.getFile))
     val classes = jarFile.entries.asScala
     classes

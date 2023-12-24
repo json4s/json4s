@@ -6,7 +6,7 @@ import java.io.IOException
 object ByteCode {
   def apply(bytes: Array[Byte]) = new ByteCode(bytes, 0, bytes.length)
 
-  def forClass(clazz: Class[_]) = {
+  def forClass(clazz: Class[?]) = {
     val name = clazz.getName
     val subPath = name.substring(name.lastIndexOf('.') + 1) + ".class"
     val in = clazz.getResourceAsStream(subPath)

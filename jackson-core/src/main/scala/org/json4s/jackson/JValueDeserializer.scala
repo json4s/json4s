@@ -8,7 +8,7 @@ import org.json4s.JsonAST.JField
 
 import scala.annotation.switch
 
-class JValueDeserializer(klass: Class[_]) extends JsonDeserializer[Object] {
+class JValueDeserializer(klass: Class[?]) extends JsonDeserializer[Object] {
   def deserialize(jp: JsonParser, ctxt: DeserializationContext): Object = {
 
     def _deserialize(jp: JsonParser, ctxt: DeserializationContext): Object = {

@@ -6,7 +6,7 @@ import org.json4s.{JArray, JObject, JValue}
 
 object ScalaType {
 
-  private val types = new Memo[Manifest[_], ScalaType]
+  private val types = new Memo[Manifest[?], ScalaType]
 
   private val singletonFieldName = "MODULE$"
 
@@ -38,7 +38,7 @@ object ScalaType {
     }
   }
 
-  def apply(erasure: Class[_], typeArgs: Seq[ScalaType] = Seq.empty): ScalaType = {
+  def apply(erasure: Class[?], typeArgs: Seq[ScalaType] = Seq.empty): ScalaType = {
     val mf = ManifestFactory.manifestOf(erasure, typeArgs.map(_.manifest))
     ScalaType(mf)
   }
@@ -76,7 +76,7 @@ object ScalaType {
   private[json4s] val ListObject: ScalaType =
     new ScalaType(
       Manifest.classType(
-        classOf[List[_]],
+        classOf[List[?]],
         Manifest.Object
       )
     )
@@ -87,18 +87,18 @@ object ScalaType {
   private[json4s] val MapStringObject: ScalaType =
     new ScalaType(
       Manifest.classType(
-        classOf[Map[_, _]],
+        classOf[Map[?, ?]],
         Manifest.classType(classOf[String]),
         Manifest.Object
       )
     )
 
-  private class PrimitiveScalaType(mf: Manifest[_]) extends ScalaType(mf) {
+  private class PrimitiveScalaType(mf: Manifest[?]) extends ScalaType(mf) {
     override val isPrimitive = true
   }
 
   private class CopiedScalaType(
-    mf: Manifest[_],
+    mf: Manifest[?],
     private[this] var _typeVars: Map[String, ScalaType],
     override val isPrimitive: Boolean
   ) extends ScalaType(mf) {
@@ -106,17 +106,17 @@ object ScalaType {
     override def typeVars: Map[String, ScalaType] = {
       if (_typeVars == null)
         _typeVars = Map.empty ++
-          erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]].getName).zip(typeArgs)
+          erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[?]].getName).zip(typeArgs)
       _typeVars
     }
   }
   /* end optimization */
 }
 
-class ScalaType(val manifest: Manifest[_]) extends Equals {
+class ScalaType(val manifest: Manifest[?]) extends Equals {
 
   import ScalaType.{types, CopiedScalaType}
-  val erasure: Class[_] = manifest.runtimeClass
+  val erasure: Class[?] = manifest.runtimeClass
 
   val typeArgs: Seq[ScalaType] = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
     if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
@@ -126,7 +126,7 @@ class ScalaType(val manifest: Manifest[_]) extends Equals {
   def typeVars: Map[String, ScalaType] = {
     if (_typeVars == null)
       _typeVars = Map.empty ++
-        erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]].getName).zip(typeArgs)
+        erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[?]].getName).zip(typeArgs)
     _typeVars
   }
 
@@ -167,18 +167,18 @@ class ScalaType(val manifest: Manifest[_]) extends Equals {
 
   val isPrimitive = false
 
-  def isMap: Boolean = classOf[collection.immutable.Map[_, _]].isAssignableFrom(erasure) ||
-    classOf[collection.Map[_, _]].isAssignableFrom(erasure)
+  def isMap: Boolean = classOf[collection.immutable.Map[?, ?]].isAssignableFrom(erasure) ||
+    classOf[collection.Map[?, ?]].isAssignableFrom(erasure)
 
-  def isMutableMap: Boolean = classOf[collection.mutable.Map[_, _]].isAssignableFrom(erasure)
+  def isMutableMap: Boolean = classOf[collection.mutable.Map[?, ?]].isAssignableFrom(erasure)
 
   def isCollection: Boolean = erasure.isArray ||
-    classOf[Iterable[_]].isAssignableFrom(erasure) ||
-    classOf[java.util.Collection[_]].isAssignableFrom(erasure)
+    classOf[Iterable[?]].isAssignableFrom(erasure) ||
+    classOf[java.util.Collection[?]].isAssignableFrom(erasure)
 
-  def isOption: Boolean = classOf[Option[_]].isAssignableFrom(erasure)
+  def isOption: Boolean = classOf[Option[?]].isAssignableFrom(erasure)
 
-  def isEither: Boolean = classOf[Either[_, _]].isAssignableFrom(erasure)
+  def isEither: Boolean = classOf[Either[?, ?]].isAssignableFrom(erasure)
 
   def <:<(that: ScalaType): Boolean = manifest <:< that.manifest
 
@@ -203,7 +203,7 @@ class ScalaType(val manifest: Manifest[_]) extends Equals {
   }
 
   def copy(
-    erasure: Class[_] = erasure,
+    erasure: Class[?] = erasure,
     typeArgs: Seq[ScalaType] = typeArgs,
     typeVars: Map[String, ScalaType] = _typeVars
   ): ScalaType = {

@@ -5,7 +5,7 @@ import scala.reflect.Manifest
 import java.lang.reflect.{TypeVariable, WildcardType, ParameterizedType, Type, GenericArrayType}
 
 object ManifestFactory {
-  def manifestOf(t: Type): Manifest[_] = t match {
+  def manifestOf(t: Type): Manifest[?] = t match {
 
     case pt: ParameterizedType =>
       val clazz = manifestOf(pt.getRawType).runtimeClass
@@ -27,16 +27,16 @@ object ManifestFactory {
       if (upper != null && upper.length > 0) manifestOf(upper(0))
       else manifestOf(classOf[AnyRef])
 
-    case wt: TypeVariable[_] =>
+    case wt: TypeVariable[?] =>
       val upper = wt.getBounds
       if (upper != null && upper.length > 0) manifestOf(upper(0))
       else manifestOf(classOf[AnyRef])
 
-    case c: Class[_] => fromClass(c)
+    case c: Class[?] => fromClass(c)
 
   }
 
-  def manifestOf(erasure: Class[_], typeArgs: Seq[Manifest[_]]): Manifest[_] = {
+  def manifestOf(erasure: Class[?], typeArgs: Seq[Manifest[?]]): Manifest[?] = {
     if (typeArgs.isEmpty) {
       fromClass(erasure)
     } else {
@@ -50,12 +50,12 @@ object ManifestFactory {
     }
   }
 
-  def manifestOf(st: ScalaType): Manifest[_] = {
+  def manifestOf(st: ScalaType): Manifest[?] = {
     val typeArgs = st.typeArgs map manifestOf
     manifestOf(st.erasure, typeArgs)
   }
 
-  private def fromClass(clazz: Class[_]): Manifest[_] = clazz match {
+  private def fromClass(clazz: Class[?]): Manifest[?] = clazz match {
     case java.lang.Byte.TYPE => Manifest.Byte
     case java.lang.Short.TYPE => Manifest.Short
     case java.lang.Character.TYPE => Manifest.Char
