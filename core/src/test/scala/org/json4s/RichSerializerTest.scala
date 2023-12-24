@@ -8,9 +8,9 @@ import scala.collection.immutable.HashMap
 
 abstract class RichSerializerTest[A] extends AnyWordSpec with JsonMethods[A] {
 
-  object TypeBearerDeserializer extends RichSerializer[TypeBearer[_]] {
-    override def deserialize(implicit format: Formats): PartialFunction[(ScalaType, JValue), TypeBearer[_]] = {
-      case (scalaType, obj: JObject) if scalaType.erasure == classOf[TypeBearer[_]] =>
+  object TypeBearerDeserializer extends RichSerializer[TypeBearer[?]] {
+    override def deserialize(implicit format: Formats): PartialFunction[(ScalaType, JValue), TypeBearer[?]] = {
+      case (scalaType, obj: JObject) if scalaType.erasure == classOf[TypeBearer[?]] =>
         obj \ "name" match {
           case JString(s) => TypeBearer(s)(scalaType.typeArgs.head.manifest)
           case v: JValue => throw new MappingException(s"Wrong json type in $v")
@@ -20,10 +20,10 @@ abstract class RichSerializerTest[A] extends AnyWordSpec with JsonMethods[A] {
     override def serialize(implicit format: Formats): PartialFunction[Any, JValue] = ???
   }
 
-  object HashMapDeserializer extends RichSerializer[HashMap[String, _]] {
+  object HashMapDeserializer extends RichSerializer[HashMap[String, ?]] {
 
-    override def deserialize(implicit format: Formats): PartialFunction[(ScalaType, JValue), HashMap[String, _]] = {
-      case (scalaType, JObject(fields)) if classOf[HashMap[_, _]] == scalaType.erasure =>
+    override def deserialize(implicit format: Formats): PartialFunction[(ScalaType, JValue), HashMap[String, ?]] = {
+      case (scalaType, JObject(fields)) if classOf[HashMap[?, ?]] == scalaType.erasure =>
         scalaType.manifest.typeArguments match {
           case List(_, vType) =>
             HashMap(
@@ -34,7 +34,7 @@ abstract class RichSerializerTest[A] extends AnyWordSpec with JsonMethods[A] {
         }
     }
 
-    override def serialize(implicit format: Formats): PartialFunction[Any, JValue] = { case map: HashMap[_, _] =>
+    override def serialize(implicit format: Formats): PartialFunction[Any, JValue] = { case map: HashMap[?, ?] =>
       JObject {
         map.map {
           case (k: String, v) => k -> decompose(v)

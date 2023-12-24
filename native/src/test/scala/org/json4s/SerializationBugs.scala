@@ -79,10 +79,10 @@ class SerializationBugs extends AnyWordSpec {
   }
 
   "TypeInfo is not correctly constructed for customer serializer -- 970" in {
-    class SeqFormat extends Serializer[Seq[_]] {
-      val SeqClass = classOf[Seq[_]]
+    class SeqFormat extends Serializer[Seq[?]] {
+      val SeqClass = classOf[Seq[?]]
 
-      def serialize(implicit format: Formats) = { case seq: Seq[_] =>
+      def serialize(implicit format: Formats) = { case seq: Seq[?] =>
         JArray(seq.toList.map(Extraction.decompose(_)(format)))
       }
 
@@ -91,7 +91,7 @@ class SerializationBugs extends AnyWordSpec {
           parameterizedType
             .map(_.getActualTypeArguments()(0))
             .getOrElse(reflect.fail("No type parameter info for type Seq"))
-            .asInstanceOf[Class[_]],
+            .asInstanceOf[Class[?]],
           None
         )
         xs.map(x => Extraction.extract(x, typeInfo)(format))
@@ -119,7 +119,7 @@ class SerializationBugs extends AnyWordSpec {
   }
 
   "Either can't be deserialized with type hints" in {
-    implicit val formats: Formats = DefaultFormats + FullTypeHints(classOf[Either[_, _]] :: Nil)
+    implicit val formats: Formats = DefaultFormats + FullTypeHints(classOf[Either[?, ?]] :: Nil)
     val x = Eith(Left("hello"))
     val s = native.Serialization.write(x)
     assert(read[Eith](s) == x)
@@ -135,14 +135,14 @@ class SerializationBugs extends AnyWordSpec {
       assert(actual == expected)
     }
 
-    test[Seq[Seq[Any]], Seq[_]](Seq(Seq[Any](1, Y("foo"), "bar")))
-    test[Seq[Map[String, Y]], Seq[_]](Seq(Map("f1" -> Y("foo"))))
-    test[Map[String, Seq[Y]], Map[String, _]](Map("f1" -> Seq(Y("foo"))))
-    test[Map[String, Map[String, Y]], Map[String, _]](Map("f1" -> Map("f2" -> Y("foo"))))
+    test[Seq[Seq[Any]], Seq[?]](Seq(Seq[Any](1, Y("foo"), "bar")))
+    test[Seq[Map[String, Y]], Seq[?]](Seq(Map("f1" -> Y("foo"))))
+    test[Map[String, Seq[Y]], Map[String, ?]](Map("f1" -> Seq(Y("foo"))))
+    test[Map[String, Map[String, Y]], Map[String, ?]](Map("f1" -> Map("f2" -> Y("foo"))))
 
     // and then really run it through the ringer
 
-    test[Seq[Seq[Map[String, Any]]], Seq[_]](
+    test[Seq[Seq[Map[String, Any]]], Seq[?]](
       Seq(Seq(Map("f1" -> Map("f2" -> Seq(Seq[Any](1, Y("foo"), "bar"))), "f1" -> 2.0)))
     )
   }
@@ -154,7 +154,7 @@ class SerializationBugs extends AnyWordSpec {
       def deserialize(implicit format: Formats) = { case (TypeInfo(`singleOrVectorClass`, _), json) =>
         json match {
           case JObject(List(JField("val", JDouble(x)))) => SingleValue(x)
-          case JObject(List(JField("val", JArray(xs: List[_])))) =>
+          case JObject(List(JField("val", JArray(xs: List[?])))) =>
             VectorValue(xs.map(_.asInstanceOf[JDouble].num).toIndexedSeq)
           case x => throw new MappingException(s"Can't convert $x to SingleOrVector")
         }
@@ -162,7 +162,7 @@ class SerializationBugs extends AnyWordSpec {
 
       def serialize(implicit format: Formats) = {
         case SingleValue(x: Double) => JObject(List(JField("val", JDouble(x))))
-        case VectorValue(x: Vector[_]) =>
+        case VectorValue(x: Vector[?]) =>
           JObject(List(JField("val", JArray(x.map(_.asInstanceOf[Double]).toList.map(JDouble(_))))))
       }
     }

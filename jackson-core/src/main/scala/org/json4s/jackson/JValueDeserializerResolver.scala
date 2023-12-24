@@ -11,7 +11,7 @@ private object JValueDeserializerResolver extends Deserializers.Base {
     javaType: JavaType,
     config: DeserializationConfig,
     beanDesc: BeanDescription
-  ): JsonDeserializer[_] = {
+  ): JsonDeserializer[?] = {
     if (!J_VALUE.isAssignableFrom(javaType.getRawClass)) null
     else new JValueDeserializer(javaType.getRawClass)
   }

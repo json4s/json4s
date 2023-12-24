@@ -110,7 +110,7 @@ class DescriptorsSpec extends AnyWordSpec {
     }
   }
 
-  private def describe(clazz: Class[_]) = {
+  private def describe(clazz: Class[?]) = {
     Reflector.describe(Reflector.scalaTypeOf(clazz)).asInstanceOf[ClassDescriptor]
   }
 }

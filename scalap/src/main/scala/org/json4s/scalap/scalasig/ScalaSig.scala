@@ -54,7 +54,7 @@ object ScalaSigParser {
     }
   }
 
-  def parse(clazz: Class[_]): Option[ScalaSig] = {
+  def parse(clazz: Class[?]): Option[ScalaSig] = {
     val byteCode = ByteCode.forClass(clazz)
     val classFile = ClassFileParser.parse(byteCode)
 

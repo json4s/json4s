@@ -25,7 +25,7 @@ abstract class EitherTest[T](mod: String) extends AnyWordSpec with JsonMethods[T
 
   import EitherTest._
 
-  implicit val formats: Formats = DefaultFormats + ShortTypeHints(List(classOf[Either[_, _]], classOf[List[_]]))
+  implicit val formats: Formats = DefaultFormats + ShortTypeHints(List(classOf[Either[?, ?]], classOf[List[?]]))
 
   (mod + " EitherTest Specification") should {
     "See that it works for Option[Int]" in {

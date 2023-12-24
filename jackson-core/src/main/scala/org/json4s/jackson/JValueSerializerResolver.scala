@@ -10,7 +10,7 @@ private object JValueSerializerResolver extends Serializers.Base {
     config: SerializationConfig,
     theType: JavaType,
     beanDesc: BeanDescription
-  ): JsonSerializer[_] = {
+  ): JsonSerializer[?] = {
     if (!JVALUE.isAssignableFrom(theType.getRawClass)) null
     else new JValueSerializer
   }

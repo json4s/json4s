@@ -352,7 +352,7 @@ class ReflectorSpec extends AnyWordSpec {
 
     "describe a class with a wildcard parameter" in checkCaseClass[Objs] { params =>
       assert(params(0).name == "objects")
-      assert(params(0).argType == Reflector.scalaTypeOf[List[Obj[_]]])
+      assert(params(0).argType == Reflector.scalaTypeOf[List[Obj[?]]])
     }
 
     "describe the fields of a class" in {

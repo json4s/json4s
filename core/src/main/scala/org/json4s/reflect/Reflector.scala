@@ -9,7 +9,7 @@ import collection.mutable
 
 object Reflector {
 
-  private[this] val rawClasses = new Memo[Type, Class[_]]
+  private[this] val rawClasses = new Memo[Type, Class[?]]
   private[this] val unmangledNames = new Memo[String, String]
   private[this] val descriptors = new Memo[ScalaType, ObjectDescriptor]
 
@@ -52,7 +52,7 @@ object Reflector {
     primitives(t) || extra(t)
 
   def scalaTypeOf[T](implicit mf: Manifest[T]): ScalaType = ScalaType(mf)
-  def scalaTypeOf(clazz: Class[_]): ScalaType = ScalaType(ManifestFactory.manifestOf(clazz))
+  def scalaTypeOf(clazz: Class[?]): ScalaType = ScalaType(ManifestFactory.manifestOf(clazz))
   def scalaTypeOf(t: Type): ScalaType = ScalaType(ManifestFactory.manifestOf(t))
 
   private[this] val stringTypes = new Memo[String, Option[ScalaType]]
@@ -63,17 +63,17 @@ object Reflector {
     describeWithFormats(scalaTypeDescribable(scalaTypeOf[T]))
 
   @deprecated("Use describe[T] or describeWithFormats instead", "3.6.8")
-  def describe(st: ReflectorDescribable[_]): ObjectDescriptor =
+  def describe(st: ReflectorDescribable[?]): ObjectDescriptor =
     descriptors(st.scalaType, createDescriptorWithFormats(_, st.paranamer, st.companionClasses)(DefaultFormats))
 
-  def describeWithFormats(st: ReflectorDescribable[_])(implicit formats: Formats): ObjectDescriptor =
+  def describeWithFormats(st: ReflectorDescribable[?])(implicit formats: Formats): ObjectDescriptor =
     descriptors(st.scalaType, createDescriptorWithFormats(_, st.paranamer, st.companionClasses))
 
   @deprecated("Use createDescriptorWithFormats", "3.6.8")
   def createDescriptor(
     tpe: ScalaType,
     paramNameReader: ParameterNameReader = ParanamerReader,
-    companionMappings: List[(Class[_], AnyRef)] = Nil
+    companionMappings: List[(Class[?], AnyRef)] = Nil
   ): ObjectDescriptor = {
     createDescriptorWithFormats(tpe, paramNameReader, companionMappings)(DefaultFormats)
   }
@@ -81,7 +81,7 @@ object Reflector {
   def createDescriptorWithFormats(
     tpe: ScalaType,
     paramNameReader: ParameterNameReader = ParanamerReader,
-    companionMappings: List[(Class[_], AnyRef)] = Nil
+    companionMappings: List[(Class[?], AnyRef)] = Nil
   )(implicit formats: Formats): ObjectDescriptor = {
     if (tpe.isPrimitive) PrimitiveDescriptor(tpe)
     else new ClassDescriptorBuilder(tpe, paramNameReader, companionMappings).result
@@ -90,12 +90,12 @@ object Reflector {
   private class ClassDescriptorBuilder(
     tpe: ScalaType,
     paramNameReader: ParameterNameReader = ParanamerReader,
-    companionMappings: List[(Class[_], AnyRef)] = Nil
+    companionMappings: List[(Class[?], AnyRef)] = Nil
   )(implicit formats: Formats) {
     var companion: Option[SingletonDescriptor] = None
     var triedCompanion = false
 
-    def fields(clazz: Class[_]): List[PropertyDescriptor] = {
+    def fields(clazz: Class[?]): List[PropertyDescriptor] = {
       val lb = new mutable.ListBuffer[PropertyDescriptor]()
       val ls = allCatch.withApply(_ => fail("Case classes defined in function bodies are not supported.")) {
         clazz.getDeclaredFields.iterator
@@ -139,7 +139,7 @@ object Reflector {
     ): ScalaType = {
       val idxes = container.map(_._2.reverse)
       t match {
-        case v: TypeVariable[_] =>
+        case v: TypeVariable[?] =>
           val a = owner.typeVars.getOrElse(v.getName, scalaTypeOf(v))
           if (a.erasure == classOf[java.lang.Object]) {
             val r = ScalaSigReader.readConstructor(name, owner, index, ctorParameterNames)
@@ -273,7 +273,7 @@ object Reflector {
     }
   }
 
-  def defaultValue(compClass: Class[_], compObj: AnyRef, argIndex: Int, pattern: String) = {
+  def defaultValue(compClass: Class[?], compObj: AnyRef, argIndex: Int, pattern: String) = {
     allCatch.withApply(_ => None) {
       if (compObj == null) None
       else {
@@ -284,10 +284,10 @@ object Reflector {
     }
   }
 
-  def rawClassOf(t: Type): Class[_] = rawClasses(
+  def rawClassOf(t: Type): Class[?] = rawClasses(
     t,
     {
-      case c: Class[_] => c
+      case c: Class[?] => c
       case p: ParameterizedType => rawClassOf(p.getRawType)
       case x => sys.error(s"Raw type of $x not known")
     }

@@ -92,14 +92,14 @@ object Formats {
 trait Formats extends Serializable { self: Formats =>
   def dateFormat: DateFormat
   def typeHints: TypeHints = NoTypeHints
-  def customSerializers: List[Serializer[_]] = Nil
-  def richSerializers: List[RichSerializer[_]] = Nil
-  def customKeySerializers: List[KeySerializer[_]] = Nil
-  def fieldSerializers: List[(Class[_], FieldSerializer[_])] = Nil
+  def customSerializers: List[Serializer[?]] = Nil
+  def richSerializers: List[RichSerializer[?]] = Nil
+  def customKeySerializers: List[KeySerializer[?]] = Nil
+  def fieldSerializers: List[(Class[?], FieldSerializer[?])] = Nil
   def wantsBigInt: Boolean = true
   def wantsBigDecimal: Boolean = false
   def primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
-  def companions: List[(Class[_], AnyRef)] = Nil
+  def companions: List[(Class[?], AnyRef)] = Nil
   def extractionNullStrategy: ExtractionNullStrategy = ExtractionNullStrategy.Keep
   def strictOptionParsing: Boolean = false
   def strictArrayExtraction: Boolean = false
@@ -126,14 +126,14 @@ trait Formats extends Serializable { self: Formats =>
     wDateFormat: DateFormat = self.dateFormat,
     wParameterNameReader: reflect.ParameterNameReader = self.parameterNameReader,
     wTypeHints: TypeHints = self.typeHints,
-    wCustomSerializers: List[Serializer[_]] = self.customSerializers,
-    wCustomKeySerializers: List[KeySerializer[_]] = self.customKeySerializers,
-    wFieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers,
-    wRichSerializers: List[RichSerializer[_]] = self.richSerializers,
+    wCustomSerializers: List[Serializer[?]] = self.customSerializers,
+    wCustomKeySerializers: List[KeySerializer[?]] = self.customKeySerializers,
+    wFieldSerializers: List[(Class[?], FieldSerializer[?])] = self.fieldSerializers,
+    wRichSerializers: List[RichSerializer[?]] = self.richSerializers,
     wWantsBigInt: Boolean = self.wantsBigInt,
     wWantsBigDecimal: Boolean = self.wantsBigDecimal,
     withPrimitives: Set[Type] = self.primitives,
-    wCompanions: List[(Class[_], AnyRef)] = self.companions,
+    wCompanions: List[(Class[?], AnyRef)] = self.companions,
     wExtractionNullStrategy: ExtractionNullStrategy = self.extractionNullStrategy,
     wStrictOptionParsing: Boolean = self.strictOptionParsing,
     wStrictArrayExtraction: Boolean = self.strictArrayExtraction,
@@ -147,14 +147,14 @@ trait Formats extends Serializable { self: Formats =>
       def dateFormat: DateFormat = wDateFormat
       override def parameterNameReader: reflect.ParameterNameReader = wParameterNameReader
       override def typeHints: TypeHints = wTypeHints
-      override def customSerializers: List[Serializer[_]] = wCustomSerializers
-      override def richSerializers: List[RichSerializer[_]] = wRichSerializers
-      override val customKeySerializers: List[KeySerializer[_]] = wCustomKeySerializers
-      override def fieldSerializers: List[(Class[_], FieldSerializer[_])] = wFieldSerializers
+      override def customSerializers: List[Serializer[?]] = wCustomSerializers
+      override def richSerializers: List[RichSerializer[?]] = wRichSerializers
+      override val customKeySerializers: List[KeySerializer[?]] = wCustomKeySerializers
+      override def fieldSerializers: List[(Class[?], FieldSerializer[?])] = wFieldSerializers
       override def wantsBigInt: Boolean = wWantsBigInt
       override def wantsBigDecimal: Boolean = wWantsBigDecimal
       override def primitives: Set[Type] = withPrimitives
-      override def companions: List[(Class[_], AnyRef)] = wCompanions
+      override def companions: List[(Class[?], AnyRef)] = wCompanions
       override def extractionNullStrategy: ExtractionNullStrategy = wExtractionNullStrategy
       override def strictOptionParsing: Boolean = wStrictOptionParsing
       override def strictArrayExtraction: Boolean = wStrictArrayExtraction
@@ -173,7 +173,7 @@ trait Formats extends Serializable { self: Formats =>
 
   def withDouble: Formats = copy(wWantsBigDecimal = false)
 
-  def withCompanions(comps: (Class[_], AnyRef)*): Formats = copy(wCompanions = comps.toList ::: self.companions)
+  def withCompanions(comps: (Class[?], AnyRef)*): Formats = copy(wCompanions = comps.toList ::: self.companions)
 
   def preservingEmptyValues = withEmptyValueStrategy(EmptyValueStrategy.preserve)
 
@@ -218,35 +218,35 @@ trait Formats extends Serializable { self: Formats =>
   /**
    * Adds the specified custom serializer to this formats.
    */
-  def +(newSerializer: RichSerializer[_]): Formats = copy(wRichSerializers = newSerializer :: self.richSerializers)
+  def +(newSerializer: RichSerializer[?]): Formats = copy(wRichSerializers = newSerializer :: self.richSerializers)
 
   /**
    * Adds the specified custom serializer to this formats.
    */
-  def +(newSerializer: Serializer[_]): Formats = copy(wCustomSerializers = newSerializer :: self.customSerializers)
+  def +(newSerializer: Serializer[?]): Formats = copy(wCustomSerializers = newSerializer :: self.customSerializers)
 
   /**
    * Adds the specified custom key serializer to this formats.
    */
-  def +(newSerializer: KeySerializer[_]): Formats =
+  def +(newSerializer: KeySerializer[?]): Formats =
     copy(wCustomKeySerializers = newSerializer :: self.customKeySerializers)
 
   /**
    * Adds the specified custom serializers to this formats.
    */
-  def ++(newSerializers: Iterable[Serializer[_]]): Formats =
+  def ++(newSerializers: Iterable[Serializer[?]]): Formats =
     copy(wCustomSerializers = newSerializers.foldRight(self.customSerializers)(_ :: _))
 
   /**
    * Removes the specified custom serializer from this formats.
    */
-  def -(serializer: Serializer[_]): Formats =
+  def -(serializer: Serializer[?]): Formats =
     copy(wCustomSerializers = self.customSerializers.filterNot(_ == serializer))
 
   /**
    * Adds the specified custom serializers to this formats.
    */
-  def addKeySerializers(newKeySerializers: Iterable[KeySerializer[_]]): Formats =
+  def addKeySerializers(newKeySerializers: Iterable[KeySerializer[?]]): Formats =
     newKeySerializers.foldLeft(this)(_ + _)
 
   /**
@@ -255,10 +255,10 @@ trait Formats extends Serializable { self: Formats =>
   def +[A](newSerializer: FieldSerializer[A]): Formats =
     copy(wFieldSerializers = (newSerializer.mf.runtimeClass -> newSerializer) :: self.fieldSerializers)
 
-  private[json4s] def fieldSerializer(clazz: Class[_]): Option[FieldSerializer[_]] = {
+  private[json4s] def fieldSerializer(clazz: Class[?]): Option[FieldSerializer[?]] = {
     import ClassDelta._
 
-    val ord = Ordering[Int].on[(Class[_], FieldSerializer[_])](x => delta(x._1, clazz))
+    val ord = Ordering[Int].on[(Class[?], FieldSerializer[?])](x => delta(x._1, clazz))
     fieldSerializers filter (_._1.isAssignableFrom(clazz)) match {
       case Nil => None
       case xs => Some((xs min ord)._2)

@@ -1,7 +1,7 @@
 package org.json4s
 
 private[json4s] object ClassDelta {
-  def delta(class1: Class[_], class2: Class[_]): Int = {
+  def delta(class1: Class[?], class2: Class[?]): Int = {
     if (class1 == class2) 0
     else if (class1 == null) 1
     else if (class2 == null) -1

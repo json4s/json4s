@@ -25,7 +25,7 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class NativeJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Native") {
   val s: Serialization = native.Serialization
-  val m: JsonMethods[_] = native.JsonMethods
+  val m: JsonMethods[?] = native.JsonMethods
 }
 
 /**
@@ -34,7 +34,7 @@ class NativeJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Native") {
 abstract class JodaTimeSerializerSpec(mod: String) extends AnyWordSpec {
 
   def s: Serialization
-  def m: JsonMethods[_]
+  def m: JsonMethods[?]
 
   implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JodaTimeSerializers.all
 

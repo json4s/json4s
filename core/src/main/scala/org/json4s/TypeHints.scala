@@ -22,36 +22,36 @@ package org.json4s
  */
 trait TypeHints {
 
-  val hints: List[Class[_]]
+  val hints: List[Class[?]]
 
   /**
    * Return hint for given type.
    */
-  def hintFor(clazz: Class[_]): Option[String]
+  def hintFor(clazz: Class[?]): Option[String]
 
   /**
    * Return type for given hint.
    */
-  def classFor(hint: String, parent: Class[_]): Option[Class[_]]
+  def classFor(hint: String, parent: Class[?]): Option[Class[?]]
 
   /**
    * The name of the field in JSON where type hints are added (jsonClass by default)
    */
   def typeHintFieldName: String = "jsonClass"
 
-  def isTypeHintField(f: JField, parent: Class[_]): Boolean = f match {
+  def isTypeHintField(f: JField, parent: Class[?]): Boolean = f match {
     case (key, JString(value)) =>
       val hint = typeHintFieldNameForHint(value, parent)
       key == typeHintFieldName && hint.isDefined
     case _ => false
   }
-  def typeHintFieldNameForHint(hint: String, parent: Class[_]): Option[String] =
+  def typeHintFieldNameForHint(hint: String, parent: Class[?]): Option[String] =
     classFor(hint, parent) map (_ => typeHintFieldName)
-  def typeHintFieldNameForClass(clazz: Class[_]): Option[String] =
+  def typeHintFieldNameForClass(clazz: Class[?]): Option[String] =
     hintFor(clazz).flatMap(typeHintFieldNameForHint(_, clazz))
-  def containsHint(clazz: Class[_]): Boolean =
+  def containsHint(clazz: Class[?]): Boolean =
     hints exists (_ isAssignableFrom clazz)
-  def shouldExtractHints(clazz: Class[_]): Boolean =
+  def shouldExtractHints(clazz: Class[?]): Boolean =
     hints exists (clazz isAssignableFrom _)
   def deserialize: PartialFunction[(String, JObject), Any] = Map()
   def serialize: PartialFunction[Any, JObject] = Map()
@@ -68,12 +68,12 @@ trait TypeHints {
 private[json4s] object TypeHints {
 
   private case class CompositeTypeHints(override val components: List[TypeHints]) extends TypeHints {
-    val hints: List[Class[_]] = components.flatMap(_.hints)
+    val hints: List[Class[?]] = components.flatMap(_.hints)
 
     /**
      * Chooses most specific class.
      */
-    def hintFor(clazz: Class[_]): Option[String] = {
+    def hintFor(clazz: Class[?]): Option[String] = {
       (components.reverse
       filter (_.containsHint(clazz))
       map { th =>
@@ -91,20 +91,20 @@ private[json4s] object TypeHints {
         .flatMap(_._1)
     }
 
-    def classFor(hint: String, parent: Class[_]): Option[Class[_]] = {
+    def classFor(hint: String, parent: Class[?]): Option[Class[?]] = {
       def hasClass(h: TypeHints) =
         scala.util.control.Exception.allCatch opt h.classFor(hint, parent) exists (_.isDefined)
 
       components find hasClass flatMap (_.classFor(hint, parent))
     }
 
-    override def isTypeHintField(f: JField, parent: Class[_]): Boolean =
+    override def isTypeHintField(f: JField, parent: Class[?]): Boolean =
       components exists (_.isTypeHintField(f, parent))
 
-    override def typeHintFieldNameForHint(hint: String, parent: Class[_]): Option[String] =
+    override def typeHintFieldNameForHint(hint: String, parent: Class[?]): Option[String] =
       components.flatMap(_.typeHintFieldNameForHint(hint, parent)).headOption
 
-    override def typeHintFieldNameForClass(clazz: Class[_]): Option[String] =
+    override def typeHintFieldNameForClass(clazz: Class[?]): Option[String] =
       components.flatMap(_.typeHintFieldNameForClass(clazz)).headOption
 
     override def deserialize: PartialFunction[(String, JObject), Any] =

@@ -285,7 +285,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
     "List[Animal] example" in {
 //      case class Dog(name: String) extends Animal
 //      case class Fish(weight: Double) extends Animal
-      val typeHints = ShortTypeHints(List[Class[_]](classOf[Dog], classOf[Fish]))
+      val typeHints = ShortTypeHints(List[Class[?]](classOf[Dog], classOf[Fish]))
       implicit val fmts: Formats = DefaultFormats + typeHints
       val json = parse(
         s"""[{"name":"pluto","${typeHints.typeHintFieldName}":"Dog"},{"weight":1.3,"${typeHints.typeHintFieldName}":"Fish"}]"""

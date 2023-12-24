@@ -28,13 +28,13 @@ trait DefaultFormats extends Formats {
 
   override val parameterNameReader: reflect.ParameterNameReader = reflect.ParanamerReader
   override val typeHints: TypeHints = NoTypeHints
-  override val customSerializers: List[Serializer[_]] = Nil
-  override val customKeySerializers: List[KeySerializer[_]] = Nil
-  override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = Nil
+  override val customSerializers: List[Serializer[?]] = Nil
+  override val customKeySerializers: List[KeySerializer[?]] = Nil
+  override val fieldSerializers: List[(Class[?], FieldSerializer[?])] = Nil
   override val wantsBigInt: Boolean = true
   override val wantsBigDecimal: Boolean = false
   override val primitives: Set[Type] = Set(classOf[JValue], classOf[JObject], classOf[JArray])
-  override val companions: List[(Class[_], AnyRef)] = Nil
+  override val companions: List[(Class[?], AnyRef)] = Nil
   override val strictOptionParsing: Boolean = false
   override val emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
   override val extractionNullStrategy: ExtractionNullStrategy = ExtractionNullStrategy.Keep
