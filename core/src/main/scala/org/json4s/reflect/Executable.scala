@@ -47,11 +47,11 @@ class Executable private (val method: Method, val constructor: Constructor[?], i
   def invoke(companion: Option[SingletonDescriptor], args: Seq[Any]): Any = {
     if (method != null) {
       companion match {
-        case Some(cmp) => method.invoke(cmp.instance, args.map(_.asInstanceOf[AnyRef]).toArray: _*)
+        case Some(cmp) => method.invoke(cmp.instance, args.map(_.asInstanceOf[AnyRef]).toArray*)
         case None => throw new MappingException("Trying to call apply method, but the companion object was not found.")
       }
     } else {
-      constructor.newInstance(args.map(_.asInstanceOf[AnyRef]).toArray: _*)
+      constructor.newInstance(args.map(_.asInstanceOf[AnyRef]).toArray*)
     }
   }
 

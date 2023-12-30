@@ -14,7 +14,7 @@ object ManifestFactory {
       if (pt.getOwnerType == null) {
         manifestOf(clazz, typeArgs)
       } else {
-        Manifest.classType(manifestOf(pt.getOwnerType), clazz, typeArgs: _*)
+        Manifest.classType(manifestOf(pt.getOwnerType), clazz, typeArgs*)
       }
 
     case at: GenericArrayType =>
@@ -46,7 +46,7 @@ object ManifestFactory {
         else
           erasure
 
-      Manifest.classType(normalizedErasure, typeArgs.head, typeArgs.tail: _*)
+      Manifest.classType(normalizedErasure, typeArgs.head, typeArgs.tail*)
     }
   }
 
