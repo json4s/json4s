@@ -428,7 +428,7 @@ object Extraction {
             convertedKey -> extractedValue
           }
           if (scalaType.isMutableMap) {
-            scala.collection.mutable.Map(values: _*)
+            scala.collection.mutable.Map(values*)
           } else {
             values.toMap
           }
@@ -520,9 +520,9 @@ object Extraction {
       else if (tpe.erasure == classOf[List[?]]) mkCollection(_.toList)
       else if (tpe.erasure == classOf[Set[?]]) mkCollection(_.toSet)
       else if (tpe.erasure == classOf[scala.collection.mutable.Set[?]])
-        mkCollection(a => scala.collection.mutable.Set(a: _*))
+        mkCollection(a => scala.collection.mutable.Set(a*))
       else if (tpe.erasure == classOf[scala.collection.mutable.Seq[?]])
-        mkCollection(a => scala.collection.mutable.Seq(a: _*))
+        mkCollection(a => scala.collection.mutable.Seq(a*))
       else if (tpe.erasure == classOf[java.util.ArrayList[?]])
         mkCollection(a => new java.util.ArrayList[Any](a.toList.asJavaCollection))
       else if (tpe.erasure.isArray) mkCollection(mkTypedArray)

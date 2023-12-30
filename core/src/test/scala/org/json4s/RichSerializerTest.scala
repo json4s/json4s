@@ -29,7 +29,7 @@ abstract class RichSerializerTest[A] extends AnyWordSpec with JsonMethods[A] {
             HashMap(
               fields.map { case (k, v) =>
                 k -> extract(v)(format, vType)
-              }: _*
+              }*
             )
         }
     }
