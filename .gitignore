@@ -66,3 +66,17 @@ target
 .projectile
 .lib
 atlassian-ide-plugin.xml
+
+# metals
+**/.bloop/
+/.metals/
+/project/**/metals.sbt
+
+# Build Server Protocol, used by sbt
+**/.bsp/
+
+# scala-cli
+**/.scala-build
+
+# vscode
+/.vscode/
