@@ -82,7 +82,7 @@ object ScalaSigReader {
     findClass(sig, clazz).getOrElse(fail("Can't find " + clazz + " from parsed ScalaSig"))
   }
 
-  def findClass(sig: ScalaSig, clazz: Class[?]): Option[ClassSymbol] = {
+  private def findClass(sig: ScalaSig, clazz: Class[?]): Option[ClassSymbol] = {
     val name = safeSimpleName(clazz)
 
     sig.symbols.collect { case c: ClassSymbol if !c.isModule => c }.find(_.name == name).orElse {
@@ -100,26 +100,26 @@ object ScalaSigReader {
     findCompanionObject(sig, clazz).getOrElse(fail("Can't find " + clazz + " from parsed ScalaSig"))
   }
 
-  def findCompanionObject(sig: ScalaSig, clazz: Class[?]): Option[ClassSymbol] = {
+  private def findCompanionObject(sig: ScalaSig, clazz: Class[?]): Option[ClassSymbol] = {
     val name = safeSimpleName(clazz)
     sig.symbols.collect { case c: ClassSymbol if c.isModule => c }.find(_.name == name)
   }
 
-  def findConstructor(c: ClassSymbol, argNames: List[String]): Option[MethodSymbol] = {
+  private def findConstructor(c: ClassSymbol, argNames: List[String]): Option[MethodSymbol] = {
     val ms = c.children collect {
       case m: MethodSymbol if m.name == "<init>" => m
     }
     ms.find(m => m.children.map(_.name) == argNames)
   }
 
-  def findApply(c: ClassSymbol, argNames: List[String]): Option[MethodSymbol] = {
+  private def findApply(c: ClassSymbol, argNames: List[String]): Option[MethodSymbol] = {
     val ms = c.children collect {
       case m: MethodSymbol if m.name == "apply" => m
     }
     ms.find(m => m.children.map(_.name) == argNames)
   }
 
-  def findFields(c: ClassSymbol): Seq[MethodSymbol] =
+  private def findFields(c: ClassSymbol): Seq[MethodSymbol] =
     c.children collect {
       case m: MethodSymbol if m.infoType.isInstanceOf[NullaryMethodType] && !m.isSynthetic => m
     }
@@ -129,7 +129,7 @@ object ScalaSigReader {
   private def findField(c: ClassSymbol, name: String): Option[MethodSymbol] =
     c.children.collectFirst { case m: MethodSymbol if m.name == name => m }
 
-  def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndex: Int): Class[?] = {
+  private def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndex: Int): Class[?] = {
     @tailrec
     def findPrimitive(t: Type): Option[Symbol] = {
       t match {
@@ -156,7 +156,7 @@ object ScalaSigReader {
     findPrimitive(s.children(argIdx).asInstanceOf[SymbolInfoSymbol].infoType).map(toClass).getOrElse(classOf[AnyRef])
   }
 
-  def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndexes: List[Int]): Class[?] = {
+  private def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndexes: List[Int]): Class[?] = {
     @tailrec def findPrimitive(t: Type, curr: Int): Symbol = {
       val ii = (typeArgIndexes.length - 1) min curr
       t match {

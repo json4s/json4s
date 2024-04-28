@@ -15,7 +15,7 @@ lazy val ast = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     name := "json4s-ast",
     json4sSettings(cross = true),
     Compile / sourceGenerators += task {
-      val v = CrossVersion.partialVersion(scalaVersion.value)
+      val v = CrossVersion.partialVersion(scalaVersion.value) 
       Seq(
         ("ReaderFunctions.scala", CodeGen.reader),
         ("WriterFunctions.scala", CodeGen.writer(v == Some((2, 13)) || v.exists(_._1 == 3))),
@@ -92,6 +92,8 @@ lazy val core = project
       scalaBinaryVersion.value match {
         case "2.12" =>
           Seq(Dependencies.paranamer)
+        case "3" =>
+          Seq("org.scala-lang" %% "scala3-staging" % "3.4.1") // TODO make provided
         case _ =>
           Nil
       }

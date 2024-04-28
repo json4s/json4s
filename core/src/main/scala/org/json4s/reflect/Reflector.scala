@@ -103,7 +103,7 @@ object Reflector {
       while (ls.hasNext) {
         val f = ls.next()
         val mod = f.getModifiers
-        if (!(Modifier.isStatic(mod) || Modifier.isTransient(mod) || Modifier.isVolatile(mod) || f.isSynthetic)) {
+        if (!(Modifier.isStatic(mod) || Modifier.isTransient(mod) || Modifier.isVolatile(mod) || f.isSynthetic) || f.getName().endsWith("$lzy1")) {
           val st = ScalaType(
             f.getType,
             f.getGenericType match {
@@ -119,7 +119,7 @@ object Reflector {
           if (f.getName != ScalaSigReader.OuterFieldName) {
             val decoded = unmangleName(f.getName)
             f.setAccessible(true)
-            lb += PropertyDescriptor(decoded, f.getName, st, f)
+            lb += PropertyDescriptor(decoded, f.getName.stripSuffix("$lzy1"), st, f)
           }
         }
       }
