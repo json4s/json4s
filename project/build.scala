@@ -98,8 +98,13 @@ object build {
     },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, _)) =>
+        case Some((2, 12)) =>
           Seq("-Xsource:3")
+        case Some((2, 13)) =>
+          Seq(
+            "-Xsource:3",
+            "-Wconf:msg=inferred type changes to&cat=scala3-migration:info",
+          )
         case _ =>
           Seq(
             "-source",
