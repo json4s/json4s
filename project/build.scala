@@ -54,7 +54,7 @@ object build {
   )
 
   val Scala212 = "2.12.19"
-  val Scala213 = "2.13.8"
+  val Scala213 = "2.13.14"
   val Scala3 = "3.3.3"
 
   def json4sSettings(cross: Boolean) = mavenCentralFrouFrou ++ Def.settings(
@@ -98,8 +98,13 @@ object build {
     },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, _)) =>
+        case Some((2, 12)) =>
           Seq("-Xsource:3")
+        case Some((2, 13)) =>
+          Seq(
+            "-Xsource:3",
+            "-Wconf:msg=inferred type changes to&cat=scala3-migration:info",
+          )
         case _ =>
           Seq(
             "-source",
