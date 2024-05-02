@@ -20,10 +20,10 @@ object Dependencies {
     Seq("org.scalatest" %%% "scalatest-wordspec" % "3.2.18" % "test")
   )
   lazy val scalatestScalacheck = Def.setting(
-    Seq("org.scalatestplus" %%% "scalacheck-1-17" % "3.2.18.0" % "test")
+    Seq("org.scalatestplus" %%% "scalacheck-1-18" % "3.2.18.0" % "test")
   )
 
   lazy val scalaXml = Def.setting {
-    "org.scala-lang.modules" %%% "scala-xml" % "2.2.0"
+    "org.scala-lang.modules" %%% "scala-xml" % "2.3.0"
   }
 }
