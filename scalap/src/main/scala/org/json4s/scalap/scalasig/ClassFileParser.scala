@@ -97,7 +97,7 @@ object ClassFileParser extends ByteCodeReader {
 
   val magicNumber = (u4 filter (_ == 0xcafebabe)) | error("Not a valid class file")
   val version = u2 ~ u2 ^^ { case minor ~ major => (major, minor) }
-  val constantPool = (u2 ^^ ConstantPool) >> repeatUntil(constantPoolEntry)(_.isFull)
+  val constantPool = (u2 ^^ ConstantPool.apply) >> repeatUntil(constantPoolEntry)(_.isFull)
 
   // NOTE currently most constants just evaluate to a string description
   // TODO evaluate to useful values
@@ -154,7 +154,7 @@ object ClassFileParser extends ByteCodeReader {
   val interfaces = u2 >> u2.times
 
   // bytes are parametrizes by the length, declared in u4 section
-  val attribute = u2 ~ (u4 >> bytes) ^~^ Attribute
+  val attribute = u2 ~ (u4 >> bytes) ^~^ Attribute.apply
   // parse attributes u2 times
   val attributes = u2 >> attribute.times
 
@@ -168,25 +168,25 @@ object ClassFileParser extends ByteCodeReader {
   case class ArrayValue(values: Seq[ElementValue]) extends ElementValue
 
   def element_value: Parser[ElementValue] = u1 >> {
-    case 'B' | 'C' | 'D' | 'F' | 'I' | 'J' | 'S' | 'Z' | 's' => u2 ^^ ConstValueIndex
-    case 'e' => u2 ~ u2 ^~^ EnumConstValue
-    case 'c' => u2 ^^ ClassInfoIndex
+    case 'B' | 'C' | 'D' | 'F' | 'I' | 'J' | 'S' | 'Z' | 's' => u2 ^^ ConstValueIndex.apply
+    case 'e' => u2 ~ u2 ^~^ EnumConstValue.apply
+    case 'c' => u2 ^^ ClassInfoIndex.apply
     case '@' => annotation // nested annotation
-    case '[' => u2 >> element_value.times ^^ ArrayValue
+    case '[' => u2 >> element_value.times ^^ ArrayValue.apply
   }
 
-  val element_value_pair = u2 ~ element_value ^~^ AnnotationElement
-  val annotation: Parser[Annotation] = u2 ~ (u2 >> element_value_pair.times) ^~^ Annotation
+  val element_value_pair = u2 ~ element_value ^~^ AnnotationElement.apply
+  val annotation: Parser[Annotation] = u2 ~ (u2 >> element_value_pair.times) ^~^ Annotation.apply
   val annotations = u2 >> annotation.times
 
-  val field = u2 ~ u2 ~ u2 ~ attributes ^~~~^ Field
+  val field = u2 ~ u2 ~ u2 ~ attributes ^~~~^ Field.apply
   val fields = u2 >> field.times
 
-  val method = u2 ~ u2 ~ u2 ~ attributes ^~~~^ Method
+  val method = u2 ~ u2 ~ u2 ~ attributes ^~~~^ Method.apply
   val methods = u2 >> method.times
 
-  val header = magicNumber -~ u2 ~ u2 ~ constantPool ~ u2 ~ u2 ~ u2 ~ interfaces ^~~~~~~^ ClassFileHeader
-  val classFile = header ~ fields ~ methods ~ attributes ~- !u1 ^~~~^ ClassFile
+  val header = magicNumber -~ u2 ~ u2 ~ constantPool ~ u2 ~ u2 ~ u2 ~ interfaces ^~~~~~~^ ClassFileHeader.apply
+  val classFile = header ~ fields ~ methods ~ attributes ~- !u1 ^~~~^ ClassFile.apply
 
   // TODO create a useful object, not just a string
   def memberRef(description: String) = u2 ~ u2 ^^ add1 { case classRef ~ nameAndTypeRef =>
