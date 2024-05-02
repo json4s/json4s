@@ -29,7 +29,7 @@ abstract class JsonQueryExamples[T](mod: String) extends AnyWordSpec with JsonMe
 
   (mod + " JSON Query Examples") should {
     "List of IPs" in {
-      val ips = for { JString(ip) <- json \\ "ip" } yield ip
+      val ips = for { case JString(ip) <- json \\ "ip" } yield ip
       assert(ips == List("192.168.1.125", "192.168.1.126", "192.168.1.127", "192.168.2.125", "192.168.2.126"))
     }
 
@@ -37,24 +37,24 @@ abstract class JsonQueryExamples[T](mod: String) extends AnyWordSpec with JsonMe
       val ips = for {
         // NOTE: the following warning given by Scala compiler is incorrect
         // pattern var cluster in value $anonfun is never used; `cluster@_' suppresses this warning
-        cluster @ JObject(x) <- json \ "data_center" if x contains JField("name", JString("cluster2"))
-        JString(ip) <- cluster \\ "ip"
+        case cluster @ JObject(x) <- json \ "data_center" if x contains JField("name", JString("cluster2"))
+        case JString(ip) <- cluster \\ "ip"
       } yield ip
       assert(ips == List("192.168.2.125", "192.168.2.126"))
     }
 
     "Total cpus in data center" in {
-      assert((for { JInt(x) <- json \\ "cpus" } yield x).reduceLeft(_ + _) == 40)
+      assert((for { case JInt(x) <- json \\ "cpus" } yield x).reduceLeft(_ + _) == 40)
     }
 
     "Servers sorted by uptime" in {
       case class Server(ip: String, uptime: Long)
 
       val servers = for {
-        JArray(servers) <- json \\ "servers"
-        JObject(server) <- servers
-        JField("ip", JString(ip)) <- server
-        JField("uptime", JInt(uptime)) <- server
+        case JArray(servers) <- json \\ "servers"
+        case JObject(server) <- servers
+        case JField("ip", JString(ip)) <- server
+        case JField("uptime", JInt(uptime)) <- server
       } yield Server(ip, uptime.longValue)
 
       assert(
@@ -70,10 +70,10 @@ abstract class JsonQueryExamples[T](mod: String) extends AnyWordSpec with JsonMe
 
     "Clusters administered by liza" in {
       val clusters = for {
-        JObject(cluster) <- json
-        JField("admins", JArray(admins)) <- cluster
+        case JObject(cluster) <- json
+        case JField("admins", JArray(admins)) <- cluster
         if admins contains JString("liza")
-        JField("name", JString(name)) <- cluster
+        case JField("name", JString(name)) <- cluster
       } yield name
 
       assert(clusters == List("cluster2"))
