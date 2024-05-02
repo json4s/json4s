@@ -53,7 +53,7 @@ class SerializationBugs extends AnyWordSpec {
   }
 
   "StackOverflowError with large Lists" in {
-    val xs = LongList(List.fill(5000)(0).map(Num))
+    val xs = LongList(List.fill(5000)(0).map(Num.apply))
     val ser = swrite(xs)
     assert(read[LongList](ser).xs.length == 5000)
   }
