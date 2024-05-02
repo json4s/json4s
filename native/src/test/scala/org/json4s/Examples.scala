@@ -191,8 +191,8 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
       assert(compact(render((json \ "children")(0) \ "name")) == "\"Mary\"")
       assert(compact(render((json \ "children")(1) \ "name")) == "\"Mazy\"")
       assert((for {
-        JObject(o) <- json
-        JField("name", JString(y)) <- o
+        case JObject(o) <- json
+        case JField("name", JString(y)) <- o
       } yield y) == List("joe", "Mary", "Mazy"))
     }
 
