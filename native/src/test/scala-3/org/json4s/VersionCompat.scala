@@ -1,4 +1,5 @@
 package org.json4s
 
-trait VersionCompat:
+trait VersionCompat {
   val isScala3 = true
+}

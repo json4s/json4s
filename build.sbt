@@ -15,7 +15,7 @@ lazy val ast = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     name := "json4s-ast",
     json4sSettings(cross = true),
     Compile / sourceGenerators += task {
-      val v = CrossVersion.partialVersion(scalaVersion.value) 
+      val v = CrossVersion.partialVersion(scalaVersion.value)
       Seq(
         ("ReaderFunctions.scala", CodeGen.reader),
         ("WriterFunctions.scala", CodeGen.writer(v == Some((2, 13)) || v.exists(_._1 == 3))),

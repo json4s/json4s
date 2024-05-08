@@ -372,7 +372,7 @@ class ReflectorSpec extends AnyWordSpec with VersionCompat {
     }
 
     "Describe a case class with $outer field" in {
-      assume(!isScala3) // there seems to be a bug in Scala 3
+      assume(!isScala3) // there seems to be a bug in Scala 3: https://github.com/scala/scala3/issues/20370
       val desc = Reflector.describe[PathTypes.HasTrait.FromTraitRROption].asInstanceOf[ClassDescriptor]
       assert(desc.companion.map(_.instance) == Some(PathTypes.HasTrait.FromTraitRROption))
       assert(desc.constructors.head.params(0).defaultValue.get() == PathTypes.HasTrait)

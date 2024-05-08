@@ -16,16 +16,17 @@ object ScalaSigReader {
       val cl = Symbol.classSymbol(clazz.erasure.getCanonicalName())
       val cstr =
         findConstructor(cl, argNames)
-        .orElse {
-          val companionClass = cl.companionModule
-          companionClass.methodMembers.collect{
-            case m: Symbol if m.name == "apply" => m
+          .orElse {
+            val companionClass = cl.companionModule
+            companionClass.methodMembers
+              .collect {
+                case m: Symbol if m.name == "apply" => m
+              }
+              .find((m: Symbol) => getFirstTermList(m).map(_.map(_.name) == argNames).getOrElse(false))
           }
-          .find((m: Symbol) => getFirstTermList(m).map(_.map(_.name) == argNames).getOrElse(false))
-        }
-        .getOrElse(
-          fail("Can't find constructor for " + clazz)
-        )
+          .getOrElse(
+            fail("Can't find constructor for " + clazz)
+          )
       findArgType(using quotes)(cstr, argNames.indexOf(argName), typeArgIndex)
     }
   }
@@ -58,7 +59,13 @@ object ScalaSigReader {
     given staging.Compiler = staging.Compiler.make(this.getClass.getClassLoader)
 
     val nameWithSymbols =
-      name.replace("$minus", "-").replace("$hash", "#").replace("$bang", "!").replace("$plus", "+").replace("$percent", "%").replace("$at", "@")
+      name
+        .replace("$minus", "-")
+        .replace("$hash", "#")
+        .replace("$bang", "!")
+        .replace("$plus", "+")
+        .replace("$percent", "%")
+        .replace("$at", "@")
     staging.withQuotes {
       import quotes.reflect._
       val sym = Symbol.classSymbol(
@@ -73,25 +80,28 @@ object ScalaSigReader {
   }
 
   private def findConstructor(using
-      quotes: Quotes
+    quotes: Quotes
   )(
-      cl: quotes.reflect.Symbol,
-      argNames: List[String]
+    cl: quotes.reflect.Symbol,
+    argNames: List[String]
   ): Option[quotes.reflect.Symbol] = {
     import quotes.reflect._
     val argNamesWithSymbols = argNames.map(replaceWithSymbols(_))
     (cl.methodMembers :+ cl.primaryConstructor)
       .filter(_.isClassConstructor)
       .filter { m =>
-        getFirstTermList(m) match
+        getFirstTermList(m) match {
           case None => false
           case Some(termList) =>
             termList.map(_.name).sameElements(argNamesWithSymbols)
+        }
       }
       .headOption
   }
 
-  private def findApply(using quotes: Quotes)(c: quotes.reflect.Symbol, argNames: List[String]): Option[quotes.reflect.Symbol] = {
+  private def findApply(using
+    quotes: Quotes
+  )(c: quotes.reflect.Symbol, argNames: List[String]): Option[quotes.reflect.Symbol] = {
     import quotes.reflect._
     val argNamesWithSymbols = argNames.map(replaceWithSymbols(_))
 
@@ -103,48 +113,50 @@ object ScalaSigReader {
   }
 
   private def findArgType(using quotes: Quotes)(
-      s: quotes.reflect.Symbol,
-      argIdx: Int,
-      typeArgIndex: Int
+    s: quotes.reflect.Symbol,
+    argIdx: Int,
+    typeArgIndex: Int
   ): Class[?] = {
     import quotes.reflect._
-    def findPrimitive(t: TypeRepr): Symbol =
+    def findPrimitive(t: TypeRepr): Symbol = {
       def throwError() = fail("Unexpected type info " + t.show)
-      if defn.ScalaPrimitiveValueClasses.contains(t.typeSymbol) then
+      if (defn.ScalaPrimitiveValueClasses.contains(t.typeSymbol)) {
         t.typeSymbol
-      else if t.typeArgs.isEmpty then
+      } else if (t.typeArgs.isEmpty) {
         t.typeSymbol // TODO investigate when this rhs should not be accessed
-      else
-        t match
+      } else
+        t match {
           case AppliedType(_, typeArgs) if typeArgs.size <= typeArgIndex =>
             findPrimitive(typeArgs(0))
           case AppliedType(_, typeArgs) =>
             findPrimitive(typeArgs(typeArgIndex))
           case _ => throwError()
-
+        }
+    }
     toClass(
       findPrimitive(
-        getFirstTermList(s) match
+        getFirstTermList(s) match {
           case None => fail("Incorrect function signature " + s)
           case Some(termList) =>
             s.typeRef.memberType(termList(argIdx))
+        }
       )
     )
   }
 
   private def findArgType(using quotes: Quotes)(
-      s: quotes.reflect.Symbol,
-      argIdx: Int,
-      typeArgIndexes: List[Int]
+    s: quotes.reflect.Symbol,
+    argIdx: Int,
+    typeArgIndexes: List[Int]
   ): Class[?] = {
     import quotes.reflect._
     @tailrec def findPrimitive(t: TypeRepr, curr: Int): Symbol = {
       import quotes.reflect._
       val ii = (typeArgIndexes.length - 1) min curr
-      if defn.ScalaPrimitiveValueClasses.contains(t.typeSymbol) then
+      if (defn.ScalaPrimitiveValueClasses.contains(t.typeSymbol)) {
         t.typeSymbol
-      else
-        t match
+      } else
+        t match {
           case AppliedType(_, typeArgs) if typeArgIndexes(ii) >= typeArgs.length =>
             findPrimitive(typeArgs(0 max typeArgs.length - 1), curr + 1)
           case AppliedType(_, typeArgs) =>
@@ -152,36 +164,39 @@ object ScalaSigReader {
             findPrimitive(ta, curr + 1)
           case x: TypeRef => x.typeSymbol
           case x => fail("Unexpected type info " + x)
+        }
     }
 
     toClass(
       findPrimitive(
-        getFirstTermList(s) match
+        getFirstTermList(s) match {
           case None => fail("Incorrect function signature " + s)
-          case Some(termList) => s.typeRef.memberType(termList(argIdx)),
+          case Some(termList) => s.typeRef.memberType(termList(argIdx))
+        },
         0
       )
     )
   }
 
   private def findArgTypeForField(using
-      quotes: Quotes
+    quotes: Quotes
   )(methodSymbol: quotes.reflect.Symbol, typeArgIdx: Int) = {
     import quotes.reflect._
     val t =
-      methodSymbol.owner.typeRef.memberType(methodSymbol).widen.dealias match
+      methodSymbol.owner.typeRef.memberType(methodSymbol).widen.dealias match {
         case MethodType(paramNames, paramTypes, retTpe) =>
           paramTypes(typeArgIdx)
         case AppliedType(_, args) =>
           // will be entered when methodSymbol is a var
           args(typeArgIdx)
+      }
 
     toClass(t.typeSymbol)
   }
 
   private def toClass(using quotes: Quotes)(
-      s: quotes.reflect.Symbol
-  ): Class[?] =
+    s: quotes.reflect.Symbol
+  ): Class[?] = {
     import quotes.reflect._
     s.fullName match {
       case "scala.Short" => classOf[Short]
@@ -193,8 +208,11 @@ object ScalaSigReader {
       case "scala.Byte" => classOf[Byte]
       case _ => classOf[AnyRef]
     }
+  }
 
-  private def getFirstTermList(using quotes: Quotes)(methodSymbol: quotes.reflect.Symbol): Option[List[quotes.reflect.Symbol]] = {
+  private def getFirstTermList(using
+    quotes: Quotes
+  )(methodSymbol: quotes.reflect.Symbol): Option[List[quotes.reflect.Symbol]] = {
     import quotes.reflect._
     if (methodSymbol.paramSymss(0).headOption.map(_.isTerm).getOrElse(false)) { // def method(arg...)
       Some(methodSymbol.paramSymss(0))
