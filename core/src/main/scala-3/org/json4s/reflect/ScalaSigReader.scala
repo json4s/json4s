@@ -14,9 +14,18 @@ object ScalaSigReader {
     staging.withQuotes {
       import quotes.reflect._
       val cl = Symbol.classSymbol(clazz.erasure.getCanonicalName())
-      val cstr = findConstructor(cl, argNames).getOrElse(
-        fail("Can't find constructor for " + clazz)
-      )
+      val cstr =
+        findConstructor(cl, argNames)
+        .orElse {
+          val companionClass = cl.companionModule
+          companionClass.methodMembers.collect{
+            case m: Symbol if m.name == "apply" => m
+          }
+          .find((m: Symbol) => getFirstTermList(m).map(_.map(_.name) == argNames).getOrElse(false))
+        }
+        .getOrElse(
+          fail("Can't find constructor for " + clazz)
+        )
       findArgType(using quotes)(cstr, argNames.indexOf(argName), typeArgIndex)
     }
   }
@@ -74,11 +83,10 @@ object ScalaSigReader {
     (cl.methodMembers :+ cl.primaryConstructor)
       .filter(_.isClassConstructor)
       .filter { m =>
-        if (m.paramSymss(0).headOption.map(_.isTerm).getOrElse(false)) { // def method(arg...)
-          m.paramSymss(0).map(_.name).sameElements(argNamesWithSymbols)
-        } else if (m.paramSymss.length > 1 && m.paramSymss(1).headOption.map(_.isTerm).getOrElse(false)) { // def method[T...](arg...)
-          m.paramSymss(1).map(_.name).sameElements(argNamesWithSymbols)
-        } else false
+        getFirstTermList(m) match
+          case None => false
+          case Some(termList) =>
+            termList.map(_.name).sameElements(argNamesWithSymbols)
       }
       .headOption
   }
@@ -116,11 +124,10 @@ object ScalaSigReader {
 
     toClass(
       findPrimitive(
-        if (s.paramSymss(0).headOption.map(_.isTerm).getOrElse(false)) { // def method(arg...)
-          s.typeRef.memberType(s.paramSymss(0)(argIdx))
-        } else if (s.paramSymss(1).headOption.map(_.isTerm).getOrElse(false)) { // def method[T...](arg...)
-          s.typeRef.memberType(s.paramSymss(1)(argIdx))
-        } else fail("Incorrect function signature " + s)
+        getFirstTermList(s) match
+          case None => fail("Incorrect function signature " + s)
+          case Some(termList) =>
+            s.typeRef.memberType(termList(argIdx))
       )
     )
   }
@@ -149,11 +156,9 @@ object ScalaSigReader {
 
     toClass(
       findPrimitive(
-        if (s.paramSymss(0).headOption.map(_.isTerm).getOrElse(false)) { // def method(arg...)
-          s.typeRef.memberType(s.paramSymss(0)(argIdx))
-        } else if (s.paramSymss(1).headOption.map(_.isTerm).getOrElse(false)) { // def method[T...](arg...)
-          s.typeRef.memberType(s.paramSymss(1)(argIdx))
-        } else fail("Incorrect function signature " + s),
+        getFirstTermList(s) match
+          case None => fail("Incorrect function signature " + s)
+          case Some(termList) => s.typeRef.memberType(termList(argIdx)),
         0
       )
     )
@@ -189,14 +194,20 @@ object ScalaSigReader {
       case _ => classOf[AnyRef]
     }
 
+  private def getFirstTermList(using quotes: Quotes)(methodSymbol: quotes.reflect.Symbol): Option[List[quotes.reflect.Symbol]] = {
+    import quotes.reflect._
+    if (methodSymbol.paramSymss(0).headOption.map(_.isTerm).getOrElse(false)) { // def method(arg...)
+      Some(methodSymbol.paramSymss(0))
+    } else if (methodSymbol.paramSymss.length == 1) {
+      None
+    } else if (methodSymbol.paramSymss(1).headOption.map(_.isTerm).getOrElse(false)) { // def method[T...](arg...)
+      Some(methodSymbol.paramSymss(1))
+    } else
+      None
+  }
+
   private def replaceWithSymbols(name: String) = {
-    name
-      .replace("$minus", "-")
-      .replace("$hash", "#")
-      .replace("$bang", "!")
-      .replace("$plus", "+")
-      .replace("$percent", "%")
-      .replace("$at", "@")
+    scala.reflect.NameTransformer.decode(name)
   }
 
   val ModuleFieldName = "MODULE$"

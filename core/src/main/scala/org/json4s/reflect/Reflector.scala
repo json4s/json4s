@@ -103,7 +103,7 @@ object Reflector {
       while (ls.hasNext) {
         val f = ls.next()
         val mod = f.getModifiers
-        if (!(Modifier.isStatic(mod) || Modifier.isTransient(mod) || Modifier.isVolatile(mod) || f.isSynthetic) || f.getName().endsWith("$lzy1")) {
+        if (!(Modifier.isStatic(mod) || Modifier.isTransient(mod) || Modifier.isVolatile(mod) || f.isSynthetic)) {
           val st = ScalaType(
             f.getType,
             f.getGenericType match {
@@ -119,7 +119,7 @@ object Reflector {
           if (f.getName != ScalaSigReader.OuterFieldName) {
             val decoded = unmangleName(f.getName)
             f.setAccessible(true)
-            lb += PropertyDescriptor(decoded, f.getName.stripSuffix("$lzy1"), st, f)
+            lb += PropertyDescriptor(decoded, f.getName, st, f)
           }
         }
       }
@@ -222,10 +222,16 @@ object Reflector {
         val ctorParams = ctorParameterNames.zipWithIndex map {
           case (ScalaSigReader.OuterFieldName, index) =>
             //            println("The result type of the $outer param: " + genParams(0))
-            if (tpe.erasure.getDeclaringClass == null) fail("Classes defined in method bodies are not supported.")
+            val declaringClass =
+              try {
+                tpe.erasure.getDeclaringClass
+              } catch {
+                case _: java.lang.IncompatibleClassChangeError => null
+              }
+            if (declaringClass == null) fail("Classes defined in method bodies are not supported.")
             companion = findCompanion(checkCompanionMapping = true)
             val default = companionMappings.find(_._1 == tpe.erasure).map(_._2).map(() => _)
-            val tt = scalaTypeOf(tpe.erasure.getDeclaringClass)
+            val tt = scalaTypeOf(declaringClass)
             ConstructorParamDescriptor(ScalaSigReader.OuterFieldName, ScalaSigReader.OuterFieldName, index, tt, default)
           case (paramName, index) =>
             companion = findCompanion(checkCompanionMapping = false)

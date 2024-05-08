@@ -6,6 +6,7 @@ import java.util.Date
 import org.json4s.{DateTime, DefaultFormats, Formats, JInt, JObject, JString, MappingException, Obj, Objs, reflect}
 import org.scalatest.Assertion
 import org.scalatest.wordspec.AnyWordSpec
+import org.json4s.VersionCompat
 
 case class RRSimple(id: Int, name: String, items: List[String], createdAt: Date)
 
@@ -119,7 +120,7 @@ object GenericCaseClassWithCompanion {
 }
 case class GenericCaseClassWithCompanion[A](value: A, other: String)
 
-class ReflectorSpec extends AnyWordSpec {
+class ReflectorSpec extends AnyWordSpec with VersionCompat {
   implicit val formats: Formats = DefaultFormats.withCompanions(
     classOf[PathTypes.HasTrait.FromTrait] -> PathTypes.HasTrait,
     classOf[PathTypes.HasTrait.FromTraitRROption] -> PathTypes.HasTrait
@@ -129,12 +130,12 @@ class ReflectorSpec extends AnyWordSpec {
 
     val inst = new PathTypes.ContainsCaseClass
 
-    // "issue 507" in { // TODO fix for Scala 3
-    //   val result = org.json4s.Extraction.decompose(
-    //     GenericCaseClassWithCompanion(3)
-    //   )
-    //   assert(result == JObject(List(("value", JInt(3)), ("other", JString("Bar")))))
-    // }
+    "issue 507" in {
+      val result = org.json4s.Extraction.decompose(
+        GenericCaseClassWithCompanion(3)
+      )
+      assert(result == JObject(List(("value", JInt(3)), ("other", JString("Bar")))))
+    }
 
     "describe a class defined in a class constructor" in {
       val fmts: Formats = formats.withCompanions(classOf[inst.InternalType] -> inst)
@@ -171,10 +172,9 @@ class ReflectorSpec extends AnyWordSpec {
       assertThrows[MappingException] { inst.methodWithCaseClass }
     }
 
-    // TODO fix for Scala 3
-    // "describe a class defined in a closure" in {
-    //   assertThrows[MappingException] { inst.methodWithClosure }
-    // }
+    "describe a class defined in a closure" in {
+      assertThrows[MappingException] { inst.methodWithClosure }
+    }
     "describe a case object" in {
       val descr = Reflector.describe(TheObject.getClass).asInstanceOf[ClassDescriptor]
       val res = descr.mostComprehensive
@@ -371,40 +371,41 @@ class ReflectorSpec extends AnyWordSpec {
       assert(params(3).returnType == Reflector.scalaTypeOf[Option[Int]])
     }
 
-    // "Describe a case class with $outer field" in { // We lose information about path dependent type when converting to Class and are unable to reobtain it
-    //   val desc = Reflector.describe[PathTypes.HasTrait.FromTraitRROption].asInstanceOf[ClassDescriptor]
-    //   assert(desc.companion.map(_.instance) == Some(PathTypes.HasTrait.FromTraitRROption))
-    //   assert(desc.constructors.head.params(0).defaultValue.get() == PathTypes.HasTrait)
-    // }
+    "Describe a case class with $outer field" in {
+      assume(!isScala3) // there seems to be a bug in Scala 3
+      val desc = Reflector.describe[PathTypes.HasTrait.FromTraitRROption].asInstanceOf[ClassDescriptor]
+      assert(desc.companion.map(_.instance) == Some(PathTypes.HasTrait.FromTraitRROption))
+      assert(desc.constructors.head.params(0).defaultValue.get() == PathTypes.HasTrait)
+    }
 
-    // TODO fix for Scala 3
-    // "Describe a case class with options defined in a trait" in {
-    //   checkCaseClass[PathTypes.HasTrait.FromTraitRROption] { params =>
-    //     val ctorParams = params.filterNot(_.name == ScalaSigReader.OuterFieldName)
-    //     assert(ctorParams(0).name == "id")
-    //     assert(ctorParams(0).defaultValue.isEmpty)
-    //     assert(ctorParams(0).argType == Reflector.scalaTypeOf[Int])
-    //     assert(ctorParams(1).name == "name")
-    //     assert(ctorParams(1).defaultValue.isEmpty)
-    //     assert(ctorParams(1).argType == Reflector.scalaTypeOf[String])
-    //     assert(ctorParams(2).name == "status")
-    //     assert(ctorParams(2).defaultValue.isEmpty)
-    //     assert(ctorParams(2).argType == Reflector.scalaTypeOf[Option[String]])
-    //     assert(ctorParams(2).argType.typeArgs == Seq(Reflector.scalaTypeOf[String]))
-    //     assert(ctorParams(3).name == "code")
-    //     assert(ctorParams(3).defaultValue.isEmpty)
-    //     assert(ctorParams(3).argType == Reflector.scalaTypeOf[Option[Int]])
-    //     assert(ctorParams(3).argType != Reflector.scalaTypeOf[Option[String]])
-    //     assert(ctorParams(3).argType.typeArgs == Seq(Reflector.scalaTypeOf[Int]))
-    //     assert(ctorParams(4).name == "createdAt")
-    //     assert(ctorParams(4).defaultValue.isEmpty)
-    //     assert(ctorParams(4).argType == Reflector.scalaTypeOf[Date])
-    //     assert(ctorParams(5).name == "deletedAt")
-    //     assert(ctorParams(5).defaultValue.isEmpty)
-    //     assert(ctorParams(5).argType == Reflector.scalaTypeOf[Option[Date]])
-    //     assert(ctorParams(5).argType.typeArgs == Seq(Reflector.scalaTypeOf[Date]))
-    //   }
-    // }
+    "Describe a case class with options defined in a trait" in {
+      assume(!isScala3) // there seems to be a bug in Scala 3
+      checkCaseClass[PathTypes.HasTrait.FromTraitRROption] { params =>
+        val ctorParams = params.filterNot(_.name == ScalaSigReader.OuterFieldName)
+        assert(ctorParams(0).name == "id")
+        assert(ctorParams(0).defaultValue.isEmpty)
+        assert(ctorParams(0).argType == Reflector.scalaTypeOf[Int])
+        assert(ctorParams(1).name == "name")
+        assert(ctorParams(1).defaultValue.isEmpty)
+        assert(ctorParams(1).argType == Reflector.scalaTypeOf[String])
+        assert(ctorParams(2).name == "status")
+        assert(ctorParams(2).defaultValue.isEmpty)
+        assert(ctorParams(2).argType == Reflector.scalaTypeOf[Option[String]])
+        assert(ctorParams(2).argType.typeArgs == Seq(Reflector.scalaTypeOf[String]))
+        assert(ctorParams(3).name == "code")
+        assert(ctorParams(3).defaultValue.isEmpty)
+        assert(ctorParams(3).argType == Reflector.scalaTypeOf[Option[Int]])
+        assert(ctorParams(3).argType != Reflector.scalaTypeOf[Option[String]])
+        assert(ctorParams(3).argType.typeArgs == Seq(Reflector.scalaTypeOf[Int]))
+        assert(ctorParams(4).name == "createdAt")
+        assert(ctorParams(4).defaultValue.isEmpty)
+        assert(ctorParams(4).argType == Reflector.scalaTypeOf[Date])
+        assert(ctorParams(5).name == "deletedAt")
+        assert(ctorParams(5).defaultValue.isEmpty)
+        assert(ctorParams(5).argType == Reflector.scalaTypeOf[Option[Date]])
+        assert(ctorParams(5).argType.typeArgs == Seq(Reflector.scalaTypeOf[Date]))
+      }
+    }
 
     "discover all constructors, incl. the ones from companion object" in {
       val klass = Reflector.scalaTypeOf(classOf[PetOwner])
