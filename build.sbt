@@ -93,7 +93,10 @@ lazy val core = project
         case "2.12" =>
           Seq(Dependencies.paranamer)
         case "3" =>
-          Seq("org.scala-lang" %% "scala3-staging" % "3.4.1") // TODO make provided
+          // Since this dependency requires the compiler version,
+          // it's the safest if users provide one depending on which scala
+          // they are compiling on
+          Seq("org.scala-lang" %% "scala3-staging" % testScala3Version % Provided)
         case _ =>
           Nil
       }
