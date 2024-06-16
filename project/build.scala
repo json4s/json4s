@@ -95,7 +95,6 @@ object build {
       "-feature",
       "-language:existentials",
       "-language:implicitConversions",
-      "-language:higherKinds",
     ),
     Seq(Compile, Test).map(c =>
       c / unmanagedSourceDirectories += {
@@ -139,15 +138,17 @@ object build {
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, v)) if v <= 12 =>
-          Seq("-Xfuture", "-Ypartial-unification")
+          Seq("-Xfuture", "-Ypartial-unification", "-language:higherKinds")
         case _ =>
           Nil
       }
     },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, _)) =>
+        case Some((2, 12)) =>
           Seq("-Xsource:3")
+        case Some((2, 13)) =>
+          Seq("-Xsource:3-cross")
         case _ =>
           Seq(
           )
