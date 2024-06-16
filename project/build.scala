@@ -51,10 +51,6 @@ object build {
     }
   )
 
-  val scala3excludeTests = Set(
-    "native.LazyValBugs",
-  ).map("org.json4s." + _)
-
   val Scala212 = "2.12.19"
   val Scala213 = "2.13.14"
   val Scala3 = "3.3.3"
@@ -82,13 +78,6 @@ object build {
   )
 
   def json4sSettings = mavenCentralFrouFrou ++ Def.settings(
-    Test / testOptions ++= {
-      if (scalaBinaryVersion.value == "3") {
-        Seq(Tests.Exclude(scala3excludeTests))
-      } else {
-        Nil
-      }
-    },
     scalacOptions ++= Seq(
       "-unchecked",
       "-deprecation",
