@@ -6,8 +6,8 @@ import scala.quoted._
 import scala.reflect.NameTransformer
 
 object ScalaSigReader {
-  private[this] val localPathMemo = new Memo[String, Option[Class[?]]]
-  private[this] val remotePathMemo = new Memo[(String, Iterable[ClassLoader]), Option[Class[?]]]
+  private val localPathMemo = new Memo[String, Option[Class[?]]]
+  private val remotePathMemo = new Memo[(String, Iterable[ClassLoader]), Option[Class[?]]]
 
   def readConstructor(argName: String, clazz: ScalaType, typeArgIndex: Int, argNames: List[String]): Class[?] = {
     given staging.Compiler = staging.Compiler.make(this.getClass.getClassLoader)
