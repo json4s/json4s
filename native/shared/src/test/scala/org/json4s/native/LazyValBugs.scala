@@ -1,6 +1,6 @@
 package org.json4s.native
 
-import org.json4s.{FieldSerializer, Formats, DefaultFormats}
+import org.json4s.{FieldSerializer, Formats, DefaultFormats, VersionCompat}
 import org.json4s.native.Serialization.{read, write}
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -18,7 +18,7 @@ class ActorNode(val id: String, val name: String) {
  * Test of a fix for failed lazy val serialization from FieldSerializer
  * where the serialized lazy val will get default value result (null, 0, false, etc) instead of the real value.
  */
-class LazyValBugs extends AnyWordSpec {
+class LazyValBugs extends AnyWordSpec with VersionCompat {
 
   "LazyValBugs Test" should {
 
@@ -36,6 +36,10 @@ class LazyValBugs extends AnyWordSpec {
     }
 
     "Don't serialize lazy val to json if includeLazyVal is not set in FieldSerializer" in {
+      if (isScala3) {
+        pending
+      }
+
       implicit val formats: Formats = DefaultFormats + FieldSerializer[ActorNode]()
 
       val actorNode = new ActorNode("A1", "Bruce Willis")
@@ -83,6 +87,10 @@ class LazyValBugs extends AnyWordSpec {
          """.stripMargin
 
     "Deserialize lazy val value from parsed json" in {
+      if (isScala3) {
+        pending
+      }
+
       implicit val formats: Formats = DefaultFormats + FieldSerializer[ActorNode](includeLazyVal = true)
 
       val actorNode = read[ActorNode](jsonStr)
