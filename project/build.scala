@@ -1,10 +1,7 @@
 import sbt._
 import Keys._
 import xml.Group
-import MimaSettings.mimaSettings
-import com.typesafe.tools.mima.plugin.MimaKeys.mimaPreviousArtifacts
-import sbtrelease.ReleasePlugin.autoImport._
-import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+import sbtprojectmatrix.ProjectMatrixKeys.*
 import xerial.sbt.Sonatype.autoImport._
 
 object build {
@@ -53,17 +50,52 @@ object build {
     }
   )
 
+  val scala3excludeTests = Set(
+    "CustomTypeHintFieldNameExample",
+    "FieldSerializerBugs",
+    "FieldSerializerExamples",
+    "FullTypeHintExamples",
+    "JacksonEitherTest",
+    "JacksonExtractionBugs",
+    "JacksonExtractionExamples",
+    "JacksonIgnoreCompanionCtorSpec",
+    "JacksonJsonFormatsSpec",
+    "JacksonLottoExample",
+    "JacksonRichSerializerTest",
+    "JacksonStrictOptionParsingModeSpec",
+    "MappedHintExamples",
+    "NativeEitherTest",
+    "NativeExtractionBugs",
+    "NativeExtractionExamples",
+    "NativeIgnoreCompanionCtorSpec",
+    "NativeJsonFormatsSpec",
+    "NativeLottoExample",
+    "NativeRichSerializerTest",
+    "NativeStrictOptionParsingModeSpec",
+    "SerializationBugs",
+    "SerializationExamples",
+    "ShortTypeHintExamples",
+    "jackson.JacksonSerializationSpec",
+    "native.LazyValBugs",
+    "native.NativeSerializationSpec",
+    "reflect.ReflectorSpec",
+  ).map("org.json4s." + _)
+
   val Scala212 = "2.12.19"
   val Scala213 = "2.13.14"
   val Scala3 = "3.3.3"
 
-  def json4sSettings(cross: Boolean) = mavenCentralFrouFrou ++ Def.settings(
+  def scalaVersions = Seq(Scala212, Scala213, Scala3)
+
+  def json4sSettings = mavenCentralFrouFrou ++ Def.settings(
     organization := "org.json4s",
-    scalaVersion := Scala212,
-    crossScalaVersions := Seq(Scala212, Scala213, Scala3),
-    addCommandAlias("SetScala212", s"++ ${Scala212}!"),
-    addCommandAlias("SetScala213", s"++ ${Scala213}!"),
-    addCommandAlias("SetScala3", s"++ ${Scala3}!"),
+    Test / testOptions ++= {
+      if (scalaBinaryVersion.value == "3") {
+        Seq(Tests.Exclude(scala3excludeTests))
+      } else {
+        Nil
+      }
+    },
     scalacOptions ++= Seq(
       "-unchecked",
       "-deprecation",
@@ -71,6 +103,30 @@ object build {
       "-language:existentials",
       "-language:implicitConversions",
       "-language:higherKinds",
+    ),
+    Seq(Compile, Test).map(c =>
+      c / unmanagedSourceDirectories += {
+        projectMatrixBaseDirectory.value.getAbsoluteFile / "shared" / "src" / Defaults.nameForSrc(
+          c.name
+        ) / s"scala-${scalaBinaryVersion.value}"
+      }
+    ),
+    Seq(Compile, Test).map(c =>
+      c / unmanagedSourceDirectories ++= {
+        projectMatrixBaseDirectory.?.value.toSeq.flatMap { x =>
+          val d = x.getAbsoluteFile / "shared" / "src" / Defaults.nameForSrc(c.name)
+          val d1 = d / "scala"
+
+          d1 +: (
+            CrossVersion.partialVersion(scalaVersion.value) match {
+              case Some((n, _)) =>
+                Seq(d / s"scala-${n}")
+              case _ =>
+                Nil
+            }
+          )
+        }
+      },
     ),
     Compile / packageSrc / mappings ++= (Compile / managedSources).value.map { f =>
       // to merge generated sources into sources.jar as well
@@ -115,11 +171,7 @@ object build {
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
     Seq(Compile, Test).map { scope =>
       (scope / unmanagedSourceDirectories) += {
-        val base = if (cross) {
-          baseDirectory.value.getParentFile / "shared" / "src" / Defaults.nameForSrc(scope.name)
-        } else {
-          baseDirectory.value / "src" / Defaults.nameForSrc(scope.name)
-        }
+        val base = projectMatrixBaseDirectory.value.getAbsoluteFile / "shared" / "src" / Defaults.nameForSrc(scope.name)
         CrossVersion.partialVersion(scalaVersion.value) match {
           case Some((2, v)) if v <= 12 =>
             base / s"scala-2.13-"
@@ -128,32 +180,18 @@ object build {
         }
       }
     },
-    releaseProcess := Seq[ReleaseStep](
-      checkSnapshotDependencies,
-      inquireVersions,
-      runClean,
-      runTest,
-      setReleaseVersion,
-      commitReleaseVersion,
-      tagRelease,
-      releaseStepCommandAndRemaining("+publishSigned"),
-      releaseStepCommandAndRemaining("sonatypeBundleRelease"),
-      setNextVersion,
-      commitNextVersion,
-      pushChanges
-    ),
     Test / parallelExecution := false,
     manifestSetting,
   )
 
   val noPublish = Seq(
-    mimaPreviousArtifacts := Set(),
+    publish / skip := true,
     publishArtifact := false,
     publish := {},
     publishLocal := {}
   )
 
-  val scalajsProjectSettings = Def.settings(
+  val jsSettings = Def.settings(
     scalacOptions += {
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
       val a = (LocalRootProject / baseDirectory).value.toURI.toString
@@ -165,7 +203,31 @@ object build {
           "-P:scalajs:mapSourceURI"
       }
       s"${key}:$a->$g/"
-    }
+    },
+    Seq(Compile, Test).map(c =>
+      c / unmanagedSourceDirectories ++= Seq(
+        projectMatrixBaseDirectory.value.getAbsoluteFile / "js" / "src" / Defaults.nameForSrc(c.name) / "scala",
+        projectMatrixBaseDirectory.value.getAbsoluteFile / "js-native" / "src" / Defaults.nameForSrc(c.name) / "scala"
+      ),
+    ),
+  )
+
+  val jvmSettings = Def.settings(
+    Seq(Compile, Test).map(c =>
+      c / unmanagedSourceDirectories ++= Seq(
+        projectMatrixBaseDirectory.value.getAbsoluteFile / "jvm" / "src" / Defaults.nameForSrc(c.name) / "scala",
+        projectMatrixBaseDirectory.value.getAbsoluteFile / "jvm-native" / "src" / Defaults.nameForSrc(c.name) / "scala",
+      ),
+    ),
+  )
+
+  val nativeSettings = Def.settings(
+    Seq(Compile, Test).map(c =>
+      c / unmanagedSourceDirectories ++= Seq(
+        projectMatrixBaseDirectory.value.getAbsoluteFile / "jvm-native" / "src" / Defaults.nameForSrc(c.name) / "scala",
+        projectMatrixBaseDirectory.value.getAbsoluteFile / "js-native" / "src" / Defaults.nameForSrc(c.name) / "scala",
+      )
+    ),
   )
 
 }

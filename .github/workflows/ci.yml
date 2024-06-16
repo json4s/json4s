@@ -13,15 +13,8 @@ jobs:
       matrix:
         include:
           - java: 8
-            scala: 2_12
-          - java: 8
-            scala: 2_13
-          - java: 8
-            scala: 3
           - java: 11
-            scala: 2
           - java: 21
-            scala: 2
     steps:
     - uses: actions/setup-java@v4
       with:
@@ -31,20 +24,4 @@ jobs:
     - uses: coursier/cache-action@v6
     - run: |
         export TZ=Australia/Canberra
-        case ${{ matrix.scala }} in
-          2_12)
-            ./sbt -v scalafmtSbtCheck SetScala212 scalafmtCheckAll test
-            ;;
-          2_13)
-            ./sbt -v scalafmtSbtCheck SetScala213 scalafmtCheckAll test
-            ;;
-          2)
-            ./sbt -v scalafmtSbtCheck scalafmtCheckAll test
-            ;;
-          3)
-            ./sbt -v scalafmtSbtCheck SetScala3 scalafmtCheckAll test
-            ;;
-          *)
-            echo "unknown scala version"
-            exit 1
-        esac
+        ./sbt -v scalafmtSbtCheck scalafmtCheckAll test
