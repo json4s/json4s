@@ -3,12 +3,11 @@ package org.json4s.reflect
 import java.lang.reflect.{Field, TypeVariable}
 
 import org.json4s.{JArray, JObject, JValue}
+import scala.reflect.NameTransformer
 
 object ScalaType {
 
   private val types = new Memo[Manifest[?], ScalaType]
-
-  private val singletonFieldName = "MODULE$"
 
   def apply[T](mf: Manifest[T]): ScalaType = {
     /* optimization */
@@ -184,7 +183,8 @@ class ScalaType(val manifest: Manifest[?]) extends Equals {
 
   def >:>(that: ScalaType): Boolean = manifest >:> that.manifest
 
-  private def singletonField: Option[Field] = erasure.getFields.find(_.getName.equals(ScalaType.singletonFieldName))
+  private def singletonField: Option[Field] =
+    erasure.getFields.find(_.getName.equals(NameTransformer.MODULE_INSTANCE_NAME))
 
   def isSingleton: Boolean = singletonField.isDefined
 
