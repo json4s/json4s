@@ -3,6 +3,8 @@ import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
+mavenCentralFrouFrou
+
 noPublish
 
 lazy val ast = projectMatrix
