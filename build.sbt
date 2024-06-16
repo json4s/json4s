@@ -88,6 +88,11 @@ lazy val core = projectMatrix
       scalaBinaryVersion.value match {
         case "2.12" =>
           Seq(Dependencies.paranamer)
+        case "3" =>
+          // Since this dependency requires the compiler version,
+          // it's the safest if users provide one depending on which scala
+          // they are compiling on
+          Seq("org.scala-lang" %% "scala3-staging" % scalaVersion.value % "test,provided")
         case _ =>
           Nil
       }
@@ -99,7 +104,7 @@ lazy val core = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings,
+    settings = jvmSettings ++ overwriteScala3version,
   )
   .dependsOn(ast % "compile;test->test", scalap)
 
@@ -134,7 +139,7 @@ lazy val native = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings,
+    settings = jvmSettings ++ overwriteScala3version,
   )
   .dependsOn(
     core % "compile;test->test",
@@ -151,7 +156,7 @@ lazy val ext = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings,
+    settings = jvmSettings ++ overwriteScala3version,
   )
   .dependsOn(core)
 
@@ -194,7 +199,7 @@ lazy val jackson = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings,
+    settings = jvmSettings ++ overwriteScala3version,
   )
   .dependsOn(
     core % "compile;test->test",
@@ -212,7 +217,7 @@ lazy val examples = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings,
+    settings = jvmSettings ++ overwriteScala3version,
   )
   .dependsOn(
     core % "compile;test->test",
@@ -260,7 +265,7 @@ lazy val mongo = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings,
+    settings = jvmSettings ++ overwriteScala3version,
   )
   .dependsOn(
     core % "compile;test->test",
@@ -281,7 +286,7 @@ lazy val tests = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings,
+    settings = jvmSettings ++ overwriteScala3version,
   )
   .dependsOn(
     core % "compile;test->test",

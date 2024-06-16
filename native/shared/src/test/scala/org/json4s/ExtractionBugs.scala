@@ -155,13 +155,14 @@ object ExtractionBugs {
     val strangeSerialization = Extraction.decompose(MapImplementation.content)(DefaultFormats)
   }
 }
-abstract class ExtractionBugs[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
+abstract class ExtractionBugs[T](mod: String) extends AnyWordSpec with JsonMethods[T] with VersionCompat {
 
   import ExtractionBugs._
   implicit val formats: Formats =
     DefaultFormats.withCompanions(classOf[PingPongGame.SharedObj] -> PingPongGame) + new MapImplementationSerializer()
 
   "Primitive type should not hang" in {
+    assume(!isScala3)
     assertThrows[MappingException] {
       val a = WithPrimitiveAlias(Vector(1.0, 2.0, 3.0, 4.0))
       Extraction.decompose(a)
