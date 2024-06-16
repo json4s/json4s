@@ -2,8 +2,8 @@ package org.json4s
 package reflect
 
 import org.json4s.scalap.scalasig._
-
 import scala.annotation.tailrec
+import scala.reflect.NameTransformer
 
 object ScalaSigReader {
   private[this] val localPathMemo = new Memo[String, Option[Class[?]]]
@@ -219,7 +219,6 @@ object ScalaSigReader {
   private[this] def parseClassFileFromByteCode(clazz: Class[?]): Option[ScalaSig] =
     Option(ClassFileParser.parse(ByteCode.forClass(clazz))) flatMap ScalaSigParser.parse
 
-  val ModuleFieldName = "MODULE$"
   val OuterFieldName = "$outer"
   val ClassLoaders = Vector(this.getClass.getClassLoader, Thread.currentThread().getContextClassLoader)
 
@@ -233,7 +232,7 @@ object ScalaSigReader {
       resolveClass(path(Reflector.rawClassOf(c).getName), classLoaders)
     )
     def safeField(ccc: Class[?]) =
-      try { Option(ccc.getField(ModuleFieldName)).map(_.get(companion.orNull)) }
+      try { Option(ccc.getField(NameTransformer.MODULE_INSTANCE_NAME)).map(_.get(companion.orNull)) }
       catch { case _: Throwable => None }
     cc map (ccc => (ccc, safeField(ccc)))
   }

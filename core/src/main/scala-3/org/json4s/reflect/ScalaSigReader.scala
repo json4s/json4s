@@ -3,6 +3,7 @@ package reflect
 
 import scala.annotation.tailrec
 import scala.quoted._
+import scala.reflect.NameTransformer
 
 object ScalaSigReader {
   private[this] val localPathMemo = new Memo[String, Option[Class[?]]]
@@ -58,14 +59,8 @@ object ScalaSigReader {
   def readField(name: String, clazz: Class[?], typeArgIndex: Int): Class[?] = {
     given staging.Compiler = staging.Compiler.make(this.getClass.getClassLoader)
 
-    val nameWithSymbols =
-      name
-        .replace("$minus", "-")
-        .replace("$hash", "#")
-        .replace("$bang", "!")
-        .replace("$plus", "+")
-        .replace("$percent", "%")
-        .replace("$at", "@")
+    val nameWithSymbols = NameTransformer.decode(name)
+
     staging.withQuotes {
       import quotes.reflect._
       val sym = Symbol.classSymbol(
@@ -228,7 +223,6 @@ object ScalaSigReader {
     scala.reflect.NameTransformer.decode(name)
   }
 
-  val ModuleFieldName = "MODULE$"
   val OuterFieldName = "$outer" // TODO should not be used, not sure what it does/means
   val ClassLoaders = Vector(this.getClass.getClassLoader, Thread.currentThread().getContextClassLoader)
 
@@ -242,7 +236,7 @@ object ScalaSigReader {
       resolveClass(path(Reflector.rawClassOf(c).getName), classLoaders)
     )
     def safeField(ccc: Class[?]) =
-      try { Option(ccc.getField(ModuleFieldName)).map(_.get(companion.orNull)) }
+      try { Option(ccc.getField(NameTransformer.MODULE_INSTANCE_NAME)).map(_.get(companion.orNull)) }
       catch { case _: Throwable => None }
     cc map (ccc => (ccc, safeField(ccc)))
   }
