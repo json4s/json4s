@@ -26,7 +26,7 @@ package object ext {
    * path-dependent type `enumeration.Value`. However, that would require a
    * change of public API.
    */
-  private[this] type Aux[A] = ({ type Value }) { type Value = A }
+  private type Aux[A] = ({ type Value }) { type Value = A }
 
   private[ext] type EnumValue[A <: Enumeration] = A match {
     case Aux[a] => a

@@ -8,10 +8,10 @@ import org.scalatest.EitherValues
 import org.json4s.DefaultJsonFormats._
 
 class CaseClassJsonFormatSpec extends Properties("case class JsonFormat") with EitherValues {
-  private[this] val writerAuto: Writer[CaseClass22] =
+  private val writerAuto: Writer[CaseClass22] =
     Writer.writerAuto(Tuple.fromProductTyped[CaseClass22])
 
-  private[this] val reader: Reader[CaseClass22] =
+  private val reader: Reader[CaseClass22] =
     Reader.reader(CaseClass22.apply)(
       "a1",
       "a2",
@@ -37,7 +37,7 @@ class CaseClassJsonFormatSpec extends Properties("case class JsonFormat") with E
       "a22"
     )
 
-  private[this] val format1: JsonFormat[CaseClass22] =
+  private val format1: JsonFormat[CaseClass22] =
     JsonFormat.format22(CaseClass22.apply, Tuple.fromProductTyped(_: CaseClass22))(
       "1",
       "2",
@@ -63,7 +63,7 @@ class CaseClassJsonFormatSpec extends Properties("case class JsonFormat") with E
       "22"
     )
 
-  private[this] implicit val arbitrary: Arbitrary[CaseClass22] =
+  private implicit val arbitrary: Arbitrary[CaseClass22] =
     Arbitrary(Gen.resultOf(CaseClass22.apply))
 
   property("case class JsonFormat") = Prop.forAll { (a: CaseClass22) =>
