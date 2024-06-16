@@ -6,6 +6,7 @@ import java.util.Date
 import org.json4s.{DateTime, DefaultFormats, Formats, JInt, JObject, JString, MappingException, Obj, Objs, reflect}
 import org.scalatest.Assertion
 import org.scalatest.wordspec.AnyWordSpec
+import org.json4s.VersionCompat
 
 case class RRSimple(id: Int, name: String, items: List[String], createdAt: Date)
 
@@ -119,7 +120,7 @@ object GenericCaseClassWithCompanion {
 }
 case class GenericCaseClassWithCompanion[A](value: A, other: String)
 
-class ReflectorSpec extends AnyWordSpec {
+class ReflectorSpec extends AnyWordSpec with VersionCompat {
   implicit val formats: Formats = DefaultFormats.withCompanions(
     classOf[PathTypes.HasTrait.FromTrait] -> PathTypes.HasTrait,
     classOf[PathTypes.HasTrait.FromTraitRROption] -> PathTypes.HasTrait
@@ -371,12 +372,14 @@ class ReflectorSpec extends AnyWordSpec {
     }
 
     "Describe a case class with $outer field" in {
+      assume(!isScala3) // there seems to be a bug in Scala 3: https://github.com/scala/scala3/issues/20370
       val desc = Reflector.describe[PathTypes.HasTrait.FromTraitRROption].asInstanceOf[ClassDescriptor]
       assert(desc.companion.map(_.instance) == Some(PathTypes.HasTrait.FromTraitRROption))
       assert(desc.constructors.head.params(0).defaultValue.get() == PathTypes.HasTrait)
     }
 
     "Describe a case class with options defined in a trait" in {
+      assume(!isScala3) // there seems to be a bug in Scala 3
       checkCaseClass[PathTypes.HasTrait.FromTraitRROption] { params =>
         val ctorParams = params.filterNot(_.name == ScalaSigReader.OuterFieldName)
         assert(ctorParams(0).name == "id")

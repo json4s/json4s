@@ -222,10 +222,16 @@ object Reflector {
         val ctorParams = ctorParameterNames.zipWithIndex map {
           case (ScalaSigReader.OuterFieldName, index) =>
             //            println("The result type of the $outer param: " + genParams(0))
-            if (tpe.erasure.getDeclaringClass == null) fail("Classes defined in method bodies are not supported.")
+            val declaringClass =
+              try {
+                tpe.erasure.getDeclaringClass
+              } catch {
+                case _: java.lang.IncompatibleClassChangeError => null
+              }
+            if (declaringClass == null) fail("Classes defined in method bodies are not supported.")
             companion = findCompanion(checkCompanionMapping = true)
             val default = companionMappings.find(_._1 == tpe.erasure).map(_._2).map(() => _)
-            val tt = scalaTypeOf(tpe.erasure.getDeclaringClass)
+            val tt = scalaTypeOf(declaringClass)
             ConstructorParamDescriptor(ScalaSigReader.OuterFieldName, ScalaSigReader.OuterFieldName, index, tt, default)
           case (paramName, index) =>
             companion = findCompanion(checkCompanionMapping = false)
