@@ -59,10 +59,6 @@ lazy val scalap = project
     libraryDependencies ++= Seq(Dependencies.jaxbApi),
   )
 
-val isScala3 = Def.setting(
-  CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 3)
-)
-
 lazy val xml = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("xml"))
   .settings(
