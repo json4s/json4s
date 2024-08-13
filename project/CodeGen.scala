@@ -94,7 +94,7 @@ ${(2 to max).map(readerN).mkString("\n")}
     val A = (1 to n).map("A" + _)
     val fields = (1 to n)
       .map(x =>
-        s"""      val a${x} = obj.get(key${x}).toRight(new MappingException("field " + key${x} + " not found")).flatMap(A${x} readEither _)"""
+        s"""      val a${x} = obj.get(key${x}).toRight(new MappingException("field " + key${x} + " not found")).flatMap(A${x}.readEither)"""
       )
       .mkString("\n")
     val lefts = (1 to n)
@@ -122,7 +122,7 @@ ${fields}
       var lefts = List.empty[MappingException]
 ${lefts}
       if (lefts.isEmpty) {
-        Right(f(${(1 to n).map(x => s"a${x}.asInstanceOf[Right[_, A${x}]].value").mkString(", ")}))
+        Right(f(${(1 to n).map(x => s"a${x}.asInstanceOf[Right[?, A${x}]].value").mkString(", ")}))
       } else {
         Left(new MappingException.Multi(lefts.reverse, null))
       }

@@ -615,7 +615,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
               JString("")
             }
           )
-        )(ClassTag.Null)
+        )(using ClassTag.Null)
       assert(
         parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](
           notNullFormats + CustomNull,
@@ -637,7 +637,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
               JString("")
             }
           )
-        )(ClassTag.Null)
+        )(using ClassTag.Null)
       assert(
         parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](
           nullAsAbsentFormats + CustomNull,
