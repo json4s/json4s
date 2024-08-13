@@ -12,7 +12,7 @@ abstract class RichSerializerTest[A] extends AnyWordSpec with JsonMethods[A] {
     override def deserialize(implicit format: Formats): PartialFunction[(ScalaType, JValue), TypeBearer[?]] = {
       case (scalaType, obj: JObject) if scalaType.erasure == classOf[TypeBearer[?]] =>
         obj \ "name" match {
-          case JString(s) => TypeBearer(s)(scalaType.typeArgs.head.manifest)
+          case JString(s) => TypeBearer(s)(using scalaType.typeArgs.head.manifest)
           case v: JValue => throw new MappingException(s"Wrong json type in $v")
         }
     }
