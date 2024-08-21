@@ -23,3 +23,18 @@ jobs:
     - run: |
         export TZ=Australia/Canberra
         ./sbt -v scalafmtSbtCheck scalafmtCheckAll test
+  latest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+    steps:
+    - uses: actions/setup-java@v4
+      with:
+        java-version: 21
+        distribution: temurin
+    - uses: actions/checkout@v4
+    - uses: coursier/cache-action@v6
+    - run: |
+        export TZ=Australia/Canberra
+        ./sbt -v "++ 3.5.1-RC2!" rootJVM3/test
