@@ -301,6 +301,24 @@ lazy val tests = projectMatrix
     jackson
   )
 
+lazy val rootJVM3 = project.aggregate(
+  Seq(
+    ast,
+    core,
+    examples,
+    ext,
+    jacksonCore,
+    jackson,
+    mongo,
+    nativeCore,
+    native,
+    scalap,
+    scalaz,
+    tests,
+    xml,
+  ).map(_.finder(VirtualAxis.jvm)(Scala3): ProjectReference) *
+)
+
 releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
   inquireVersions,
