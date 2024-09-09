@@ -104,16 +104,35 @@ object Reflector {
         val f = ls.next()
         val mod = f.getModifiers
         if (!(Modifier.isStatic(mod) || Modifier.isTransient(mod) || Modifier.isVolatile(mod) || f.isSynthetic)) {
+          def fromParameterizedType(p: ParameterizedType): Seq[ScalaType] = {
+            p.getActualTypeArguments.toSeq.zipWithIndex map { case (cc, i) =>
+              if (cc == classOf[java.lang.Object])
+                Reflector.scalaTypeOf(ScalaSigReader.readField(f.getName, clazz, i))
+              else
+                Reflector.scalaTypeOf(cc)
+            }
+          }
           val st = ScalaType(
             f.getType,
             f.getGenericType match {
               case p: ParameterizedType =>
-                p.getActualTypeArguments.toSeq.zipWithIndex map { case (cc, i) =>
-                  if (cc == classOf[java.lang.Object])
-                    Reflector.scalaTypeOf(ScalaSigReader.readField(f.getName, clazz, i))
-                  else Reflector.scalaTypeOf(cc)
+                fromParameterizedType(p)
+              case _ =>
+                try {
+                  // https://github.com/json4s/json4s/pull/1460
+                  // https://github.com/scala/scala3/issues/20263
+                  // https://github.com/json4s/json4s/issues/1489
+                  // https://github.com/json4s/json4s/pull/1460
+                  clazz.getMethod(f.getName).getGenericReturnType match {
+                    case p: ParameterizedType =>
+                      fromParameterizedType(p)
+                    case _ =>
+                      Nil
+                  }
+                } catch {
+                  case _: NoSuchMethodException =>
+                    Nil
                 }
-              case _ => Nil
             }
           )
           if (f.getName != ScalaSigReader.OuterFieldName) {
