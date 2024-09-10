@@ -129,7 +129,7 @@ class ScalaType(val manifest: Manifest[?]) extends Equals {
     _typeVars
   }
 
-  val isArray: Boolean = erasure.isArray
+  def isArray: Boolean = erasure.isArray
 
   private[this] var _rawFullName: String = null
   def rawFullName: String = {
@@ -164,7 +164,7 @@ class ScalaType(val manifest: Manifest[?]) extends Equals {
       val scalaType: ScalaType = ScalaType.this
     }
 
-  val isPrimitive = false
+  def isPrimitive: Boolean = false
 
   def isMap: Boolean = classOf[collection.immutable.Map[?, ?]].isAssignableFrom(erasure) ||
     classOf[collection.Map[?, ?]].isAssignableFrom(erasure)
