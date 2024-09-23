@@ -37,4 +37,4 @@ jobs:
     - uses: coursier/cache-action@v6
     - run: |
         export TZ=Australia/Canberra
-        ./sbt -v "++ 3.5.1-RC2!" rootJVM3/test
+        ./sbt -v "++ 3.5.2-RC1!" rootJVM3/test
