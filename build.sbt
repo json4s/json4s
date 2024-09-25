@@ -106,7 +106,7 @@ lazy val core = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings ++ overwriteScala3version,
+    settings = jvmSettings,
   )
   .dependsOn(ast % "compile;test->test")
 
@@ -144,7 +144,7 @@ lazy val native = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings ++ overwriteScala3version,
+    settings = jvmSettings,
   )
   .dependsOn(
     core % "compile;test->test",
@@ -161,7 +161,7 @@ lazy val ext = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings ++ overwriteScala3version,
+    settings = jvmSettings,
   )
   .dependsOn(core)
 
@@ -204,7 +204,7 @@ lazy val jackson = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings ++ overwriteScala3version,
+    settings = jvmSettings,
   )
   .dependsOn(
     core % "compile;test->test",
@@ -222,7 +222,7 @@ lazy val examples = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings ++ overwriteScala3version,
+    settings = jvmSettings,
   )
   .dependsOn(
     core % "compile;test->test",
@@ -270,7 +270,7 @@ lazy val mongo = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings ++ overwriteScala3version,
+    settings = jvmSettings,
   )
   .dependsOn(
     core % "compile;test->test",
@@ -291,7 +291,7 @@ lazy val tests = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings ++ overwriteScala3version,
+    settings = jvmSettings,
   )
   .dependsOn(
     core % "compile;test->test",
