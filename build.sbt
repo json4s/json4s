@@ -323,6 +323,22 @@ lazy val rootJVM3 = project
     ).map(_.finder(VirtualAxis.jvm)(Scala3): ProjectReference) *
   )
 
+lazy val crossPlatformModules = Seq(
+  ast,
+  jacksonCore,
+  nativeCore,
+  scalaz,
+  xml,
+)
+
+lazy val rootJS3 = project
+  .settings(
+    noPublish
+  )
+  .aggregate(
+    crossPlatformModules.map(_.finder(VirtualAxis.js)(Scala3): ProjectReference) *
+  )
+
 releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
   inquireVersions,
