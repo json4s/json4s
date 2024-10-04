@@ -38,3 +38,26 @@ jobs:
     - run: |
         export TZ=Australia/Canberra
         ./sbt -v "++ 3.5.2-RC1!" rootJVM3/test
+  wasm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+    steps:
+    - uses: actions/setup-java@v4
+      with:
+        java-version: 21
+        distribution: temurin
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+    - uses: actions/checkout@v4
+    - uses: coursier/cache-action@v6
+    - run: ./sbt -v
+           -Dscala_js_wasm
+           rootJS3/Test/compile
+           rootJS3/test
+    - run: ls -l ./xml/target/js-3/json4s-xml-test-fastopt/main.wasm
+    - run: ls -l ./ast/target/js-3/json4s-ast-test-fastopt/main.wasm
+    - run: ls -l ./native-core/target/js-3/json4s-native-core-test-fastopt/main.wasm
+    - run: ls -l ./scalaz/target/js-3/json4s-scalaz-test-fastopt/main.wasm

@@ -1,6 +1,7 @@
 import sbt._
 import Keys._
 import xml.Group
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 import sbtprojectmatrix.ProjectMatrixKeys.*
 import xerial.sbt.Sonatype.autoImport._
 
@@ -155,6 +156,29 @@ object build {
   )
 
   val jsSettings = Def.settings(
+    if (sys.props.isDefinedAt("scala_js_wasm")) {
+      println("enable wasm")
+      Def.settings(
+        scalaJSLinkerConfig ~= (
+          _.withExperimentalUseWebAssembly(true).withModuleKind(ModuleKind.ESModule)
+        ),
+        jsEnv := {
+          import org.scalajs.jsenv.nodejs.NodeJSEnv
+          val config = NodeJSEnv
+            .Config()
+            .withArgs(
+              List(
+                "--experimental-wasm-exnref",
+                "--experimental-wasm-imported-strings",
+                "--turboshaft-wasm",
+              )
+            )
+          new NodeJSEnv(config)
+        },
+      )
+    } else {
+      Def.settings()
+    },
     scalacOptions += {
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
       val a = (LocalRootProject / baseDirectory).value.toURI.toString
