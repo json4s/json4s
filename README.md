@@ -858,7 +858,7 @@ val logSerializer = FieldSerializer[Log](
 implicit val formats: Formats = DefaultFormats + logSerializer
 ```
 
-Serializing classes defined in traits or classes
+Serializing classes defined in traits, classes or methods
 ------------------------------------------------
 
 We've added support for case classes defined in a trait. But they do need custom formats. I'll explain why and then how.
