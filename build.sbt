@@ -353,3 +353,5 @@ releaseProcess := Seq[ReleaseStep](
   commitNextVersion,
   pushChanges
 )
+
+ThisBuild / sonatypeCredentialHost := Sonatype.sonatypeCentralHost

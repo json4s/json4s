@@ -29,7 +29,7 @@ object build {
     homepage := Some(url("https://github.com/json4s/json4s")),
     startYear := Some(2009),
     licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))),
-    organization := "org.json4s",
+    organization := "io.github.json4s",
     pomExtra := {
       pomExtra.value ++ Group(
         <scm>
