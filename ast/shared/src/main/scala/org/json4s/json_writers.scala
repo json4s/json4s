@@ -32,7 +32,7 @@ trait JsonWriter[T] {
   def addJValue(jv: JValue): JsonWriter[T]
 }
 private final class JDoubleJFieldJsonWriter(name: String, parent: JDoubleJObjectJsonWriter)
-  extends JDoubleAstJsonWriter {
+    extends JDoubleAstJsonWriter {
   def result: JValue = JNothing
 
   def addNode(node: JValue): JsonWriter[JValue] = parent.addNode(name -> node)
@@ -50,7 +50,7 @@ private final class JDoubleAstRootJsonWriter extends JDoubleAstJsonWriter {
   }
 }
 private final class JDecimalJFieldJsonWriter(name: String, parent: JDecimalJObjectJsonWriter)
-  extends JDecimalAstJsonWriter {
+    extends JDecimalAstJsonWriter {
   def result: JValue = JNothing
 
   def addNode(node: JValue): JsonWriter[JValue] = parent.addNode(name -> node)

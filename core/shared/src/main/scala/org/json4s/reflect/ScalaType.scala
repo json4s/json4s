@@ -97,9 +97,9 @@ object ScalaType {
   }
 
   private class CopiedScalaType(
-    mf: Manifest[?],
-    private[this] var _typeVars: Map[String, ScalaType],
-    override val isPrimitive: Boolean
+      mf: Manifest[?],
+      private[this] var _typeVars: Map[String, ScalaType],
+      override val isPrimitive: Boolean
   ) extends ScalaType(mf) {
 
     override def typeVars: Map[String, ScalaType] = {
@@ -203,9 +203,9 @@ class ScalaType(val manifest: Manifest[?]) extends Equals {
   }
 
   def copy(
-    erasure: Class[?] = erasure,
-    typeArgs: Seq[ScalaType] = typeArgs,
-    typeVars: Map[String, ScalaType] = _typeVars
+      erasure: Class[?] = erasure,
+      typeArgs: Seq[ScalaType] = typeArgs,
+      typeVars: Map[String, ScalaType] = _typeVars
   ): ScalaType = {
 
     /* optimization */

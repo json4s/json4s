@@ -39,10 +39,10 @@ object ScalaSigReader {
   }
 
   def readConstructor(
-    argName: String,
-    clazz: ScalaType,
-    typeArgIndexes: List[Int],
-    argNames: List[String]
+      argName: String,
+      clazz: ScalaType,
+      typeArgIndexes: List[Int],
+      argNames: List[String]
   ): Class[?] = {
     val cl = findClass(clazz.erasure)
     val cstr = findConstructor(cl, argNames)
@@ -223,9 +223,9 @@ object ScalaSigReader {
   val ClassLoaders = Vector(this.getClass.getClassLoader, Thread.currentThread().getContextClassLoader)
 
   def companions(
-    t: String,
-    companion: Option[AnyRef] = None,
-    classLoaders: Iterable[ClassLoader] = ClassLoaders
+      t: String,
+      companion: Option[AnyRef] = None,
+      classLoaders: Iterable[ClassLoader] = ClassLoaders
   ): Option[(Class[?], Option[AnyRef])] = {
     def path(tt: String) = if (tt.endsWith("$")) tt else tt + "$"
     val cc: Option[Class[?]] = resolveClass(path(t), classLoaders) flatMap ((c: Class[?]) =>

@@ -4,7 +4,7 @@ package org.json4s
  * Use a map of keys as type hints.  Values may not be mapped by multiple keys
  */
 case class MappedTypeHints(hintMap: Map[Class[?], String], override val typeHintFieldName: String = "jsonClass")
-  extends TypeHints {
+    extends TypeHints {
   require(hintMap.size == hintMap.values.toList.distinct.size, "values in type hint mapping must be distinct")
 
   override val hints: List[Class[?]] = hintMap.keys.toList

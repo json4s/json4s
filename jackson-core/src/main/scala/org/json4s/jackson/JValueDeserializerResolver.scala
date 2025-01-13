@@ -8,9 +8,9 @@ private object JValueDeserializerResolver extends Deserializers.Base {
   private[this] val J_VALUE = classOf[JValue]
 
   override def findBeanDeserializer(
-    javaType: JavaType,
-    config: DeserializationConfig,
-    beanDesc: BeanDescription
+      javaType: JavaType,
+      config: DeserializationConfig,
+      beanDesc: BeanDescription
   ): JsonDeserializer[?] = {
     if (!J_VALUE.isAssignableFrom(javaType.getRawClass)) null
     else new JValueDeserializer(javaType.getRawClass)

@@ -44,7 +44,7 @@ object Formats {
   }
 
   private[json4s] def customRichDeserializer(
-    a: (ScalaType, JValue)
+      a: (ScalaType, JValue)
   )(implicit format: Formats): PartialFunction[(ScalaType, JValue), Any] = {
     format.richSerializers
       .collectFirst { case x if x.deserialize.isDefinedAt(a) => x.deserialize }
@@ -58,7 +58,7 @@ object Formats {
   }
 
   private[json4s] def customDeserializer(
-    a: (TypeInfo, JValue)
+      a: (TypeInfo, JValue)
   )(implicit format: Formats): PartialFunction[(TypeInfo, JValue), Any] = {
     format.customSerializers
       .collectFirst { case x if x.deserialize.isDefinedAt(a) => x.deserialize }
@@ -71,7 +71,7 @@ object Formats {
       .getOrElse(PartialFunction.empty[Any, String])
 
   private[json4s] def customKeyDeserializer(
-    a: (TypeInfo, String)
+      a: (TypeInfo, String)
   )(implicit format: Formats): PartialFunction[(TypeInfo, String), Any] =
     format.customKeySerializers
       .collectFirst { case x if x.deserialize.isDefinedAt(a) => x.deserialize }
@@ -123,25 +123,25 @@ trait Formats extends Serializable { self: Formats =>
   def emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
 
   private def copy(
-    wDateFormat: DateFormat = self.dateFormat,
-    wParameterNameReader: reflect.ParameterNameReader = self.parameterNameReader,
-    wTypeHints: TypeHints = self.typeHints,
-    wCustomSerializers: List[Serializer[?]] = self.customSerializers,
-    wCustomKeySerializers: List[KeySerializer[?]] = self.customKeySerializers,
-    wFieldSerializers: List[(Class[?], FieldSerializer[?])] = self.fieldSerializers,
-    wRichSerializers: List[RichSerializer[?]] = self.richSerializers,
-    wWantsBigInt: Boolean = self.wantsBigInt,
-    wWantsBigDecimal: Boolean = self.wantsBigDecimal,
-    withPrimitives: Set[Type] = self.primitives,
-    wCompanions: List[(Class[?], AnyRef)] = self.companions,
-    wExtractionNullStrategy: ExtractionNullStrategy = self.extractionNullStrategy,
-    wStrictOptionParsing: Boolean = self.strictOptionParsing,
-    wStrictArrayExtraction: Boolean = self.strictArrayExtraction,
-    wStrictMapExtraction: Boolean = self.strictMapExtraction,
-    wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
-    wConsiderCompanionConstructors: Boolean = self.considerCompanionConstructors,
-    wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy,
-    wStrictFieldDeserialization: Boolean = self.strictFieldDeserialization
+      wDateFormat: DateFormat = self.dateFormat,
+      wParameterNameReader: reflect.ParameterNameReader = self.parameterNameReader,
+      wTypeHints: TypeHints = self.typeHints,
+      wCustomSerializers: List[Serializer[?]] = self.customSerializers,
+      wCustomKeySerializers: List[KeySerializer[?]] = self.customKeySerializers,
+      wFieldSerializers: List[(Class[?], FieldSerializer[?])] = self.fieldSerializers,
+      wRichSerializers: List[RichSerializer[?]] = self.richSerializers,
+      wWantsBigInt: Boolean = self.wantsBigInt,
+      wWantsBigDecimal: Boolean = self.wantsBigDecimal,
+      withPrimitives: Set[Type] = self.primitives,
+      wCompanions: List[(Class[?], AnyRef)] = self.companions,
+      wExtractionNullStrategy: ExtractionNullStrategy = self.extractionNullStrategy,
+      wStrictOptionParsing: Boolean = self.strictOptionParsing,
+      wStrictArrayExtraction: Boolean = self.strictArrayExtraction,
+      wStrictMapExtraction: Boolean = self.strictMapExtraction,
+      wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
+      wConsiderCompanionConstructors: Boolean = self.considerCompanionConstructors,
+      wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy,
+      wStrictFieldDeserialization: Boolean = self.strictFieldDeserialization
   ): Formats =
     new Formats {
       def dateFormat: DateFormat = wDateFormat

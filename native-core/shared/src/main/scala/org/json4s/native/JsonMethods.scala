@@ -11,9 +11,9 @@ trait JsonMethods extends org.json4s.JsonMethods[Document] {
     JsonParser.parse(in, useBigDecimalForDouble = useBigDecimalForDouble, useBigIntForLong = useBigIntForLong)
 
   override def parseOpt[A: AsJsonInput](
-    in: A,
-    useBigDecimalForDouble: Boolean = false,
-    useBigIntForLong: Boolean = true
+      in: A,
+      useBigDecimalForDouble: Boolean = false,
+      useBigIntForLong: Boolean = true
   ): Option[JValue] = {
     try {
       JsonParser
@@ -35,9 +35,9 @@ trait JsonMethods extends org.json4s.JsonMethods[Document] {
    * @see Printer#pretty
    */
   def render(
-    value: JValue,
-    alwaysEscapeUnicode: Boolean = false,
-    emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
+      value: JValue,
+      alwaysEscapeUnicode: Boolean = false,
+      emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
   ): Document =
     emptyValueStrategy.replaceEmpty(value) match {
       case null => text("null")

@@ -410,43 +410,43 @@ class CustomSerializerExamples extends AnyWordSpec {
   import java.util.regex.Pattern
 
   class IntervalSerializer
-    extends CustomSerializer[Interval](format =>
-      (
-        { case JObject(JField("start", JInt(s)) :: JField("end", JInt(e)) :: Nil) =>
-          new Interval(s.longValue, e.longValue)
-        },
-        { case x: Interval =>
-          JObject(
-            JField("start", JInt(BigInt(x.startTime))) ::
-            JField("end", JInt(BigInt(x.endTime))) :: Nil
-          )
-        }
+      extends CustomSerializer[Interval](format =>
+        (
+          { case JObject(JField("start", JInt(s)) :: JField("end", JInt(e)) :: Nil) =>
+            new Interval(s.longValue, e.longValue)
+          },
+          { case x: Interval =>
+            JObject(
+              JField("start", JInt(BigInt(x.startTime))) ::
+              JField("end", JInt(BigInt(x.endTime))) :: Nil
+            )
+          }
+        )
       )
-    )
 
   class PatternSerializer
-    extends CustomSerializer[Pattern](format =>
-      (
-        { case JObject(JField("$pattern", JString(s)) :: Nil) =>
-          Pattern.compile(s)
-        },
-        { case x: Pattern =>
-          JObject(JField("$pattern", JString(x.pattern)) :: Nil)
-        }
+      extends CustomSerializer[Pattern](format =>
+        (
+          { case JObject(JField("$pattern", JString(s)) :: Nil) =>
+            Pattern.compile(s)
+          },
+          { case x: Pattern =>
+            JObject(JField("$pattern", JString(x.pattern)) :: Nil)
+          }
+        )
       )
-    )
 
   class DateSerializer
-    extends CustomSerializer[Date](format =>
-      (
-        { case JObject(List(JField("$dt", JString(s)))) =>
-          format.dateFormat.parse(s).getOrElse(throw new MappingException("Can't parse " + s + " to Date"))
-        },
-        { case x: Date =>
-          JObject(JField("$dt", JString(format.dateFormat.format(x))) :: Nil)
-        }
+      extends CustomSerializer[Date](format =>
+        (
+          { case JObject(List(JField("$dt", JString(s)))) =>
+            format.dateFormat.parse(s).getOrElse(throw new MappingException("Can't parse " + s + " to Date"))
+          },
+          { case x: Date =>
+            JObject(JField("$dt", JString(format.dateFormat.format(x))) :: Nil)
+          }
+        )
       )
-    )
 
   class IndexedSeqSerializer extends Serializer[IndexedSeq[?]] {
     def deserialize(implicit format: Formats) = {

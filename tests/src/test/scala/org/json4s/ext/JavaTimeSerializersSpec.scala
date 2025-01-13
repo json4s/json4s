@@ -53,15 +53,15 @@ abstract class JavaDateTimeSerializerSpec(mod: String) extends AnyWordSpec {
 }
 
 case class JavaTypes(
-  duration: Duration,
-  instant: Instant,
-  year: Year,
-  localDateTime: LocalDateTime,
-  localDate: LocalDate,
-  localTime: LocalTime,
-  period: Period,
-  yearMonth: YearMonth,
-  monthDay: MonthDay
+    duration: Duration,
+    instant: Instant,
+    year: Year,
+    localDateTime: LocalDateTime,
+    localDate: LocalDate,
+    localTime: LocalTime,
+    period: Period,
+    yearMonth: YearMonth,
+    monthDay: MonthDay
 )
 
 case class JavaDates(ldt: LocalDateTime)

@@ -5,8 +5,8 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 
 class NativeIgnoreCompanionCtorSpec
-  extends IgnoreCompanionConstructors[Document]("Native", native.Serialization)
-  with native.JsonMethods
+    extends IgnoreCompanionConstructors[Document]("Native", native.Serialization)
+    with native.JsonMethods
 
 final case class CompanionCtorSpec(someString: String, someInt: Int, someDouble: Double)
 
@@ -21,8 +21,8 @@ object IgnoreWithTypeParamSpec {
 }
 
 abstract class IgnoreCompanionConstructors[T](mod: String, ser: json4s.Serialization)
-  extends AnyWordSpec
-  with JsonMethods[T] {
+    extends AnyWordSpec
+    with JsonMethods[T] {
 
   implicit lazy val formats: Formats = new DefaultFormats { override val considerCompanionConstructors = false }
 
