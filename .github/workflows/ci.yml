@@ -27,6 +27,7 @@ jobs:
         distribution: temurin
     - uses: actions/checkout@v4
     - uses: coursier/cache-action@v6
+    - uses: sbt/setup-sbt@v1
     - run: |
         export TZ=Australia/Canberra
         case ${{ matrix.scala }} in
