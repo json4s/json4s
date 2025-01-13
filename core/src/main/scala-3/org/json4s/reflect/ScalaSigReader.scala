@@ -107,7 +107,9 @@ object ScalaSigReader {
     ms.find(m => m.paramSymss(0).map(_.name) == argNamesWithSymbols) // TODO type parameters
   }
 
-  private def findArgType(using quotes: Quotes)(
+  private def findArgType(using
+    quotes: Quotes
+  )(
     s: quotes.reflect.Symbol,
     argIdx: Int,
     typeArgIndex: Int
@@ -139,7 +141,9 @@ object ScalaSigReader {
     )
   }
 
-  private def findArgType(using quotes: Quotes)(
+  private def findArgType(using
+    quotes: Quotes
+  )(
     s: quotes.reflect.Symbol,
     argIdx: Int,
     typeArgIndexes: List[Int]
@@ -189,7 +193,9 @@ object ScalaSigReader {
     toClass(t.typeSymbol)
   }
 
-  private def toClass(using quotes: Quotes)(
+  private def toClass(using
+    quotes: Quotes
+  )(
     s: quotes.reflect.Symbol
   ): Class[?] = {
     import quotes.reflect._
