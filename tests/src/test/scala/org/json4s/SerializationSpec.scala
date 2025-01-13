@@ -3,10 +3,10 @@ package org.json4s
 import org.scalatest.wordspec.AnyWordSpec
 
 private case class OptionalFields(
-  optString: Option[String],
-  optInt: Option[Int],
-  optDouble: Option[Double],
-  optObj: Option[OptionalFields]
+    optString: Option[String],
+    optInt: Option[Int],
+    optDouble: Option[Double],
+    optObj: Option[OptionalFields]
 )
 private case class MyId(id: String) extends AnyVal
 private case class MyModel(ids: Seq[MyId])

@@ -39,10 +39,10 @@ object ScalaSigReader {
   }
 
   def readConstructor(
-    argName: String,
-    clazz: ScalaType,
-    typeArgIndexes: List[Int],
-    argNames: List[String]
+      argName: String,
+      clazz: ScalaType,
+      typeArgIndexes: List[Int],
+      argNames: List[String]
   ): Class[_] = {
     val cl = findClass(clazz.erasure)
     val cstr = findConstructor(cl, argNames)

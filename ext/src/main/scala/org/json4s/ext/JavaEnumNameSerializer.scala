@@ -20,14 +20,14 @@ package ext
 import java.lang.Enum
 
 class JavaEnumNameSerializer[E <: Enum[E]](implicit
-  ct: Manifest[E]
+    ct: Manifest[E]
 ) extends CustomSerializer[E](_ =>
-    (
-      { case JString(name) =>
-        Enum.valueOf(ct.runtimeClass.asInstanceOf[Class[E]], name)
-      },
-      { case dt: E =>
-        JString(dt.name())
-      }
+      (
+        { case JString(name) =>
+          Enum.valueOf(ct.runtimeClass.asInstanceOf[Class[E]], name)
+        },
+        { case dt: E =>
+          JString(dt.name())
+        }
+      )
     )
-  )

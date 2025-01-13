@@ -40,8 +40,8 @@ trait DefaultWriters {
     def write(a: collection.Seq[T]) = JArray(a.map(Writer[T].write(_)).toList)
   }
   implicit def mapWriter[K, V](implicit
-    keyWriter: JsonKeyWriter[K],
-    valueWriter: Writer[V]
+      keyWriter: JsonKeyWriter[K],
+      valueWriter: Writer[V]
   ): Writer[immutable.Map[K, V]] =
     new Writer[Map[K, V]] {
       def write(obj: Map[K, V]): JValue = JObject(

@@ -259,10 +259,10 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
 }
 
 case class AttributeInfo(
-  symbol: Symbol,
-  typeRef: Type,
-  value: Option[Any],
-  values: Seq[String ~ Any]
+    symbol: Symbol,
+    typeRef: Type,
+    value: Option[Any],
+    values: Seq[String ~ Any]
 ) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
 case class Children(symbolRefs: Seq[Int]) //sym_Ref {sym_Ref}
 

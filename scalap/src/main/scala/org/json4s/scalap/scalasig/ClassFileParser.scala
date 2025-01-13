@@ -228,13 +228,13 @@ case class Field(flags: Int, nameIndex: Int, descriptorIndex: Int, attributes: S
 case class Method(flags: Int, nameIndex: Int, descriptorIndex: Int, attributes: Seq[Attribute])
 
 case class ClassFileHeader(
-  minor: Int,
-  major: Int,
-  constants: ConstantPool,
-  flags: Int,
-  classIndex: Int,
-  superClassIndex: Int,
-  interfaces: Seq[Int]
+    minor: Int,
+    major: Int,
+    constants: ConstantPool,
+    flags: Int,
+    classIndex: Int,
+    superClassIndex: Int,
+    interfaces: Seq[Int]
 ) {
 
   def constant(index: Int) = constants(index)

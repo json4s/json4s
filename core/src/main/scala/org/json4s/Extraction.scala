@@ -342,9 +342,9 @@ object Extraction {
    * Unflattens a key/value map to a JSON object.
    */
   def unflatten(
-    map: Map[String, String],
-    useBigDecimalForDouble: Boolean = false,
-    useBigIntForLong: Boolean = true
+      map: Map[String, String],
+      useBigDecimalForDouble: Boolean = false,
+      useBigIntForLong: Boolean = true
   ): JValue = {
     import scala.util.matching.Regex
 
@@ -770,7 +770,7 @@ object Extraction {
   }
 
   private[this] def customOrElse(target: ScalaType, json: JValue)(
-    thunk: JValue => Any
+      thunk: JValue => Any
   )(implicit formats: Formats): Any = {
     val targetType = target.typeInfo
     val custom = Formats.customDeserializer(targetType, json)(formats)

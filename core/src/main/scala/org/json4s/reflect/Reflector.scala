@@ -71,26 +71,26 @@ object Reflector {
 
   @deprecated("Use createDescriptorWithFormats", "3.6.8")
   def createDescriptor(
-    tpe: ScalaType,
-    paramNameReader: ParameterNameReader = ParanamerReader,
-    companionMappings: List[(Class[_], AnyRef)] = Nil
+      tpe: ScalaType,
+      paramNameReader: ParameterNameReader = ParanamerReader,
+      companionMappings: List[(Class[_], AnyRef)] = Nil
   ): ObjectDescriptor = {
     createDescriptorWithFormats(tpe, paramNameReader, companionMappings)(DefaultFormats)
   }
 
   def createDescriptorWithFormats(
-    tpe: ScalaType,
-    paramNameReader: ParameterNameReader = ParanamerReader,
-    companionMappings: List[(Class[_], AnyRef)] = Nil
+      tpe: ScalaType,
+      paramNameReader: ParameterNameReader = ParanamerReader,
+      companionMappings: List[(Class[_], AnyRef)] = Nil
   )(implicit formats: Formats): ObjectDescriptor = {
     if (tpe.isPrimitive) PrimitiveDescriptor(tpe)
     else new ClassDescriptorBuilder(tpe, paramNameReader, companionMappings).result
   }
 
   private class ClassDescriptorBuilder(
-    tpe: ScalaType,
-    paramNameReader: ParameterNameReader = ParanamerReader,
-    companionMappings: List[(Class[_], AnyRef)] = Nil
+      tpe: ScalaType,
+      paramNameReader: ParameterNameReader = ParanamerReader,
+      companionMappings: List[(Class[_], AnyRef)] = Nil
   )(implicit formats: Formats) {
     var companion: Option[SingletonDescriptor] = None
     var triedCompanion = false
@@ -130,12 +130,12 @@ object Reflector {
     def properties: Seq[PropertyDescriptor] = fields(tpe.erasure)
 
     def ctorParamType(
-      name: String,
-      index: Int,
-      owner: ScalaType,
-      ctorParameterNames: List[String],
-      t: Type,
-      container: Option[(ScalaType, List[Int])] = None
+        name: String,
+        index: Int,
+        owner: ScalaType,
+        ctorParameterNames: List[String],
+        t: Type,
+        container: Option[(ScalaType, List[Int])] = None
     ): ScalaType = {
       val idxes = container.map(_._2.reverse)
       t match {

@@ -2,8 +2,8 @@ package org.json4s
 
 private[json4s] trait DefaultReaders0 {
   implicit def iterableReader[F[_], V](implicit
-    f: scala.collection.Factory[V, F[V]],
-    valueReader: Reader[V]
+      f: scala.collection.Factory[V, F[V]],
+      valueReader: Reader[V]
   ): Reader[F[V]] =
     Reader.from[F[V]] {
       case JArray(items) =>
