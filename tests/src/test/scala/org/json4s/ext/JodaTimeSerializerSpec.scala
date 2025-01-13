@@ -113,13 +113,13 @@ abstract class JodaTimeSerializerSpec(mod: String) extends AnyWordSpec {
 }
 
 case class JodaTypes(
-  duration: Duration,
-  instant: Instant,
-  dateTime: DateTime,
-  dateMidnight: DateMidnight,
-  localDate: LocalDate,
-  localTime: LocalTime,
-  period: Period
+    duration: Duration,
+    instant: Instant,
+    dateTime: DateTime,
+    dateMidnight: DateMidnight,
+    localDate: LocalDate,
+    localTime: LocalTime,
+    period: Period
 )
 
 case class Dates(dt: DateTime, dm: DateMidnight)

@@ -34,10 +34,10 @@ object ExtractionBugs {
   }
 
   case class ManyConstructorsWithPrimary @PrimaryConstructor() (
-    id: Long,
-    name: String,
-    lastName: String,
-    email: String
+      id: Long,
+      name: String,
+      lastName: String,
+      email: String
   ) {
     def this() = this(0, "John", "Doe", "")
     def this(name: String) = this(0, name, "Doe", "")
@@ -105,7 +105,7 @@ object ExtractionBugs {
   object ContentWithOption {
 
     class ContentWithOptionClass(val path: Option[String], val age: Option[Long], val content: Content)
-      extends ContentWithOption
+        extends ContentWithOption
 
     def apply(path: Option[String], age: Option[Long], content: Content): ContentWithOption = {
       new ContentWithOptionClass(path, age, content)
@@ -144,12 +144,12 @@ object ExtractionBugs {
    *  This is used to show that custom (strange) serialisations were once broken.
    */
   class MapImplementationSerializer
-    extends CustomSerializer[MapImplementation](formats =>
-      (
-        { case MapImplementationSerializer.strangeSerialization => new MapImplementation() },
-        { case _: MapImplementation => MapImplementationSerializer.strangeSerialization }
+      extends CustomSerializer[MapImplementation](formats =>
+        (
+          { case MapImplementationSerializer.strangeSerialization => new MapImplementation() },
+          { case _: MapImplementation => MapImplementationSerializer.strangeSerialization }
+        )
       )
-    )
 
   object MapImplementationSerializer {
     val strangeSerialization = Extraction.decompose(MapImplementation.content)(DefaultFormats)

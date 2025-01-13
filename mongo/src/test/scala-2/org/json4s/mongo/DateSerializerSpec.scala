@@ -8,15 +8,15 @@ import java.util.Date
 object DateSerializerSpec {
   case class WithDate(id: Int, name: String, createdAt: Date)
   case class EventWithDate(
-    timestamp: Date,
-    index: Int,
-    event: String,
-    description: String,
-    version: String,
-    platform: String,
-    device: String,
-    userId: String,
-    params: List[String] = Nil
+      timestamp: Date,
+      index: Int,
+      event: String,
+      description: String,
+      version: String,
+      platform: String,
+      device: String,
+      userId: String,
+      params: List[String] = Nil
   )
 }
 class DateSerializerSpec extends AnyWordSpec {

@@ -12,12 +12,12 @@ case class RRSimple(id: Int, name: String, items: List[String], createdAt: Date)
 case class RRSimpleJoda(id: Int, name: String, items: List[String], createdAt: DateTime)
 
 case class RROption(
-  id: Int,
-  name: String,
-  status: Option[String],
-  code: Option[Int],
-  createdAt: Date,
-  deletedAt: Option[Date]
+    id: Int,
+    name: String,
+    status: Option[String],
+    code: Option[Int],
+    createdAt: Date,
+    deletedAt: Option[Date]
 )
 
 case class RRTypeParam[T](id: Int, name: String, value: T, opt: Option[T], seq: Seq[T], map: Map[String, T])
@@ -29,13 +29,13 @@ case class NestedType(dat: List[Map[Double, Option[Int]]], lis: List[List[List[L
 case class NestedType3(dat: List[Map[Double, Option[List[Option[Int]]]]], lis: List[List[List[List[List[Int]]]]])
 
 case class NestedType4(
-  dat: List[Map[Double, Option[List[Map[Long, Option[Int]]]]]],
-  lis: List[List[List[List[List[Int]]]]]
+    dat: List[Map[Double, Option[List[Map[Long, Option[Int]]]]]],
+    lis: List[List[List[List[List[Int]]]]]
 )
 
 case class NestedType5(
-  dat: List[Map[Double, Option[List[Map[Long, Option[Map[Byte, Either[Double, Long]]]]]]]],
-  lis: List[List[List[List[List[Int]]]]]
+    dat: List[Map[Double, Option[List[Map[Long, Option[Map[Byte, Either[Double, Long]]]]]]]],
+    lis: List[List[List[List[List[Int]]]]]
 )
 
 case class NestedResType[T, S, V <: Option[S]](t: T, v: V, dat: List[Map[T, V]], lis: List[List[List[List[List[S]]]]])
@@ -53,12 +53,12 @@ object PathTypes {
     case class FromTrait(name: String)
 
     case class FromTraitRROption(
-      id: Int,
-      name: String,
-      status: Option[String],
-      code: Option[Int],
-      createdAt: Date,
-      deletedAt: Option[Date]
+        id: Int,
+        name: String,
+        status: Option[String],
+        code: Option[Int],
+        createdAt: Date,
+        deletedAt: Option[Date]
     )
 
     // case class FromTraitRRTypeParam[T](id: Int, name: String, value: T, opt: Option[T], seq: Seq[T], map: Map[String, T])
@@ -213,7 +213,7 @@ class ReflectorSpec extends AnyWordSpec {
     }
 
     def genericCheckCaseClass(
-      desc: ObjectDescriptor
+        desc: ObjectDescriptor
     )(params: Seq[ConstructorParamDescriptor] => Assertion): Assertion = {
       val realDesc = desc.asInstanceOf[ClassDescriptor]
 

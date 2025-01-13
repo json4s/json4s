@@ -25,8 +25,8 @@ import org.json4s.prefs.ExtractionNullStrategy
 import scala.reflect.ClassTag
 
 class NativeExtractionExamples
-  extends ExtractionExamples[Document]("Native", native.Serialization)
-  with native.JsonMethods
+    extends ExtractionExamples[Document]("Native", native.Serialization)
+    with native.JsonMethods
 
 abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) extends AnyWordSpec with JsonMethods[T] {
 
@@ -604,18 +604,18 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
 
     "format nullExtractionStrategy set to Disallow should use custom null serializer to set Option[T] as None" in {
       object CustomNull
-        extends CustomSerializer[Null](_ =>
-          (
-            {
-              case JNothing => null
-              case JNull => null
-              case JString("") => null
-            },
-            { case _ =>
-              JString("")
-            }
-          )
-        )(ClassTag.Null)
+          extends CustomSerializer[Null](_ =>
+            (
+              {
+                case JNothing => null
+                case JNull => null
+                case JString("") => null
+              },
+              { case _ =>
+                JString("")
+              }
+            )
+          )(ClassTag.Null)
       assert(
         parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](
           notNullFormats + CustomNull,
@@ -626,18 +626,18 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
 
     "format nullExtractionStrategy set to TreatAsAbsent should use custom null serializer to set Option[T] as None" in {
       object CustomNull
-        extends CustomSerializer[Null](_ =>
-          (
-            {
-              case JNothing => null
-              case JNull => null
-              case JString("") => null
-            },
-            { case _ =>
-              JString("")
-            }
-          )
-        )(ClassTag.Null)
+          extends CustomSerializer[Null](_ =>
+            (
+              {
+                case JNothing => null
+                case JNull => null
+                case JString("") => null
+              },
+              { case _ =>
+                JString("")
+              }
+            )
+          )(ClassTag.Null)
       assert(
         parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](
           nullAsAbsentFormats + CustomNull,

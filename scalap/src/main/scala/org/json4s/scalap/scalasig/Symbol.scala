@@ -35,12 +35,12 @@ case class ExternalSymbol(name: String, parent: Option[Symbol], entry: ScalaSig#
 }
 
 case class SymbolInfo(
-  name: String,
-  owner: Symbol,
-  flags: Int,
-  privateWithin: Option[AnyRef],
-  info: Int,
-  entry: ScalaSig#Entry
+    name: String,
+    owner: Symbol,
+    flags: Int,
+    privateWithin: Option[AnyRef],
+    info: Int,
+    entry: ScalaSig#Entry
 ) {
   def symbolString(any: AnyRef) = any match {
     case sym: SymbolInfoSymbol => sym.index.toString

@@ -143,61 +143,61 @@ object SerBench extends Benchmark {
   }
 
   class ProjectSerializer
-    extends CustomSerializer[org.json4s.examples.Project](implicit formats =>
-      (
-        { case jv @ JObject(("name", JString(name)) :: ("startDate", JString(startDate)) :: _) =>
-          val lang = (jv \ "lang") match {
-            case JNothing => None
-            case lj =>
-              Some(Language((lj \ "name").extract[String], (lj \ "version").extract[Double]))
-          }
-          org.json4s.examples.Project(
-            name = name,
-            startDate = formats.dateFormat.parse(startDate).get,
-            lang = lang,
-            teams = (jv \ "teams") match {
-              case JArray(jvs) =>
-                jvs map { tm =>
-                  Team(
-                    (tm \ "role").extract[String],
-                    (tm \ "members") match {
-                      case JArray(mems) =>
-                        mems map { mem =>
-                          Employee((mem \ "name").extract[String], (mem \ "experience").extract[Int])
-                        }
-                      case _ => Nil
-                    }
-                  )
-                }
-              case _ => Nil
+      extends CustomSerializer[org.json4s.examples.Project](implicit formats =>
+        (
+          { case jv @ JObject(("name", JString(name)) :: ("startDate", JString(startDate)) :: _) =>
+            val lang = (jv \ "lang") match {
+              case JNothing => None
+              case lj =>
+                Some(Language((lj \ "name").extract[String], (lj \ "version").extract[Double]))
             }
-          )
-        },
-        {
-          case pr: org.json4s.examples.Project => {
-            import JsonDSL._
+            org.json4s.examples.Project(
+              name = name,
+              startDate = formats.dateFormat.parse(startDate).get,
+              lang = lang,
+              teams = (jv \ "teams") match {
+                case JArray(jvs) =>
+                  jvs map { tm =>
+                    Team(
+                      (tm \ "role").extract[String],
+                      (tm \ "members") match {
+                        case JArray(mems) =>
+                          mems map { mem =>
+                            Employee((mem \ "name").extract[String], (mem \ "experience").extract[Int])
+                          }
+                        case _ => Nil
+                      }
+                    )
+                  }
+                case _ => Nil
+              }
+            )
+          },
+          {
+            case pr: org.json4s.examples.Project => {
+              import JsonDSL._
 
-            val lang = pr.lang map { l =>
-              ("name" -> l.name) ~
-              ("version" -> l.version)
-            } getOrElse JNothing
+              val lang = pr.lang map { l =>
+                ("name" -> l.name) ~
+                ("version" -> l.version)
+              } getOrElse JNothing
 
-            val teams = pr.teams map { team =>
-              ("role" -> team.role) ~
-              ("members" -> (team.members map { mem =>
-                ("name" -> mem.name) ~
-                ("experience" -> mem.experience)
-              }))
+              val teams = pr.teams map { team =>
+                ("role" -> team.role) ~
+                ("members" -> (team.members map { mem =>
+                  ("name" -> mem.name) ~
+                  ("experience" -> mem.experience)
+                }))
+              }
+
+              ("name" -> pr.name) ~
+              ("startDate" -> formats.dateFormat.format(pr.startDate)) ~
+              ("lang" -> lang) ~
+              ("teams" -> teams)
             }
-
-            ("name" -> pr.name) ~
-            ("startDate" -> formats.dateFormat.format(pr.startDate)) ~
-            ("lang" -> lang) ~
-            ("teams" -> teams)
           }
-        }
+        )
       )
-    )
 
 }
 

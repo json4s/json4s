@@ -3,7 +3,7 @@ package org.json4s
 import scala.reflect.{ClassTag, classTag}
 
 class CustomKeySerializer[A: ClassTag](ser: Formats => (PartialFunction[String, A], PartialFunction[Any, String]))
-  extends KeySerializer[A] {
+    extends KeySerializer[A] {
 
   val Class = classTag[A].runtimeClass
 

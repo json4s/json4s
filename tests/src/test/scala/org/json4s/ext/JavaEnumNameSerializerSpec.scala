@@ -6,7 +6,7 @@ import org.scalatest.wordspec.AnyWordSpec
 private case class ExampleClass(day: JavaDayEnum)
 
 abstract class JavaEnumNameSerializerSpec(
-  serialization: Serialization
+    serialization: Serialization
 ) extends AnyWordSpec {
 
   implicit val formats: Formats =
