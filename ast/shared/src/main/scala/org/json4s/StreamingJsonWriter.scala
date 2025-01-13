@@ -4,14 +4,14 @@ import java.io.{StringWriter, Writer => JWriter}
 import StreamingJsonWriter._
 
 private final class FieldStreamingJsonWriter[T <: JWriter](
-  name: String,
-  isFirst: Boolean,
-  protected[this] val nodes: T,
-  protected[this] val level: Int,
-  parent: ObjectStreamingJsonWriter[T],
-  protected[this] val pretty: Boolean,
-  protected[this] val spaces: Int,
-  protected[this] val alwaysEscapeUnicode: Boolean
+    name: String,
+    isFirst: Boolean,
+    protected[this] val nodes: T,
+    protected[this] val level: Int,
+    parent: ObjectStreamingJsonWriter[T],
+    protected[this] val pretty: Boolean,
+    protected[this] val spaces: Int,
+    protected[this] val alwaysEscapeUnicode: Boolean
 ) extends StreamingJsonWriter[T] {
 
   def result: T = nodes
@@ -52,12 +52,12 @@ private final class FieldStreamingJsonWriter[T <: JWriter](
   }
 }
 private final class ObjectStreamingJsonWriter[T <: JWriter](
-  protected[this] val nodes: T,
-  protected[this] val level: Int,
-  parent: StreamingJsonWriter[T],
-  protected[this] val pretty: Boolean,
-  protected[this] val spaces: Int,
-  protected[this] val alwaysEscapeUnicode: Boolean
+    protected[this] val nodes: T,
+    protected[this] val level: Int,
+    parent: StreamingJsonWriter[T],
+    protected[this] val pretty: Boolean,
+    protected[this] val spaces: Int,
+    protected[this] val alwaysEscapeUnicode: Boolean
 ) extends StreamingJsonWriter[T] {
   nodes write '{'
   writePretty()
@@ -139,12 +139,12 @@ private final class ObjectStreamingJsonWriter[T <: JWriter](
   }
 }
 private final class ArrayStreamingJsonWriter[T <: JWriter](
-  protected[this] val nodes: T,
-  protected[this] val level: Int,
-  parent: StreamingJsonWriter[T],
-  protected[this] val pretty: Boolean,
-  protected[this] val spaces: Int,
-  protected[this] val alwaysEscapeUnicode: Boolean
+    protected[this] val nodes: T,
+    protected[this] val level: Int,
+    parent: StreamingJsonWriter[T],
+    protected[this] val pretty: Boolean,
+    protected[this] val spaces: Int,
+    protected[this] val alwaysEscapeUnicode: Boolean
 ) extends StreamingJsonWriter[T] {
   nodes.write('[')
   writePretty()
@@ -189,10 +189,10 @@ private final class ArrayStreamingJsonWriter[T <: JWriter](
   }
 }
 private final class RootStreamingJsonWriter[T <: JWriter](
-  protected[this] val nodes: T = new StringWriter(),
-  protected[this] val pretty: Boolean = false,
-  protected[this] val spaces: Int = 2,
-  protected[this] val alwaysEscapeUnicode: Boolean = false
+    protected[this] val nodes: T = new StringWriter(),
+    protected[this] val pretty: Boolean = false,
+    protected[this] val spaces: Int = 2,
+    protected[this] val alwaysEscapeUnicode: Boolean = false
 ) extends StreamingJsonWriter[T] {
 
   protected[this] val level: Int = 0

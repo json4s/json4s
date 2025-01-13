@@ -30,11 +30,11 @@ class NativeJsonXmlSpec extends JsonXmlSpec[Document]("Native") with native.Json
  * System under specification for JSON XML.
  */
 abstract class JsonXmlSpec[T](mod: String)
-  extends AnyWordSpec
-  with NodeGen
-  with JValueGen
-  with Checkers
-  with JsonMethods[T] {
+    extends AnyWordSpec
+    with NodeGen
+    with JValueGen
+    with Checkers
+    with JsonMethods[T] {
   import Xml._
   import scala.xml.Node
 

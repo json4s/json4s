@@ -33,10 +33,10 @@ object ScalaSigReader {
   }
 
   def readConstructor(
-    argName: String,
-    clazz: ScalaType,
-    typeArgIndexes: List[Int],
-    argNames: List[String]
+      argName: String,
+      clazz: ScalaType,
+      typeArgIndexes: List[Int],
+      argNames: List[String]
   ): Class[?] = {
     given staging.Compiler = staging.Compiler.make(ScalaSigReader.getClass.getClassLoader)
     staging.withQuotes {
@@ -75,10 +75,10 @@ object ScalaSigReader {
   }
 
   private def findConstructor(using
-    quotes: Quotes
+      quotes: Quotes
   )(
-    cl: quotes.reflect.Symbol,
-    argNames: List[String]
+      cl: quotes.reflect.Symbol,
+      argNames: List[String]
   ): Option[quotes.reflect.Symbol] = {
     import quotes.reflect._
     val argNamesWithSymbols = argNames.map(replaceWithSymbols(_))
@@ -95,7 +95,7 @@ object ScalaSigReader {
   }
 
   private def findApply(using
-    quotes: Quotes
+      quotes: Quotes
   )(c: quotes.reflect.Symbol, argNames: List[String]): Option[quotes.reflect.Symbol] = {
     import quotes.reflect._
     val argNamesWithSymbols = argNames.map(replaceWithSymbols(_))
@@ -107,10 +107,12 @@ object ScalaSigReader {
     ms.find(m => m.paramSymss(0).map(_.name) == argNamesWithSymbols) // TODO type parameters
   }
 
-  private def findArgType(using quotes: Quotes)(
-    s: quotes.reflect.Symbol,
-    argIdx: Int,
-    typeArgIndex: Int
+  private def findArgType(using
+      quotes: Quotes
+  )(
+      s: quotes.reflect.Symbol,
+      argIdx: Int,
+      typeArgIndex: Int
   ): Class[?] = {
     import quotes.reflect._
     def findPrimitive(t: TypeRepr): Symbol = {
@@ -139,10 +141,12 @@ object ScalaSigReader {
     )
   }
 
-  private def findArgType(using quotes: Quotes)(
-    s: quotes.reflect.Symbol,
-    argIdx: Int,
-    typeArgIndexes: List[Int]
+  private def findArgType(using
+      quotes: Quotes
+  )(
+      s: quotes.reflect.Symbol,
+      argIdx: Int,
+      typeArgIndexes: List[Int]
   ): Class[?] = {
     import quotes.reflect._
     @tailrec def findPrimitive(t: TypeRepr, curr: Int): Symbol = {
@@ -174,7 +178,7 @@ object ScalaSigReader {
   }
 
   private def findArgTypeForField(using
-    quotes: Quotes
+      quotes: Quotes
   )(methodSymbol: quotes.reflect.Symbol, typeArgIdx: Int) = {
     import quotes.reflect._
     val t =
@@ -189,8 +193,10 @@ object ScalaSigReader {
     toClass(t.typeSymbol)
   }
 
-  private def toClass(using quotes: Quotes)(
-    s: quotes.reflect.Symbol
+  private def toClass(using
+      quotes: Quotes
+  )(
+      s: quotes.reflect.Symbol
   ): Class[?] = {
     import quotes.reflect._
     s.fullName match {
@@ -206,7 +212,7 @@ object ScalaSigReader {
   }
 
   private def getFirstTermList(using
-    quotes: Quotes
+      quotes: Quotes
   )(methodSymbol: quotes.reflect.Symbol): Option[List[quotes.reflect.Symbol]] = {
     import quotes.reflect._
     if methodSymbol.paramSymss(0).headOption.map(_.isTerm).getOrElse(false) then { // def method(arg...)
@@ -227,9 +233,9 @@ object ScalaSigReader {
   val ClassLoaders = Vector(this.getClass.getClassLoader, Thread.currentThread().getContextClassLoader)
 
   def companions(
-    t: String,
-    companion: Option[AnyRef] = None,
-    classLoaders: Iterable[ClassLoader] = ClassLoaders
+      t: String,
+      companion: Option[AnyRef] = None,
+      classLoaders: Iterable[ClassLoader] = ClassLoaders
   ): Option[(Class[?], Option[AnyRef])] = {
     def path(tt: String) = if tt.endsWith("$") then tt else tt + "$"
     val cc: Option[Class[?]] = resolveClass(path(t), classLoaders) flatMap ((c: Class[?]) =>

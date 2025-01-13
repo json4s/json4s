@@ -27,46 +27,46 @@ object JavaTypesSerializers {
 }
 
 case object UUIDSerializer
-  extends CustomSerializer[UUID](format =>
-    (
-      {
-        case JString(s) =>
-          try {
-            UUID.fromString(s)
-          } catch {
-            case NonFatal(e) =>
-              throw new MappingException(e.getMessage, new java.lang.IllegalArgumentException(e))
-          }
-        case JNull => null
-      },
-      { case x: UUID =>
-        JString(x.toString)
-      }
+    extends CustomSerializer[UUID](format =>
+      (
+        {
+          case JString(s) =>
+            try {
+              UUID.fromString(s)
+            } catch {
+              case NonFatal(e) =>
+                throw new MappingException(e.getMessage, new java.lang.IllegalArgumentException(e))
+            }
+          case JNull => null
+        },
+        { case x: UUID =>
+          JString(x.toString)
+        }
+      )
     )
-  )
 
 case object URLSerializer
-  extends CustomSerializer[URL](format =>
-    (
-      {
-        case JString(s) => new URI(s).toURL
-        case JNull => null
-      },
-      { case x: URL =>
-        JString(x.toString)
-      }
+    extends CustomSerializer[URL](format =>
+      (
+        {
+          case JString(s) => new URI(s).toURL
+          case JNull => null
+        },
+        { case x: URL =>
+          JString(x.toString)
+        }
+      )
     )
-  )
 
 case object URISerializer
-  extends CustomSerializer[URI](format =>
-    (
-      {
-        case JString(s) => URI.create(s)
-        case JNull => null
-      },
-      { case x: URI =>
-        JString(x.toString)
-      }
+    extends CustomSerializer[URI](format =>
+      (
+        {
+          case JString(s) => URI.create(s)
+          case JNull => null
+        },
+        { case x: URI =>
+          JString(x.toString)
+        }
+      )
     )
-  )

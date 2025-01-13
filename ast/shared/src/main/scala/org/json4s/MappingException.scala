@@ -6,10 +6,10 @@ class MappingException(val msg: String, val cause: Exception) extends Exception(
 
 object MappingException {
   class Multi(val errors: Seq[MappingException], cause: Exception)
-    extends MappingException(
-      msg = errors.map(_.msg).mkString(", "),
-      cause = cause
-    ) {
+      extends MappingException(
+        msg = errors.map(_.msg).mkString(", "),
+        cause = cause
+      ) {
     def this(errors: Seq[MappingException]) = this(errors, errors.headOption.orNull)
   }
 }

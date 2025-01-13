@@ -7,18 +7,18 @@ import java.util
 sealed abstract class Descriptor extends Product with Serializable
 
 case class PropertyDescriptor(name: String, mangledName: String, returnType: ScalaType, field: Field)
-  extends Descriptor {
+    extends Descriptor {
 
   def set(receiver: Any, value: Any) = field.set(receiver, value)
   def get(receiver: AnyRef) = field.get(receiver)
 }
 
 case class ConstructorParamDescriptor(
-  name: String,
-  mangledName: String,
-  argIndex: Int,
-  argType: ScalaType,
-  defaultValue: Option[() => Any]
+    name: String,
+    mangledName: String,
+    argIndex: Int,
+    argType: ScalaType,
+    defaultValue: Option[() => Any]
 ) extends Descriptor {
 
   lazy val isOptional = argType.isOption
@@ -26,25 +26,25 @@ case class ConstructorParamDescriptor(
 }
 
 case class ConstructorDescriptor(params: Seq[ConstructorParamDescriptor], constructor: Executable, isPrimary: Boolean)
-  extends Descriptor
+    extends Descriptor
 
 case class SingletonDescriptor(
-  simpleName: String,
-  fullName: String,
-  erasure: ScalaType,
-  instance: AnyRef,
-  properties: Seq[PropertyDescriptor]
+    simpleName: String,
+    fullName: String,
+    erasure: ScalaType,
+    instance: AnyRef,
+    properties: Seq[PropertyDescriptor]
 ) extends Descriptor
 
 sealed abstract class ObjectDescriptor extends Descriptor
 
 case class ClassDescriptor(
-  simpleName: String,
-  fullName: String,
-  erasure: ScalaType,
-  companion: Option[SingletonDescriptor],
-  constructors: Seq[ConstructorDescriptor],
-  properties: Seq[PropertyDescriptor]
+    simpleName: String,
+    fullName: String,
+    erasure: ScalaType,
+    companion: Option[SingletonDescriptor],
+    constructors: Seq[ConstructorDescriptor],
+    properties: Seq[PropertyDescriptor]
 ) extends ObjectDescriptor {
 
   def bestMatching(argNames: List[String]): Option[ConstructorDescriptor] = {

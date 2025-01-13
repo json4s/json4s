@@ -81,10 +81,10 @@ object JsonParser {
    */
   @throws[ParserUtil.ParseException]
   def parse(
-    s: Reader,
-    closeAutomatically: Boolean = true,
-    useBigDecimalForDouble: Boolean = false,
-    useBigIntForLong: Boolean = true
+      s: Reader,
+      closeAutomatically: Boolean = true,
+      useBigDecimalForDouble: Boolean = false,
+      useBigIntForLong: Boolean = true
   ): JValue = parseFromReader(
     s = s,
     closeAutomatically = closeAutomatically,
@@ -93,10 +93,10 @@ object JsonParser {
   )
 
   private[this] def parseFromReader(
-    s: Reader,
-    closeAutomatically: Boolean,
-    useBigDecimalForDouble: Boolean,
-    useBigIntForLong: Boolean
+      s: Reader,
+      closeAutomatically: Boolean,
+      useBigDecimalForDouble: Boolean,
+      useBigIntForLong: Boolean
   ): JValue =
     parse(new Buffer(s, closeAutomatically), useBigDecimal = useBigDecimalForDouble, useBigInt = useBigIntForLong)
 

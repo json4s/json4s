@@ -163,7 +163,7 @@ trait Rule[-In, +Out, +A, +X] extends (In => Result[Out, A, X]) {
    * ^~~~~~^(f) is equivalent to ^^ { case b1 ~ b2 ~ b3 ~ b4 ~ b5 ~ b6 => f(b1, b2, b3, b4, b5, b6) }
    */
   def ^~~~~~^[B1, B2, B3, B4, B5, B6, B >: A, C](
-    f: (B1, B2, B3, B4, B5, B6) => C
+      f: (B1, B2, B3, B4, B5, B6) => C
   )(implicit A: A => (B1 ~ B2 ~ B3 ~ B4 ~ B5 ~ B6)) = map { a =>
     A(a) match { case b1 ~ b2 ~ b3 ~ b4 ~ b5 ~ b6 => f(b1, b2, b3, b4, b5, b6) }
   }
@@ -172,7 +172,7 @@ trait Rule[-In, +Out, +A, +X] extends (In => Result[Out, A, X]) {
    * ^~~~~~~^(f) is equivalent to ^^ { case b1 ~ b2 ~ b3 ~ b4 ~ b5 ~ b6 => f(b1, b2, b3, b4, b5, b6) }
    */
   def ^~~~~~~^[B1, B2, B3, B4, B5, B6, B7, B >: A, C](
-    f: (B1, B2, B3, B4, B5, B6, B7) => C
+      f: (B1, B2, B3, B4, B5, B6, B7) => C
   )(implicit A: A => (B1 ~ B2 ~ B3 ~ B4 ~ B5 ~ B6 ~ B7)) = map { a =>
     A(a) match {
       case b1 ~ b2 ~ b3 ~ b4 ~ b5 ~ b6 ~ b7 => f(b1, b2, b3, b4, b5, b6, b7)
@@ -217,7 +217,7 @@ trait Choice[-In, +Out, +A, +X] extends Rule[In, Out, A, X] {
   }
 
   override def orElse[In2 <: In, Out2 >: Out, A2 >: A, X2 >: X](
-    other: => Rule[In2, Out2, A2, X2]
+      other: => Rule[In2, Out2, A2, X2]
   ): Rule[In2, Out2, A2, X2] = new Choice[In2, Out2, A2, X2] {
     val factory = Choice.this.factory
     lazy val choices = Choice.this.choices ::: other :: Nil

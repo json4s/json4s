@@ -29,7 +29,7 @@ package object reflect {
   private[reflect] val ClassLoaders = Vector(getClass.getClassLoader, Thread.currentThread().getContextClassLoader)
 
   implicit def scalaTypeDescribable(
-    t: ScalaType
+      t: ScalaType
   )(implicit formats: Formats = DefaultFormats): ReflectorDescribable[ScalaType] = new ReflectorDescribable[ScalaType] {
     val companionClasses: List[(Class[?], AnyRef)] = formats.companions
     val paranamer: ParameterNameReader = formats.parameterNameReader
@@ -37,7 +37,7 @@ package object reflect {
   }
 
   implicit def classDescribable(
-    t: Class[?]
+      t: Class[?]
   )(implicit formats: Formats = DefaultFormats): ReflectorDescribable[Class[?]] = new ReflectorDescribable[Class[?]] {
     val companionClasses: List[(Class[?], AnyRef)] = formats.companions
     val paranamer: ParameterNameReader = formats.parameterNameReader

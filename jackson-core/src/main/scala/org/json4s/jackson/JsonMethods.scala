@@ -19,9 +19,9 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
   def mapper = _defaultMapper
 
   def parse[A: AsJsonInput](
-    in: A,
-    useBigDecimalForDouble: Boolean = false,
-    useBigIntForLong: Boolean = true
+      in: A,
+      useBigDecimalForDouble: Boolean = false,
+      useBigIntForLong: Boolean = true
   ): JValue = {
     var reader = mapper.readerFor(classOf[JValue])
     if (useBigDecimalForDouble)
@@ -43,17 +43,17 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
   }
 
   def parseOpt[A: AsJsonInput](
-    in: A,
-    useBigDecimalForDouble: Boolean = false,
-    useBigIntForLong: Boolean = true
+      in: A,
+      useBigDecimalForDouble: Boolean = false,
+      useBigIntForLong: Boolean = true
   ): Option[JValue] = allCatch opt {
     parse(in, useBigDecimalForDouble, useBigIntForLong)
   }
 
   def render(
-    value: JValue,
-    alwaysEscapeUnicode: Boolean = false,
-    emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
+      value: JValue,
+      alwaysEscapeUnicode: Boolean = false,
+      emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
   ): JValue = {
     if (mapper.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII.mappedFeature()) != alwaysEscapeUnicode) {
       mapper.getFactory().configure(JsonWriteFeature.ESCAPE_NON_ASCII.mappedFeature(), alwaysEscapeUnicode)
