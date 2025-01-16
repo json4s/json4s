@@ -58,7 +58,7 @@ object build {
   val json4sSettings = mavenCentralFrouFrou ++ mimaSettings ++ Def.settings(
     organization := "org.json4s",
     scalaVersion := Scala212,
-    crossScalaVersions := Seq("2.10.7", "2.11.12", Scala212, "2.13.15"),
+    crossScalaVersions := Seq("2.10.7", "2.11.12", Scala212, "2.13.16"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps"),
     scalacOptions ++= PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion.value)) {
       case Some((2, 10)) => "-optimize"
