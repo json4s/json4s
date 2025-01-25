@@ -242,9 +242,9 @@ object Extraction {
         } else {
           internalDecomposeWithBuilder(v.right.get, current)
         }
-      } else if (classOf[(_, _)].isAssignableFrom(k)) {
+      } else if (classOf[(?, ?)].isAssignableFrom(k)) {
 
-        any.asInstanceOf[(_, _)] match {
+        any.asInstanceOf[(?, ?)] match {
           case (k: String, v) =>
             val obj = current.startObject()
             addField(k, v, obj)
@@ -440,7 +440,7 @@ object Extraction {
     } else if (scalaType.isCollection) {
       customOrElse(scalaType, json)(new CollectionBuilder(_, scalaType).result)
     } else if (
-      classOf[(_, _)].isAssignableFrom(scalaType.erasure) && (classOf[String].isAssignableFrom(
+      classOf[(?, ?)].isAssignableFrom(scalaType.erasure) && (classOf[String].isAssignableFrom(
         scalaType.typeArgs.head.erasure
       ) || classOf[Symbol].isAssignableFrom(scalaType.typeArgs.head.erasure))
     ) {

@@ -84,10 +84,10 @@ trait SomeTrait
 
 case class HashMapHaver(map: HashMap[String, Option[Int]]) extends SomeTrait
 
-object CustomTuple2Serializer extends RichSerializer[(_, _)] {
+object CustomTuple2Serializer extends RichSerializer[(?, ?)] {
 
-  override def deserialize(implicit format: Formats): PartialFunction[(ScalaType, JValue), (_, _)] = {
-    case (scalaType, JArray(arr)) if classOf[(_, _)].isAssignableFrom(scalaType.erasure) =>
+  override def deserialize(implicit format: Formats): PartialFunction[(ScalaType, JValue), (?, ?)] = {
+    case (scalaType, JArray(arr)) if classOf[(?, ?)].isAssignableFrom(scalaType.erasure) =>
       require(arr.size == 2)
       (extract(arr.head, scalaType.typeArgs.head), extract(arr(1), scalaType.typeArgs(1)))
   }
