@@ -55,7 +55,7 @@ class Executable private (val method: Method, val constructor: Constructor[?], i
     }
   }
 
-  def getAsAccessibleObject: AccessibleObject = {
+  def getAsAccessibleObject: java.lang.reflect.Executable = {
     if (method != null)
       method
     else constructor
