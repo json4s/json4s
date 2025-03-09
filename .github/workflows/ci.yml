@@ -37,7 +37,7 @@ jobs:
     - uses: coursier/cache-action@v6
     - run: |
         export TZ=Australia/Canberra
-        ./sbt -v "++ 3.6.3!" rootJVM3/test
+        ./sbt -v "++ 3.6.4!" rootJVM3/test
   wasm:
     runs-on: ubuntu-latest
     timeout-minutes: 20
