@@ -21,7 +21,7 @@ ${(2 to max).map(formatN).mkString("\n")}
     s"""  ${signature("format")} =
     format${n}[${A.mkString(", ")}, X](apply, unapply)(${(1 to n).map(n => s"key${n}").mkString(", ")})
 
-  ${signature("format" + n)} = JsonFormat.GenericFormat(
+  ${signature("format" + n)} = JsonFormat.GenericFormat(using
     reader = Reader.reader${n}(apply)(${(1 to n).map("key" + _).mkString(", ")}),
     writer = Writer.writer${n}(unapply)(${(1 to n).map("key" + _).mkString(", ")})
   )
