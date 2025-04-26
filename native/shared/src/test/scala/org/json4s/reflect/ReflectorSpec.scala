@@ -139,7 +139,7 @@ class ReflectorSpec extends AnyWordSpec with VersionCompat {
 
     "describe a class defined in a class constructor" in {
       val fmts: Formats = formats.withCompanions(classOf[inst.InternalType] -> inst)
-      Reflector.describe(manifest[PathTypes.HasTrait.FromTrait], fmts) match {
+      Reflector.describe(using manifest[PathTypes.HasTrait.FromTrait], fmts) match {
         case d: ClassDescriptor =>
           assert(d.constructors.nonEmpty)
           assert(d.constructors.head.params.size == 2)

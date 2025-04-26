@@ -261,7 +261,7 @@ trait Formats extends Serializable { self: Formats =>
     val ord = Ordering[Int].on[(Class[?], FieldSerializer[?])](x => delta(x._1, clazz))
     fieldSerializers filter (_._1.isAssignableFrom(clazz)) match {
       case Nil => None
-      case xs => Some((xs min ord)._2)
+      case xs => Some((xs.min(using ord))._2)
     }
   }
 

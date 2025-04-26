@@ -56,7 +56,7 @@ object SerBench extends Benchmark {
     )
   }
 
-  val projJson = Extraction.decompose(project)(DefaultFormats)
+  val projJson = Extraction.decompose(project)(using DefaultFormats)
 
   val projectJValue = {
     projJson merge (JObject(JField("name", JString("test" + counter.incrementAndGet()))))
@@ -93,19 +93,19 @@ object SerBench extends Benchmark {
     println()
 
     println("### Custom serializer")
-    new Bench()(DefaultFormats + new ProjectSerializer)
+    new Bench()(using DefaultFormats + new ProjectSerializer)
     println()
 
     println("### No type hints")
-    new Bench()(DefaultFormats)
+    new Bench()(using DefaultFormats)
     println()
 
     println("### Short type hints")
-    new Bench()(native.Serialization.formats(ShortTypeHints(classes)))
+    new Bench()(using native.Serialization.formats(ShortTypeHints(classes)))
     println()
 
     println("### Full type hints")
-    new Bench()(DefaultFormats + FullTypeHints(classes))
+    new Bench()(using DefaultFormats + FullTypeHints(classes))
     println()
   }
 

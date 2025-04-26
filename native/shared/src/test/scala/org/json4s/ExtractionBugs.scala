@@ -152,7 +152,7 @@ object ExtractionBugs {
     )
 
   object MapImplementationSerializer {
-    val strangeSerialization = Extraction.decompose(MapImplementation.content)(DefaultFormats)
+    val strangeSerialization = Extraction.decompose(MapImplementation.content)(using DefaultFormats)
   }
 }
 abstract class ExtractionBugs[T](mod: String) extends AnyWordSpec with JsonMethods[T] with VersionCompat {

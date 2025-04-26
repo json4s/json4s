@@ -37,47 +37,47 @@ object Serialization extends Serialization {
    * Serialize to String.
    */
   def write[A](a: A)(implicit formats: Formats): String = {
-    write(a, new StringWriter)(formats).toString
+    write(a, new StringWriter)(using formats).toString
   }
 
   /**
    * Serialize to Writer.
    */
   def write[A, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
-    Extraction.decomposeWithBuilder(a, JsonWriter.streaming(out, formats.alwaysEscapeUnicode))(formats)
+    Extraction.decomposeWithBuilder(a, JsonWriter.streaming(out, formats.alwaysEscapeUnicode))(using formats)
   }
 
   /**
    * Serialize to String (pretty format).
    */
   def writePretty[A](a: A)(implicit formats: Formats): String =
-    writePretty(a, new StringWriter)(formats).toString
+    writePretty(a, new StringWriter)(using formats).toString
 
   /**
    * Serialize to Writer (pretty format).
    */
   def writePretty[A, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
-    Extraction.decomposeWithBuilder(a, JsonWriter.streamingPretty(out, formats.alwaysEscapeUnicode))(formats)
+    Extraction.decomposeWithBuilder(a, JsonWriter.streamingPretty(out, formats.alwaysEscapeUnicode))(using formats)
   }
 
   /**
    * Serialize to String (pretty format).
    */
   def writePrettyOld[A](a: A)(implicit formats: Formats): String =
-    writePrettyOld(a, new StringWriter)(formats).toString
+    writePrettyOld(a, new StringWriter)(using formats).toString
 
   /**
    * Serialize to Writer (pretty format).
    */
   def writePrettyOld[A, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
-    Printer.pretty(JsonMethods.render(Extraction.decompose(a)(formats)), out)
+    Printer.pretty(JsonMethods.render(Extraction.decompose(a)(using formats)), out)
   }
 
   /**
    * Deserialize from a String.
    */
   def read[A](json: JsonInput)(implicit formats: Formats, mf: Manifest[A]): A = {
-    JsonParser.parse(json, formats.wantsBigDecimal, formats.wantsBigInt).extract(formats, mf)
+    JsonParser.parse(json, formats.wantsBigDecimal, formats.wantsBigInt).extract(using formats, mf)
   }
 
   /**
@@ -91,7 +91,7 @@ object Serialization extends Serialization {
         useBigDecimalForDouble = formats.wantsBigDecimal,
         useBigIntForLong = formats.wantsBigInt
       )
-      .extract(formats, mf)
+      .extract(using formats, mf)
   }
 
 }
