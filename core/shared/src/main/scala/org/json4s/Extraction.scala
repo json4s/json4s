@@ -81,7 +81,7 @@ object Extraction {
    * </pre>
    */
   def decomposeWithBuilder[T](a: Any, builder: JsonWriter[T])(implicit formats: Formats): T = {
-    internalDecomposeWithBuilder(a, builder)(formats)
+    internalDecomposeWithBuilder(a, builder)(using formats)
     builder.result
   }
 
@@ -172,8 +172,8 @@ object Extraction {
       obj.endObject()
     }
 
-    lazy val richCustom = Formats.customRichSerializer(a)(formats)
-    val custom = Formats.customSerializer(a)(formats)
+    lazy val richCustom = Formats.customRichSerializer(a)(using formats)
+    val custom = Formats.customSerializer(a)(using formats)
     if (custom.isDefinedAt(a)) {
       current addJValue custom(a)
     } else if (richCustom.isDefinedAt(a)) {
@@ -189,7 +189,7 @@ object Extraction {
       } else if (typesHaveNaN.contains(any.getClass) && any.toString == "NaN") {
         current.addJValue(JNull)
       } else if (Reflector.isPrimitive(any.getClass)) {
-        writePrimitive(any, current)(formats)
+        writePrimitive(any, current)(using formats)
       } else if (classOf[scala.collection.Map[?, ?]].isAssignableFrom(k)) {
         val obj = current.startObject()
         val iter = any.asInstanceOf[scala.collection.Map[?, ?]].iterator
@@ -206,7 +206,7 @@ object Extraction {
             case (k: Short, v) => addField(k.toString, v, obj)
             case (k: JavaShort, v) => addField(k.toString, v, obj)
             case (k: Any, v) =>
-              val customKeySerializer: PartialFunction[Any, String] = Formats.customKeySerializer(k)(formats)
+              val customKeySerializer: PartialFunction[Any, String] = Formats.customKeySerializer(k)(using formats)
               if (customKeySerializer.isDefinedAt(k)) {
                 addField(customKeySerializer(k), v, obj)
               } else {
@@ -513,8 +513,8 @@ object Extraction {
     }
 
     def result: Any = {
-      val custom = Formats.customDeserializer(tpe.typeInfo, json)(formats)
-      lazy val customRich = Formats.customRichDeserializer(tpe, json)(formats)
+      val custom = Formats.customDeserializer(tpe.typeInfo, json)(using formats)
+      lazy val customRich = Formats.customRichDeserializer(tpe, json)(using formats)
       if (custom.isDefinedAt(tpe.typeInfo, json)) custom(tpe.typeInfo, json)
       else if (customRich.isDefinedAt(tpe, json)) customRich(tpe, json)
       else if (tpe.erasure == classOf[List[?]]) mkCollection(_.toList)
@@ -773,8 +773,8 @@ object Extraction {
     thunk: JValue => Any
   )(implicit formats: Formats): Any = {
     val targetType = target.typeInfo
-    val custom = Formats.customDeserializer(targetType, json)(formats)
-    val customRich = Formats.customRichDeserializer(target, json)(formats)
+    val custom = Formats.customDeserializer(targetType, json)(using formats)
+    val customRich = Formats.customRichDeserializer(target, json)(using formats)
     if (customRich.isDefinedAt(target, json)) {
       customRich(target, json)
     } else {
@@ -798,7 +798,7 @@ object Extraction {
       case tt if tt == classOf[Timestamp] => formatTimestamp(key, formats)
       case _ =>
         val typeInfo = TypeInfo(targetType, None)
-        val deserializer = Formats.customKeyDeserializer(typeInfo, key)(formats)
+        val deserializer = Formats.customKeyDeserializer(typeInfo, key)(using formats)
         if (deserializer.isDefinedAt((typeInfo, key))) {
           deserializer((typeInfo, key))
         } else {
@@ -882,8 +882,8 @@ object Extraction {
         default map (_.apply()) getOrElse fail("Did not find value which can be converted into " + targetType.getName)
       case _ =>
         val typeInfo = target.typeInfo
-        val custom = Formats.customDeserializer(typeInfo, json)(formats)
-        lazy val richCustom = Formats.customRichDeserializer(target, json)(formats)
+        val custom = Formats.customDeserializer(typeInfo, json)(using formats)
+        lazy val richCustom = Formats.customRichDeserializer(target, json)(using formats)
         if (custom.isDefinedAt(typeInfo, json)) custom(typeInfo, json)
         else if (richCustom.isDefinedAt(target, json)) richCustom(target, json)
         else fail("Do not know how to convert " + json + " into " + targetType)

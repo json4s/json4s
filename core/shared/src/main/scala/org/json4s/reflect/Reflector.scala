@@ -64,7 +64,7 @@ object Reflector {
 
   @deprecated("Use describe[T] or describeWithFormats instead", "3.6.8")
   def describe(st: ReflectorDescribable[?]): ObjectDescriptor =
-    descriptors(st.scalaType, createDescriptorWithFormats(_, st.paranamer, st.companionClasses)(DefaultFormats))
+    descriptors(st.scalaType, createDescriptorWithFormats(_, st.paranamer, st.companionClasses)(using DefaultFormats))
 
   def describeWithFormats(st: ReflectorDescribable[?])(implicit formats: Formats): ObjectDescriptor =
     descriptors(st.scalaType, createDescriptorWithFormats(_, st.paranamer, st.companionClasses))
@@ -75,7 +75,7 @@ object Reflector {
     paramNameReader: ParameterNameReader = ParanamerReader,
     companionMappings: List[(Class[?], AnyRef)] = Nil
   ): ObjectDescriptor = {
-    createDescriptorWithFormats(tpe, paramNameReader, companionMappings)(DefaultFormats)
+    createDescriptorWithFormats(tpe, paramNameReader, companionMappings)(using DefaultFormats)
   }
 
   def createDescriptorWithFormats(
@@ -174,7 +174,7 @@ object Reflector {
         case v: WildcardType =>
           val upper = v.getUpperBounds
           if (upper != null && upper.length > 0) scalaTypeOf(upper(0))
-          else scalaTypeOf(Manifest.AnyRef)
+          else scalaTypeOf(using Manifest.AnyRef)
         case x =>
           val st = scalaTypeOf(x)
           if (st.erasure == classOf[java.lang.Object]) {

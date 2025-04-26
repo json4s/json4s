@@ -56,8 +56,8 @@ object JObjectParser {
     a.asInstanceOf[AnyRef] match {
       case null => JNull
       case x if isPrimitive(x.getClass) => primitive2jvalue(x)
-      case x if isDateType(x.getClass) => datetype2jvalue(x)(formats)
-      case x if isMongoType(x.getClass) => mongotype2jvalue(x)(formats)
+      case x if isDateType(x.getClass) => datetype2jvalue(x)(using formats)
+      case x if isMongoType(x.getClass) => mongotype2jvalue(x)(using formats)
       case x: BasicDBList => JArray(x.asScala.toList.map(x => serialize0(x, formats)))
       case x: BasicDBObject =>
         JObject(

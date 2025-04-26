@@ -117,7 +117,7 @@ class ScalaType(val manifest: Manifest[?]) extends Equals {
   import ScalaType.{types, CopiedScalaType}
   val erasure: Class[?] = manifest.runtimeClass
 
-  val typeArgs: Seq[ScalaType] = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
+  val typeArgs: Seq[ScalaType] = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(using ta)) ++ (
     if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
   )
 

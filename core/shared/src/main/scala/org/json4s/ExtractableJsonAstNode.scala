@@ -19,7 +19,7 @@ class ExtractableJsonAstNode(private val jv: JValue) extends AnyVal {
    * </pre>
    */
   def extract[A](implicit formats: Formats, mf: scala.reflect.Manifest[A]): A =
-    Extraction.extract(jv)(formats, mf)
+    Extraction.extract(jv)(using formats, mf)
 
   /**
    * Extract a value from a JSON.
@@ -38,7 +38,7 @@ class ExtractableJsonAstNode(private val jv: JValue) extends AnyVal {
    * </pre>
    */
   def extractOpt[A](implicit formats: Formats, mf: scala.reflect.Manifest[A]): Option[A] =
-    Extraction.extractOpt(jv)(formats, mf)
+    Extraction.extractOpt(jv)(using formats, mf)
 
   /**
    * Extract a value from a JSON using a default value.
@@ -57,6 +57,6 @@ class ExtractableJsonAstNode(private val jv: JValue) extends AnyVal {
    * </pre>
    */
   def extractOrElse[A](default: => A)(implicit formats: Formats, mf: scala.reflect.Manifest[A]): A =
-    Extraction.extractOpt(jv)(formats, mf).getOrElse(default)
+    Extraction.extractOpt(jv)(using formats, mf).getOrElse(default)
 
 }

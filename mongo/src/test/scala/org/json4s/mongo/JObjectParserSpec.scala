@@ -27,7 +27,7 @@ class JObjectParserSpec extends AnyWordSpec {
 
   def buildTestData: (ObjectId, DBObject) = {
     val oid = ObjectId.get
-    val dbo = JObjectParser.parse("x" -> oid.toString)(DefaultFormats)
+    val dbo = JObjectParser.parse("x" -> oid.toString)(using DefaultFormats)
     (oid, dbo)
   }
 
