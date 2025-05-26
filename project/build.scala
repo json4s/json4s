@@ -3,7 +3,6 @@ import Keys._
 import xml.Group
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 import sbtprojectmatrix.ProjectMatrixKeys.*
-import xerial.sbt.Sonatype.autoImport._
 
 object build {
   import Dependencies._
@@ -25,7 +24,7 @@ object build {
   }
 
   val mavenCentralFrouFrou = Seq(
-    publishTo := sonatypePublishToBundle.value,
+    publishTo := (if (isSnapshot.value) None else localStaging.value),
     homepage := Some(url("https://github.com/json4s/json4s")),
     startYear := Some(2009),
     licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))),
