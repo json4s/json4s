@@ -18,7 +18,7 @@ jobs:
       with:
         java-version: ${{matrix.java}}
         distribution: temurin
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - uses: coursier/cache-action@v6
     - run: |
         export TZ=Australia/Canberra
@@ -33,7 +33,7 @@ jobs:
       with:
         java-version: 21
         distribution: temurin
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - uses: coursier/cache-action@v6
     - run: |
         export TZ=Australia/Canberra
@@ -51,7 +51,7 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: 22
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - uses: coursier/cache-action@v6
     - run: ./sbt -v
            -Dscala_js_wasm
