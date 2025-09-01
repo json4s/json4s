@@ -57,7 +57,7 @@ trait Rules {
     val choices = rules.toList
   }
 
-  def ruleWithName[In, Out, A, X](_name: String, f: In => Result[Out, A, X]): Rule[In, Out, A, X] with Name =
+  def ruleWithName[In, Out, A, X](_name: String, f: In => Result[Out, A, X]): Rule[In, Out, A, X] & Name =
     new DefaultRule(f) with Name {
       val name = _name
     }
