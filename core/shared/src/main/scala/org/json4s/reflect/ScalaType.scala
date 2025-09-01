@@ -44,7 +44,7 @@ object ScalaType {
 
   def apply(target: TypeInfo): ScalaType = {
     target match {
-      case t: TypeInfo with SourceType => t.scalaType
+      case t: (TypeInfo & SourceType) => t.scalaType
       case t =>
         val tArgs =
           t.parameterizedType.map(_.getActualTypeArguments.toList.map(Reflector.scalaTypeOf(_))).getOrElse(Nil)
