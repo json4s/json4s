@@ -429,6 +429,10 @@ object Extraction {
           }
           if (scalaType.isMutableMap) {
             scala.collection.mutable.Map(values*)
+          } else if (classOf[scala.collection.immutable.ListMap[?, ?]].isAssignableFrom(scalaType.erasure)) {
+            scala.collection.immutable.ListMap(values*)
+          } else if (classOf[scala.collection.immutable.HashMap[?, ?]].isAssignableFrom(scalaType.erasure)) {
+            scala.collection.immutable.HashMap(values*)
           } else {
             values.toMap
           }

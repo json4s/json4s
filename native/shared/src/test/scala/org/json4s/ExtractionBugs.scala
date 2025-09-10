@@ -170,6 +170,22 @@ abstract class ExtractionBugs[T](mod: String) extends AnyWordSpec with JsonMetho
   }
 
   (mod + " Extraction bugs Specification") should {
+    "ListMap" in {
+      // https://github.com/json4s/json4s/issues/1598
+      import scala.collection.immutable.ListMap
+      val v = ListMap("a" -> 1, "b" -> 2)
+      val json = """{ "a" : 1 , "b" : 2 }"""
+      val v2 = Extraction.extract[ListMap[String, Int]](parse(json))
+      assert(v == v2)
+    }
+
+    "HashMap" in {
+      val v = scala.collection.immutable.HashMap("a" -> 1, "b" -> 2)
+      val json = """{ "a" : 1 , "b" : 2 }"""
+      val v2 = Extraction.extract[scala.collection.immutable.HashMap[String, Int]](parse(json))
+      assert(v == v2)
+    }
+
     "ClassCastException (BigInt) regression 2 must pass" in {
       val opt = OptionOfInt(Some(39))
       assert(Extraction.decompose(opt).extract[OptionOfInt].opt.get == 39)
