@@ -35,9 +35,11 @@ jobs:
         distribution: temurin
     - uses: actions/checkout@v5
     - uses: coursier/cache-action@v6
+    - id: scala_3_version
+      run: echo "value=$(cat .github/scala_3_latest.txt)" >> $GITHUB_OUTPUT
     - run: |
         export TZ=Australia/Canberra
-        ./sbt -v "++ 3.7.2!" rootJVM3/test
+        ./sbt -v "++ ${{ steps.scala_3_version.outputs.value }}!" rootJVM3/test
   wasm:
     runs-on: ubuntu-latest
     timeout-minutes: 20
