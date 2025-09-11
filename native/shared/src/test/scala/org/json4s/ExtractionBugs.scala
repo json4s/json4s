@@ -179,6 +179,13 @@ abstract class ExtractionBugs[T](mod: String) extends AnyWordSpec with JsonMetho
       assert(v == v2)
     }
 
+    "TrieMap" in {
+      val v = scala.collection.concurrent.TrieMap("a" -> 1, "b" -> 2)
+      val json = """{ "a" : 1 , "b" : 2 }"""
+      val v2 = Extraction.extract[scala.collection.concurrent.TrieMap[String, Int]](parse(json))
+      assert(v == v2)
+    }
+
     "HashMap" in {
       val v = scala.collection.immutable.HashMap("a" -> 1, "b" -> 2)
       val json = """{ "a" : 1 , "b" : 2 }"""
