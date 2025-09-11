@@ -428,7 +428,11 @@ object Extraction {
             convertedKey -> extractedValue
           }
           if (scalaType.isMutableMap) {
-            scala.collection.mutable.Map(values*)
+            if (classOf[scala.collection.concurrent.TrieMap[?, ?]].isAssignableFrom(scalaType.erasure)) {
+              scala.collection.concurrent.TrieMap(values*)
+            } else {
+              scala.collection.mutable.Map(values*)
+            }
           } else if (classOf[scala.collection.immutable.ListMap[?, ?]].isAssignableFrom(scalaType.erasure)) {
             scala.collection.immutable.ListMap(values*)
           } else if (classOf[scala.collection.immutable.HashMap[?, ?]].isAssignableFrom(scalaType.erasure)) {
