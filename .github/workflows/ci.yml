@@ -12,12 +12,12 @@ jobs:
         include:
           - java: 8
           - java: 11
-          - java: 21
+          - java: 25
     steps:
     - uses: actions/setup-java@v5
       with:
         java-version: ${{matrix.java}}
-        distribution: temurin
+        distribution: zulu
     - uses: actions/checkout@v5
     - uses: coursier/cache-action@v6
     - run: |
@@ -31,8 +31,8 @@ jobs:
     steps:
     - uses: actions/setup-java@v5
       with:
-        java-version: 21
-        distribution: temurin
+        java-version: 25
+        distribution: zulu
     - uses: actions/checkout@v5
     - uses: coursier/cache-action@v6
     - id: scala_3_version
@@ -48,8 +48,8 @@ jobs:
     steps:
     - uses: actions/setup-java@v5
       with:
-        java-version: 21
-        distribution: temurin
+        java-version: 25
+        distribution: zulu
     - uses: actions/setup-node@v5
       with:
         node-version: 22
