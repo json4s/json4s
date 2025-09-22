@@ -4,14 +4,10 @@ At this moment there are at least 6 json libraries for scala, not counting the j
 All these libraries have a very similar AST. This project aims to provide a single AST to be used by other scala
 json libraries.
 
-At this moment the approach taken to working with the AST has been taken from lift-json and the native package
-is in fact lift-json but outside of the lift project.
+This library got it start as a fork of lift-json aiming to free it from Lift's slower release cycle. However, since
+then Lift itself has migrated to using json4s directly.
 
 ## Lift JSON
-
-This project also attempts to set lift-json free from the release schedule imposed by the lift framework.
-The Lift framework carries many dependencies and as such it's typically a blocker for many other scala projects when
-a new version of scala is released.
 
 So the native package in this library is in fact verbatim lift-json in a different package name; this means that
 your import statements will change if you use this library.
