@@ -17,6 +17,7 @@ jobs:
         java-version: ${{matrix.java}}
         distribution: zulu
     - uses: actions/checkout@v5
+    - uses: sbt/setup-sbt@v1
     - run: |
         export TZ=Australia/Canberra
-        ./sbt -v "+ mimaReportBinaryIssues" "+ test"
+        sbt -v "+ mimaReportBinaryIssues" "+ test"
