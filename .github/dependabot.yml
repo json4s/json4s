@@ -11,3 +11,10 @@ updates:
     target-branch: "4.0"
     commit-message:
       prefix: "[4.0] "
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "3.6"
+    commit-message:
+      prefix: "[3.6] "
