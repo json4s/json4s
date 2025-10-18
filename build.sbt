@@ -157,13 +157,26 @@ lazy val ext = projectMatrix
   .settings(
     name := "json4s-ext",
     json4sSettings,
-    libraryDependencies ++= Dependencies.jodaTime,
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
     settings = jvmSettings,
   )
   .dependsOn(core)
+
+lazy val joda = projectMatrix
+  .in(file("joda"))
+  .defaultAxes()
+  .settings(
+    name := "json4s-joda",
+    json4sSettings,
+    libraryDependencies ++= Dependencies.jodaTime,
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = jvmSettings,
+  )
+  .dependsOn(ext)
 
 lazy val jacksonCore = projectMatrix
   .in(file("jackson-core"))
@@ -229,6 +242,7 @@ lazy val examples = projectMatrix
     native % "compile;test->test",
     jackson % "compile;test->test",
     ext,
+    joda,
     mongo
   )
 
@@ -298,6 +312,7 @@ lazy val tests = projectMatrix
     xml % "compile;test->test",
     native % "compile;test->test",
     ext,
+    joda,
     jackson
   )
 
@@ -311,6 +326,7 @@ lazy val rootJVM3 = project
       core,
       examples,
       ext,
+      joda,
       jacksonCore,
       jackson,
       mongo,
