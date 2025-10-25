@@ -83,7 +83,7 @@ Installation
 Add dependency to your SBT project description:
 
 ```scala
-val json4s_scalaz = "org.json4s" %% "json4s-scalaz" % "XXX"
+val json4s_scalaz = "io.github.json4s" %% "json4s-scalaz" % "XXX"
 ```
 
 Links
