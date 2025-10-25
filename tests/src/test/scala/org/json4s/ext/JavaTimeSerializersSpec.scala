@@ -36,6 +36,14 @@ abstract class JavaDateTimeSerializerSpec(mod: String) extends AnyWordSpec with 
     } yield LocalDateTime.ofInstant(x1, x2)
   )
 
+  private implicit val zonedDateTimeArbitrary: Arbitrary[ZonedDateTime] = Arbitrary(
+    implicitly[Arbitrary[Instant]].arbitrary.map(x => ZonedDateTime.ofInstant(x, ZoneId.of("UTC")))
+  )
+
+  private implicit val offsetDateTimeArbitrary: Arbitrary[OffsetDateTime] = Arbitrary(
+    implicitly[Arbitrary[LocalDateTime]].arbitrary.map(x => OffsetDateTime.of(x, ZoneOffset.UTC))
+  )
+
   private implicit val durationArbitrary: Arbitrary[Duration] = Arbitrary(
     for {
       x1 <- implicitly[Arbitrary[Int]].arbitrary
@@ -50,7 +58,7 @@ abstract class JavaDateTimeSerializerSpec(mod: String) extends AnyWordSpec with 
   )
 
   private implicit val javaTimesArbitrary: Arbitrary[JavaTypes] =
-    Arbitrary(Gen.resultOf(JavaTypes.apply(_, _, _, _, _, _, _, _, _)))
+    Arbitrary(Gen.resultOf(JavaTypes.apply(_, _, _, _, _, _, _, _, _, _, _)))
 
   (mod + " JavaTimeSerializer Specification") should {
     "scalacheck test" in forAll { (x: JavaTypes) =>
@@ -69,7 +77,9 @@ abstract class JavaDateTimeSerializerSpec(mod: String) extends AnyWordSpec with 
         LocalTime.of(15, 13, 34, 123),
         Period.of(2014, 11, 22),
         YearMonth.of(1934, 12),
-        MonthDay.of(11, 24)
+        MonthDay.of(11, 24),
+        ZonedDateTime.of(LocalDateTime.of(2025, 10, 25, 1, 2, 3, 4 * 1000 * 1000), ZoneId.of("UTC")),
+        OffsetDateTime.of(LocalDateTime.of(2026, 10, 25, 1, 2, 3, 4 * 1000 * 1000), ZoneOffset.UTC)
       )
       val ser = s.write(x)
       assert(s.read[JavaTypes](ser) == x)
@@ -90,7 +100,7 @@ abstract class JavaDateTimeSerializerSpec(mod: String) extends AnyWordSpec with 
     }
 
     "null is serialized as JSON null" in {
-      val x = JavaTypes(null, null, null, null, null, null, null, null, null)
+      val x = JavaTypes(null, null, null, null, null, null, null, null, null, null, null)
       val ser = s.write(x)
       assert(s.read[JavaTypes](ser) == x)
     }
@@ -106,7 +116,9 @@ case class JavaTypes(
   localTime: LocalTime,
   period: Period,
   yearMonth: YearMonth,
-  monthDay: MonthDay
+  monthDay: MonthDay,
+  zonedDateTime: ZonedDateTime,
+  offsetDateTime: OffsetDateTime
 )
 
 case class JavaDates(ldt: LocalDateTime)
