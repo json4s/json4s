@@ -1,9 +1,9 @@
 package org.json4s.ext
 
-import java.time._
-import java.util.{Date, TimeZone}
-
-import org.json4s._
+import java.time.*
+import java.util.Date
+import java.util.TimeZone
+import org.json4s.*
 
 object JavaTimeSerializers {
 
@@ -115,9 +115,11 @@ case object JYearSerializer
   )
 
 private[ext] case class _JLocalDate(year: Int, month: Int, day: Int)
+
 private[ext] object _JLocalDate {
   implicit val manifest: Manifest[_JLocalDate] = Manifest.classType(classOf[_JLocalDate])
 }
+
 object JLocalDateSerializer {
   def apply(): Serializer[LocalDate] = new ClassSerializer(new ClassType[LocalDate, _JLocalDate]() {
     def unwrap(d: _JLocalDate)(implicit format: Formats) = LocalDate.of(d.year, d.month, d.day)
@@ -127,9 +129,11 @@ object JLocalDateSerializer {
 }
 
 private[ext] case class _JLocalTime(hour: Int, minute: Int, second: Int, millis: Int)
+
 private[ext] object _JLocalTime {
   implicit val manifest: Manifest[_JLocalTime] = Manifest.classType(classOf[_JLocalTime])
 }
+
 object JLocalTimeSerializer {
   def apply(): Serializer[LocalTime] = new ClassSerializer(new ClassType[LocalTime, _JLocalTime]() {
     def unwrap(t: _JLocalTime)(implicit format: Formats) =
@@ -140,9 +144,11 @@ object JLocalTimeSerializer {
 }
 
 private[ext] case class _JPeriod(year: Int, month: Int, day: Int)
+
 private[ext] object _JPeriod {
   implicit val manifest: Manifest[_JPeriod] = Manifest.classType(classOf[_JPeriod])
 }
+
 object JPeriodSerializer {
   def apply(): Serializer[Period] = new ClassSerializer(new ClassType[Period, _JPeriod]() {
     def unwrap(p: _JPeriod)(implicit format: Formats) = Period.of(p.year, p.month, p.day)
@@ -151,9 +157,11 @@ object JPeriodSerializer {
 }
 
 private[ext] case class _JYearMonth(year: Int, month: Int)
+
 private[ext] object _JYearMonth {
   implicit val manifest: Manifest[_JYearMonth] = Manifest.classType(classOf[_JYearMonth])
 }
+
 object JYearMonthSerializer {
   def apply(): Serializer[YearMonth] = new ClassSerializer(new ClassType[YearMonth, _JYearMonth]() {
     def unwrap(ym: _JYearMonth)(implicit format: Formats) = YearMonth.of(ym.year, ym.month)
@@ -162,9 +170,11 @@ object JYearMonthSerializer {
 }
 
 private[ext] case class _JMonthDay(month: Int, dayOfMonth: Int)
+
 private[ext] object _JMonthDay {
   implicit val manifest: Manifest[_JMonthDay] = Manifest.classType(classOf[_JMonthDay])
 }
+
 object JMonthDaySerializer {
   def apply(): Serializer[MonthDay] = new ClassSerializer(new ClassType[MonthDay, _JMonthDay]() {
     def unwrap(md: _JMonthDay)(implicit format: Formats) = MonthDay.of(md.month, md.dayOfMonth)

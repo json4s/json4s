@@ -8,14 +8,17 @@
 package org.json4s.scalap
 package scalasig
 
-import ClassFileParser._
+import ClassFileParser.*
 import scala.annotation.tailrec
 
 object ScalaSigParser {
-  import Main.{BYTES_VALUE, SCALA_LONG_SIG_ANNOTATION, SCALA_SIG, SCALA_SIG_ANNOTATION}
+  import Main.BYTES_VALUE
+  import Main.SCALA_LONG_SIG_ANNOTATION
+  import Main.SCALA_SIG
+  import Main.SCALA_SIG_ANNOTATION
 
   def scalaSigFromAnnotation(classFile: ClassFile): Option[ScalaSig] = {
-    import classFile._
+    import classFile.*
 
     def getBytes(bytesElem: AnnotationElement): Array[Byte] = bytesElem.elementValue match {
       case ConstValueIndex(index) => bytesForIndex(index)
@@ -141,7 +144,9 @@ object ScalaSigParsers extends RulesWithState with MemoisableRules {
 }
 
 object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
-  import ScalaSigAttributeParsers.{nat, utf8, longValue}
+  import ScalaSigAttributeParsers.longValue
+  import ScalaSigAttributeParsers.nat
+  import ScalaSigAttributeParsers.utf8
 
   type S = ScalaSig#Entry
   type EntryParser[A] = Rule[A, String]

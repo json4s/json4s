@@ -16,15 +16,19 @@
 
 package org.json4s
 
-import org.scalatest.wordspec.AnyWordSpec
+import org.json4s.MonadicJValue.*
 import org.json4s.native.Document
-import org.json4s.MonadicJValue._
+import org.scalatest.wordspec.AnyWordSpec
 
 class NativeDiffExamples extends DiffExamples[Document]("Native") with native.JsonMethods
 
 abstract class DiffExamples[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
-  import NativeMergeExamples.{scala1, scala2, lotto1, lotto2, mergedLottoResult}
+  import NativeMergeExamples.lotto1
+  import NativeMergeExamples.lotto2
+  import NativeMergeExamples.mergedLottoResult
+  import NativeMergeExamples.scala1
+  import NativeMergeExamples.scala2
 
   "Diff example" in {
     val Diff(changed, added, deleted) = scala1 diff scala2
@@ -73,7 +77,7 @@ abstract class DiffExamples[T](mod: String) extends AnyWordSpec with JsonMethods
   }
 
   "After adding and removing a field, there should be no difference" in {
-    import JsonDSL._
+    import JsonDSL.*
     val addition = parse("""{"author":"Martin"}""")
     val scala2 = scala1 merge addition removeField { _ == JField("author", "Martin") }
     assert((scala1 diff scala2) == Diff(JNothing, JNothing, JNothing))

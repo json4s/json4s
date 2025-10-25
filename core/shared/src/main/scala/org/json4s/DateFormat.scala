@@ -1,6 +1,7 @@
 package org.json4s
 
-import java.util.{TimeZone, Date}
+import java.util.Date
+import java.util.TimeZone
 
 /**
  * Conversions between String and Date.

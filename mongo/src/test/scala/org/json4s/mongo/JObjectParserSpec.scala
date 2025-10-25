@@ -16,12 +16,11 @@
 package org.json4s
 package mongo
 
-import JsonDSL._
-
+import JsonDSL.*
+import com.mongodb.DBObject
 import org.bson.types.ObjectId
 import org.scalatest.wordspec.AnyWordSpec
-import com.mongodb.DBObject
-import scala.util.control.Exception._
+import scala.util.control.Exception.*
 
 class JObjectParserSpec extends AnyWordSpec {
 

@@ -1,6 +1,7 @@
 package org.json4s
 
-import scala.reflect.{ClassTag, classTag}
+import scala.reflect.ClassTag
+import scala.reflect.classTag
 
 class CustomKeySerializer[A: ClassTag](ser: Formats => (PartialFunction[String, A], PartialFunction[Any, String]))
   extends KeySerializer[A] {

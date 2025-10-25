@@ -16,13 +16,10 @@
 
 package org.json4s
 
-import reflect.ScalaType
-
 import java.lang.reflect.Type
-
 import org.json4s.prefs.EmptyValueStrategy
 import org.json4s.prefs.ExtractionNullStrategy
-
+import reflect.ScalaType
 import scala.annotation.implicitNotFound
 
 object Formats {
@@ -256,7 +253,7 @@ trait Formats extends Serializable { self: Formats =>
     copy(wFieldSerializers = (newSerializer.mf.runtimeClass -> newSerializer) :: self.fieldSerializers)
 
   private[json4s] def fieldSerializer(clazz: Class[?]): Option[FieldSerializer[?]] = {
-    import ClassDelta._
+    import ClassDelta.*
 
     val ord = Ordering[Int].on[(Class[?], FieldSerializer[?])](x => delta(x._1, clazz))
     fieldSerializers filter (_._1.isAssignableFrom(clazz)) match {

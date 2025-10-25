@@ -1,12 +1,11 @@
 package org.json4s
 package scalaz
 
-import _root_.scalaz._
-import Scalaz._
-import native.JsonMethods._
-import org.json4s.native.scalaz._
-import JsonScalaz._
-
+import _root_.scalaz.*
+import _root_.scalaz.Scalaz.*
+import org.json4s.native.JsonMethods.*
+import org.json4s.native.scalaz.*
+import org.json4s.scalaz.JsonScalaz.*
 import org.scalatest.wordspec.AnyWordSpec
 
 class Example extends AnyWordSpec {

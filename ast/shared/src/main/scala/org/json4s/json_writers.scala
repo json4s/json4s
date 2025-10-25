@@ -1,7 +1,7 @@
 package org.json4s
 
+import org.json4s.JsonAST.*
 import scala.collection.mutable.ListBuffer
-import org.json4s.JsonAST._
 
 object JsonWriter {
   def ast: JsonWriter[JValue] = new JDoubleAstRootJsonWriter
@@ -11,6 +11,7 @@ object JsonWriter {
   def streamingPretty[T <: java.io.Writer](writer: T, alwaysEscapeUnicode: Boolean): JsonWriter[T] =
     new RootStreamingJsonWriter[T](writer, pretty = true, alwaysEscapeUnicode = alwaysEscapeUnicode)
 }
+
 trait JsonWriter[T] {
   def startArray(): JsonWriter[T]
   def endArray(): JsonWriter[T]
@@ -31,6 +32,7 @@ trait JsonWriter[T] {
 
   def addJValue(jv: JValue): JsonWriter[T]
 }
+
 private final class JDoubleJFieldJsonWriter(name: String, parent: JDoubleJObjectJsonWriter)
   extends JDoubleAstJsonWriter {
   def result: JValue = JNothing
@@ -38,6 +40,7 @@ private final class JDoubleJFieldJsonWriter(name: String, parent: JDoubleJObject
   def addNode(node: JValue): JsonWriter[JValue] = parent.addNode(name -> node)
 
 }
+
 private final class JDoubleAstRootJsonWriter extends JDoubleAstJsonWriter {
   private[this] var nodes = List.empty[JValue]
 
@@ -49,6 +52,7 @@ private final class JDoubleAstRootJsonWriter extends JDoubleAstJsonWriter {
     if (nodes.nonEmpty) nodes.head else JNothing
   }
 }
+
 private final class JDecimalJFieldJsonWriter(name: String, parent: JDecimalJObjectJsonWriter)
   extends JDecimalAstJsonWriter {
   def result: JValue = JNothing
@@ -56,6 +60,7 @@ private final class JDecimalJFieldJsonWriter(name: String, parent: JDecimalJObje
   def addNode(node: JValue): JsonWriter[JValue] = parent.addNode(name -> node)
 
 }
+
 private final class JDecimalAstRootJsonWriter extends JDecimalAstJsonWriter {
   private[this] var nodes = List.empty[JValue]
 
@@ -67,6 +72,7 @@ private final class JDecimalAstRootJsonWriter extends JDecimalAstJsonWriter {
     if (nodes.nonEmpty) nodes.head else JNothing
   }
 }
+
 private final class JDoubleJObjectJsonWriter(parent: JsonWriter[JValue]) extends JsonWriter[JValue] {
   private[this] val nodes = ListBuffer[JField]()
   def addNode(node: JField): JDoubleJObjectJsonWriter = {
@@ -135,6 +141,7 @@ private final class JDoubleJObjectJsonWriter(parent: JsonWriter[JValue]) extends
 
   def result: JValue = JObject(nodes.toList)
 }
+
 private final class JDecimalJObjectJsonWriter(parent: JsonWriter[JValue]) extends JsonWriter[JValue] {
   private[this] val nodes = ListBuffer[JField]()
   def addNode(node: JField): JDecimalJObjectJsonWriter = {
@@ -237,6 +244,7 @@ private final class JDecimalJArrayJsonWriter(parent: JsonWriter[JValue]) extends
 
   def result: JValue = JArray(nodes.toList)
 }
+
 private sealed abstract class JValueJsonWriter extends JsonWriter[JValue] {
 
   def addNode(node: JValue): JsonWriter[JValue]
@@ -270,6 +278,7 @@ private sealed abstract class JValueJsonWriter extends JsonWriter[JValue] {
   def addJValue(jv: JValue): JsonWriter[JValue] = addNode(jv)
 
 }
+
 private sealed abstract class JDoubleAstJsonWriter extends JValueJsonWriter {
   def startArray(): JsonWriter[JValue] = {
     new JDoubleJArrayJsonWriter(this)

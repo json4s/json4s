@@ -34,7 +34,7 @@ object EnumNameSerializerSpec extends native.JsonMethods {
 }
 
 class EnumNameSerializerSpec extends AnyWordSpec {
-  import EnumNameSerializerSpec._
+  import EnumNameSerializerSpec.*
 
   val weekdays = List(Week.Monday, Week.Tuesday, Week.Wednesday, Week.Thursday, Week.Friday)
   val weekend = List(Weekend.Saturday, Weekend.Sunday)

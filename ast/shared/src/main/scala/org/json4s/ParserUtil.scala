@@ -1,6 +1,7 @@
 package org.json4s
 
-import scala.annotation.{switch, tailrec}
+import scala.annotation.switch
+import scala.annotation.tailrec
 
 object ParserUtil {
 

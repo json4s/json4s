@@ -16,24 +16,21 @@
 
 package org.json4s
 
-import java.lang.{
-  Boolean => JavaBoolean,
-  Byte => JavaByte,
-  Double => JavaDouble,
-  Float => JavaFloat,
-  Integer => JavaInteger,
-  Long => JavaLong,
-  Short => JavaShort
-}
-import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
+import java.lang.Boolean as JavaBoolean
+import java.lang.Byte as JavaByte
+import java.lang.Double as JavaDouble
+import java.lang.Float as JavaFloat
+import java.lang.Integer as JavaInteger
+import java.lang.Long as JavaLong
+import java.lang.Short as JavaShort
+import java.math.BigDecimal as JavaBigDecimal
+import java.math.BigInteger as JavaBigInteger
 import java.sql.Timestamp
 import java.util.Date
-
 import org.json4s
 import org.json4s.prefs.ExtractionNullStrategy
-import org.json4s.reflect._
-
-import scala.collection.JavaConverters._
+import org.json4s.reflect.*
+import scala.collection.JavaConverters.*
 import scala.collection.mutable
 import scala.reflect.Manifest
 import scala.reflect.NameTransformer.encode
@@ -510,7 +507,7 @@ object Extraction {
     }
 
     private[this] def mkTypedArray(a: Array[?]) = {
-      import java.lang.reflect.Array.{newInstance => newArray}
+      import java.lang.reflect.Array.newInstance as newArray
 
       a.foldLeft((newArray(typeArg.erasure, a.length), 0)) { (tuple, e) =>
         {

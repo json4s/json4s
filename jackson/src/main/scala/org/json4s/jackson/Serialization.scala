@@ -1,8 +1,8 @@
 package org.json4s
 package jackson
 
-import scala.reflect.Manifest
 import java.io.OutputStream
+import scala.reflect.Manifest
 
 /**
  * Serialization using default JsonMethods
@@ -21,7 +21,8 @@ object Serialization extends JacksonSerialization(JsonMethods)
  * @see org.json4s.TypeHints
  */
 class JacksonSerialization(jsonMethods: JsonMethods) extends Serialization {
-  import java.io.{Reader, Writer}
+  import java.io.Reader
+  import java.io.Writer
 
   /**
    * Serialize to String.

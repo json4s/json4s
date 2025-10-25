@@ -14,9 +14,9 @@
 package org.json4s
 package mongo
 
-import java.util.{Date, UUID}
+import java.util.Date
+import java.util.UUID
 import java.util.regex.Pattern
-
 import org.bson.types.ObjectId
 
 /*

@@ -1,8 +1,10 @@
 package org.json4s
 package reflect
 
-import java.lang.reflect.{AccessibleObject, Type, Constructor, Method}
-
+import java.lang.reflect.AccessibleObject
+import java.lang.reflect.Constructor
+import java.lang.reflect.Method
+import java.lang.reflect.Type
 import org.json4s.MappingException
 
 /**

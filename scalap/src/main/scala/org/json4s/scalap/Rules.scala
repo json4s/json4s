@@ -90,7 +90,7 @@ trait StateRules {
   type Rule[+A, +X] = org.json4s.scalap.Rule[S, S, A, X]
 
   val factory: Rules
-  import factory._
+  import factory.*
 
   def apply[A, X](f: S => Result[S, A, X]) = rule(f)
 

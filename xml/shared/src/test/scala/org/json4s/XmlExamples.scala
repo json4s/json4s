@@ -16,15 +16,16 @@
 
 package org.json4s
 
-import org.scalatest.wordspec.AnyWordSpec
+import org.json4s.MonadicJValue.*
 import org.json4s.native.Document
-import org.json4s.MonadicJValue._
+import org.scalatest.wordspec.AnyWordSpec
 
 class NativeXmlExamples extends XmlExamples[Document]("Native") with native.JsonMethods
 
 abstract class XmlExamples[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
-  import Xml._
-  import scala.xml.{Group, Text}
+  import Xml.*
+  import scala.xml.Group
+  import scala.xml.Text
 
   (mod + " XML Examples") should {
     "Basic conversion example" in {

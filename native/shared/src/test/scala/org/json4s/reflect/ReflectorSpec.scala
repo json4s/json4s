@@ -2,11 +2,19 @@ package org.json4s.reflect
 
 import java.sql.Timestamp
 import java.util.Date
-
-import org.json4s.{DateTime, DefaultFormats, Formats, JInt, JObject, JString, MappingException, Obj, Objs, reflect}
+import org.json4s.DateTime
+import org.json4s.DefaultFormats
+import org.json4s.Formats
+import org.json4s.JInt
+import org.json4s.JObject
+import org.json4s.JString
+import org.json4s.MappingException
+import org.json4s.Obj
+import org.json4s.Objs
+import org.json4s.VersionCompat
+import org.json4s.reflect
 import org.scalatest.Assertion
 import org.scalatest.wordspec.AnyWordSpec
-import org.json4s.VersionCompat
 
 case class RRSimple(id: Int, name: String, items: List[String], createdAt: Date)
 
@@ -105,6 +113,7 @@ class NormalClass {
 case class PetOwner(firstName: String, lastName: String) {
   def this(age: Int) = this("John", "Doe")
 }
+
 object PetOwner {
   def apply(email: String) = new PetOwner("Russell", "Westbrook")
 }
@@ -118,6 +127,7 @@ case class Cat @PrimaryConstructor() (name: String) {
 object GenericCaseClassWithCompanion {
   def apply[A](v: A): GenericCaseClassWithCompanion[A] = GenericCaseClassWithCompanion(v, "Bar")
 }
+
 case class GenericCaseClassWithCompanion[A](value: A, other: String)
 
 class ReflectorSpec extends AnyWordSpec with VersionCompat {

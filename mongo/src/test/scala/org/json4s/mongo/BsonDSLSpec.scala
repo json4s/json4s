@@ -17,18 +17,16 @@
 package org.json4s
 package mongo
 
-import BsonDSL._
-
-import scala.util.matching.Regex
-
-import java.util.{Date, UUID}
+import BsonDSL.*
+import com.mongodb.BasicDBList
+import com.mongodb.DBObject
+import java.util.Date
+import java.util.UUID
 import java.util.regex.Pattern
-
 import org.bson.types.ObjectId
 import org.scalatest.wordspec.AnyWordSpec
-
-import com.mongodb.{BasicDBList, DBObject}
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.*
+import scala.util.matching.Regex
 
 class BsonDSLSpec extends AnyWordSpec {
 

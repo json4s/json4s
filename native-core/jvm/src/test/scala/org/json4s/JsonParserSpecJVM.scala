@@ -1,11 +1,11 @@
 package org.json4s
 
-import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.JsonMethods.parse
+import org.scalatest.wordspec.AnyWordSpec
 
 class JsonParserSpecJVM extends AnyWordSpec {
   "Parsing is thread safe" in {
-    import java.util.concurrent._
+    import java.util.concurrent.*
 
     val json = """{
       "person": {

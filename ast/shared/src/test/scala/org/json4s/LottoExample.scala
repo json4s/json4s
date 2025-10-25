@@ -16,11 +16,11 @@
 
 package org.json4s
 
+import org.json4s.MonadicJValue.*
 import org.scalatest.wordspec.AnyWordSpec
-import org.json4s.MonadicJValue._
 
 abstract class LottoExample[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
-  import LottoExample._
+  import LottoExample.*
 
   ("The " + mod + " Lotto Examples") should {
     "pass" in {
@@ -55,8 +55,9 @@ abstract class LottoExample[T](mod: String) extends AnyWordSpec with JsonMethods
   def extractLotto(jv: JValue): Lotto
 
 }
+
 object LottoExample {
-  import JsonDSL._
+  import JsonDSL.*
 
   case class Winner(`winner-id`: Long, numbers: List[Int])
   case class Lotto(id: Long, `winning-numbers`: List[Int], winners: List[Winner], `draw-date`: Option[java.util.Date])

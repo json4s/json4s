@@ -1,12 +1,12 @@
 package org.json4s
 
+import org.json4s.MonadicJValue.*
 import org.scalatest.wordspec.AnyWordSpec
-import org.json4s.MonadicJValue._
 
 class JsonDynamicAstSpec extends AnyWordSpec {
 
-  import org.json4s.native.JsonMethods._
-  import org.json4s.DynamicJValue._
+  import org.json4s.DynamicJValue.*
+  import org.json4s.native.JsonMethods.*
 
   val tree = parse("""{"foo":{"bar": 3}}""")
 

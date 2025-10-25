@@ -1,9 +1,8 @@
 package org.json4s
 
-import org.json4s.Extraction._
+import org.json4s.Extraction.*
 import org.json4s.reflect.ScalaType
 import org.scalatest.wordspec.AnyWordSpec
-
 import scala.collection.immutable.HashMap
 
 abstract class RichSerializerTest[A] extends AnyWordSpec with JsonMethods[A] {

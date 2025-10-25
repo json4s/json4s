@@ -1,11 +1,12 @@
 package org.json4s
 
-import org.json4s.jackson.{JsonMethods, Serialization}
+import org.json4s.jackson.JsonMethods
+import org.json4s.jackson.Serialization
 import org.scalatest.wordspec.AnyWordSpec
 
 class TypeHintTest extends AnyWordSpec {
 
-  import TypeHintsTest._
+  import TypeHintsTest.*
 
   "deserialization with type hints" should {
 

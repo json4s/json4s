@@ -1,7 +1,8 @@
 package org.json4s.ext
 
-import org.json4s._
-import scala.reflect.{ClassTag, classTag}
+import org.json4s.*
+import scala.reflect.ClassTag
+import scala.reflect.classTag
 
 trait ClassType[A, B] {
   def unwrap(b: B)(implicit format: Formats): A

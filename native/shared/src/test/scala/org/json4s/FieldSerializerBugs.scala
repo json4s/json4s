@@ -1,11 +1,12 @@
 package org.json4s
 
+import org.json4s.FieldSerializerBugs.*
 import org.scalatest.wordspec.AnyWordSpec
-import FieldSerializerBugs._
 
 class FieldSerializerBugs extends AnyWordSpec {
-  import native.Serialization
-  import Serialization.{read, write => swrite}
+  import org.json4s.native.Serialization
+  import org.json4s.native.Serialization.read
+  import org.json4s.native.Serialization.write as swrite
 
   implicit val formats: Formats = DefaultFormats + FieldSerializer[AnyRef]()
 

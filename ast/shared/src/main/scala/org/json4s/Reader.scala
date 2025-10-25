@@ -1,7 +1,7 @@
 package org.json4s
 
-import scala.collection.immutable
 import scala.annotation.implicitNotFound
+import scala.collection.immutable
 import scala.reflect.ClassTag
 
 @implicitNotFound(
@@ -29,6 +29,7 @@ object Reader extends ReaderFunctions {
 }
 
 object DefaultReaders extends DefaultReaders
+
 trait DefaultReaders extends DefaultReaders0 {
   implicit val IntReader: Reader[Int] = Reader.fromPartialFunction[Int] {
     case JInt(x) => x.intValue

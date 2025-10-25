@@ -2,7 +2,7 @@ package org.json4s
 package native
 
 import org.json4s.JsonAST.JField
-import org.json4s.native.Document._
+import org.json4s.native.Document.*
 import org.json4s.prefs.EmptyValueStrategy
 
 trait JsonMethods extends org.json4s.JsonMethods[Document] {

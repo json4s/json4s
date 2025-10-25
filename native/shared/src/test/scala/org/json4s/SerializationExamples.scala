@@ -5,8 +5,9 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class SerializationExamples extends AnyWordSpec {
 
-  import SerializationExamples._
-  import native.Serialization.{read, write => swrite}
+  import SerializationExamples.*
+  import native.Serialization.read
+  import native.Serialization.write as swrite
 
   implicit val formats: Formats = native.Serialization.formats(NoTypeHints)
 
@@ -308,8 +309,10 @@ object FullTypeHintExamples {
     FullTypeHints(List[Class[?]](classOf[Animal], classOf[True], classOf[False], classOf[Falcon], classOf[Chicken]))
   )
 }
+
 class FullTypeHintExamples extends TypeHintExamples {
-  import native.Serialization.{read, write => swrite}
+  import native.Serialization.read
+  import native.Serialization.write as swrite
 
   implicit val formats: Formats = FullTypeHintExamples.formats
 
@@ -355,7 +358,7 @@ class FullTypeHintExamples extends TypeHintExamples {
 }
 
 class CustomTypeHintFieldNameExample extends TypeHintExamples {
-  import native.Serialization.{write => swrite}
+  import native.Serialization.write as swrite
 
   implicit val formats: Formats = new Formats {
     val dateFormat = DefaultFormats.lossless.dateFormat
@@ -372,7 +375,8 @@ class CustomTypeHintFieldNameExample extends TypeHintExamples {
 }
 
 trait TypeHintExamples extends AnyWordSpec {
-  import native.Serialization.{read, write => swrite}
+  import native.Serialization.read
+  import native.Serialization.write as swrite
 
   implicit val formats: Formats
 
@@ -405,9 +409,11 @@ case class Turtle(age: Int) extends Animal
 
 case class Objs(objects: List[Obj[?]])
 case class Obj[A](a: A)
+
 class CustomSerializerExamples extends AnyWordSpec {
-  import native.Serialization.{read, write => swrite}
   import java.util.regex.Pattern
+  import native.Serialization.read
+  import native.Serialization.write as swrite
 
   class IntervalSerializer
     extends CustomSerializer[Interval](format =>
@@ -502,7 +508,8 @@ class Interval(start: Long, end: Long) {
 }
 
 class CustomClassWithTypeHintsExamples extends AnyWordSpec {
-  import native.Serialization.{read, write => swrite}
+  import native.Serialization.read
+  import native.Serialization.write as swrite
 
   val hints = new ShortTypeHints(classOf[DateTime] :: Nil) {
     override def serialize: PartialFunction[Any, JObject] = { case t: DateTime =>

@@ -1,11 +1,11 @@
-import sbt._
-import Keys._
-import xml.Group
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
+import sbt.*
+import sbt.Keys.*
 import sbtprojectmatrix.ProjectMatrixKeys.*
+import scala.xml.Group
 
 object build {
-  import Dependencies._
+  import Dependencies.*
 
   val manifestSetting = packageOptions += {
     val (title, v, vendor) = (name.value, version.value, organization.value)

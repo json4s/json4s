@@ -1,7 +1,8 @@
 package org.json4s
 
-import java.io.{StringWriter, Writer => JWriter}
-import StreamingJsonWriter._
+import StreamingJsonWriter.*
+import java.io.StringWriter
+import java.io.Writer as JWriter
 
 private final class FieldStreamingJsonWriter[T <: JWriter](
   name: String,
@@ -51,6 +52,7 @@ private final class FieldStreamingJsonWriter[T <: JWriter](
     parent
   }
 }
+
 private final class ObjectStreamingJsonWriter[T <: JWriter](
   protected[this] val nodes: T,
   protected[this] val level: Int,
@@ -138,6 +140,7 @@ private final class ObjectStreamingJsonWriter[T <: JWriter](
     r
   }
 }
+
 private final class ArrayStreamingJsonWriter[T <: JWriter](
   protected[this] val nodes: T,
   protected[this] val level: Int,
@@ -188,6 +191,7 @@ private final class ArrayStreamingJsonWriter[T <: JWriter](
     this
   }
 }
+
 private final class RootStreamingJsonWriter[T <: JWriter](
   protected[this] val nodes: T = new StringWriter(),
   protected[this] val pretty: Boolean = false,

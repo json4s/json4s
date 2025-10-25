@@ -17,13 +17,15 @@
 package org.json4s
 package mongo
 
+import collection.JavaConverters.*
+import com.mongodb.BasicDBList
+import com.mongodb.BasicDBObject
+import com.mongodb.DBObject
 import java.util.UUID
-import java.util.regex.Pattern
-import com.mongodb.{BasicDBObject, BasicDBList, DBObject}
-import org.bson.types.ObjectId
 import java.util.concurrent.atomic.AtomicReference
+import java.util.regex.Pattern
+import org.bson.types.ObjectId
 import org.json4s.ParserUtil.ParseException
-import collection.JavaConverters._
 
 object JObjectParser {
 
@@ -52,7 +54,7 @@ object JObjectParser {
   def serialize(a: Any)(implicit formats: Formats): JValue = serialize0(a, formats)
 
   private[this] def serialize0(a: Any, formats: Formats): JValue = {
-    import Meta.Reflection._
+    import Meta.Reflection.*
     a.asInstanceOf[AnyRef] match {
       case null => JNull
       case x if isPrimitive(x.getClass) => primitive2jvalue(x)

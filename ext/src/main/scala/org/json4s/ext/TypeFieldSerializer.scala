@@ -1,19 +1,18 @@
 package org.json4s.ext
 
-import org.json4s.{
-  CustomSerializer,
-  DefaultFormats,
-  Extraction,
-  Formats,
-  JField,
-  JObject,
-  JString,
-  JValue,
-  NoTypeHints,
-  TypeHints,
-  jvalue2monadic
-}
-import org.json4s.reflect.{Reflector, ScalaType}
+import org.json4s.CustomSerializer
+import org.json4s.DefaultFormats
+import org.json4s.Extraction
+import org.json4s.Formats
+import org.json4s.JField
+import org.json4s.JObject
+import org.json4s.JString
+import org.json4s.JValue
+import org.json4s.NoTypeHints
+import org.json4s.TypeHints
+import org.json4s.jvalue2monadic
+import org.json4s.reflect.Reflector
+import org.json4s.reflect.ScalaType
 
 class TypeFieldSerializer[T: Manifest](fieldName: String, mapping: Map[String, Class[? <: T]])
   extends CustomSerializer[T](fm => {

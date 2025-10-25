@@ -1,7 +1,7 @@
 package org.json4s
 
-import org.scalatest.wordspec.AnyWordSpec
 import java.io.StringWriter
+import org.scalatest.wordspec.AnyWordSpec
 
 class JsonWriterSpec extends AnyWordSpec {
   "JsonWriter" should {

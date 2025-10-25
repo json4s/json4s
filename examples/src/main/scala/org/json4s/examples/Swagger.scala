@@ -1,10 +1,13 @@
 package org.json4s
 package examples
 
-import java.util.{Date => JDate, TimeZone, Locale}
-import ext.{JodaTimeSerializers, EnumNameSerializer}
-import org.joda.time._
-import format.ISODateTimeFormat
+import java.util.Date as JDate
+import java.util.Locale
+import java.util.TimeZone
+import org.joda.time.*
+import org.joda.time.format.ISODateTimeFormat
+import org.json4s.ext.EnumNameSerializer
+import org.json4s.ext.JodaTimeSerializers
 
 sealed trait HttpMethod {
 
@@ -13,42 +16,52 @@ sealed trait HttpMethod {
    */
   val isSafe: Boolean
 }
+
 case object Options extends HttpMethod {
   val isSafe = true
   override def toString = "OPTIONS"
 }
+
 case object Get extends HttpMethod {
   val isSafe = true
   override def toString = "GET"
 }
+
 case object Head extends HttpMethod {
   val isSafe = true
   override def toString = "HEAD"
 }
+
 case object Post extends HttpMethod {
   val isSafe = false
   override def toString = "POST"
 }
+
 case object Put extends HttpMethod {
   val isSafe = false
   override def toString = "PUT"
 }
+
 case object Delete extends HttpMethod {
   val isSafe = false
   override def toString = "DELETE"
 }
+
 case object Trace extends HttpMethod {
   val isSafe = true
   override def toString = "TRACE"
 }
+
 case object Connect extends HttpMethod {
   val isSafe = false
   override def toString = "CONNECT"
 }
+
 case object Patch extends HttpMethod {
   val isSafe = false
   override def toString = "PATCH"
 }
+
 case class ExtensionMethod(name: String) extends HttpMethod {
   val isSafe = false
 }
@@ -92,7 +105,7 @@ case class Api(
 }
 
 object Api {
-  import SwaggerSerializers._
+  import SwaggerSerializers.*
 
   lazy val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
 
@@ -119,7 +132,7 @@ object Api {
 }
 
 object SwaggerSerializers {
-  import JsonDSL._
+  import JsonDSL.*
 
   class HttpMethodSerializer
     extends CustomSerializer[HttpMethod](formats =>

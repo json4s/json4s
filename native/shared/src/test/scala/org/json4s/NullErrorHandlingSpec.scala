@@ -16,8 +16,8 @@
 
 package org.json4s
 
-import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
+import org.scalatest.wordspec.AnyWordSpec
 
 class NativeNullErrorHandlingSpec extends NullErrorHandlingSpec[Document]("Native") with native.JsonMethods
 
@@ -28,7 +28,7 @@ object NullErrorHandlingSpec {
 }
 
 abstract class NullErrorHandlingSpec[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
-  import NullErrorHandlingSpec._
+  import NullErrorHandlingSpec.*
 
   implicit lazy val formats: Formats = DefaultFormats
 

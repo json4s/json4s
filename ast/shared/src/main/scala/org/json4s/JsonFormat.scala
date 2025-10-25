@@ -13,6 +13,7 @@ object JsonFormat extends FormatFunctions {
   "No Json formatter found for type ${T}. Try to implement an implicit JsonFormat for this type."
 )
 trait JsonFormat[T] extends Writer[T] with Reader[T]
+
 trait BigDecimalJsonFormats extends DefaultJsonFormats with DefaultReaders with BigDecimalWriters
 trait DoubleJsonFormats extends DefaultJsonFormats with DefaultReaders with DoubleWriters
 object BigDecimalJsonFormats extends BigDecimalJsonFormats

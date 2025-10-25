@@ -16,15 +16,17 @@
 package org.json4s
 package native
 
-import org.json4s.ParserUtil.{Buffer, parseDouble, ParseException}
 import org.json4s.JsonAST.JField
+import org.json4s.ParserUtil.Buffer
+import org.json4s.ParserUtil.ParseException
+import org.json4s.ParserUtil.parseDouble
 
 /**
  * JSON parser.
  */
 object JsonParser {
 
-  import java.io._
+  import java.io.*
 
   /**
    * Parsed tokens from low level pull parser.

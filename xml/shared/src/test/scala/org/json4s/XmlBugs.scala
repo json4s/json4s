@@ -16,13 +16,13 @@
 
 package org.json4s
 
-import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
+import org.scalatest.wordspec.AnyWordSpec
 
 class NativeXmlBugs extends XmlBugs[Document]("Native") with native.JsonMethods
 
 abstract class XmlBugs[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
-  import Xml._
+  import Xml.*
 
   (mod + " XML Bugs") should {
     "HarryH's XML parses correctly" in {

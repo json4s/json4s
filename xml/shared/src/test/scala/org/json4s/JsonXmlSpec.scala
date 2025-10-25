@@ -16,10 +16,10 @@
 
 package org.json4s
 
+import org.json4s.native.Document
+import org.scalacheck.Arbitrary
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.Checkers
-import org.scalacheck.Arbitrary
-import org.json4s.native.Document
 
 //import NativeImports._
 //import JsonMethods._
@@ -35,7 +35,7 @@ abstract class JsonXmlSpec[T](mod: String)
   with JValueGen
   with Checkers
   with JsonMethods[T] {
-  import Xml._
+  import Xml.*
   import scala.xml.Node
 
   (mod + " JSON XML Specification") should {

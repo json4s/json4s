@@ -16,8 +16,7 @@
 
 package org.json4s
 
-import JsonAST._
-
+import JsonAST.*
 import scala.annotation.tailrec
 
 /**

@@ -1,9 +1,8 @@
 package org.json4s
 
-import org.scalatest.wordspec.AnyWordSpec
-
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.json4s.jackson.Json4sScalaModule
+import org.scalatest.wordspec.AnyWordSpec
 
 // fix https://github.com/json4s/json4s/issues/603
 class JacksonDeserializationSpec extends AnyWordSpec {

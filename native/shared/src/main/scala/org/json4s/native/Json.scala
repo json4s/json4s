@@ -1,11 +1,12 @@
 package org.json4s
 package native
 
-import java.io.{Writer => JWriter}
+import java.io.Writer as JWriter
 
 object Json {
   def apply(fmts: Formats) = new Json(fmts)
 }
+
 class Json(fmts: Formats) extends JsonUtil(fmts) {
 
   def write[A <: AnyRef: Manifest](a: A): String = Serialization.write(a)

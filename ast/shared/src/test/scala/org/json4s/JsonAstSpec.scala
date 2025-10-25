@@ -16,12 +16,12 @@
 
 package org.json4s
 
-import org.json4s.MonadicJValue._
-import org.json4s.JsonAST._
+import org.json4s.JsonAST.*
+import org.json4s.MonadicJValue.*
+import org.scalacheck.*
+import org.scalacheck.Prop.forAllNoShrink
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.Checkers
-import org.scalacheck._
-import org.scalacheck.Prop.forAllNoShrink
 
 class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
 

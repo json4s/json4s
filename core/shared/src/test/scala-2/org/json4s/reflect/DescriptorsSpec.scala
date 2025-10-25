@@ -1,6 +1,8 @@
 package org.json4s.reflect
 
-import org.json4s.reflect.DescriptorsSpec.{Company, Citizen, Human}
+import org.json4s.reflect.DescriptorsSpec.Citizen
+import org.json4s.reflect.DescriptorsSpec.Company
+import org.json4s.reflect.DescriptorsSpec.Human
 import org.scalatest.wordspec.AnyWordSpec
 
 object DescriptorsSpec {

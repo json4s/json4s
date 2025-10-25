@@ -7,7 +7,7 @@ class NativeJsonFormatSpec extends JsonFormatSpec[Document]("native") with nativ
 
 abstract class JsonFormatSpec[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
-  import DefaultReaders._
+  import DefaultReaders.*
 
   implicit def jvalue2readerSyntax(j: JValue): ReaderSyntax = new ReaderSyntax(j)
 

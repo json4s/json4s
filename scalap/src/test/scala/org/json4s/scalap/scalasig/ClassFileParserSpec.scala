@@ -1,9 +1,9 @@
 package org.json4s.scalap.scalasig
 
-import org.scalatest.wordspec.AnyWordSpec
-import java.io._
+import java.io.*
 import java.util.jar.JarFile
-import scala.collection.JavaConverters._
+import org.scalatest.wordspec.AnyWordSpec
+import scala.collection.JavaConverters.*
 
 class ClassFileParserSpec extends AnyWordSpec {
   "ClassFileParser" should {

@@ -1,11 +1,11 @@
 package org.json4s
 package examples
 
-import java.util.Date
-import org.json4s._
-import java.io._
 import com.fasterxml.jackson.databind.ObjectMapper
+import java.io.*
+import java.util.Date
 import java.util.concurrent.atomic.AtomicLong
+import org.json4s.*
 
 object SerBench extends Benchmark {
 
@@ -175,7 +175,7 @@ object SerBench extends Benchmark {
         },
         {
           case pr: org.json4s.examples.Project => {
-            import JsonDSL._
+            import JsonDSL.*
 
             val lang = pr.lang map { l =>
               ("name" -> l.name) ~

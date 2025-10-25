@@ -1,7 +1,7 @@
 package org.json4s
 
-import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
+import org.scalatest.wordspec.AnyWordSpec
 
 sealed trait Item
 case class Rock() extends Item

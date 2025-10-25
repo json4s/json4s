@@ -1,11 +1,13 @@
 package org.json4s.native
 
-import org.scalatest.wordspec.AnyWordSpec
-import org.json4s._
-import org.json4s.native.Serialization.{read, write => swrite}
-import org.json4s.native
-import java.util.{GregorianCalendar, Date}
 import java.sql.Timestamp
+import java.util.Date
+import java.util.GregorianCalendar
+import org.json4s.*
+import org.json4s.native
+import org.json4s.native.Serialization.read
+import org.json4s.native.Serialization.write as swrite
+import org.scalatest.wordspec.AnyWordSpec
 
 class MapSerializationExamples extends AnyWordSpec {
   implicit val formats: Formats = native.Serialization.formats(NoTypeHints)

@@ -1,13 +1,13 @@
 package org.json4s
 package jackson
 
-import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.prefs.EmptyValueStrategy
+import org.scalatest.wordspec.AnyWordSpec
 
 class JacksonJsonMethodsSpec extends AnyWordSpec {
 
-  import org.json4s.JsonDSL._
-  import JsonMethods._
+  import JsonMethods.*
+  import org.json4s.JsonDSL.*
 
   "A JValue can be converted to a JsonNode." in {
     val jv = parse(""" { "numbers" : [1, 2], "foo": "bar" } """)

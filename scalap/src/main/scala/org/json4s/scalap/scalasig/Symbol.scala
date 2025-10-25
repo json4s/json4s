@@ -1,7 +1,7 @@
 package org.json4s.scalap
 package scalasig
 
-import ScalaSigEntryParsers._
+import ScalaSigEntryParsers.*
 
 trait Symbol extends Flags {
   def name: String
@@ -72,8 +72,10 @@ case class TypeSymbol(symbolInfo: SymbolInfo) extends SymbolInfoSymbol {
 case class AliasSymbol(symbolInfo: SymbolInfo) extends SymbolInfoSymbol {
   override def path = name
 }
+
 case class ClassSymbol(symbolInfo: SymbolInfo, thisTypeRef: Option[Int]) extends SymbolInfoSymbol {
   lazy val selfType = thisTypeRef.map { (x: Int) => applyRule(parseEntry(typeEntry)(x)) }
 }
+
 case class ObjectSymbol(symbolInfo: SymbolInfo) extends SymbolInfoSymbol
 case class MethodSymbol(symbolInfo: SymbolInfo, aliasRef: Option[Int]) extends SymbolInfoSymbol

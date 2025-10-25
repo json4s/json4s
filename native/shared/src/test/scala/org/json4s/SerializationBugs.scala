@@ -1,16 +1,17 @@
 package org.json4s
 
-import org.scalatest.wordspec.AnyWordSpec
 import java.util.UUID
+import org.scalatest.wordspec.AnyWordSpec
 import scala.collection.mutable
 
 class SerializationBugs extends AnyWordSpec {
-  import native.Serialization.{read, write => swrite}
+  import native.Serialization.read
+  import native.Serialization.write as swrite
 
   implicit val formats: Formats = native.Serialization.formats(NoTypeHints)
 
   "plan1.Plan can be serialized (issue 341)" in {
-    import plan1._
+    import plan1.*
 
     val game = Game(Map("a" -> Plan(Some(Action(1, None)))))
     val ser = swrite(game)
@@ -18,7 +19,7 @@ class SerializationBugs extends AnyWordSpec {
   }
 
   "plan2.Plan can be serialized (issue 341)" in {
-    import plan2._
+    import plan2.*
 
     val g1 = Game(
       Map(

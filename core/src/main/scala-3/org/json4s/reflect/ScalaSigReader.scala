@@ -2,7 +2,7 @@ package org.json4s
 package reflect
 
 import scala.annotation.tailrec
-import scala.quoted._
+import scala.quoted.*
 import scala.reflect.NameTransformer
 
 object ScalaSigReader {
@@ -13,7 +13,7 @@ object ScalaSigReader {
     given staging.Compiler = staging.Compiler.make(this.getClass.getClassLoader)
 
     staging.withQuotes {
-      import quotes.reflect._
+      import quotes.reflect.*
       val cl = Symbol.classSymbol(clazz.erasure.getCanonicalName())
       val cstr =
         findConstructor(cl, argNames)
@@ -40,7 +40,7 @@ object ScalaSigReader {
   ): Class[?] = {
     given staging.Compiler = staging.Compiler.make(ScalaSigReader.getClass.getClassLoader)
     staging.withQuotes {
-      import quotes.reflect._
+      import quotes.reflect.*
       val cl = Symbol.classSymbol(clazz.erasure.getCanonicalName())
 
       val cstr = findConstructor(cl, argNames)
@@ -62,7 +62,7 @@ object ScalaSigReader {
     val nameWithSymbols = NameTransformer.decode(name)
 
     staging.withQuotes {
-      import quotes.reflect._
+      import quotes.reflect.*
       val sym = Symbol.classSymbol(
         clazz.getCanonicalName()
       )
@@ -80,7 +80,7 @@ object ScalaSigReader {
     cl: quotes.reflect.Symbol,
     argNames: List[String]
   ): Option[quotes.reflect.Symbol] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val argNamesWithSymbols = argNames.map(replaceWithSymbols(_))
     (cl.methodMembers :+ cl.primaryConstructor)
       .filter(_.isClassConstructor)
@@ -97,7 +97,7 @@ object ScalaSigReader {
   private def findApply(using
     quotes: Quotes
   )(c: quotes.reflect.Symbol, argNames: List[String]): Option[quotes.reflect.Symbol] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val argNamesWithSymbols = argNames.map(replaceWithSymbols(_))
 
     val ms = c.methodMembers.collect {
@@ -114,7 +114,7 @@ object ScalaSigReader {
     argIdx: Int,
     typeArgIndex: Int
   ): Class[?] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     def findPrimitive(t: TypeRepr): Symbol = {
       def throwError() = fail("Unexpected type info " + t.show)
       if defn.ScalaPrimitiveValueClasses.contains(t.typeSymbol) then {
@@ -148,9 +148,9 @@ object ScalaSigReader {
     argIdx: Int,
     typeArgIndexes: List[Int]
   ): Class[?] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     @tailrec def findPrimitive(t: TypeRepr, curr: Int): Symbol = {
-      import quotes.reflect._
+      import quotes.reflect.*
       val ii = (typeArgIndexes.length - 1) min curr
       if defn.ScalaPrimitiveValueClasses.contains(t.typeSymbol) then {
         t.typeSymbol
@@ -180,7 +180,7 @@ object ScalaSigReader {
   private def findArgTypeForField(using
     quotes: Quotes
   )(methodSymbol: quotes.reflect.Symbol, typeArgIdx: Int) = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val t =
       methodSymbol.owner.typeRef.memberType(methodSymbol).widen.dealias match {
         case MethodType(paramNames, paramTypes, retTpe) =>
@@ -198,7 +198,7 @@ object ScalaSigReader {
   )(
     s: quotes.reflect.Symbol
   ): Class[?] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     s.fullName match {
       case "scala.Short" => classOf[Short]
       case "scala.Int" => classOf[Int]
@@ -214,7 +214,7 @@ object ScalaSigReader {
   private def getFirstTermList(using
     quotes: Quotes
   )(methodSymbol: quotes.reflect.Symbol): Option[List[quotes.reflect.Symbol]] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     if methodSymbol.paramSymss(0).headOption.map(_.isTerm).getOrElse(false) then { // def method(arg...)
       Some(methodSymbol.paramSymss(0))
     } else if methodSymbol.paramSymss.length == 1 then {

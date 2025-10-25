@@ -1,17 +1,19 @@
 package org.json4s
 
 import org.json4s.ParserUtil.ParseException
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
+import org.scalacheck.Prop.*
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.Checkers
-import org.scalacheck.{Arbitrary, Gen}
-import org.scalacheck.Prop._
 
 /**
  * System under specification for JSON Parser.
  */
 class JsonParserSpec extends AnyWordSpec with JValueGen with Checkers {
-  import native.{JsonParser, Printer}
-  import native.JsonMethods._
+  import native.JsonMethods.*
+  import native.JsonParser
+  import native.Printer
 
   "A JSON Parser" should {
     "avoid ClassCastException" in {

@@ -1,8 +1,10 @@
 package org.json4s
 
-import org.json4s.prefs.{EmptyValueStrategy, ExtractionNullStrategy}
 import java.lang.reflect.Type
-import java.util.{Date, TimeZone}
+import java.util.Date
+import java.util.TimeZone
+import org.json4s.prefs.EmptyValueStrategy
+import org.json4s.prefs.ExtractionNullStrategy
 
 /**
  * Default date format is UTC time.
@@ -22,7 +24,8 @@ object DefaultFormats extends DefaultFormats {
 }
 
 trait DefaultFormats extends Formats {
-  import java.text.{ParseException, SimpleDateFormat}
+  import java.text.ParseException
+  import java.text.SimpleDateFormat
 
   private[this] val df = new ThreadLocal[SimpleDateFormat](dateFormatter)
 

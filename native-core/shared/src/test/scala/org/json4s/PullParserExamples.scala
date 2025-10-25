@@ -1,14 +1,13 @@
 package org.json4s
 
+import org.json4s.native.JsonParser
+import org.json4s.native.JsonParser.*
 import org.scalatest.wordspec.AnyWordSpec
 
 /**
  * System under specification for JSON Pull Parser.
  */
 class PullParserExamples extends AnyWordSpec {
-
-  import native.JsonParser
-  import JsonParser._
 
   "A JSON Pull Parser" should {
     "Pull parsing example" in {
