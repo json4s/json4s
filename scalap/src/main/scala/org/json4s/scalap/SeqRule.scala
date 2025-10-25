@@ -39,7 +39,7 @@ class InRule[In, +Out, +A, +X](rule: Rule[In, Out, A, X]) {
 }
 
 class SeqRule[S, +A, +X](rule: Rule[S, S, A, X]) {
-  import rule.factory._
+  import rule.factory.*
 
   def ? = rule mapRule {
     case Success(out, a) => (in: S) => Success(out, Some(a))

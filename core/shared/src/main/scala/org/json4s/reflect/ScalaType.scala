@@ -1,8 +1,10 @@
 package org.json4s.reflect
 
-import java.lang.reflect.{Field, TypeVariable}
-
-import org.json4s.{JArray, JObject, JValue}
+import java.lang.reflect.Field
+import java.lang.reflect.TypeVariable
+import org.json4s.JArray
+import org.json4s.JObject
+import org.json4s.JValue
 import scala.reflect.NameTransformer
 
 object ScalaType {
@@ -114,7 +116,8 @@ object ScalaType {
 
 class ScalaType(val manifest: Manifest[?]) extends Equals {
 
-  import ScalaType.{types, CopiedScalaType}
+  import ScalaType.CopiedScalaType
+  import ScalaType.types
   val erasure: Class[?] = manifest.runtimeClass
 
   val typeArgs: Seq[ScalaType] = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(using ta)) ++ (

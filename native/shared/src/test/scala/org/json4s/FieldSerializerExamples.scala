@@ -1,11 +1,12 @@
 package org.json4s
 
-import native.JsonMethods._
+import native.JsonMethods.*
 import org.scalatest.wordspec.AnyWordSpec
 
 class FieldSerializerExamples extends AnyWordSpec {
-  import native.Serialization.{read, write => swrite}
-  import FieldSerializer._
+  import FieldSerializer.*
+  import native.Serialization.read
+  import native.Serialization.write as swrite
 
   val dog = new WildDog("black")
   dog.name = "pluto"

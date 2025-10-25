@@ -1,7 +1,7 @@
 package org.json4s
 
+import org.json4s.DefaultJsonFormats.*
 import org.scalatest.wordspec.AnyWordSpec
-import org.json4s.DefaultJsonFormats._
 
 class ReaderSpec extends AnyWordSpec {
   "Reader" should {

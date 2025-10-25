@@ -20,7 +20,7 @@ package ext
 import scala.reflect.ClassTag
 
 class EnumSerializer[E <: Enumeration: ClassTag](enumeration: E) extends Serializer[EnumValue[E]] {
-  import JsonDSL._
+  import JsonDSL.*
 
   private[this] val EnumerationClass = classOf[Enumeration#Value]
 
@@ -46,7 +46,7 @@ class EnumSerializer[E <: Enumeration: ClassTag](enumeration: E) extends Seriali
 }
 
 class EnumNameSerializer[E <: Enumeration: ClassTag](enumeration: E) extends Serializer[EnumValue[E]] {
-  import JsonDSL._
+  import JsonDSL.*
 
   private[this] val EnumerationClass = classOf[Enumeration#Value]
 

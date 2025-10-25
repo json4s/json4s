@@ -16,7 +16,7 @@
 
 package org.json4s
 
-import JsonAST._
+import JsonAST.*
 
 /**
  * Basic implicit conversions from primitive types into JSON.
@@ -32,14 +32,18 @@ trait BigDecimalMode { self: Implicits =>
   implicit def bigdecimal2jvalue(x: BigDecimal): JValue = JDecimal(x)
 
 }
+
 object BigDecimalMode extends Implicits with BigDecimalMode
+
 trait DoubleMode { self: Implicits =>
   implicit def double2jvalue(x: Double): JValue = JDouble(x)
   implicit def float2jvalue(x: Float): JValue = JDouble(x.toDouble)
   implicit def bigdecimal2jvalue(x: BigDecimal): JValue = JDouble(x.doubleValue)
 
 }
+
 object DoubleMode extends Implicits with DoubleMode
+
 trait Implicits {
   implicit def short2jvalue(x: Short): JValue = JInt(x: Int)
   implicit def byte2jvalue(x: Byte): JValue = JInt(x: Int)
@@ -65,6 +69,7 @@ object JsonDSL extends JsonDSL with DoubleMode {
   object WithDouble extends JsonDSL with DoubleMode
   object WithBigDecimal extends JsonDSL with BigDecimalMode
 }
+
 trait JsonDSL extends Implicits {
 
   implicit def seq2jvalue[A](s: Iterable[A])(implicit ev: A => JValue): JArray =

@@ -1,6 +1,11 @@
 package org.json4s.prefs
 
-import org.json4s.{JValue, JArray, JField, JObject, JNothing, JNull}
+import org.json4s.JArray
+import org.json4s.JField
+import org.json4s.JNothing
+import org.json4s.JNull
+import org.json4s.JObject
+import org.json4s.JValue
 
 /**
  * Strategies for empty values treatment.

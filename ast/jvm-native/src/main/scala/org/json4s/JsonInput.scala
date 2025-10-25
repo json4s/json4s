@@ -1,6 +1,7 @@
 package org.json4s
 
-import java.io.{File, InputStream}
+import java.io.File
+import java.io.InputStream
 
 sealed abstract class JsonInput extends Product with Serializable {
   private[json4s] def toReader(): java.io.Reader = this match {
@@ -14,6 +15,7 @@ sealed abstract class JsonInput extends Product with Serializable {
       new java.io.FileReader(x)
   }
 }
+
 case class StringInput(string: String) extends JsonInput
 case class ReaderInput(reader: java.io.Reader) extends JsonInput
 case class StreamInput(stream: InputStream) extends JsonInput

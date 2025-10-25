@@ -20,7 +20,7 @@ package org.json4s
  * Functions to convert between JSON and XML.
  */
 object Xml {
-  import scala.xml._
+  import scala.xml.*
 
   /**
    * Convert given XML to JSON.

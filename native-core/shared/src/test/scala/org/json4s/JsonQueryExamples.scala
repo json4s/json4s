@@ -16,9 +16,9 @@
 
 package org.json4s
 
-import org.scalatest.wordspec.AnyWordSpec
+import org.json4s.MonadicJValue.*
 import org.json4s.native.Document
-import org.json4s.MonadicJValue._
+import org.scalatest.wordspec.AnyWordSpec
 
 class NativeJsonQueryExamples extends JsonQueryExamples[Document]("Native") with native.JsonMethods
 

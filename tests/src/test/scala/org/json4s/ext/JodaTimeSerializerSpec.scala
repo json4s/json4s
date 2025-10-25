@@ -18,9 +18,9 @@ package org.json4s
 package ext
 
 import java.util.TimeZone
-
-import org.joda.time.DateTimeZone.{forTimeZone, UTC}
-import org.joda.time._
+import org.joda.time.*
+import org.joda.time.DateTimeZone.UTC
+import org.joda.time.DateTimeZone.forTimeZone
 import org.scalatest.wordspec.AnyWordSpec
 
 class NativeJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Native") {

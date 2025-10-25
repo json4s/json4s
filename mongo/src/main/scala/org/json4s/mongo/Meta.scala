@@ -17,7 +17,10 @@
 package org.json4s
 package mongo
 
-import java.util.{Calendar, Date, GregorianCalendar, UUID}
+import java.util.Calendar
+import java.util.Date
+import java.util.GregorianCalendar
+import java.util.UUID
 import java.util.regex.Pattern
 import org.bson.types.ObjectId
 

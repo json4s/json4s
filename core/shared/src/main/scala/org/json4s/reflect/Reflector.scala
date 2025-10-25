@@ -1,11 +1,16 @@
 package org.json4s
 package reflect
 
-import java.lang.reflect.{Method, Modifier, ParameterizedType, Type, TypeVariable, WildcardType}
-import scala.util.control.Exception._
-import java.util.Date
-import java.sql.Timestamp
 import collection.mutable
+import java.lang.reflect.Method
+import java.lang.reflect.Modifier
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
+import java.lang.reflect.TypeVariable
+import java.lang.reflect.WildcardType
+import java.sql.Timestamp
+import java.util.Date
+import scala.util.control.Exception.*
 
 object Reflector {
 

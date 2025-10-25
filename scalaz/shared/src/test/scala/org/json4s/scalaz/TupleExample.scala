@@ -1,9 +1,8 @@
 package org.json4s
 package scalaz
 
-import _root_.scalaz._
-import JsonScalaz._
-
+import JsonScalaz.*
+import _root_.scalaz.*
 import org.scalatest.wordspec.AnyWordSpec
 
 class TupleExample extends AnyWordSpec {

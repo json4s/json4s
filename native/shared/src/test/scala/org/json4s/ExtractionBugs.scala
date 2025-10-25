@@ -1,10 +1,13 @@
 package org.json4s
 
-import org.scalatest.wordspec.AnyWordSpec
-import reflect.{ClassDescriptor, PrimaryConstructor, Reflector}
-import org.json4s.native.Document
+import java.math.BigDecimal as JavaBigDecimal
+import java.math.BigInteger as JavaBigInteger
 import java.util
-import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
+import org.json4s.native.Document
+import org.scalatest.wordspec.AnyWordSpec
+import reflect.ClassDescriptor
+import reflect.PrimaryConstructor
+import reflect.Reflector
 
 class NativeExtractionBugs extends ExtractionBugs[Document]("Native") with native.JsonMethods
 
@@ -17,6 +20,7 @@ object PingPongGame extends SharedModule
 object WithPrimitiveAlias {
   type MyDouble = Double
 }
+
 case class WithPrimitiveAlias(foo: Seq[WithPrimitiveAlias.MyDouble])
 
 object ExtractionBugs {
@@ -155,9 +159,10 @@ object ExtractionBugs {
     val strangeSerialization = Extraction.decompose(MapImplementation.content)(using DefaultFormats)
   }
 }
+
 abstract class ExtractionBugs[T](mod: String) extends AnyWordSpec with JsonMethods[T] with VersionCompat {
 
-  import ExtractionBugs._
+  import ExtractionBugs.*
   implicit val formats: Formats =
     DefaultFormats.withCompanions(classOf[PingPongGame.SharedObj] -> PingPongGame) + new MapImplementationSerializer()
 

@@ -16,7 +16,7 @@
 
 package org.json4s
 
-import JsonAST._
+import JsonAST.*
 
 /**
  * A difference between two JSONs (j1 diff j2).

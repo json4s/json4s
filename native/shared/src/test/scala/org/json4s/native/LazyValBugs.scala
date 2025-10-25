@@ -1,7 +1,11 @@
 package org.json4s.native
 
-import org.json4s.{FieldSerializer, Formats, DefaultFormats, VersionCompat}
-import org.json4s.native.Serialization.{read, write}
+import org.json4s.DefaultFormats
+import org.json4s.FieldSerializer
+import org.json4s.Formats
+import org.json4s.VersionCompat
+import org.json4s.native.Serialization.read
+import org.json4s.native.Serialization.write
 import org.scalatest.wordspec.AnyWordSpec
 
 class MovieNode(val id: String, val title: String)

@@ -17,7 +17,7 @@
 package org.json4s
 package ext
 
-import org.joda.time._
+import org.joda.time.*
 
 object JodaTimeSerializers {
   def all = List(
@@ -107,9 +107,11 @@ case object DateMidnightSerializer
   )
 
 private[ext] case class _Interval(start: Long, end: Long)
+
 private[ext] object _Interval {
   implicit val manifest: Manifest[_Interval] = Manifest.classType(classOf[_Interval])
 }
+
 object IntervalSerializer {
   def apply(): Serializer[Interval] = new ClassSerializer(new ClassType[Interval, _Interval]() {
     def unwrap(i: _Interval)(implicit format: Formats) = new Interval(i.start, i.end)
@@ -118,9 +120,11 @@ object IntervalSerializer {
 }
 
 private[ext] case class _LocalDate(year: Int, month: Int, day: Int)
+
 private[ext] object _LocalDate {
   implicit val manifest: Manifest[_LocalDate] = Manifest.classType(classOf[_LocalDate])
 }
+
 object LocalDateSerializer {
   def apply(): Serializer[LocalDate] = new ClassSerializer(new ClassType[LocalDate, _LocalDate]() {
     def unwrap(d: _LocalDate)(implicit format: Formats) = new LocalDate(d.year, d.month, d.day)
@@ -130,9 +134,11 @@ object LocalDateSerializer {
 }
 
 private[ext] case class _LocalTime(hour: Int, minute: Int, second: Int, millis: Int)
+
 private[ext] object _LocalTime {
   implicit val manifest: Manifest[_LocalTime] = Manifest.classType(classOf[_LocalTime])
 }
+
 object LocalTimeSerializer {
   def apply(): Serializer[LocalTime] = new ClassSerializer(new ClassType[LocalTime, _LocalTime]() {
     def unwrap(t: _LocalTime)(implicit format: Formats) =

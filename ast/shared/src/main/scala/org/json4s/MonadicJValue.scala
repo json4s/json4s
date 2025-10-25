@@ -1,9 +1,9 @@
 package org.json4s
 
 import java.util.Locale.ENGLISH
-import scala.annotation.tailrec
-import org.json4s.JsonAST.JField
 import org.json4s.JValue.ValuesType
+import org.json4s.JsonAST.JField
+import scala.annotation.tailrec
 
 object MonadicJValue {
 
@@ -45,7 +45,7 @@ object MonadicJValue {
 }
 
 class MonadicJValue(private val jv: JValue) extends AnyVal {
-  import MonadicJValue._
+  import MonadicJValue.*
 
   /**
    * XPath-like expression to query JSON fields by name. Matches only fields on

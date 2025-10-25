@@ -10,8 +10,8 @@ import scala.util.Try
  */
 class JsonPrintingSpec extends AnyWordSpec with JValueGen with Checkers {
   import native.Document
+  import native.JsonMethods.*
   import native.Printer
-  import native.JsonMethods._
 
   "rendering does not change semantics" in check { (json: Document) =>
     parse(Printer.pretty(json)) == parse(Printer.compact(json))

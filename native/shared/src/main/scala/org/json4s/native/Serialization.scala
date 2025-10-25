@@ -31,7 +31,9 @@ import scala.reflect.Manifest
  * @see org.json4s.TypeHints
  */
 object Serialization extends Serialization {
-  import java.io.{Reader, StringWriter, Writer}
+  import java.io.Reader
+  import java.io.StringWriter
+  import java.io.Writer
 
   /**
    * Serialize to String.

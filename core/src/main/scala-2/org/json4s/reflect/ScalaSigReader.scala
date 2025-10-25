@@ -1,7 +1,7 @@
 package org.json4s
 package reflect
 
-import org.json4s.scalap.scalasig._
+import org.json4s.scalap.scalasig.*
 import scala.annotation.tailrec
 import scala.reflect.NameTransformer
 

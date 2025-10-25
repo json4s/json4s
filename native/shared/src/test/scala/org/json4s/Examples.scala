@@ -16,12 +16,12 @@
 
 package org.json4s
 
+import org.json4s.native.Document
 import org.json4s.prefs.EmptyValueStrategy
 import org.scalatest.wordspec.AnyWordSpec
-import org.json4s.native.Document
 
 class NativeExamples extends Examples[Document]("Native") with native.JsonMethods {
-  import JsonDSL._
+  import JsonDSL.*
 
   "issue 482 Infinity" in {
     val value = Map("a" -> Double.PositiveInfinity, "b" -> Double.NegativeInfinity)
@@ -38,7 +38,7 @@ class NativeExamples extends Examples[Document]("Native") with native.JsonMethod
 }
 
 object Examples {
-  import JsonDSL._
+  import JsonDSL.*
 
   val lotto = """
 {
@@ -124,8 +124,8 @@ object Examples {
 
 abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
-  import Examples._
-  import JsonDSL._
+  import Examples.*
+  import JsonDSL.*
 
   (mod + " Examples") should {
 
@@ -247,7 +247,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
     }
 
     "JSON building with implicit primitive conversions example" in {
-      import DoubleMode._
+      import DoubleMode.*
       val json = JObject(("name", "joe"), ("age", 34)) ++ JObject(("name", "mazy"), ("age", 31))
       assert(compact(render(json)) == """[{"name":"joe","age":34},{"name":"mazy","age":31}]""")
     }
@@ -411,6 +411,7 @@ abstract class Examples[T](mod: String) extends AnyWordSpec with JsonMethods[T] 
 
   }
 }
+
 private case class Issue545CamelCaseClassWithUUID(myMap: Map[String, String])
 private case class Issue146CamelCaseClass(fullName: String, githubAccountName: Option[String])
 

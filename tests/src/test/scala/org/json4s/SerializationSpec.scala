@@ -8,6 +8,7 @@ private case class OptionalFields(
   optDouble: Option[Double],
   optObj: Option[OptionalFields]
 )
+
 private case class MyId(id: String) extends AnyVal
 private case class MyModel(ids: Seq[MyId])
 private case class AnotherModel(id: MyId)
@@ -219,11 +220,13 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
 }
 
 case class BadSpec(item2: Int, item3: Int, isVisited: Boolean = false)
+
 case object BadSpec {
   def apply(item1: Int, item2: Int, item3: Int): BadSpec = BadSpec(item2, item3)
 }
 
 case class Foo(msg: String) extends AttributesT
+
 trait AttributesT {
   val attributes: Map[String, Boolean] = Map("bar" -> true, "baz" -> false)
 }

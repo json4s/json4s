@@ -17,10 +17,10 @@
 package org.json4s
 package scalaz
 
-import _root_.scalaz._
-import std.list._
-import std.option._
-import syntax.traverse._
+import _root_.scalaz.*
+import std.list.*
+import std.option.*
+import syntax.traverse.*
 
 trait Base { this: Types =>
   implicit def boolJSON: JSON[Boolean] = new JSON[Boolean] {

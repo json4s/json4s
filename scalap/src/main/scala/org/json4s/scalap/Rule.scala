@@ -28,7 +28,7 @@ import scala.annotation.tailrec
  */
 trait Rule[-In, +Out, +A, +X] extends (In => Result[Out, A, X]) {
   val factory: Rules
-  import factory._
+  import factory.*
 
   def as(name: String) = ruleWithName(name, this)
 

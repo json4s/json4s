@@ -1,10 +1,10 @@
 package org.json4s.ext
 
-import java.time._
+import java.time.*
 import java.time.temporal.ChronoUnit
-
-import org.json4s._
-import org.scalacheck.{Arbitrary, Gen}
+import org.json4s.*
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 

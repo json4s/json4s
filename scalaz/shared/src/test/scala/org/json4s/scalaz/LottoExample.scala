@@ -1,11 +1,10 @@
 package org.json4s.scalaz
 
-import scalaz._
-import JsonScalaz._
+import JsonScalaz.*
 import org.json4s.native
-import native.JsonMethods._
-
+import org.json4s.native.JsonMethods.*
 import org.scalatest.wordspec.AnyWordSpec
+import scalaz.*
 
 class LottoExample extends AnyWordSpec {
   case class Winner(winnerId: Long, numbers: List[Int])

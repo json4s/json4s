@@ -18,10 +18,9 @@ package org.json4s
 
 import java.util.Date
 import org.json4s
-
-import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
 import org.json4s.prefs.ExtractionNullStrategy
+import org.scalatest.wordspec.AnyWordSpec
 import scala.reflect.ClassTag
 
 class NativeExtractionExamples
@@ -853,6 +852,7 @@ case class MultipleConstructors(name: String, age: Int, size: Option[String]) {
 case class ClassWithJSON(name: String, message: JValue)
 
 sealed trait LeafTree[+T]
+
 object LeafTree {
   def empty[T]: LeafTree[T] = EmptyLeaf
 }
@@ -871,4 +871,5 @@ case class Pair(a: String, b: String)
 case class SecondaryConstructorCaseClass(pair: Pair, test: Option[String], createdUsingCtor: Boolean = true, int: Int) {
   def this(a: String, b: String, test: Option[String], int: Int) = this(Pair(a, b), test, false, int)
 }
+
 case class OptionValue(value: Option[Int])

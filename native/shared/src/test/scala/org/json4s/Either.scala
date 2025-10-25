@@ -1,7 +1,7 @@
 package org.json4s
 
-import org.scalatest.wordspec.AnyWordSpec
 import org.json4s.native.Document
+import org.scalatest.wordspec.AnyWordSpec
 
 object EitherTest {
 
@@ -23,7 +23,7 @@ class NativeEitherTest extends EitherTest[Document]("Native") with native.JsonMe
 
 abstract class EitherTest[T](mod: String) extends AnyWordSpec with JsonMethods[T] {
 
-  import EitherTest._
+  import EitherTest.*
 
   implicit val formats: Formats = DefaultFormats + ShortTypeHints(List(classOf[Either[?, ?]], classOf[List[?]]))
 

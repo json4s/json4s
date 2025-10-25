@@ -1,6 +1,6 @@
-import sbt._
-import Keys._
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
+import sbt.*
+import sbt.Keys.*
 
 object Dependencies {
   lazy val jaxbApi = "javax.xml.bind" % "jaxb-api" % "2.3.1" % "test"

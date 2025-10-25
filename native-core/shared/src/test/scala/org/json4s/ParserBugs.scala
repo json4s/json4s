@@ -1,11 +1,11 @@
 package org.json4s
 
-import util.control.Exception._
 import org.scalatest.wordspec.AnyWordSpec
+import util.control.Exception.*
 
 class ParserBugs extends AnyWordSpec {
+  import native.JsonMethods.*
   import native.JsonParser
-  import native.JsonMethods._
 
   "For ParserBugs" should {
     "Unicode ffff is a valid char in string literal" in {

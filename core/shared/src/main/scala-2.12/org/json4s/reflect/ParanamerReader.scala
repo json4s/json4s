@@ -1,6 +1,7 @@
 package org.json4s.reflect
 
-import com.thoughtworks.paranamer.{BytecodeReadingParanamer, CachingParanamer}
+import com.thoughtworks.paranamer.BytecodeReadingParanamer
+import com.thoughtworks.paranamer.CachingParanamer
 
 object ParanamerReader extends ParameterNameReader {
   private[this] val paranamer = new CachingParanamer(new BytecodeReadingParanamer)
