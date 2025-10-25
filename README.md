@@ -89,20 +89,20 @@ You can add the json4s as a dependency in following ways. Note, replace {latestV
 
 You can find available versions here:
 
-https://search.maven.org/search?q=org.json4s
+https://central.sonatype.com/search?namespace=io.github.json4s
 
 ### SBT users
 
 For the native support add the following dependency to your project description:
 
 ```scala
-val json4sNative = "org.json4s" %% "json4s-native" % "{latestVersion}"
+val json4sNative = "io.github.json4s" %% "json4s-native" % "{latestVersion}"
 ```
 
 For the Jackson support add the following dependency to your project description:
 
 ```scala
-val json4sJackson = "org.json4s" %% "json4s-jackson" % "{latestVersion}"
+val json4sJackson = "io.github.json4s" %% "json4s-jackson" % "{latestVersion}"
 ```
 
 ### Maven users
@@ -111,7 +111,7 @@ For the native support add the following dependency to your pom:
 
 ```xml
 <dependency>
-  <groupId>org.json4s</groupId>
+  <groupId>io.github.json4s</groupId>
   <artifactId>json4s-native_${scala.version}</artifactId>
   <version>{latestVersion}</version>
 </dependency>
@@ -121,7 +121,7 @@ For the jackson support add the following dependency to your pom:
 
 ```xml
 <dependency>
-  <groupId>org.json4s</groupId>
+  <groupId>io.github.json4s</groupId>
   <artifactId>json4s-jackson_${scala.version}</artifactId>
   <version>{latestVersion}</version>
 </dependency>
