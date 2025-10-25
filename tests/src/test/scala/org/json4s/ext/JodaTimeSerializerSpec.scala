@@ -21,7 +21,10 @@ import java.util.TimeZone
 import org.joda.time.*
 import org.joda.time.DateTimeZone.UTC
 import org.joda.time.DateTimeZone.forTimeZone
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 class NativeJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Native") {
   val s: Serialization = native.Serialization
@@ -31,14 +34,69 @@ class NativeJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Native") {
 /**
  * System under specification for JodaTimeSerializer.
  */
-abstract class JodaTimeSerializerSpec(mod: String) extends AnyWordSpec {
+abstract class JodaTimeSerializerSpec(mod: String) extends AnyWordSpec with ScalaCheckDrivenPropertyChecks {
 
   def s: Serialization
   def m: JsonMethods[?]
 
   implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JodaTimeSerializers.all
 
+  override implicit val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(minSuccessful = 10000)
+
+  private implicit val periodArbitrary: Arbitrary[Period] =
+    Arbitrary(
+      implicitly[Arbitrary[Int]].arbitrary.map(x => new Period(x.toLong)),
+    )
+
+  private implicit val localTimeArbitrary: Arbitrary[LocalTime] =
+    Arbitrary(
+      implicitly[Arbitrary[Int]].arbitrary.map(x => new LocalTime(x.toLong)),
+    )
+
+  private implicit val localDateArbitrary: Arbitrary[LocalDate] =
+    Arbitrary(
+      implicitly[Arbitrary[Int]].arbitrary.map(x => new LocalDate(x.toLong)),
+    )
+
+  private implicit val dateMidnightArbitrary: Arbitrary[DateMidnight] =
+    Arbitrary(
+      implicitly[Arbitrary[Int]].arbitrary.map(x => new DateMidnight(x.toLong, DateTimeZone.UTC)),
+    )
+
+  private implicit val dateTimeArbitrary: Arbitrary[DateTime] =
+    Arbitrary(
+      implicitly[Arbitrary[Int]].arbitrary.map(x => new DateTime(x.toLong, DateTimeZone.UTC)),
+    )
+
+  private implicit val instantArbitrary: Arbitrary[Instant] =
+    Arbitrary(
+      Gen.oneOf(
+        implicitly[Arbitrary[Int]].arbitrary.map(x => Instant.ofEpochMilli(x)),
+        implicitly[Arbitrary[Int]].arbitrary.map(x => Instant.ofEpochSecond(x))
+      )
+    )
+
+  private implicit val duraitonArbitrary: Arbitrary[Duration] =
+    Arbitrary(
+      Gen.oneOf(
+        implicitly[Arbitrary[Int]].arbitrary.map(x => Duration.millis(x)),
+        implicitly[Arbitrary[Int]].arbitrary.map(x => Duration.standardSeconds(x))
+      )
+    )
+
+  private implicit val jodaTypesArbitrary: Arbitrary[JodaTypes] =
+    Arbitrary(
+      Gen.resultOf(JodaTypes(_, _, _, _, _, _, _))
+    )
+
   (mod + " JodaTimeSerializer Specification") should {
+    "scalacheck" in forAll { (x: JodaTypes) =>
+      val serialized = s.write(x)
+      val actual = s.read[JodaTypes](serialized)
+      assert(actual == x)
+    }
+
     "Serialize joda time types with default format" in {
       val x = JodaTypes(
         new Duration(10 * 1000),
