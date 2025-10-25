@@ -1,19 +1,64 @@
 package org.json4s.ext
 
 import java.time._
+import java.time.temporal.ChronoUnit
 
 import org.json4s._
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 /**
  * System under specification for JavaTimeSerializer.
  */
-abstract class JavaDateTimeSerializerSpec(mod: String) extends AnyWordSpec {
+abstract class JavaDateTimeSerializerSpec(mod: String) extends AnyWordSpec with ScalaCheckDrivenPropertyChecks {
 
   def s: Serialization
   implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JavaTimeSerializers.all
 
+  override implicit val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(minSuccessful = 10000)
+
+  private implicit val zoneIdArbitrary: Arbitrary[ZoneId] =
+    Arbitrary(
+      Gen.oneOf(
+        ZoneId.getAvailableZoneIds.toArray(Array.empty[String]).map(ZoneId.of).toSeq
+      )
+    )
+  private implicit val instantArbitrary: Arbitrary[Instant] = Arbitrary(
+    implicitly[Arbitrary[Int]].arbitrary.map(x => Instant.ofEpochMilli(x))
+  )
+
+  private implicit val localDateTimeArbitrary: Arbitrary[LocalDateTime] = Arbitrary(
+    for {
+      x1 <- implicitly[Arbitrary[Instant]].arbitrary
+      x2 <- implicitly[Arbitrary[ZoneId]].arbitrary
+    } yield LocalDateTime.ofInstant(x1, x2)
+  )
+
+  private implicit val durationArbitrary: Arbitrary[Duration] = Arbitrary(
+    for {
+      x1 <- implicitly[Arbitrary[Int]].arbitrary
+      x2 <- Gen.oneOf(
+        ChronoUnit.MILLIS,
+        ChronoUnit.SECONDS,
+        ChronoUnit.MINUTES,
+        ChronoUnit.HOURS,
+        ChronoUnit.DAYS,
+      )
+    } yield Duration.of(x1, x2)
+  )
+
+  private implicit val javaTimesArbitrary: Arbitrary[JavaTypes] =
+    Arbitrary(Gen.resultOf(JavaTypes.apply(_, _, _, _, _, _, _, _, _)))
+
   (mod + " JavaTimeSerializer Specification") should {
+    "scalacheck test" in forAll { (x: JavaTypes) =>
+      val serialized = s.write(x)
+      val actual = s.read[JavaTypes](serialized)
+      assert(actual == x)
+    }
+
     "Serialize java time types" in {
       val x = JavaTypes(
         Duration.ofDays(1),
