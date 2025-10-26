@@ -90,7 +90,7 @@ case class ClassDescriptor(
       _mostComprehensive = if (constructors.nonEmpty) {
         val primaryCtors = constructors.filter(_.isPrimary)
 
-        if (primaryCtors.lengthCompare(1) > 0) {
+        if (primaryCtors.lengthIs > 1) {
           throw new IllegalArgumentException(s"Two constructors annotated with PrimaryConstructor in `$fullName`")
         }
 
