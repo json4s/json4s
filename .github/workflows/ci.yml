@@ -10,8 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - java: 8
-          - java: 11
+          - java: 17
           - java: 25
     steps:
     - uses: actions/setup-java@v5
