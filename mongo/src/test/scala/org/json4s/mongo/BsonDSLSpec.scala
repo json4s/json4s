@@ -25,7 +25,7 @@ import java.util.UUID
 import java.util.regex.Pattern
 import org.bson.types.ObjectId
 import org.scalatest.wordspec.AnyWordSpec
-import scala.collection.JavaConverters.*
+import scala.jdk.CollectionConverters.*
 import scala.util.matching.Regex
 
 class BsonDSLSpec extends AnyWordSpec {

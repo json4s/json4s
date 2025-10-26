@@ -3,7 +3,7 @@ package org.json4s.scalap.scalasig
 import java.io.*
 import java.util.jar.JarFile
 import org.scalatest.wordspec.AnyWordSpec
-import scala.collection.JavaConverters.*
+import scala.jdk.CollectionConverters.*
 
 class ClassFileParserSpec extends AnyWordSpec {
   "ClassFileParser" should {

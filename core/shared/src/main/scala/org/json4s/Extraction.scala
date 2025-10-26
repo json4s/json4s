@@ -30,8 +30,8 @@ import java.util.Date
 import org.json4s
 import org.json4s.prefs.ExtractionNullStrategy
 import org.json4s.reflect.*
-import scala.collection.JavaConverters.*
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.*
 import scala.reflect.Manifest
 import scala.reflect.NameTransformer.encode
 import scala.util.Try

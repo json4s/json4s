@@ -17,7 +17,6 @@
 package org.json4s
 package mongo
 
-import collection.JavaConverters.*
 import com.mongodb.BasicDBList
 import com.mongodb.BasicDBObject
 import com.mongodb.DBObject
@@ -26,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.regex.Pattern
 import org.bson.types.ObjectId
 import org.json4s.ParserUtil.ParseException
+import scala.jdk.CollectionConverters.*
 
 object JObjectParser {
 
