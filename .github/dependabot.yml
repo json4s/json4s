@@ -15,6 +15,6 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    target-branch: "3.6"
+    target-branch: "4.1"
     commit-message:
-      prefix: "[3.6] "
+      prefix: "[4.1] "
