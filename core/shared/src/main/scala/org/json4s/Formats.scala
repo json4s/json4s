@@ -200,9 +200,6 @@ trait Formats extends Serializable { self: Formats =>
   def nonStrict: Formats =
     copy(wStrictOptionParsing = false, wStrictArrayExtraction = false, wStrictMapExtraction = false)
 
-  @deprecated(message = "Use withNullExtractionStrategy instead", since = "3.7.0")
-  def disallowNull: Formats = copy(wExtractionNullStrategy = ExtractionNullStrategy.Disallow)
-
   def withExtractionNullStrategy(strategy: ExtractionNullStrategy): Formats = copy(wExtractionNullStrategy = strategy)
 
   def withStrictFieldDeserialization: Formats = copy(wStrictFieldDeserialization = true)
@@ -261,28 +258,4 @@ trait Formats extends Serializable { self: Formats =>
       case xs => Some((xs.min(using ord))._2)
     }
   }
-
-  @deprecated(message = "Use the internal methods in the companion object instead.", since = "3.6.4")
-  def customSerializer(implicit format: Formats): PartialFunction[Any, JValue] =
-    customSerializers.foldLeft(Map(): PartialFunction[Any, JValue]) { (acc, x) =>
-      acc.orElse(x.serialize)
-    }
-
-  @deprecated(message = "Use the internal methods in the companion object instead.", since = "3.6.4")
-  def customDeserializer(implicit format: Formats): PartialFunction[(TypeInfo, JValue), Any] =
-    customSerializers.foldLeft(Map(): PartialFunction[(TypeInfo, JValue), Any]) { (acc, x) =>
-      acc.orElse(x.deserialize)
-    }
-
-  @deprecated(message = "Use the internal methods in the companion object instead.", since = "3.6.4")
-  def customKeySerializer(implicit format: Formats): PartialFunction[Any, String] =
-    customKeySerializers.foldLeft(Map(): PartialFunction[Any, String]) { (acc, x) =>
-      acc.orElse(x.serialize)
-    }
-
-  @deprecated(message = "Use the internal methods in the companion object instead.", since = "3.6.4")
-  def customKeyDeserializer(implicit format: Formats): PartialFunction[(TypeInfo, String), Any] =
-    customKeySerializers.foldLeft(Map(): PartialFunction[(TypeInfo, String), Any]) { (acc, x) =>
-      acc.orElse(x.deserialize)
-    }
 }

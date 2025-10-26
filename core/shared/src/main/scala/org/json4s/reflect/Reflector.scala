@@ -74,15 +74,6 @@ object Reflector {
   def describeWithFormats(st: ReflectorDescribable[?])(implicit formats: Formats): ObjectDescriptor =
     descriptors(st.scalaType, createDescriptorWithFormats(_, st.paranamer, st.companionClasses))
 
-  @deprecated("Use createDescriptorWithFormats", "3.6.8")
-  def createDescriptor(
-    tpe: ScalaType,
-    paramNameReader: ParameterNameReader = ParanamerReader,
-    companionMappings: List[(Class[?], AnyRef)] = Nil
-  ): ObjectDescriptor = {
-    createDescriptorWithFormats(tpe, paramNameReader, companionMappings)(using DefaultFormats)
-  }
-
   def createDescriptorWithFormats(
     tpe: ScalaType,
     paramNameReader: ParameterNameReader = ParanamerReader,
