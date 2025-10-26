@@ -38,7 +38,7 @@ lazy val ast = projectMatrix
 
 lazy val scalap = projectMatrix
   .in(file("scalap"))
-  .defaultAxes()
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     name := "json4s-scalap",
     json4sSettings,
@@ -76,7 +76,7 @@ lazy val xml = projectMatrix
 
 lazy val core = projectMatrix
   .in(file("core"))
-  .defaultAxes()
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     name := "json4s-core",
     json4sSettings,
@@ -133,7 +133,7 @@ lazy val nativeCore = projectMatrix
 
 lazy val native = projectMatrix
   .in(file("native"))
-  .defaultAxes()
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     name := "json4s-native",
     json4sSettings,
@@ -149,7 +149,7 @@ lazy val native = projectMatrix
 
 lazy val ext = projectMatrix
   .in(file("ext"))
-  .defaultAxes()
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     name := "json4s-ext",
     json4sSettings,
@@ -162,7 +162,7 @@ lazy val ext = projectMatrix
 
 lazy val joda = projectMatrix
   .in(file("joda"))
-  .defaultAxes()
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     name := "json4s-joda",
     json4sSettings,
@@ -176,7 +176,7 @@ lazy val joda = projectMatrix
 
 lazy val jacksonCore = projectMatrix
   .in(file("jackson-core"))
-  .defaultAxes()
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     name := "json4s-jackson-core",
     json4sSettings,
@@ -188,28 +188,11 @@ lazy val jacksonCore = projectMatrix
       jvmSettings,
     ),
   )
-  .nativePlatform(
-    scalaVersions = scalaVersions,
-    settings = Def.settings(
-      nativeSettings,
-      noPublish,
-      Compile / sources := Nil,
-      Test / sources := Nil,
-    ),
-  )
-  .jsPlatform(
-    scalaVersions = scalaVersions,
-    settings = Def.settings(
-      noPublish,
-      Compile / sources := Nil,
-      Test / sources := Nil,
-    )
-  )
   .dependsOn(ast % "compile;test->test")
 
 lazy val jackson = projectMatrix
   .in(file("jackson"))
-  .defaultAxes()
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     name := "json4s-jackson",
     json4sSettings,
@@ -268,12 +251,23 @@ lazy val scalaz = projectMatrix
   .dependsOn(
     ast % "compile;test->test",
     nativeCore % "provided->compile",
-    jacksonCore % "provided->compile"
+  )
+  .configure(p =>
+    PartialFunction
+      .condOpt(p.id.split("JVM").lastOption) {
+        case Some("2_12") =>
+          Scala212
+        case Some("2_13") =>
+          Scala213
+        case Some("3") =>
+          Scala3
+      }
+      .fold(p)(v => p.dependsOn(jacksonCore.jvm(v) % "provided->compile"))
   )
 
 lazy val mongo = projectMatrix
   .in(file("mongo"))
-  .defaultAxes()
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     name := "json4s-mongo",
     json4sSettings,
@@ -292,7 +286,7 @@ lazy val mongo = projectMatrix
 
 lazy val tests = projectMatrix
   .in(file("tests"))
-  .defaultAxes()
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     json4sSettings,
     noPublish,
@@ -340,7 +334,6 @@ lazy val rootJVM3 = project
 
 lazy val crossPlatformModules = Seq(
   ast,
-  jacksonCore,
   nativeCore,
   scalaz,
   xml,
