@@ -1,3 +1,5 @@
+import com.typesafe.tools.mima.plugin.MimaKeys.*
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 import sbt.*
 import sbt.Keys.*
@@ -58,6 +60,9 @@ object build {
   def scalaVersions = Seq(Scala212, Scala213, Scala3)
 
   def json4sSettings = mavenCentralFrouFrou ++ Def.settings(
+    mimaPreviousArtifacts := Set(
+      organization.value %%% moduleName.value % "4.1.0",
+    ),
     scalacOptions ++= Seq(
       "-unchecked",
       "-deprecation",
@@ -149,6 +154,8 @@ object build {
   )
 
   val noPublish = Seq(
+    mimaFailOnNoPrevious := false,
+    mimaPreviousArtifacts := Set.empty,
     publish / skip := true,
     publishArtifact := false,
     publish := {},

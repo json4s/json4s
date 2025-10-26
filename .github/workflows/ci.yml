@@ -22,7 +22,7 @@ jobs:
     - uses: coursier/cache-action@v6
     - run: |
         export TZ=Australia/Canberra
-        ./sbt -v scalafmtSbtCheck scalafmtCheckAll test
+        ./sbt -v scalafmtSbtCheck scalafmtCheckAll mimaReportBinaryIssues test
   latest:
     runs-on: ubuntu-latest
     timeout-minutes: 20
