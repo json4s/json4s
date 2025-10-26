@@ -110,7 +110,6 @@ lazy val core = projectMatrix
   )
   .dependsOn(ast % "compile;test->test")
 
-lazy val coreJVM2_12 = core.jvm(Scala212).dependsOn(scalap.jvm(Scala212))
 lazy val coreJVM2_13 = core.jvm(Scala213).dependsOn(scalap.jvm(Scala213))
 
 lazy val nativeCore = projectMatrix

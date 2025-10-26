@@ -21,7 +21,7 @@ class TypeFieldSerializer[T: Manifest](fieldName: String, mapping: Map[String, C
       override val typeHints: TypeHints = NoTypeHints
     }
     val indexByType: Map[ScalaType, String] = mapping.map { case (k, v) => Reflector.scalaTypeOf(v) -> k }
-    val indexByName: Map[String, ScalaType] = mapping.mapValues(Reflector.scalaTypeOf).toMap
+    val indexByName: Map[String, ScalaType] = mapping.view.mapValues(Reflector.scalaTypeOf).toMap
     val deserialize: PartialFunction[JValue, T] = { case ast =>
       val JString(fieldValue) = ast \ fieldName
       val scalaType = indexByName(fieldValue)
