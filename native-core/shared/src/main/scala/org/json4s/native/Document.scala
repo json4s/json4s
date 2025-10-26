@@ -1,6 +1,7 @@
 package org.json4s.native
 
 import java.io.Writer
+import org.json4s.native.Document.FmtState
 import scala.annotation.tailrec
 
 case object DocNil extends Document
@@ -28,28 +29,26 @@ sealed abstract class Document extends Product with Serializable {
    * breaks so that the result fits in `width` columns.
    */
   def format(width: Int, writer: Writer): Unit = {
-    type FmtState = (Int, Boolean, Document)
-
     @tailrec
     def fits(w: Int, state: List[FmtState]): Boolean = state match {
       case _ if w < 0 =>
         false
       case List() =>
         true
-      case (_, _, DocNil) :: z =>
+      case FmtState(_, _, DocNil) :: z =>
         fits(w, z)
-      case (i, b, DocCons(h, t)) :: z =>
-        fits(w, (i, b, h) :: (i, b, t) :: z)
-      case (_, _, DocText(t)) :: z =>
+      case FmtState(i, b, DocCons(h, t)) :: z =>
+        fits(w, FmtState(i, b, h) :: FmtState(i, b, t) :: z)
+      case FmtState(_, _, DocText(t)) :: z =>
         fits(w - t.length(), z)
-      case (i, b, DocNest(ii, d)) :: z =>
-        fits(w, (i + ii, b, d) :: z)
-      case (_, false, DocBreak) :: z =>
+      case FmtState(i, b, DocNest(ii, d)) :: z =>
+        fits(w, FmtState(i + ii, b, d) :: z)
+      case FmtState(_, false, DocBreak) :: z =>
         fits(w - 1, z)
-      case (_, true, DocBreak) :: _ =>
+      case FmtState(_, true, DocBreak) :: _ =>
         true
-      case (i, _, DocGroup(d)) :: z =>
-        fits(w, (i, false, d) :: z)
+      case FmtState(i, _, DocGroup(d)) :: z =>
+        fits(w, FmtState(i, false, d) :: z)
     }
 
     def spaces(n: Int): Unit = {
@@ -64,34 +63,39 @@ sealed abstract class Document extends Product with Serializable {
     @tailrec
     def fmt(k: Int, state: List[FmtState]): Unit = state match {
       case List() => ()
-      case (_, _, DocNil) :: z =>
+      case FmtState(_, _, DocNil) :: z =>
         fmt(k, z)
-      case (i, b, DocCons(h, t)) :: z =>
-        fmt(k, (i, b, h) :: (i, b, t) :: z)
-      case (i @ _, _, DocText(t)) :: z =>
+      case FmtState(i, b, DocCons(h, t)) :: z =>
+        fmt(k, FmtState(i, b, h) :: FmtState(i, b, t) :: z)
+      case FmtState(i @ _, _, DocText(t)) :: z =>
         writer write t
         fmt(k + t.length(), z)
-      case (i, b, DocNest(ii, d)) :: z =>
-        fmt(k, (i + ii, b, d) :: z)
-      case (i, true, DocBreak) :: z =>
+      case FmtState(i, b, DocNest(ii, d)) :: z =>
+        fmt(k, FmtState(i + ii, b, d) :: z)
+      case FmtState(i, true, DocBreak) :: z =>
         writer write "\n"
         spaces(i)
         fmt(i, z)
-      case (i @ _, false, DocBreak) :: z =>
+      case FmtState(i @ _, false, DocBreak) :: z =>
         writer write " "
         fmt(k + 1, z)
-      case (i, b @ _, DocGroup(d)) :: z =>
-        val fitsFlat = fits(width - k, (i, false, d) :: z)
-        fmt(k, (i, !fitsFlat, d) :: z)
+      case FmtState(i, b @ _, DocGroup(d)) :: z =>
+        val fitsFlat = fits(width - k, FmtState(i, false, d) :: z)
+        fmt(k, FmtState(i, !fitsFlat, d) :: z)
       case _ =>
         ()
     }
 
-    fmt(0, (0, false, DocGroup(this)) :: Nil)
+    fmt(0, FmtState(0, false, DocGroup(this)) :: Nil)
   }
 }
 
 object Document {
+  private final case class FmtState(
+    i: Int,
+    b: Boolean,
+    d: Document
+  )
 
   /** The empty document */
   def empty: Document = DocNil
