@@ -35,7 +35,7 @@ class CaseClassJsonFormatSpec extends Properties("case class JsonFormat") with E
     )
 
   private[this] implicit val arbitrary: Arbitrary[CaseClass22] =
-    Arbitrary(Gen.resultOf(CaseClass22.tupled))
+    Arbitrary(Gen.resultOf(CaseClass22.apply.tupled))
 
   property("case class JsonFormat") = Prop.forAll { (a: CaseClass22) =>
     format1.readEither(format1.write(a)).value == a
