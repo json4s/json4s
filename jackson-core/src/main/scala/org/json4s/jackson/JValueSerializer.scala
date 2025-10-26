@@ -1,13 +1,13 @@
 package org.json4s
 package jackson
 
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.JsonSerializer
-import com.fasterxml.jackson.databind.SerializerProvider
 import org.json4s.JsonAST.*
+import tools.jackson.core.JsonGenerator
+import tools.jackson.databind.SerializationContext
+import tools.jackson.databind.ValueSerializer
 
-class JValueSerializer extends JsonSerializer[JValue] {
-  def serialize(value: JValue, json: JsonGenerator, provider: SerializerProvider): Unit = {
+class JValueSerializer extends ValueSerializer[JValue] {
+  def serialize(value: JValue, json: JsonGenerator, provider: SerializationContext): Unit = {
     if (value == null) {
       json.writeNull()
     } else {
@@ -33,7 +33,7 @@ class JValueSerializer extends JsonSerializer[JValue] {
           fields foreach {
             case (_, JNothing) => ()
             case (n, v) =>
-              json.writeFieldName(n)
+              json.writeName(n)
               serialize(v, json, provider)
           }
           json.writeEndObject()
@@ -44,5 +44,4 @@ class JValueSerializer extends JsonSerializer[JValue] {
     }
   }
 
-  override def isEmpty(value: JValue): Boolean = value == JNothing
 }

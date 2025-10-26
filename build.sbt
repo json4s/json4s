@@ -214,7 +214,10 @@ lazy val jackson = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings,
+    settings = Def.settings(
+      jvmSettings,
+      libraryDependencies ++= Dependencies.jackson,
+    )
   )
   .dependsOn(
     core % "compile;test->test",
@@ -232,7 +235,10 @@ lazy val examples = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings,
+    settings = Def.settings(
+      jvmSettings,
+      libraryDependencies ++= Dependencies.jackson,
+    )
   )
   .dependsOn(
     core % "compile;test->test",
@@ -281,7 +287,10 @@ lazy val mongo = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings,
+    settings = Def.settings(
+      jvmSettings,
+      libraryDependencies ++= Dependencies.jackson,
+    )
   )
   .dependsOn(
     core % "compile;test->test",
@@ -302,7 +311,10 @@ lazy val tests = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings,
+    settings = Def.settings(
+      jvmSettings,
+      libraryDependencies ++= Dependencies.jackson,
+    )
   )
   .dependsOn(
     core % "compile;test->test",

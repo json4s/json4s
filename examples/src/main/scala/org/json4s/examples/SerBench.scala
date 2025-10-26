@@ -1,11 +1,11 @@
 package org.json4s
 package examples
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.*
 import java.util.Date
 import java.util.concurrent.atomic.AtomicLong
 import org.json4s.*
+import tools.jackson.databind.ObjectMapper
 
 object SerBench extends Benchmark {
 

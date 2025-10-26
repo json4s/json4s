@@ -11,7 +11,19 @@ object Music {
   case class Rock() extends Genre
 }
 
-class NativeJsonFormatsSpec extends JsonFormatsSpec[Document]("Native") with native.JsonMethods
+class NativeJsonFormatsSpec extends JsonFormatsSpec[Document]("Native") with native.JsonMethods {
+  "Unicode escaping can be changed" should {
+    val json = parse("{\"Script Small G\": \"\u210A\"}")
+
+    "escaped" in {
+      assert(compact(render(json, alwaysEscapeUnicode = true)) == "{\"Script Small G\":\"\\u210A\"}")
+    }
+
+    "not escaped" in {
+      assert(compact(render(json, alwaysEscapeUnicode = false)) == "{\"Script Small G\":\"\u210A\"}")
+    }
+  }
+}
 
 /**
  * System under specification for JSON Formats.
@@ -66,17 +78,6 @@ abstract class JsonFormatsSpec[T](mod: String) extends AnyWordSpec with TypeHint
       assert(json.extract[Music.Genre] == Music.Rock())
     }
 
-    "Unicode escaping can be changed" should {
-      val json = parse("{\"Script Small G\": \"\u210A\"}")
-
-      "escaped" in {
-        assert(compact(render(json, alwaysEscapeUnicode = true)) == "{\"Script Small G\":\"\\u210A\"}")
-      }
-
-      "not escaped" in {
-        assert(compact(render(json, alwaysEscapeUnicode = false)) == "{\"Script Small G\":\"\u210A\"}")
-      }
-    }
   }
 }
 

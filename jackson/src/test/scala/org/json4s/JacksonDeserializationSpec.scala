@@ -1,13 +1,18 @@
 package org.json4s
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.json4s.jackson.Json4sScalaModule
 import org.scalatest.wordspec.AnyWordSpec
+import tools.jackson.databind.json.JsonMapper
 
 // fix https://github.com/json4s/json4s/issues/603
 class JacksonDeserializationSpec extends AnyWordSpec {
-  val mapper = new ObjectMapper
-  mapper.registerModule(Json4sScalaModule)
+  private val mapper =
+    JsonMapper
+      .builder()
+      .addModule(
+        new Json4sScalaModule
+      )
+      .build()
 
   "Recursive deserialization" should {
 

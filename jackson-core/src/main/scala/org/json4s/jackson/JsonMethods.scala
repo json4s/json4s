@@ -1,23 +1,33 @@
 package org.json4s
 package jackson
 
-import com.fasterxml.jackson.core.json.*
-import com.fasterxml.jackson.databind.*
-import com.fasterxml.jackson.databind.DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS
-import com.fasterxml.jackson.databind.DeserializationFeature.USE_BIG_INTEGER_FOR_INTS
 import org.json4s.prefs.EmptyValueStrategy
 import scala.util.control.Exception.allCatch
+import tools.jackson.core.json.JsonWriteFeature
+import tools.jackson.databind.*
+import tools.jackson.databind.DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS
+import tools.jackson.databind.DeserializationFeature.USE_BIG_INTEGER_FOR_INTS
+import tools.jackson.databind.json.JsonMapper
 
 trait JsonMethods extends org.json4s.JsonMethods[JValue] {
 
-  private[this] lazy val _defaultMapper = {
-    val m = new ObjectMapper()
-    m.registerModule(new Json4sScalaModule)
-    // for backwards compatibility
-    m.configure(USE_BIG_INTEGER_FOR_INTS, true)
-    m
-  }
-  def mapper = _defaultMapper
+  private def defaultMapperBuilder() = JsonMapper
+    .builder()
+    .addModule(
+      new Json4sScalaModule
+    )
+    .configure(
+      USE_BIG_INTEGER_FOR_INTS,
+      true
+    )
+
+  private[this] lazy val _defaultMapper: JsonMapper =
+    defaultMapperBuilder().build()
+
+  private[this] lazy val mapperWithEscape: JsonMapper =
+    defaultMapperBuilder().configure(JsonWriteFeature.ESCAPE_NON_ASCII, true).build()
+
+  def mapper: ObjectMapper = _defaultMapper
 
   def parse[A: AsJsonInput](
     in: A,
@@ -56,17 +66,30 @@ trait JsonMethods extends org.json4s.JsonMethods[JValue] {
     alwaysEscapeUnicode: Boolean = false,
     emptyValueStrategy: EmptyValueStrategy = EmptyValueStrategy.default
   ): JValue = {
-    if (mapper.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII.mappedFeature()) != alwaysEscapeUnicode) {
-      mapper.getFactory().configure(JsonWriteFeature.ESCAPE_NON_ASCII.mappedFeature(), alwaysEscapeUnicode)
-    }
-
     emptyValueStrategy.replaceEmpty(value)
   }
 
-  def compact(d: JValue): String = mapper.writeValueAsString(d)
+  def compact(d: JValue): String = compact(d, false)
 
-  def pretty(d: JValue): String = {
-    val writer = mapper.writerWithDefaultPrettyPrinter()
+  def compact(d: JValue, alwaysEscapeUnicode: Boolean): String = {
+    val m = if (alwaysEscapeUnicode) {
+      mapperWithEscape
+    } else {
+      mapper
+    }
+    m.writeValueAsString(d)
+  }
+
+  def pretty(d: JValue): String =
+    pretty(d, false)
+
+  def pretty(d: JValue, alwaysEscapeUnicode: Boolean): String = {
+    val m = if (alwaysEscapeUnicode) {
+      mapperWithEscape
+    } else {
+      mapper
+    }
+    val writer = m.writerWithDefaultPrettyPrinter()
     writer.writeValueAsString(d)
   }
 
