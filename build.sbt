@@ -88,8 +88,6 @@ lazy val core = projectMatrix
     json4sSettings,
     libraryDependencies ++= {
       scalaBinaryVersion.value match {
-        case "2.12" =>
-          Seq(Dependencies.paranamer)
         case "3" =>
           // Since this dependency requires the compiler version,
           // it's the safest if users provide one depending on which scala
