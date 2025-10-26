@@ -233,11 +233,11 @@ object Extraction {
       } else if (classOf[Option[?]].isAssignableFrom(k)) {
         any.asInstanceOf[Option[?]].foreach(internalDecomposeWithBuilder(_, current))
       } else if (classOf[Either[?, ?]].isAssignableFrom(k)) {
-        val v = any.asInstanceOf[Either[?, ?]]
-        if (v.isLeft) {
-          internalDecomposeWithBuilder(v.left.get, current)
-        } else {
-          internalDecomposeWithBuilder(v.right.get, current)
+        any.asInstanceOf[Either[?, ?]] match {
+          case Left(v) =>
+            internalDecomposeWithBuilder(v, current)
+          case Right(v) =>
+            internalDecomposeWithBuilder(v, current)
         }
       } else if (classOf[(?, ?)].isAssignableFrom(k)) {
 
@@ -525,9 +525,9 @@ object Extraction {
       else if (tpe.erasure == classOf[List[?]]) mkCollection(_.toList)
       else if (tpe.erasure == classOf[Set[?]]) mkCollection(_.toSet)
       else if (tpe.erasure == classOf[scala.collection.mutable.Set[?]])
-        mkCollection(a => scala.collection.mutable.Set(a*))
+        mkCollection(_.to(scala.collection.mutable.Set))
       else if (tpe.erasure == classOf[scala.collection.mutable.Seq[?]])
-        mkCollection(a => scala.collection.mutable.Seq(a*))
+        mkCollection(_.to(scala.collection.mutable.Seq))
       else if (tpe.erasure == classOf[java.util.ArrayList[?]])
         mkCollection(a => new java.util.ArrayList[Any](a.toList.asJavaCollection))
       else if (tpe.erasure.isArray) mkCollection(mkTypedArray)
