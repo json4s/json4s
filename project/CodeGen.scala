@@ -28,13 +28,13 @@ ${(2 to max).map(formatN).mkString("\n")}
 """
   }
 
-  def writer(addAuto: Boolean): String = {
+  def writer: String = {
     s"""package org.json4s
 
 trait WriterFunctions { self: Writer.type =>
 ${(2 to max).map(writerN).mkString("\n")}
 
-${if (addAuto) (2 to max).map(writerAutoN).mkString("\n") else ""}
+${(2 to max).map(writerAutoN).mkString("\n")}
 }
 """
   }
