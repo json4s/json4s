@@ -14,10 +14,9 @@ lazy val ast = projectMatrix
     name := "json4s-ast",
     json4sSettings,
     Compile / sourceGenerators += task {
-      val v = CrossVersion.partialVersion(scalaVersion.value)
       Seq(
         ("ReaderFunctions.scala", CodeGen.reader),
-        ("WriterFunctions.scala", CodeGen.writer(v == Some((2, 13)) || v.exists(_._1 == 3))),
+        ("WriterFunctions.scala", CodeGen.writer),
         ("FormatFunctions.scala", CodeGen.format)
       ).map { case (fileName, src) =>
         val f = (Compile / sourceManaged).value / "org" / "json4s" / fileName
