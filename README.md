@@ -132,7 +132,11 @@ Extras
 
 * [ext](https://github.com/json4s/json4s/tree/master/ext)
 
-Support for Enum, Joda-Time, Java 8 Date & Time...
+Support for Enum, Java 8 Date & Time
+
+* [joda](https://github.com/json4s/json4s/tree/master/joda)
+
+Support for Joda-Time
 
 * [scalaz](https://github.com/json4s/json4s/tree/master/scalaz)
 
