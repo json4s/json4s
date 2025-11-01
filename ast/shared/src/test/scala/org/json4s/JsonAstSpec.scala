@@ -22,6 +22,7 @@ import org.scalacheck.*
 import org.scalacheck.Prop.forAllNoShrink
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.Checkers
+import scala.annotation.tailrec
 
 class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
 
@@ -109,6 +110,7 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
 
       val result = x.replace(path, replacement)
 
+      @tailrec
       def replaced(path: List[String], in: JValue): Boolean = {
         path match {
           case Nil =>
