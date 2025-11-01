@@ -167,10 +167,25 @@ abstract class ExtractionBugs[T](mod: String) extends AnyWordSpec with JsonMetho
     DefaultFormats.withCompanions(classOf[PingPongGame.SharedObj] -> PingPongGame) + new MapImplementationSerializer()
 
   "Primitive type should not hang" in {
-    assume(!isScala3)
-    assertThrows[MappingException] {
-      val a = WithPrimitiveAlias(Vector(1.0, 2.0, 3.0, 4.0))
-      Extraction.decompose(a)
+    val a = WithPrimitiveAlias(Vector(1.0, 2.0, 3.0, 4.0))
+    if (isScala3) {
+      val expect = JObject(
+        List(
+          "foo" -> JArray(
+            List(
+              JDouble(1.0),
+              JDouble(2.0),
+              JDouble(3.0),
+              JDouble(4.0),
+            )
+          )
+        )
+      )
+      assert(Extraction.decompose(a) == expect)
+    } else {
+      assertThrows[MappingException] {
+        Extraction.decompose(a)
+      }
     }
   }
 
