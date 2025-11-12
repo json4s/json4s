@@ -106,7 +106,7 @@ final class JsonAssoc[A](private val left: (String, A)) extends AnyVal {
 }
 
 final class JsonListAssoc(private val left: List[JField]) extends AnyVal {
-  def ~(right: (String, JValue)): JObject = JObject(left ::: List(JField(right._1, right._2)))
+  def ~(right: (String, JValue)): JObject = JObject(left :+ right)
   def ~(right: JObject): JObject = JObject(left ::: right.obj)
   def ~~(right: (String, JValue)): JObject = this.~(right)
   def ~~(right: JObject): JObject = this.~(right)
