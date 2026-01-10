@@ -106,6 +106,18 @@ class JsonParserSpec extends AnyWordSpec with JValueGen with Checkers {
       )
     }
 
+    "parse raw true as boolean" in {
+      assert(JsonParser.parse("true") == JBool(true))
+    }
+
+    "parse raw number as JInt" in {
+      assert(JsonParser.parse("123") == JInt(123))
+    }
+
+    "parse raw string as JString" in {
+      assert(JsonParser.parse("\"hello\"") == JString("hello"))
+    }
+
     "The EOF has reached when the Reader returns EOF" in {
       class StingyReader(s: String) extends java.io.StringReader(s) {
         override def read(cbuf: Array[Char], off: Int, len: Int): Int = {
