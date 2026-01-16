@@ -166,18 +166,18 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
 
       assertThrows[MappingException] {
         parse("""{ "name": null, "age": 5, "mother":{"name":"Marilyn"}}""")
-          .extract[OChild](fm, implicitly[Manifest[OChild]])
+          .extract[OChild](using fm, implicitly[Manifest[OChild]])
       }
 
       val mf = implicitly[Manifest[OptionValue]]
-      assertThrows[MappingException] { parse("""{"value": null}""").extract[OptionValue](fm, mf) }
-      assert(parse("""{}""").extract[OptionValue](fm, mf) == OptionValue(None))
-      assert(parse("""{"value": 1}""").extract[OptionValue](fm, mf) == OptionValue(Some(1)))
+      assertThrows[MappingException] { parse("""{"value": null}""").extract[OptionValue](using fm, mf) }
+      assert(parse("""{}""").extract[OptionValue](using fm, mf) == OptionValue(None))
+      assert(parse("""{"value": 1}""").extract[OptionValue](using fm, mf) == OptionValue(Some(1)))
     }
 
     "Missing JSON array extracted as an empty List (no default value) when strictArrayExtraction is false" in {
       assert(
-        parse(missingChildren).extract[Person](nonStrictFormats, implicitly[Manifest[Person]]) == Person(
+        parse(missingChildren).extract[Person](using nonStrictFormats, implicitly[Manifest[Person]]) == Person(
           "joe",
           Address("Bulevard", "Helsinki"),
           Nil
@@ -187,7 +187,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
 
     "Missing JSON array extracted as an empty List (has default value) when strictArrayExtraction is false" in {
       assert(
-        parse(missingChildren).extract[PersonNoKids](
+        parse(missingChildren).extract[PersonNoKids](using
           nonStrictFormats,
           implicitly[Manifest[PersonNoKids]]
         ) == PersonNoKids("joe", Address("Bulevard", "Helsinki"), Nil)
@@ -196,13 +196,13 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
 
     "Missing JSON array fails extraction (no default value) when strictArrayExtraction is true" in {
       assertThrows[MappingException] {
-        parse(missingChildren).extract[Person](strictFormats, implicitly[Manifest[Person]])
+        parse(missingChildren).extract[Person](using strictFormats, implicitly[Manifest[Person]])
       }
     }
 
     "Missing JSON array extracted as an empty List (has default value) when strictArrayExtraction is true" in {
       assert(
-        parse(missingChildren).extract[PersonNoKids](
+        parse(missingChildren).extract[PersonNoKids](using
           strictFormats,
           implicitly[Manifest[PersonNoKids]]
         ) == PersonNoKids("joe", Address("Bulevard", "Helsinki"), Nil)
@@ -211,7 +211,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
 
     "Missing JSON object extracted as an empty Map (no default value) when strictMapExtraction is false" in {
       assert(
-        parse(noAddress).extract[PersonWithMap](
+        parse(noAddress).extract[PersonWithMap](using
           nonStrictFormats,
           implicitly[Manifest[PersonWithMap]]
         ) == PersonWithMap("joe", Map())
@@ -220,7 +220,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
 
     "Missing JSON object extracted as an empty Map (has default value) when strictMapExtraction is false" in {
       assert(
-        parse(noAddress).extract[PersonWithDefaultEmptyMap](
+        parse(noAddress).extract[PersonWithDefaultEmptyMap](using
           nonStrictFormats,
           implicitly[Manifest[PersonWithDefaultEmptyMap]]
         ) == PersonWithDefaultEmptyMap("joe", Map())
@@ -230,13 +230,13 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
     "Missing JSON object fails extraction (no default value) when strictMapExtraction is true" in {
       assertThrows[MappingException] {
         parse(noAddress)
-          .extract[PersonWithMap](strictFormats, implicitly[Manifest[PersonWithMap]])
+          .extract[PersonWithMap](using strictFormats, implicitly[Manifest[PersonWithMap]])
       }
     }
 
     "Missing JSON object extracted as an empty Map (has default value) when strictMapExtraction is true" in {
       assert(
-        parse(noAddress).extract[PersonWithDefaultEmptyMap](
+        parse(noAddress).extract[PersonWithDefaultEmptyMap](using
           strictFormats,
           implicitly[Manifest[PersonWithDefaultEmptyMap]]
         ) == PersonWithDefaultEmptyMap("joe", Map())
@@ -502,7 +502,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
     "format nullExtractionStrategy set to Disallow should disallow null values in extraction for class types" in {
       try {
         parse("""{"name":"foobar","address":null}""")
-          .extract[SimplePerson](notNullFormats, Manifest.classType(classOf[SimplePerson]))
+          .extract[SimplePerson](using notNullFormats, Manifest.classType(classOf[SimplePerson]))
         fail()
       } catch {
         case e: MappingException =>
@@ -514,7 +514,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
 
     "format nullExtractionStrategy set to TreatAsAbsent should disallow null values in extraction for class types without default values" in {
       try {
-        parse("""{"name":"foobar","address":null}""").extract[SimplePerson](
+        parse("""{"name":"foobar","address":null}""").extract[SimplePerson](using
           nullAsAbsentFormats,
           Manifest.classType(classOf[SimplePerson])
         )
@@ -527,7 +527,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
 
     "format nullExtractionStrategy set to Disallow should disallow null values in extraction for primitive types" in {
       try {
-        parse("""{"name":null}""").extract[Name](notNullFormats, Manifest.classType(classOf[Name]))
+        parse("""{"name":null}""").extract[Name](using notNullFormats, Manifest.classType(classOf[Name]))
         fail()
       } catch {
         case e: MappingException =>
@@ -539,7 +539,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
 
     "format nullExtractionStrategy set to TreatAsAbsent should disallow null values in extraction for primitive types without default values" in {
       try {
-        parse("""{"name":null}""").extract[Name](nullAsAbsentFormats, Manifest.classType(classOf[Name]))
+        parse("""{"name":null}""").extract[Name](using nullAsAbsentFormats, Manifest.classType(classOf[Name]))
         fail()
       } catch {
         case e: MappingException =>
@@ -550,13 +550,18 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
     "format nullExtractionStrategy set to Disallow should extract a null Option[T] as None" in {
       assert(
         parse("""{"name":null,"age":22}""")
-          .extract[OChild](notNullFormats, Manifest.classType(classOf[OChild])) == new OChild(None, 22, None, None)
+          .extract[OChild](using notNullFormats, Manifest.classType(classOf[OChild])) == new OChild(
+          None,
+          22,
+          None,
+          None
+        )
       )
     }
 
     "format nullExtractionStrategy set to TreatAsAbsent should extract a null Option[T] as None" in {
       assert(
-        parse("""{"name":null,"age":22}""").extract[OChild](
+        parse("""{"name":null,"age":22}""").extract[OChild](using
           nullAsAbsentFormats,
           Manifest.classType(classOf[OChild])
         ) == new OChild(None, 22, None, None)
@@ -565,7 +570,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
 
     "format nullExtractionStrategy set to Disallow should disallow null values in extraction for class types with default values" in {
       try {
-        parse("""{"name":"foobar","address":null}""").extract[PersonWithDefaultValues](
+        parse("""{"name":"foobar","address":null}""").extract[PersonWithDefaultValues](using
           notNullFormats,
           Manifest.classType(classOf[PersonWithDefaultValues])
         )
@@ -580,7 +585,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
 
     "format nullExtractionStrategy set to TreatAsAbsent should ignore null values in extraction for class types with default values. 1" in {
       assert(
-        parse("""{"name":null}""").extract[PersonWithDefaultValues](
+        parse("""{"name":null}""").extract[PersonWithDefaultValues](using
           nullAsAbsentFormats,
           Manifest.classType(classOf[PersonWithDefaultValues])
         ) == PersonWithDefaultValues()
@@ -589,7 +594,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
 
     "format nullExtractionStrategy set to Disallow should disallow null values in extraction for collection types" in {
       try {
-        parse("""[1,null,3]""").extract[Seq[Int]](notNullFormats, implicitly)
+        parse("""[1,null,3]""").extract[Seq[Int]](using notNullFormats, implicitly)
         fail()
       } catch {
         case e: MappingException =>
@@ -598,7 +603,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
     }
 
     "format nullExtractionStrategy set to TreatAsAbsent should ignore null values in extraction for class types with default values. 2" in {
-      assert(parse("""[1,null,3]""").extract[Seq[Int]](nullAsAbsentFormats, implicitly) == Seq(1, 3))
+      assert(parse("""[1,null,3]""").extract[Seq[Int]](using nullAsAbsentFormats, implicitly) == Seq(1, 3))
     }
 
     "format nullExtractionStrategy set to Disallow should use custom null serializer to set Option[T] as None" in {
@@ -616,7 +621,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
           )
         )(using ClassTag.Null)
       assert(
-        parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](
+        parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](using
           notNullFormats + CustomNull,
           Manifest.classType(classOf[OChild])
         ) == new OChild(None, 22, None, None)
@@ -638,7 +643,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
           )
         )(using ClassTag.Null)
       assert(
-        parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](
+        parse("""{"name":null,"age":22, "mother": ""}""").extract[OChild](using
           nullAsAbsentFormats + CustomNull,
           Manifest.classType(classOf[OChild])
         ) == new OChild(None, 22, None, None)
@@ -648,13 +653,13 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
     "simple case objects should be successfully extracted as a singleton instance" in {
       assert(
         parse(emptyTree)
-          .extract[LeafTree[Int]](treeFormats, Manifest.classType(classOf[LeafTree[Int]])) == LeafTree.empty
+          .extract[LeafTree[Int]](using treeFormats, Manifest.classType(classOf[LeafTree[Int]])) == LeafTree.empty
       )
     }
 
     "case objects in a complex structure should be successfully extracted as a singleton instance" in {
       assert(
-        parse(tree).extract[LeafTree[Int]](treeFormats[Int], Manifest.classType(classOf[LeafTree[Int]])) == Node(
+        parse(tree).extract[LeafTree[Int]](using treeFormats[Int], Manifest.classType(classOf[LeafTree[Int]])) == Node(
           List[LeafTree[Int]](EmptyLeaf, Node(List.empty), Leaf(1), Leaf(2))
         )
       )
@@ -663,7 +668,7 @@ abstract class ExtractionExamples[T](mod: String, ser: json4s.Serialization) ext
     "#274 Examples with default value should be parsed" in {
       val res = WithDefaultValueHolder(Seq(WithDefaultValue("Bob")))
       assert(
-        parse("""{"values":[{"name":"Bob","gender":"male"}]}""").extract[WithDefaultValueHolder](
+        parse("""{"values":[{"name":"Bob","gender":"male"}]}""").extract[WithDefaultValueHolder](using
           DefaultFormats,
           Manifest.classType(classOf[WithDefaultValueHolder])
         ) == res

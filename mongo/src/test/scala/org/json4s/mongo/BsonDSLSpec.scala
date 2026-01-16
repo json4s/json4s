@@ -34,7 +34,7 @@ class BsonDSLSpec extends AnyWordSpec {
     "Convert ObjectId properly" in {
       val oid: ObjectId = ObjectId.get
       val qry: JObject = "id" -> oid
-      val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
+      val dbo: DBObject = JObjectParser.parse(qry)(using DefaultFormats)
 
       assert(dbo.get("id") == oid)
     }
@@ -42,7 +42,7 @@ class BsonDSLSpec extends AnyWordSpec {
     "Convert List[ObjectId] properly" in {
       val oidList = ObjectId.get :: ObjectId.get :: ObjectId.get :: Nil
       val qry: JObject = "ids" -> oidList
-      val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
+      val dbo: DBObject = JObjectParser.parse(qry)(using DefaultFormats)
       val oidList2: List[ObjectId] =
         dbo.get("ids").asInstanceOf[BasicDBList].asScala.toList.map(_.asInstanceOf[ObjectId])
 
@@ -52,7 +52,7 @@ class BsonDSLSpec extends AnyWordSpec {
     "Convert Pattern properly" in {
       val ptrn: Pattern = Pattern.compile("^Mongo", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE)
       val qry: JObject = "ptrn" -> ptrn
-      val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
+      val dbo: DBObject = JObjectParser.parse(qry)(using DefaultFormats)
       val ptrn2: Pattern = dbo.get("ptrn").asInstanceOf[Pattern]
 
       assert(ptrn2.pattern == ptrn.pattern)
@@ -65,7 +65,7 @@ class BsonDSLSpec extends AnyWordSpec {
         Pattern.compile("^Mongo2", Pattern.CASE_INSENSITIVE) ::
         Pattern.compile("^Mongo3") :: Nil
       val qry: JObject = "ptrns" -> ptrnList
-      val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
+      val dbo: DBObject = JObjectParser.parse(qry)(using DefaultFormats)
       val ptrnList2: List[Pattern] =
         dbo.get("ptrns").asInstanceOf[BasicDBList].asScala.toList.map(_.asInstanceOf[Pattern])
 
@@ -76,7 +76,7 @@ class BsonDSLSpec extends AnyWordSpec {
     "Convert Regex properly" in {
       val regex: Regex = "^Mongo".r
       val qry: JObject = "regex" -> regex
-      val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
+      val dbo: DBObject = JObjectParser.parse(qry)(using DefaultFormats)
       val ptrn: Pattern = dbo.get("regex").asInstanceOf[Pattern]
 
       assert(regex.pattern.pattern == ptrn.pattern)
@@ -86,7 +86,7 @@ class BsonDSLSpec extends AnyWordSpec {
     "Convert UUID properly" in {
       val uuid: UUID = UUID.randomUUID
       val qry: JObject = "uuid" -> uuid
-      val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
+      val dbo: DBObject = JObjectParser.parse(qry)(using DefaultFormats)
 
       assert(dbo.get("uuid") == uuid)
     }
@@ -94,7 +94,7 @@ class BsonDSLSpec extends AnyWordSpec {
     "Convert List[UUID] properly" in {
       val uuidList = UUID.randomUUID :: UUID.randomUUID :: UUID.randomUUID :: Nil
       val qry: JObject = "ids" -> uuidList
-      val dbo: DBObject = JObjectParser.parse(qry)(DefaultFormats)
+      val dbo: DBObject = JObjectParser.parse(qry)(using DefaultFormats)
       val uuidList2: List[UUID] = dbo.get("ids").asInstanceOf[BasicDBList].asScala.toList.map(_.asInstanceOf[UUID])
 
       assert(uuidList2 == uuidList)
