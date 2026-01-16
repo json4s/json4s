@@ -84,7 +84,7 @@ class SerializationBugs extends AnyWordSpec {
       val SeqClass = classOf[Seq[?]]
 
       def serialize(implicit format: Formats) = { case seq: Seq[?] =>
-        JArray(seq.toList.map(Extraction.decompose(_)(format)))
+        JArray(seq.toList.map(Extraction.decompose(_)(using format)))
       }
 
       def deserialize(implicit format: Formats) = { case (TypeInfo(SeqClass, parameterizedType), JArray(xs)) =>
@@ -95,7 +95,7 @@ class SerializationBugs extends AnyWordSpec {
             .asInstanceOf[Class[?]],
           None
         )
-        xs.map(x => Extraction.extract(x, typeInfo)(format))
+        xs.map(x => Extraction.extract(x, typeInfo)(using format))
       }
     }
 
@@ -181,7 +181,7 @@ class SerializationBugs extends AnyWordSpec {
 
   "Escapes control and unicode characters" in {
     val formats = DefaultFormats.withEscapeUnicode
-    val ser = native.Serialization.write("\u0000\u001F")(formats)
+    val ser = native.Serialization.write("\u0000\u001F")(using formats)
     assert(ser == "\"\u0000\u001F\"")
   }
 

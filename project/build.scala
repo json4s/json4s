@@ -119,6 +119,7 @@ object build {
           Seq("-Xsource:3-cross")
         case _ =>
           Seq(
+            "-Wconf:msg=Implicit parameters should be provided with:error",
             "-Wconf:msg=with as a type operator has been deprecated:error"
           )
       }

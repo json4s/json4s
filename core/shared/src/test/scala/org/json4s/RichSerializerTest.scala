@@ -27,7 +27,7 @@ abstract class RichSerializerTest[A] extends AnyWordSpec with JsonMethods[A] {
           case List(_, vType) =>
             HashMap(
               fields.map { case (k, v) =>
-                k -> extract(v)(format, vType)
+                k -> extract(v)(using format, vType)
               }*
             )
         }
