@@ -1,9 +1,10 @@
 package org.json4s.native
 
-import org.json4s.native.JsonMethods.{compact, render}
-import org.json4s.{DefaultFormats, Extraction}
+import org.json4s.DefaultFormats
+import org.json4s.Extraction
+import org.json4s.native.JsonMethods.compact
+import org.json4s.native.JsonMethods.render
 import org.scalatest.wordspec.AnyWordSpec
-
 
 class CaseClassTest extends AnyWordSpec {
 
