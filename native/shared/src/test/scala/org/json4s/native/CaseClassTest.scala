@@ -11,7 +11,7 @@ class CaseClassTest extends AnyWordSpec {
   "Serialization of case class" should {
     "succeed when inheriting from abstract class with ctor argument with different name then value in case class ctor" in {
       val personId = FooA(3)
-      val actualJValue = Extraction.decompose(personId)(DefaultFormats.lossless)
+      val actualJValue = Extraction.decompose(personId)(using DefaultFormats.lossless)
       println(actualJValue)
       val actualJsonString = compact(render(actualJValue))
       val expectedJsonString = """{"value":3}"""
@@ -20,7 +20,7 @@ class CaseClassTest extends AnyWordSpec {
 
     "succeed when inheriting from abstract class with ctor argument with same name as value in case class ctor" in {
       val personId = FooB(3)
-      val actualJValue = Extraction.decompose(personId)(DefaultFormats.lossless)
+      val actualJValue = Extraction.decompose(personId)(using DefaultFormats.lossless)
       println(actualJValue)
       val actualJsonString = compact(render(actualJValue))
       val expectedJsonString = """{"value":3}"""
@@ -31,7 +31,7 @@ class CaseClassTest extends AnyWordSpec {
 
     "succeed when no base class" in {
       val personId = FooNoSuperclass(3)
-      val actualJValue = Extraction.decompose(personId)(DefaultFormats.lossless)
+      val actualJValue = Extraction.decompose(personId)(using DefaultFormats.lossless)
       println(actualJValue)
       val actualJsonString = compact(render(actualJValue))
       val expectedJsonString = """{"value":3}"""
