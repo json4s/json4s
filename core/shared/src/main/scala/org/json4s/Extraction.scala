@@ -147,11 +147,14 @@ object Extraction {
       //
       // When we cannot find a property whose declaring class matches k, we fall back to using the
       // first property in the group. This can happen when k is an abstract class or trait.
-      val descriptorProperties = descriptor.properties.groupBy(_.name).map { case (_, properties) =>
-        properties
-          .find(_.field.getDeclaringClass == k)
-          .getOrElse(properties.head)
-      }.toSeq
+      val descriptorProperties = descriptor.properties
+        .groupBy(_.name)
+        .map { case (_, properties) =>
+          properties
+            .find(_.field.getDeclaringClass == k)
+            .getOrElse(properties.head)
+        }
+        .toSeq
       val iter = descriptorProperties.iterator
       val obj = current.startObject()
 
