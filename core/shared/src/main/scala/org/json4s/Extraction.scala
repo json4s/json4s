@@ -140,9 +140,13 @@ object Extraction {
       val descriptor = Reflector.describeWithFormats(klass).asInstanceOf[reflect.ClassDescriptor]
       val ctorParams = descriptor.mostComprehensive.map(_.name)
       val methods = k.getMethods.toSeq.map(_.getName)
-      // NOTE: WE WANT TO AVOID DUPLICATE PROPERTIES. WE PREFER TO TAKE THE PROPERTY
-      // DECLARED IN THE CLASS ITSELF (NOT THE ONE FROM THE PARENT CLASS). IF NONE FOUND,
-      // WE SHALL TAKE THE FIRST ONE...!!!
+      // n.b. When duplicate property names exist (due to inheritance), we want to use the property
+      // defined in the most-derived class. Thus, we group by name and pick the property whose
+      // declaring class is the most-derived (i.e. the first match in the class hierarchy when
+      // traversed from most-derived to least-derived).
+      //
+      // When we cannot find a property whose declaring class matches k, we fall back to using the
+      // first property in the group. This can happen when k is an abstract class or trait.
       val descriptorProperties = descriptor.properties.groupBy(_.name).map { case (_, properties) =>
         properties
           .find(_.field.getDeclaringClass == k)
