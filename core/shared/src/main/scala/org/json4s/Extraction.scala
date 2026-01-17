@@ -147,14 +147,24 @@ object Extraction {
       //
       // When we cannot find a property whose declaring class matches k, we fall back to using the
       // first property in the group. This can happen when k is an abstract class or trait.
-      val descriptorProperties = descriptor.properties
-        .groupBy(_.name)
-        .map { case (_, properties) =>
-          properties
-            .find(_.field.getDeclaringClass == k)
-            .getOrElse(properties.head)
+      //
+      // We also preserve the original property order from descriptor.properties to ensure
+      // deterministic JSON field ordering.
+      val descriptorProperties = {
+        val preferredByName = descriptor.properties
+          .groupBy(_.name)
+          .map { case (name, props) =>
+            name -> props.find(_.field.getDeclaringClass == k).getOrElse(props.head)
+          }
+        val seen = scala.collection.mutable.Set.empty[String]
+        descriptor.properties.flatMap { prop =>
+          if (seen.contains(prop.name)) None
+          else {
+            seen += prop.name
+            preferredByName.get(prop.name)
+          }
         }
-        .toSeq
+      }
       val iter = descriptorProperties.iterator
       val obj = current.startObject()
 
