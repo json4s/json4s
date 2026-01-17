@@ -140,7 +140,15 @@ object Extraction {
       val descriptor = Reflector.describeWithFormats(klass).asInstanceOf[reflect.ClassDescriptor]
       val ctorParams = descriptor.mostComprehensive.map(_.name)
       val methods = k.getMethods.toSeq.map(_.getName)
-      val iter = descriptor.properties.iterator
+      // NOTE: WE WANT TO AVOID DUPLICATE PROPERTIES. WE PREFER TO TAKE THE PROPERTY
+      // DECLARED IN THE CLASS ITSELF (NOT THE ONE FROM THE PARENT CLASS). IF NONE FOUND,
+      // WE SHALL TAKE THE FIRST ONE...!!!
+      val descriptorProperties = descriptor.properties.groupBy(_.name).map { case (_, properties) =>
+        properties
+          .find(_.field.getDeclaringClass == k)
+          .getOrElse(properties.head)
+      }.toSeq
+      val iter = descriptorProperties.iterator
       val obj = current.startObject()
 
       for {
