@@ -1,14 +1,13 @@
 package org.json4s.scalaz
 
-import scalaz._
-import scalaz.syntax.apply0._
-import scalaz.syntax.bind0._
-import scalaz.syntax.traverse._
-import scalaz.std.list._
-import scalaz.syntax.validation._
-import JsonScalaz._
-import org.json4s._
-
+import JsonScalaz.*
+import _root_.scalaz.*
+import _root_.scalaz.std.list.*
+import _root_.scalaz.syntax.apply0.*
+import _root_.scalaz.syntax.bind0.*
+import _root_.scalaz.syntax.traverse.*
+import _root_.scalaz.syntax.validation.*
+import org.json4s.*
 import org.scalatest.wordspec.AnyWordSpec
 
 class ValidationExample extends AnyWordSpec {

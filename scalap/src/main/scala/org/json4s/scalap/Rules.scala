@@ -57,7 +57,7 @@ trait Rules {
     val choices = rules.toList
   }
 
-  def ruleWithName[In, Out, A, X](_name: String, f: In => Result[Out, A, X]): Rule[In, Out, A, X] with Name =
+  def ruleWithName[In, Out, A, X](_name: String, f: In => Result[Out, A, X]): Rule[In, Out, A, X] & Name =
     new DefaultRule(f) with Name {
       val name = _name
     }
@@ -90,7 +90,7 @@ trait StateRules {
   type Rule[+A, +X] = org.json4s.scalap.Rule[S, S, A, X]
 
   val factory: Rules
-  import factory._
+  import factory.*
 
   def apply[A, X](f: S => Result[S, A, X]) = rule(f)
 
@@ -120,7 +120,7 @@ trait StateRules {
         case rule :: tl =>
           rule(in) match {
             case Failure => Failure
-            case Error(x) => Error(x)
+            case x @ Error(_) => x
             case Success(out, v) => rep(out, tl, v :: results)
           }
       }
@@ -144,7 +144,7 @@ trait StateRules {
         rule(in) match {
           case Success(out, f) => rep(out, f(t)) // SI-5189 f.asInstanceOf[T => T]
           case Failure => Failure
-          case Error(x) => Error(x)
+          case x @ Error(_) => x
         }
     }
     in => rep(in, initial)
@@ -153,5 +153,5 @@ trait StateRules {
 }
 
 trait RulesWithState extends Rules with StateRules {
-  val factory = this
+  val factory: Rules = this
 }

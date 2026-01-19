@@ -16,8 +16,7 @@
 
 package org.json4s
 
-import JsonAST._
-
+import JsonAST.*
 import scala.annotation.tailrec
 
 /**
@@ -111,6 +110,6 @@ object Merge {
      * @see org.json4s.Merge#merge
      */
     def merge[B <: JValue, R <: JValue](other: B)(implicit instance: MergeDep[A, B, R]): R =
-      Merge.merge(json, other)(instance)
+      Merge.merge(json, other)(using instance)
   }
 }

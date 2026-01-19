@@ -102,35 +102,44 @@ case object JNothing extends JValue {
   type Values = None.type
   def values = None
 }
+
 case object JNull extends JValue {
   type Values = Null
   def values = null
 }
+
 case class JString(s: String) extends JValue {
   type Values = String
   def values = s
 }
+
 sealed trait JNumber extends JValue
+
 case class JDouble(num: Double) extends JValue with JNumber {
   type Values = Double
   def values = num
 }
+
 case class JDecimal(num: BigDecimal) extends JValue with JNumber {
   type Values = BigDecimal
   def values = num
 }
+
 case class JLong(num: Long) extends JValue with JNumber {
   type Values = Long
   def values = num
 }
+
 case class JInt(num: BigInt) extends JValue with JNumber {
   type Values = BigInt
   def values = num
 }
+
 case class JBool(value: Boolean) extends JValue {
   type Values = Boolean
   def values = value
 }
+
 object JBool {
   def apply(value: Boolean): JBool = if (value) True else False
   val True = new JBool(true)
@@ -148,6 +157,7 @@ case class JObject(obj: List[JField]) extends JValue {
 
   override def hashCode: Int = obj.toSet[JField].hashCode
 }
+
 case object JObject {
   def apply(fs: JField*): JObject = JObject(fs.toList)
 }

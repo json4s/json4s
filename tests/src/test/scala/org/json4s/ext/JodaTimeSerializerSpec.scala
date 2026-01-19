@@ -18,33 +18,85 @@ package org.json4s
 package ext
 
 import java.util.TimeZone
-
-import org.joda.time.DateTimeZone.{forTimeZone, UTC}
-import org.joda.time._
+import org.joda.time.*
+import org.joda.time.DateTimeZone.UTC
+import org.joda.time.DateTimeZone.forTimeZone
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 class NativeJodaTimeSerializerSpec extends JodaTimeSerializerSpec("Native") {
   val s: Serialization = native.Serialization
-  val m: JsonMethods[_] = native.JsonMethods
+  val m: JsonMethods[?] = native.JsonMethods
 }
 
 /**
  * System under specification for JodaTimeSerializer.
  */
-abstract class JodaTimeSerializerSpec(mod: String) extends AnyWordSpec {
+abstract class JodaTimeSerializerSpec(mod: String) extends AnyWordSpec with ScalaCheckDrivenPropertyChecks {
 
   def s: Serialization
-  def m: JsonMethods[_]
+  def m: JsonMethods[?]
 
   implicit lazy val formats: Formats = s.formats(NoTypeHints) ++ JodaTimeSerializers.all
 
+  override implicit val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(minSuccessful = 10000)
+
+  private implicit val periodArbitrary: Arbitrary[Period] =
+    Arbitrary(
+      implicitly[Arbitrary[Int]].arbitrary.map(x => new Period(x.toLong)),
+    )
+
+  private implicit val localTimeArbitrary: Arbitrary[LocalTime] =
+    Arbitrary(
+      implicitly[Arbitrary[Int]].arbitrary.map(x => new LocalTime(x.toLong)),
+    )
+
+  private implicit val localDateArbitrary: Arbitrary[LocalDate] =
+    Arbitrary(
+      implicitly[Arbitrary[Int]].arbitrary.map(x => new LocalDate(x.toLong)),
+    )
+
+  private implicit val dateTimeArbitrary: Arbitrary[DateTime] =
+    Arbitrary(
+      implicitly[Arbitrary[Int]].arbitrary.map(x => new DateTime(x.toLong, DateTimeZone.UTC)),
+    )
+
+  private implicit val instantArbitrary: Arbitrary[Instant] =
+    Arbitrary(
+      Gen.oneOf(
+        implicitly[Arbitrary[Int]].arbitrary.map(x => Instant.ofEpochMilli(x)),
+        implicitly[Arbitrary[Int]].arbitrary.map(x => Instant.ofEpochSecond(x))
+      )
+    )
+
+  private implicit val duraitonArbitrary: Arbitrary[Duration] =
+    Arbitrary(
+      Gen.oneOf(
+        implicitly[Arbitrary[Int]].arbitrary.map(x => Duration.millis(x)),
+        implicitly[Arbitrary[Int]].arbitrary.map(x => Duration.standardSeconds(x))
+      )
+    )
+
+  private implicit val jodaTypesArbitrary: Arbitrary[JodaTypes] =
+    Arbitrary(
+      Gen.resultOf(JodaTypes(_, _, _, _, _, _))
+    )
+
   (mod + " JodaTimeSerializer Specification") should {
+    "scalacheck" in forAll { (x: JodaTypes) =>
+      val serialized = s.write(x)
+      val actual = s.read[JodaTypes](serialized)
+      assert(actual == x)
+    }
+
     "Serialize joda time types with default format" in {
       val x = JodaTypes(
         new Duration(10 * 1000),
         new Instant(System.currentTimeMillis),
         new DateTime(UTC),
-        new DateMidnight(UTC),
         new LocalDate(2011, 1, 16),
         new LocalTime(16, 52, 10),
         Period.weeks(3)
@@ -53,7 +105,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends AnyWordSpec {
       assert(s.read[JodaTypes](ser) == x)
     }
 
-    "DateTime and DateMidnight use configured date format 1" in {
+    "DateTime use configured date format 1" in {
       implicit val formats: Formats = new DefaultFormats {
         override def dateFormatter = {
           val customFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'")
@@ -62,15 +114,14 @@ abstract class JodaTimeSerializerSpec(mod: String) extends AnyWordSpec {
         }
       } ++ JodaTimeSerializers.all
 
-      val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0, UTC), new DateMidnight(2011, 1, 16, UTC))
+      val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0, UTC))
       val ser = s.write(x)
-      assert(ser == """{"dt":"2011-01-16 10:32:00Z","dm":"2011-01-16 00:00:00Z"}""")
+      assert(ser == """{"dt":"2011-01-16 10:32:00Z"}""")
 
       assert((m.parse(ser) \ "dt").extract[DateTime] == new DateTime(2011, 1, 16, 10, 32, 0, 0, UTC))
-      assert((m.parse(ser) \ "dm").extract[DateTime] == new DateMidnight(2011, 1, 16, UTC))
     }
 
-    "DateTime and DateMidnight use configured date format 2" in {
+    "DateTime use configured date format 2" in {
 
       def usTimeZone = TimeZone.getTimeZone("America/New_York")
       def usDateTimeZone = forTimeZone(usTimeZone)
@@ -85,19 +136,18 @@ abstract class JodaTimeSerializerSpec(mod: String) extends AnyWordSpec {
       } ++ JodaTimeSerializers.all
 
       val x =
-        Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0, usDateTimeZone), new DateMidnight(2011, 1, 16, usDateTimeZone))
+        Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0, usDateTimeZone))
       val ser = s.write(x)
-      assert(ser.matches("""\{"dt":"2011-01-16 10:32:00[-+]\d{2}:\d{2}","dm":"2011-01-16 00:00:00[-+]\d{2}:\d{2}"\}"""))
+      assert(ser.matches("""\{"dt":"2011-01-16 10:32:00[-+]\d{2}:\d{2}"\}"""))
 
       assert((m.parse(ser) \ "dt").extract[DateTime] == new DateTime(2011, 1, 16, 10, 32, 0, 0, usDateTimeZone))
-      assert((m.parse(ser) \ "dm").extract[DateTime] == new DateMidnight(2011, 1, 16, usDateTimeZone))
     }
 
     "Serialising and deserialising Date types with the default format uses UTC rather than the default local timezone" in {
 
       DateTimeZone.setDefault(DateTimeZone.forID("America/New_York"))
 
-      val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0, UTC), new DateMidnight(2011, 1, 16, UTC))
+      val x = Dates(new DateTime(2011, 1, 16, 10, 32, 0, 0, UTC))
       val ser = s.write(x)
       val deserialisedDates = s.read[Dates](ser)
 
@@ -105,7 +155,7 @@ abstract class JodaTimeSerializerSpec(mod: String) extends AnyWordSpec {
     }
 
     "null is serialized as JSON null" in {
-      val x = JodaTypes(null, null, null, null, null, null, null)
+      val x = JodaTypes(null, null, null, null, null, null)
       val ser = s.write(x)
       assert(s.read[JodaTypes](ser) == x)
     }
@@ -116,10 +166,9 @@ case class JodaTypes(
   duration: Duration,
   instant: Instant,
   dateTime: DateTime,
-  dateMidnight: DateMidnight,
   localDate: LocalDate,
   localTime: LocalTime,
   period: Period
 )
 
-case class Dates(dt: DateTime, dm: DateMidnight)
+case class Dates(dt: DateTime)

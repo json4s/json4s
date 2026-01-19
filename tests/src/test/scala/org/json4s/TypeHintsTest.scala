@@ -1,11 +1,12 @@
 package org.json4s
 
-import org.json4s.jackson.{JsonMethods, Serialization}
+import org.json4s.jackson.JsonMethods
+import org.json4s.jackson.Serialization
 import org.scalatest.wordspec.AnyWordSpec
 
 class TypeHintTest extends AnyWordSpec {
 
-  import TypeHintsTest._
+  import TypeHintsTest.*
 
   "deserialization with type hints" should {
 
@@ -17,7 +18,7 @@ class TypeHintTest extends AnyWordSpec {
       val dump = Serialization.write(Foo(1))
       // : MyTrait is important for reproducing the behavior reported in https://github.com/json4s/json4s/issues/617
       assertThrows[MappingException] {
-        (JsonMethods.parse(dump).extract[Bar]: MyTrait)
+        JsonMethods.parse(dump).extract[Bar]: MyTrait
       }
     }
 

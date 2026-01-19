@@ -17,7 +17,7 @@
 package org.json4s
 package scalaz
 
-import _root_.scalaz._
+import _root_.scalaz.*
 
 trait Tuples { this: Types =>
   implicit def Tuple2JSON[A: JSON, B: JSON]: JSON[(A, B)] = new JSON[(A, B)] {
@@ -28,7 +28,7 @@ trait Tuples { this: Types =>
         Validation.failureNel(UnexpectedJSONError(x, classOf[JArray]))
     }
 
-    def write(value: (A, B)) = JArray(toJSON(value._1) :: toJSON(value._2) :: Nil)
+    def write(value: (A, B)): JValue = JArray(toJSON(value._1) :: toJSON(value._2) :: Nil)
   }
 
   implicit def Tuple3JSON[A: JSON, B: JSON, C: JSON]: JSON[(A, B, C)] = new JSON[(A, B, C)] {
@@ -39,7 +39,7 @@ trait Tuples { this: Types =>
         Validation.failureNel(UnexpectedJSONError(x, classOf[JArray]))
     }
 
-    def write(value: (A, B, C)) = JArray(toJSON(value._1) :: toJSON(value._2) :: toJSON(value._3) :: Nil)
+    def write(value: (A, B, C)): JValue = JArray(toJSON(value._1) :: toJSON(value._2) :: toJSON(value._3) :: Nil)
   }
 
   implicit def Tuple4JSON[A: JSON, B: JSON, C: JSON, D: JSON]: JSON[(A, B, C, D)] = new JSON[(A, B, C, D)] {
@@ -50,7 +50,7 @@ trait Tuples { this: Types =>
         Validation.failureNel(UnexpectedJSONError(x, classOf[JArray]))
     }
 
-    def write(value: (A, B, C, D)) = JArray(
+    def write(value: (A, B, C, D)): JValue = JArray(
       toJSON(value._1) :: toJSON(value._2) :: toJSON(value._3) :: toJSON(value._4) :: Nil
     )
   }
@@ -66,7 +66,7 @@ trait Tuples { this: Types =>
           Validation.failureNel(UnexpectedJSONError(x, classOf[JArray]))
       }
 
-      def write(value: (A, B, C, D, E)) = JArray(
+      def write(value: (A, B, C, D, E)): JValue = JArray(
         toJSON(value._1) :: toJSON(value._2) :: toJSON(value._3) :: toJSON(value._4) :: toJSON(value._5) :: Nil
       )
     }
@@ -87,7 +87,7 @@ trait Tuples { this: Types =>
           Validation.failureNel(UnexpectedJSONError(x, classOf[JArray]))
       }
 
-      def write(value: (A, B, C, D, E, F)) = JArray(
+      def write(value: (A, B, C, D, E, F)): JValue = JArray(
         toJSON(value._1) :: toJSON(value._2) :: toJSON(value._3) :: toJSON(value._4) :: toJSON(value._5) :: toJSON(
           value._6
         ) :: Nil

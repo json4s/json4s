@@ -1,19 +1,16 @@
-import sbt._
-import Keys._
-import xml.Group
-import MimaSettings.mimaSettings
-import com.typesafe.tools.mima.plugin.MimaKeys.mimaPreviousArtifacts
-import sbtrelease.ReleasePlugin.autoImport._
-import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
-import xerial.sbt.Sonatype.autoImport._
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
+import sbt.*
+import sbt.Keys.*
+import sbtprojectmatrix.ProjectMatrixKeys.*
+import scala.xml.Group
 
 object build {
-  import Dependencies._
+  import Dependencies.*
 
   val manifestSetting = packageOptions += {
     val (title, v, vendor) = (name.value, version.value, organization.value)
     Package.ManifestAttributes(
-      "Created-By" -> "Simple Build Tool",
+      "Created-By" -> "sbt",
       "Built-By" -> System.getProperty("user.name"),
       "Build-Jdk" -> System.getProperty("java.version"),
       "Specification-Title" -> title,
@@ -27,10 +24,11 @@ object build {
   }
 
   val mavenCentralFrouFrou = Seq(
-    publishTo := sonatypePublishToBundle.value,
-    homepage := Some(new URL("https://github.com/json4s/json4s")),
+    publishTo := (if (isSnapshot.value) None else localStaging.value),
+    homepage := Some(url("https://github.com/json4s/json4s")),
     startYear := Some(2009),
-    licenses := Seq(("Apache-2.0", new URL("http://www.apache.org/licenses/LICENSE-2.0"))),
+    licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))),
+    organization := "io.github.json4s",
     pomExtra := {
       pomExtra.value ++ Group(
         <scm>
@@ -53,24 +51,42 @@ object build {
     }
   )
 
-  val Scala212 = "2.12.15"
-  val Scala213 = "2.13.6"
-  val Scala3 = "3.1.0"
+  val Scala213 = "2.13.18"
+  val Scala3 = "3.3.7"
 
-  def json4sSettings(cross: Boolean) = mavenCentralFrouFrou ++ Def.settings(
-    organization := "org.json4s",
-    scalaVersion := Scala212,
-    crossScalaVersions := Seq(Scala212, Scala213, Scala3),
-    addCommandAlias("SetScala212", s"++ ${Scala212}!"),
-    addCommandAlias("SetScala213", s"++ ${Scala213}!"),
-    addCommandAlias("SetScala3", s"++ ${Scala3}!"),
+  def scalaVersions = Seq(Scala213, Scala3)
+
+  def json4sSettings = mavenCentralFrouFrou ++ Def.settings(
     scalacOptions ++= Seq(
       "-unchecked",
       "-deprecation",
       "-feature",
       "-language:existentials",
       "-language:implicitConversions",
-      "-language:higherKinds",
+    ),
+    Seq(Compile, Test).map(c =>
+      c / unmanagedSourceDirectories += {
+        projectMatrixBaseDirectory.value.getAbsoluteFile / "shared" / "src" / Defaults.nameForSrc(
+          c.name
+        ) / s"scala-${scalaBinaryVersion.value}"
+      }
+    ),
+    Seq(Compile, Test).map(c =>
+      c / unmanagedSourceDirectories ++= {
+        projectMatrixBaseDirectory.?.value.toSeq.flatMap { x =>
+          val d = x.getAbsoluteFile / "shared" / "src" / Defaults.nameForSrc(c.name)
+          val d1 = d / "scala"
+
+          d1 +: (
+            CrossVersion.partialVersion(scalaVersion.value) match {
+              case Some((n, _)) =>
+                Seq(d / s"scala-${n}")
+              case _ =>
+                Nil
+            }
+          )
+        }
+      },
     ),
     Compile / packageSrc / mappings ++= (Compile / managedSources).value.map { f =>
       // to merge generated sources into sources.jar as well
@@ -90,17 +106,21 @@ object build {
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, v)) if v <= 12 =>
-          Seq("-Xfuture", "-Ypartial-unification")
+          Seq("-Xfuture", "-Ypartial-unification", "-language:higherKinds")
         case _ =>
           Nil
       }
     },
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, _)) =>
+        case Some((2, 12)) =>
           Seq("-Xsource:3")
+        case Some((2, 13)) =>
+          Seq("-Xsource:3-cross")
         case _ =>
           Seq(
+            "-Wconf:msg=Implicit parameters should be provided with:error",
+            "-Wconf:msg=with as a type operator has been deprecated:error"
           )
       }
     },
@@ -115,11 +135,7 @@ object build {
     javacOptions ++= Seq("-target", "1.8", "-source", "1.8"),
     Seq(Compile, Test).map { scope =>
       (scope / unmanagedSourceDirectories) += {
-        val base = if (cross) {
-          baseDirectory.value.getParentFile / "shared" / "src" / Defaults.nameForSrc(scope.name)
-        } else {
-          baseDirectory.value / "src" / Defaults.nameForSrc(scope.name)
-        }
+        val base = projectMatrixBaseDirectory.value.getAbsoluteFile / "shared" / "src" / Defaults.nameForSrc(scope.name)
         CrossVersion.partialVersion(scalaVersion.value) match {
           case Some((2, v)) if v <= 12 =>
             base / s"scala-2.13-"
@@ -128,32 +144,41 @@ object build {
         }
       }
     },
-    releaseProcess := Seq[ReleaseStep](
-      checkSnapshotDependencies,
-      inquireVersions,
-      runClean,
-      runTest,
-      setReleaseVersion,
-      commitReleaseVersion,
-      tagRelease,
-      releaseStepCommandAndRemaining("+publishSigned"),
-      releaseStepCommandAndRemaining("sonatypeBundleRelease"),
-      setNextVersion,
-      commitNextVersion,
-      pushChanges
-    ),
     Test / parallelExecution := false,
     manifestSetting,
   )
 
   val noPublish = Seq(
-    mimaPreviousArtifacts := Set(),
+    publish / skip := true,
     publishArtifact := false,
     publish := {},
     publishLocal := {}
   )
 
-  val scalajsProjectSettings = Def.settings(
+  val jsSettings = Def.settings(
+    if (sys.props.isDefinedAt("scala_js_wasm")) {
+      println("enable wasm")
+      Def.settings(
+        scalaJSLinkerConfig ~= (
+          _.withExperimentalUseWebAssembly(true).withModuleKind(ModuleKind.ESModule)
+        ),
+        jsEnv := {
+          import org.scalajs.jsenv.nodejs.NodeJSEnv
+          val config = NodeJSEnv
+            .Config()
+            .withArgs(
+              List(
+                "--experimental-wasm-exnref",
+                "--experimental-wasm-imported-strings",
+                "--turboshaft-wasm",
+              )
+            )
+          new NodeJSEnv(config)
+        },
+      )
+    } else {
+      Def.settings()
+    },
     scalacOptions += {
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
       val a = (LocalRootProject / baseDirectory).value.toURI.toString
@@ -165,7 +190,31 @@ object build {
           "-P:scalajs:mapSourceURI"
       }
       s"${key}:$a->$g/"
-    }
+    },
+    Seq(Compile, Test).map(c =>
+      c / unmanagedSourceDirectories ++= Seq(
+        projectMatrixBaseDirectory.value.getAbsoluteFile / "js" / "src" / Defaults.nameForSrc(c.name) / "scala",
+        projectMatrixBaseDirectory.value.getAbsoluteFile / "js-native" / "src" / Defaults.nameForSrc(c.name) / "scala"
+      ),
+    ),
+  )
+
+  val jvmSettings = Def.settings(
+    Seq(Compile, Test).map(c =>
+      c / unmanagedSourceDirectories ++= Seq(
+        projectMatrixBaseDirectory.value.getAbsoluteFile / "jvm" / "src" / Defaults.nameForSrc(c.name) / "scala",
+        projectMatrixBaseDirectory.value.getAbsoluteFile / "jvm-native" / "src" / Defaults.nameForSrc(c.name) / "scala",
+      ),
+    ),
+  )
+
+  val nativeSettings = Def.settings(
+    Seq(Compile, Test).map(c =>
+      c / unmanagedSourceDirectories ++= Seq(
+        projectMatrixBaseDirectory.value.getAbsoluteFile / "jvm-native" / "src" / Defaults.nameForSrc(c.name) / "scala",
+        projectMatrixBaseDirectory.value.getAbsoluteFile / "js-native" / "src" / Defaults.nameForSrc(c.name) / "scala",
+      )
+    ),
   )
 
 }

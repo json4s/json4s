@@ -53,5 +53,5 @@ class ReaderSyntax(private val jv: JValue) extends AnyVal {
    * }}}
    */
   def getAsOrElse[A](default: => A)(implicit reader: Reader[A]): A =
-    getAs(reader) getOrElse default
+    getAs(using reader) getOrElse default
 }

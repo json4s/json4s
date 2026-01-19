@@ -1,25 +1,22 @@
-import sbtcrossproject.CrossProject
 import build._
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-json4sSettings(cross = false)
+mavenCentralFrouFrou
+
 noPublish
 
-lazy val nativeSettings = Def.settings(
-  disableScala3,
-)
-
-lazy val ast = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+lazy val ast = projectMatrix
   .in(file("ast"))
+  .defaultAxes()
   .settings(
     name := "json4s-ast",
-    json4sSettings(cross = true),
+    json4sSettings,
     Compile / sourceGenerators += task {
-      val v = CrossVersion.partialVersion(scalaVersion.value)
       Seq(
         ("ReaderFunctions.scala", CodeGen.reader),
-        ("WriterFunctions.scala", CodeGen.writer(v == Some((2, 13)) || v.exists(_._1 == 3))),
+        ("WriterFunctions.scala", CodeGen.writer),
         ("FormatFunctions.scala", CodeGen.format)
       ).map { case (fileName, src) =>
         val f = (Compile / sourceManaged).value / "org" / "json4s" / fileName
@@ -31,157 +28,179 @@ lazy val ast = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     buildInfoPackage := "org.json4s",
   )
   .enablePlugins(BuildInfoPlugin)
-  .nativeSettings(
-    nativeSettings
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = jvmSettings,
   )
-  .jsSettings(
-    scalajsProjectSettings
+  .nativePlatform(
+    scalaVersions = scalaVersions,
+    settings = nativeSettings
   )
-  .platformsSettings(JSPlatform, NativePlatform)(
-    Compile / unmanagedSourceDirectories += {
-      baseDirectory.value.getParentFile / "js_native/src/main/scala"
-    }
-  )
-  .platformsSettings(JVMPlatform, NativePlatform)(
-    Seq(Compile, Test).map { c =>
-      c / unmanagedSourceDirectories += {
-        baseDirectory.value.getParentFile / "jvm_native/src" / Defaults.nameForSrc(c.name) / "scala"
-      }
-    }
+  .jsPlatform(
+    scalaVersions = scalaVersions,
+    settings = jsSettings
   )
 
-lazy val astJVM = ast.jvm
-
-lazy val scalap = project
+lazy val scalap = projectMatrix
   .in(file("scalap"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     name := "json4s-scalap",
-    json4sSettings(cross = false),
+    json4sSettings,
     libraryDependencies ++= Seq(Dependencies.jaxbApi),
   )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = jvmSettings,
+  )
 
-val isScala3 = Def.setting(
-  CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 3)
-)
-
-lazy val disableScala3 = Def.settings(
-  mimaPreviousArtifacts := {
-    if (isScala3.value) {
-      Set.empty
-    } else {
-      mimaPreviousArtifacts.value
-    }
-  },
-  libraryDependencies := {
-    if (isScala3.value) {
-      Nil
-    } else {
-      libraryDependencies.value
-    }
-  },
-  Seq(Compile, Test).map { x =>
-    (x / sources) := {
-      if (isScala3.value) {
-        Nil
-      } else {
-        (x / sources).value
-      }
-    }
-  },
-  Test / test := {
-    if (isScala3.value) {
-      ()
-    } else {
-      (Test / test).value
-    }
-  },
-  publish / skip := isScala3.value,
-)
-
-lazy val xml = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+lazy val xml = projectMatrix
   .in(file("xml"))
+  .defaultAxes()
   .settings(
     name := "json4s-xml",
-    json4sSettings(cross = true),
+    json4sSettings,
     libraryDependencies += Dependencies.scalaXml.value,
   )
-  .nativeSettings(
-    nativeSettings
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = jvmSettings,
   )
-  .jsSettings(
-    scalajsProjectSettings
+  .nativePlatform(
+    scalaVersions = scalaVersions,
+    settings = nativeSettings,
+  )
+  .jsPlatform(
+    scalaVersions = scalaVersions,
+    settings = jsSettings
   )
   .dependsOn(
     ast % "compile;test->test",
     nativeCore % "test",
   )
 
-lazy val xmlJVM = xml.jvm
-
-lazy val core = project
+lazy val core = projectMatrix
   .in(file("core"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     name := "json4s-core",
-    json4sSettings(cross = false),
-    libraryDependencies ++= Seq(Dependencies.paranamer),
+    json4sSettings,
+    libraryDependencies ++= {
+      scalaBinaryVersion.value match {
+        case "3" =>
+          // Since this dependency requires the compiler version,
+          // it's the safest if users provide one depending on which scala
+          // they are compiling on
+          Seq("org.scala-lang" %% "scala3-staging" % scalaVersion.value % "test,provided")
+        case _ =>
+          Nil
+      }
+    },
     Test / console / initialCommands := """
         |import org.json4s._
         |import reflect._
       """.stripMargin,
   )
-  .dependsOn(astJVM % "compile;test->test", scalap)
-
-lazy val nativeCore = crossProject(JVMPlatform, JSPlatform, NativePlatform)
-  .in(file("native-core"))
-  .settings(
-    name := "json4s-native-core",
-    json4sSettings(cross = true),
-    Test / unmanagedResourceDirectories += baseDirectory.value.getParentFile / "shared/src/test/resources",
-  )
-  .nativeSettings(
-    nativeSettings
-  )
-  .jsSettings(
-    scalajsProjectSettings
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = jvmSettings,
   )
   .dependsOn(ast % "compile;test->test")
 
-lazy val nativeCoreJVM = nativeCore.jvm
+lazy val coreJVM2_13 = core.jvm(Scala213).dependsOn(scalap.jvm(Scala213))
 
-lazy val native = project
+lazy val nativeCore = projectMatrix
+  .in(file("native-core"))
+  .defaultAxes()
+  .settings(
+    name := "json4s-native-core",
+    json4sSettings,
+    Test / unmanagedResourceDirectories += baseDirectory.value.getParentFile / "shared/src/test/resources",
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = jvmSettings,
+  )
+  .nativePlatform(
+    scalaVersions = scalaVersions,
+    settings = nativeSettings,
+  )
+  .jsPlatform(
+    scalaVersions = scalaVersions,
+    settings = jsSettings
+  )
+  .dependsOn(ast % "compile;test->test")
+
+lazy val native = projectMatrix
   .in(file("native"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     name := "json4s-native",
-    json4sSettings(cross = false),
+    json4sSettings,
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = jvmSettings,
   )
   .dependsOn(
     core % "compile;test->test",
-    nativeCoreJVM % "compile;test->test",
+    nativeCore % "compile;test->test",
   )
 
-lazy val ext = project
+lazy val ext = projectMatrix
   .in(file("ext"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     name := "json4s-ext",
-    json4sSettings(cross = false),
-    libraryDependencies ++= Dependencies.jodaTime,
+    json4sSettings,
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = jvmSettings,
   )
   .dependsOn(core)
 
-lazy val jacksonCore = project
+lazy val joda = projectMatrix
+  .in(file("joda"))
+  .defaultAxes(VirtualAxis.jvm)
+  .settings(
+    name := "json4s-joda",
+    json4sSettings,
+    libraryDependencies ++= Dependencies.jodaTime,
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = jvmSettings,
+  )
+  .dependsOn(ext)
+
+lazy val jacksonCore = projectMatrix
   .in(file("jackson-core"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     name := "json4s-jackson-core",
-    json4sSettings(cross = false),
+    json4sSettings,
     libraryDependencies ++= Dependencies.jackson,
   )
-  .dependsOn(astJVM % "compile;test->test")
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = jvmSettings,
+  )
+  .dependsOn(ast % "compile;test->test")
 
-lazy val jackson = project
+lazy val jackson = projectMatrix
   .in(file("jackson"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     name := "json4s-jackson",
-    json4sSettings(cross = false),
+    json4sSettings,
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = Def.settings(
+      jvmSettings,
+      libraryDependencies ++= Dependencies.jackson,
+    )
   )
   .dependsOn(
     core % "compile;test->test",
@@ -189,62 +208,92 @@ lazy val jackson = project
     jacksonCore % "compile;test->test",
   )
 
-lazy val examples = project
+lazy val examples = projectMatrix
   .in(file("examples"))
+  .defaultAxes()
   .settings(
     name := "json4s-examples",
-    json4sSettings(cross = false),
+    json4sSettings,
     noPublish,
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = Def.settings(
+      jvmSettings,
+      libraryDependencies ++= Dependencies.jackson,
+    )
   )
   .dependsOn(
     core % "compile;test->test",
     native % "compile;test->test",
     jackson % "compile;test->test",
     ext,
+    joda,
     mongo
   )
 
-lazy val scalaz = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+lazy val scalaz = projectMatrix
   .in(file("scalaz"))
+  .defaultAxes()
   .settings(
     name := "json4s-scalaz",
-    json4sSettings(cross = true),
+    json4sSettings,
     libraryDependencies += Dependencies.scalaz_core.value,
   )
-  .nativeSettings(
-    nativeSettings
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = jvmSettings,
   )
-  .jsSettings(
-    scalajsProjectSettings
+  .nativePlatform(
+    scalaVersions = scalaVersions,
+    settings = nativeSettings,
+  )
+  .jsPlatform(
+    scalaVersions = scalaVersions,
+    settings = jsSettings
   )
   .dependsOn(
     ast % "compile;test->test",
     nativeCore % "provided->compile",
   )
-  .configurePlatform(JVMPlatform)(
-    _.dependsOn(
-      jacksonCore % "provided->compile",
-    )
+  .configure(p =>
+    p.id.split("JVM").lastOption match {
+      case Some("2_13") =>
+        p.dependsOn(jacksonCore.jvm(Scala213) % "provided->compile")
+      case Some("3") =>
+        p.dependsOn(jacksonCore.jvm(Scala3) % "provided->compile")
+      case _ =>
+        p
+    }
   )
 
-lazy val mongo = project
+lazy val mongo = projectMatrix
   .in(file("mongo"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     name := "json4s-mongo",
-    json4sSettings(cross = false),
+    json4sSettings,
     libraryDependencies ++= Seq(
-      "org.mongodb" % "mongo-java-driver" % "3.12.10"
+      "org.mongodb" % "mongo-java-driver" % "3.12.14"
     ),
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = Def.settings(
+      jvmSettings,
+      libraryDependencies ++= Dependencies.jackson,
+    )
   )
   .dependsOn(
     core % "compile;test->test",
     jackson % "test",
   )
 
-lazy val tests = project
+lazy val tests = projectMatrix
   .in(file("tests"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
-    json4sSettings(cross = false),
+    json4sSettings,
     noPublish,
     Test / console / initialCommands :=
       """
@@ -252,10 +301,71 @@ lazy val tests = project
         |import reflect._
       """.stripMargin,
   )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = Def.settings(
+      jvmSettings,
+      libraryDependencies ++= Dependencies.jackson,
+    )
+  )
   .dependsOn(
     core % "compile;test->test",
-    xmlJVM % "compile;test->test",
+    xml % "compile;test->test",
     native % "compile;test->test",
     ext,
+    joda,
     jackson
   )
+
+lazy val rootJVM3 = project
+  .settings(
+    noPublish
+  )
+  .aggregate(
+    Seq(
+      ast,
+      core,
+      examples,
+      ext,
+      joda,
+      jacksonCore,
+      jackson,
+      mongo,
+      nativeCore,
+      native,
+      scalap,
+      scalaz,
+      tests,
+      xml,
+    ).map(_.finder(VirtualAxis.jvm)(Scala3): ProjectReference) *
+  )
+
+lazy val crossPlatformModules = Seq(
+  ast,
+  nativeCore,
+  scalaz,
+  xml,
+)
+
+lazy val rootJS3 = project
+  .settings(
+    noPublish
+  )
+  .aggregate(
+    crossPlatformModules.map(_.finder(VirtualAxis.js)(Scala3): ProjectReference) *
+  )
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  releaseStepCommandAndRemaining("publishSigned"),
+  releaseStepCommandAndRemaining("sonaRelease"),
+  setNextVersion,
+  commitNextVersion,
+  pushChanges
+)

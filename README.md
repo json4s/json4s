@@ -1,19 +1,13 @@
-# JSON4S [![Maven Central](https://img.shields.io/maven-central/v/org.json4s/json4s-core_2.12.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:org.json4s%20AND%20a:json4s-core_2.12)
-
-[![Join the chat at https://gitter.im/json4s/json4s](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/json4s/json4s?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# JSON4S [![Maven Central](https://img.shields.io/maven-central/v/io.github.json4s/json4s-core_3.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:io.github.json4s%20AND%20a:json4s-core_3)
 
 At this moment there are at least 6 json libraries for scala, not counting the java json libraries.
 All these libraries have a very similar AST. This project aims to provide a single AST to be used by other scala
 json libraries.
 
-At this moment the approach taken to working with the AST has been taken from lift-json and the native package
-is in fact lift-json but outside of the lift project.
+This library got it start as a fork of lift-json aiming to free it from Lift's slower release cycle. However, since
+then Lift itself has migrated to using json4s directly.
 
 ## Lift JSON
-
-This project also attempts to set lift-json free from the release schedule imposed by the lift framework.
-The Lift framework carries many dependencies and as such it's typically a blocker for many other scala projects when
-a new version of scala is released.
 
 So the native package in this library is in fact verbatim lift-json in a different package name; this means that
 your import statements will change if you use this library.
@@ -95,20 +89,20 @@ You can add the json4s as a dependency in following ways. Note, replace {latestV
 
 You can find available versions here:
 
-https://search.maven.org/search?q=org.json4s
+https://central.sonatype.com/search?namespace=io.github.json4s
 
 ### SBT users
 
 For the native support add the following dependency to your project description:
 
 ```scala
-val json4sNative = "org.json4s" %% "json4s-native" % "{latestVersion}"
+val json4sNative = "io.github.json4s" %% "json4s-native" % "{latestVersion}"
 ```
 
 For the Jackson support add the following dependency to your project description:
 
 ```scala
-val json4sJackson = "org.json4s" %% "json4s-jackson" % "{latestVersion}"
+val json4sJackson = "io.github.json4s" %% "json4s-jackson" % "{latestVersion}"
 ```
 
 ### Maven users
@@ -117,7 +111,7 @@ For the native support add the following dependency to your pom:
 
 ```xml
 <dependency>
-  <groupId>org.json4s</groupId>
+  <groupId>io.github.json4s</groupId>
   <artifactId>json4s-native_${scala.version}</artifactId>
   <version>{latestVersion}</version>
 </dependency>
@@ -127,7 +121,7 @@ For the jackson support add the following dependency to your pom:
 
 ```xml
 <dependency>
-  <groupId>org.json4s</groupId>
+  <groupId>io.github.json4s</groupId>
   <artifactId>json4s-jackson_${scala.version}</artifactId>
   <version>{latestVersion}</version>
 </dependency>
@@ -138,7 +132,11 @@ Extras
 
 * [ext](https://github.com/json4s/json4s/tree/master/ext)
 
-Support for Enum, Joda-Time, Java 8 Date & Time...
+Support for Enum, Java 8 Date & Time
+
+* [joda](https://github.com/json4s/json4s/tree/master/joda)
+
+Support for Joda-Time
 
 * [scalaz](https://github.com/json4s/json4s/tree/master/scalaz)
 
@@ -266,13 +264,14 @@ Example
 -------
 
 ```scala
-object JsonExample extends App {
-  import org.json4s._
-  import org.json4s.JsonDSL._
-  import org.json4s.jackson.JsonMethods._
+import org.json4s._
+import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods._
 
-  case class Winner(id: Long, numbers: List[Int])
-  case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[java.util.Date])
+case class Winner(id: Long, numbers: List[Int])
+case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[java.util.Date])
+
+object JsonExample {
 
   val winners = List(Winner(23, List(2, 45, 34, 23, 3, 5)), Winner(54, List(52, 3, 12, 11, 18, 22)))
   val lotto = Lotto(5, List(2, 45, 34, 23, 7, 5, 3), winners, None)
@@ -287,12 +286,14 @@ object JsonExample extends App {
           (("winner-id" -> w.id) ~
            ("numbers" -> w.numbers))}))
 
-  println(compact(render(json)))
+  def main(args: Array[String]): Unit = {
+    println(compact(render(json)))
+  }
 }
 ```
 
 ```scala
-scala> JsonExample
+scala> JsonExample.main(Array.empty[String])
 {"lotto":{"lotto-id":5,"winning-numbers":[2,45,34,23,7,5,3],"winners":
 [{"winner-id":23,"numbers":[2,45,34,23,3,5]},{"winner-id":54,"numbers":[52,3,12,11,18,22]}]}}
 ```
@@ -857,7 +858,7 @@ val logSerializer = FieldSerializer[Log](
 implicit val formats: Formats = DefaultFormats + logSerializer
 ```
 
-Serializing classes defined in traits or classes
+Serializing classes defined in traits, classes or methods
 ------------------------------------------------
 
 We've added support for case classes defined in a trait. But they do need custom formats. I'll explain why and then how.

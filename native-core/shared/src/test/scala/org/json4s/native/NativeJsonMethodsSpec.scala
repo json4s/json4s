@@ -1,14 +1,14 @@
 package org.json4s
 package native
 
-import org.scalatest.wordspec.AnyWordSpec
+import org.json4s.MonadicJValue.*
 import org.json4s.prefs.EmptyValueStrategy
-import org.json4s.MonadicJValue._
+import org.scalatest.wordspec.AnyWordSpec
 
 class NativeJsonMethodsSpec extends AnyWordSpec {
 
-  import org.json4s.JsonDSL._
-  import JsonMethods._
+  import JsonMethods.*
+  import org.json4s.JsonDSL.*
 
   "JsonMethods.parse" should {
 

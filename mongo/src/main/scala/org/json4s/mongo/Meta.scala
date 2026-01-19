@@ -17,7 +17,10 @@
 package org.json4s
 package mongo
 
-import java.util.{Calendar, Date, GregorianCalendar, UUID}
+import java.util.Calendar
+import java.util.Date
+import java.util.GregorianCalendar
+import java.util.UUID
 import java.util.regex.Pattern
 import org.bson.types.ObjectId
 
@@ -32,7 +35,7 @@ object Meta {
     /*
      * These don't require a conversion and can be put directly into a DBObject
      */
-    val primitives = Set[Class[_]](
+    val primitives = Set[Class[?]](
       classOf[String],
       classOf[Int],
       classOf[Long],
@@ -51,7 +54,7 @@ object Meta {
       classOf[java.lang.Short]
     )
 
-    def isPrimitive(clazz: Class[_]) = primitives contains clazz
+    def isPrimitive(clazz: Class[?]) = primitives contains clazz
 
     /*
      * This is used to convert DBObjects into JObjects
@@ -79,9 +82,9 @@ object Meta {
     /*
      * Date types require formatting
      */
-    val datetypes = Set[Class[_]](classOf[Calendar], classOf[Date], classOf[GregorianCalendar])
+    val datetypes = Set[Class[?]](classOf[Calendar], classOf[Date], classOf[GregorianCalendar])
 
-    def isDateType(clazz: Class[_]) = datetypes contains clazz
+    def isDateType(clazz: Class[?]) = datetypes contains clazz
 
     def datetype2jvalue(a: Any)(implicit formats: Formats) = a match {
       case x: Calendar => dateAsJValue(x.getTime, formats)
@@ -96,9 +99,9 @@ object Meta {
     /*
      * Extended Mongo types.
      */
-    val mongotypes = Set[Class[_]](classOf[DBRef], classOf[ObjectId], classOf[Pattern], classOf[UUID])
+    val mongotypes = Set[Class[?]](classOf[DBRef], classOf[ObjectId], classOf[Pattern], classOf[UUID])
 
-    def isMongoType(clazz: Class[_]) = mongotypes contains clazz
+    def isMongoType(clazz: Class[?]) = mongotypes contains clazz
 
     /*
      * Definitive place for JValue conversion of mongo types

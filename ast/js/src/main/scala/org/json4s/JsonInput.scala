@@ -12,6 +12,7 @@ sealed abstract class JsonInput extends Product with Serializable {
       new java.io.InputStreamReader(x, "UTF-8")
   }
 }
+
 case class StringInput(string: String) extends JsonInput
 case class ReaderInput(reader: java.io.Reader) extends JsonInput
 case class StreamInput(stream: InputStream) extends JsonInput

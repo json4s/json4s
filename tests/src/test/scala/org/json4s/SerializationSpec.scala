@@ -8,11 +8,14 @@ private case class OptionalFields(
   optDouble: Option[Double],
   optObj: Option[OptionalFields]
 )
+
 private case class MyId(id: String) extends AnyVal
 private case class MyModel(ids: Seq[MyId])
 private case class AnotherModel(id: MyId)
 
-abstract class SerializationSpec(serialization: Serialization, baseFormats: Formats) extends AnyWordSpec {
+abstract class SerializationSpec(serialization: Serialization, baseFormats: Formats)
+  extends AnyWordSpec
+  with VersionCompat {
 
   "Serialization of case class with many Option[T] fields" should {
 
@@ -200,6 +203,9 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
       }
 
       "#674 serializes a boolean in a map from a trait in Scala 2.13" in {
+        // Scala 3 compiler issue https://github.com/scala/scala3/issues/20270
+        if (isScala3) pending
+
         implicit val formats: Formats = DefaultFormats.skippingEmptyValues + FieldSerializer[AttributesT]()
 
         val expected = Foo("test")
@@ -214,11 +220,13 @@ abstract class SerializationSpec(serialization: Serialization, baseFormats: Form
 }
 
 case class BadSpec(item2: Int, item3: Int, isVisited: Boolean = false)
+
 case object BadSpec {
   def apply(item1: Int, item2: Int, item3: Int): BadSpec = BadSpec(item2, item3)
 }
 
 case class Foo(msg: String) extends AttributesT
+
 trait AttributesT {
   val attributes: Map[String, Boolean] = Map("bar" -> true, "baz" -> false)
 }

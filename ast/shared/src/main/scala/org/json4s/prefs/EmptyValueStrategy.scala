@@ -1,6 +1,11 @@
 package org.json4s.prefs
 
-import org.json4s.{JValue, JArray, JField, JObject, JNothing, JNull}
+import org.json4s.JArray
+import org.json4s.JField
+import org.json4s.JNothing
+import org.json4s.JNull
+import org.json4s.JObject
+import org.json4s.JValue
 
 /**
  * Strategies for empty values treatment.
@@ -18,7 +23,7 @@ object EmptyValueStrategy {
    * Skip empty fields and sequence items.
    */
   val skip: EmptyValueStrategy = new EmptyValueStrategy {
-    def noneValReplacement = None
+    def noneValReplacement: Option[AnyRef] = None
 
     def replaceEmpty(value: JValue) = value
   }
@@ -28,7 +33,7 @@ object EmptyValueStrategy {
    */
   val preserve: EmptyValueStrategy = new EmptyValueStrategy {
 
-    override val noneValReplacement = Some(JNull)
+    override val noneValReplacement: Option[AnyRef] = Some(JNull)
 
     def replaceEmpty(value: JValue): JValue = value match {
       case JArray(items) => JArray(items map replaceEmpty)

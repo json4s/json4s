@@ -1,14 +1,15 @@
 package org.json4s
 package jackson
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import java.io.{Writer => JWriter}
+import java.io.Writer as JWriter
+import tools.jackson.databind.ObjectMapper
 
 object Json {
   private class UtilMethods(override val mapper: ObjectMapper) extends JsonMethods
   def apply(fmts: Formats, mapper: ObjectMapper = JsonMethods.mapper) = new Json(fmts, mapper)
 
 }
+
 class Json(fmts: Formats, mapper: ObjectMapper = JsonMethods.mapper) extends JsonUtil(fmts) {
   private[this] val meth: JsonMethods = new Json.UtilMethods(mapper)
 

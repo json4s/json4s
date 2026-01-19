@@ -16,12 +16,13 @@
 
 package org.json4s
 
-import org.scalacheck._
-import Gen._
-import Arbitrary.arbitrary
+import org.scalacheck.*
+import org.scalacheck.Arbitrary.arbitrary
+import org.scalacheck.Gen.*
 
 trait NodeGen {
-  import Xml.{XmlNode, XmlElem}
+  import Xml.XmlElem
+  import Xml.XmlNode
   import scala.xml.Node
 
   def genXml: Gen[Node] = frequency((2, delay(genNode)), (3, genElem))

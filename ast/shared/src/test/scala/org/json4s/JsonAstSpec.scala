@@ -16,12 +16,13 @@
 
 package org.json4s
 
-import org.json4s.MonadicJValue._
-import org.json4s.JsonAST._
+import org.json4s.JsonAST.*
+import org.json4s.MonadicJValue.*
+import org.scalacheck.*
+import org.scalacheck.Prop.forAllNoShrink
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.Checkers
-import org.scalacheck._
-import org.scalacheck.Prop.forAllNoShrink
+import scala.annotation.tailrec
 
 class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
 
@@ -43,7 +44,7 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
     }
 
     "Merge idempotency" in check { (x: JValue) =>
-      ((x merge x) == x)
+      (x merge x) == x
     }
 
     "Diff identity" in check { (json: JValue) =>
@@ -58,27 +59,27 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
     "Diff is subset of originals" in check { (x: JObject, y: JObject) =>
       {
         val Diff(c, a, d @ _) = x diff y
-        (y == (y merge (c merge a)))
+        y == (y merge (c merge a))
       }
     }
 
     "Diff result is same when fields are reordered" in check { (x: JObject) =>
-      ((x diff reorderFields(x)) == Diff(JNothing, JNothing, JNothing))
+      (x diff reorderFields(x)) == Diff(JNothing, JNothing, JNothing)
     }
 
     "Remove all" in check { (x: JValue) =>
-      ((x remove { _ => true }) == JNothing)
+      (x remove { _ => true }) == JNothing
     }
 
     "Remove nothing" in check { (x: JValue) =>
-      ((x remove { _ => false }) == x)
+      (x remove { _ => false }) == x
     }
 
     "Remove removes only matching elements" in {
-      forAllNoShrink(genJValue, genJValueClass) { (json: JValue, x: Class[_ <: JValue]) =>
+      forAllNoShrink(genJValue, genJValueClass) { (json: JValue, x: Class[? <: JValue]) =>
         {
           val removed = json remove typePredicate(x)
-          val elemsLeft = removed filter { case _ =>
+          val elemsLeft = removed filter { _ =>
             true
           }
           elemsLeft.forall(_.getClass != x)
@@ -87,13 +88,13 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
     }
 
     "noNulls removes JNulls and JNothings" in {
-      forAllNoShrink(genJValue, genJValueClass) { (json: JValue, x: Class[_ <: JValue]) =>
+      forAllNoShrink(genJValue, genJValueClass) { (json: JValue, x: Class[? <: JValue]) =>
         {
           val noNulls = json.noNulls
-          val elemsLeft = noNulls filter { case _ =>
+          val elemsLeft = noNulls filter { _ =>
             true
           }
-          //noNulls can remove everything in which case we get a JNothing, otherwise there should be no JNulls or JNothings
+          // noNulls can remove everything in which case we get a JNothing, otherwise there should be no JNulls or JNothings
           (noNulls == JNothing) || (elemsLeft.forall(e => e != JNull && e != JNothing))
         }
       }
@@ -109,6 +110,7 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
 
       val result = x.replace(path, replacement)
 
+      @tailrec
       def replaced(path: List[String], in: JValue): Boolean = {
         path match {
           case Nil =>
@@ -173,9 +175,9 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
           case JObject((_, JArray(xs)) :: _) => {
             xs.indices.forall(i =>
               if (i == index) {
-                (xs(i) == replacement)
+                xs(i) == replacement
               } else {
-                (xs(i) == arr(i))
+                xs(i) == arr(i)
               }
             )
           }
@@ -197,7 +199,7 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
     case x => x
   }
 
-  private def typePredicate(clazz: Class[_])(json: JValue) = json match {
+  private def typePredicate(clazz: Class[?])(json: JValue) = json match {
     case x if x.getClass == clazz => true
     case _ => false
   }

@@ -1,9 +1,9 @@
 package org.json4s.scalap.scalasig
 
-import org.scalatest.wordspec.AnyWordSpec
-import java.io._
+import java.io.*
 import java.util.jar.JarFile
-import scala.collection.JavaConverters._
+import org.scalatest.wordspec.AnyWordSpec
+import scala.jdk.CollectionConverters.*
 
 class ClassFileParserSpec extends AnyWordSpec {
   "ClassFileParser" should {
@@ -23,7 +23,7 @@ class ClassFileParserSpec extends AnyWordSpec {
     }
   }
 
-  private def getModuleInfo(c: Class[_]): Array[Byte] = {
+  private def getModuleInfo(c: Class[?]): Array[Byte] = {
     val jarFile = new JarFile(new File(c.getProtectionDomain.getCodeSource.getLocation.getFile))
     val classes = jarFile.entries.asScala
     classes

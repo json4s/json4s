@@ -1,9 +1,9 @@
 package org.json4s
 
 import java.util.Locale.ENGLISH
-import scala.annotation.tailrec
-import org.json4s.JsonAST.JField
 import org.json4s.JValue.ValuesType
+import org.json4s.JsonAST.JField
+import scala.annotation.tailrec
 
 object MonadicJValue {
 
@@ -45,7 +45,7 @@ object MonadicJValue {
 }
 
 class MonadicJValue(private val jv: JValue) extends AnyVal {
-  import MonadicJValue._
+  import MonadicJValue.*
 
   /**
    * XPath-like expression to query JSON fields by name. Matches only fields on
@@ -59,7 +59,7 @@ class MonadicJValue(private val jv: JValue) extends AnyVal {
     case JArray(xs) =>
       JArray(findDirectByName(xs, nameToFind)) match {
         case JArray(Nil) => JNothing
-        case JArray(x) => JArray(x)
+        case x @ JArray(_) => x
       }
     case _ =>
       findDirectByName(jv :: Nil, nameToFind) match {
@@ -258,7 +258,7 @@ class MonadicJValue(private val jv: JValue) extends AnyVal {
         case (ArrayIndex(name, index) :: xs, JObject(fields)) =>
           JObject(
             fields.map {
-              case JField(`name`, JArray(array)) if array.length > index =>
+              case JField(`name`, JArray(array)) if array.lengthIs > index =>
                 JField(name, JArray(array.updated(index, if (xs == Nil) replacement else rep(xs, array(index)))))
               case field => field
             }

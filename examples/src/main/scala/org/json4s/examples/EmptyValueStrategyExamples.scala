@@ -5,7 +5,7 @@ case class EventAsCaseClass(eventType: String, duration: Option[Int] = None)
 
 object EmptyValueTreatmentExamples {
 
-  import JsonDSL._
+  import JsonDSL.*
 
   private[this] val weekPlans = Seq(
     Some("event for monday"),
@@ -29,8 +29,8 @@ object EmptyValueTreatmentExamples {
   }
 
   def jacksonWaySkippingNulls(): Unit = {
-    import jackson.JsonMethods._
-    import jackson.Serialization._
+    import jackson.JsonMethods.*
+    import jackson.Serialization.*
 
     implicit val formats: Formats = jackson.Serialization.formats(NoTypeHints).skippingEmptyValues
 
@@ -49,8 +49,8 @@ object EmptyValueTreatmentExamples {
   }
 
   def jacksonWayPreservingNulls(): Unit = {
-    import jackson.JsonMethods._
-    import jackson.Serialization._
+    import jackson.JsonMethods.*
+    import jackson.Serialization.*
     implicit val formats: Formats = jackson.Serialization.formats(NoTypeHints).preservingEmptyValues
 
     // perform the show
@@ -68,8 +68,8 @@ object EmptyValueTreatmentExamples {
   }
 
   def nativeWaySkippingNulls(): Unit = {
-    import native.JsonMethods._
-    import native.Serialization._
+    import native.JsonMethods.*
+    import native.Serialization.*
 
     implicit val formats: Formats = native.Serialization.formats(NoTypeHints).skippingEmptyValues
 
@@ -88,8 +88,8 @@ object EmptyValueTreatmentExamples {
   }
 
   def nativeWayPreservingNulls(): Unit = {
-    import native.JsonMethods._
-    import native.Serialization._
+    import native.JsonMethods.*
+    import native.Serialization.*
     implicit val formats: Formats = native.Serialization.formats(NoTypeHints).preservingEmptyValues
 
     // perform the show

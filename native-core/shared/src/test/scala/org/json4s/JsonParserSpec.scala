@@ -1,18 +1,29 @@
 package org.json4s
 
+import org.json4s.ParserUtil.ParseException
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
+import org.scalacheck.Prop.*
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.Checkers
-import org.scalacheck.{Arbitrary, Gen}
-import org.scalacheck.Prop._
 
 /**
  * System under specification for JSON Parser.
  */
 class JsonParserSpec extends AnyWordSpec with JValueGen with Checkers {
-  import native.{JsonParser, Printer}
-  import native.JsonMethods._
+  import native.JsonMethods.*
+  import native.JsonParser
+  import native.Printer
 
   "A JSON Parser" should {
+    "avoid ClassCastException" in {
+      // https://github.com/json4s/json4s/pull/1394
+      Seq("{[]]", "{ \"foo\" : }").foreach { str =>
+        val e = intercept[ParseException](parse(str))
+        assert(e.getCause == null, str)
+      }
+    }
+
     "Any valid json can be parsed" in check { (json: JValue) =>
       parse(Printer.pretty(render(json)))
       true
@@ -93,6 +104,18 @@ class JsonParserSpec extends AnyWordSpec with JValueGen with Checkers {
           useBigIntForLong = false
         ) == JArray(JLong(l) :: Nil)
       )
+    }
+
+    "parse raw true as boolean" in {
+      assert(JsonParser.parse("true") == JBool(true))
+    }
+
+    "parse raw number as JInt" in {
+      assert(JsonParser.parse("123") == JInt(123))
+    }
+
+    "parse raw string as JString" in {
+      assert(JsonParser.parse("\"hello\"") == JString("hello"))
     }
 
     "The EOF has reached when the Reader returns EOF" in {

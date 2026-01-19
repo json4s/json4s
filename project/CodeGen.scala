@@ -21,20 +21,20 @@ ${(2 to max).map(formatN).mkString("\n")}
     s"""  ${signature("format")} =
     format${n}[${A.mkString(", ")}, X](apply, unapply)(${(1 to n).map(n => s"key${n}").mkString(", ")})
 
-  ${signature("format" + n)} = JsonFormat.GenericFormat(
+  ${signature("format" + n)} = JsonFormat.GenericFormat(using
     reader = Reader.reader${n}(apply)(${(1 to n).map("key" + _).mkString(", ")}),
     writer = Writer.writer${n}(unapply)(${(1 to n).map("key" + _).mkString(", ")})
   )
 """
   }
 
-  def writer(addAuto: Boolean): String = {
+  def writer: String = {
     s"""package org.json4s
 
 trait WriterFunctions { self: Writer.type =>
 ${(2 to max).map(writerN).mkString("\n")}
 
-${if (addAuto) (2 to max).map(writerAutoN).mkString("\n") else ""}
+${(2 to max).map(writerAutoN).mkString("\n")}
 }
 """
   }
@@ -42,7 +42,7 @@ ${if (addAuto) (2 to max).map(writerAutoN).mkString("\n") else ""}
   private[this] def writerAutoN(n: Int): String = {
     val A = (1 to n).map("A" + _)
     def signature(name: String): String = s"""def ${name}[${A.mkString(", ")}, X <: Product](f: X => (${A
-      .mkString(", ")}))(implicit
+        .mkString(", ")}))(implicit
     ${A.map(a => s"${a}: Writer[${a}]").mkString(", ")}
   ): Writer[X]"""
 
@@ -63,7 +63,7 @@ ${if (addAuto) (2 to max).map(writerAutoN).mkString("\n") else ""}
   private[this] def writerN(n: Int): String = {
     val A = (1 to n).map("A" + _)
     def signature(name: String): String = s"""def ${name}[${A.mkString(", ")}, X](f: X => (${A
-      .mkString(", ")}))(${(1 to n).map("key" + _ + ": String").mkString(", ")})(implicit
+        .mkString(", ")}))(${(1 to n).map("key" + _ + ": String").mkString(", ")})(implicit
     ${A.map(a => s"${a}: Writer[${a}]").mkString(", ")}
   ): Writer[X]"""
 
@@ -94,7 +94,7 @@ ${(2 to max).map(readerN).mkString("\n")}
     val A = (1 to n).map("A" + _)
     val fields = (1 to n)
       .map(x =>
-        s"""      val a${x} = obj.get(key${x}).toRight(new MappingException("field " + key${x} + " not found")).flatMap(A${x} readEither _)"""
+        s"""      val a${x} = obj.get(key${x}).toRight(new MappingException("field " + key${x} + " not found")).flatMap(A${x}.readEither)"""
       )
       .mkString("\n")
     val lefts = (1 to n)
@@ -122,7 +122,7 @@ ${fields}
       var lefts = List.empty[MappingException]
 ${lefts}
       if (lefts.isEmpty) {
-        Right(f(${(1 to n).map(x => s"a${x}.asInstanceOf[Right[_, A${x}]].value").mkString(", ")}))
+        Right(f(${(1 to n).map(x => s"a${x}.asInstanceOf[Right[?, A${x}]].value").mkString(", ")}))
       } else {
         Left(new MappingException.Multi(lefts.reverse, null))
       }

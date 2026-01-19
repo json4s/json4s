@@ -9,18 +9,20 @@ jobs:
   scala-steward:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    if: ${{ github.repository_owner == 'json4s' }}
     steps:
     - name: Generate token
       id: generate_token
-      if: ${{ !github.event.repository.fork }}
-      uses: tibdex/github-app-token@v1
+      uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
       with:
-        app_id: 89664
-        private_key: ${{ secrets.JSON4S_BOT_KEY }}
+        app-id: 89664
+        private-key: ${{ secrets.JSON4S_BOT_KEY }}
     - name: Launch Scala Steward
-      if: ${{ !github.event.repository.fork }}
-      uses: scala-steward-org/scala-steward-action@v2.13.5
+      uses: scala-steward-org/scala-steward-action@5bbb0a3f32b42774f8ba1ed18c29db5d915d2200 # v2.80.0
       with:
         github-token: ${{ steps.generate_token.outputs.token }}
         author-email: "74845451+json4s-bot[bot]@users.noreply.github.com"
         author-name: json4s-bot[bot]
+        branches: "master,4.0,4.1"
+      env:
+        JAVA_OPTS: "-Xmx4G"

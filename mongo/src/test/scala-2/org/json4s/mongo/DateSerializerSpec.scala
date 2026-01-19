@@ -1,9 +1,10 @@
 package org.json4s
 package mongo
 
-import org.scalatest.wordspec.AnyWordSpec
-import org.json4s.{Extraction, DefaultFormats}
 import java.util.Date
+import org.json4s.DefaultFormats
+import org.json4s.Extraction
+import org.scalatest.wordspec.AnyWordSpec
 
 object DateSerializerSpec {
   case class WithDate(id: Int, name: String, createdAt: Date)
@@ -19,9 +20,10 @@ object DateSerializerSpec {
     params: List[String] = Nil
   )
 }
+
 class DateSerializerSpec extends AnyWordSpec {
 
-  import DateSerializerSpec._
+  import DateSerializerSpec.*
   implicit val formats: Formats = DefaultFormats.lossless + new DateSerializer("$date")
   val js =
     """{ "_id" : { "$oid" : "51523bc0036433e0ce323ca6"} , "timestamp" : { "$date" : "2013-03-26T11:19:00.000Z"} , "index" : 1 , "event" : "uAppLaunch" , "description" : "" , "version" : "370" , "platform" : "iPad" , "device" : "Apple iPad 3rd Gen (Wi-Fi Only)" , "userId" : "89B59046-A6F1-4E13-B5B9-055FF2D2BBF1" , "params" : [ ""]}"""

@@ -16,15 +16,17 @@
 package org.json4s
 package native
 
-import org.json4s.ParserUtil.{Buffer, parseDouble, ParseException}
 import org.json4s.JsonAST.JField
+import org.json4s.ParserUtil.Buffer
+import org.json4s.ParserUtil.ParseException
+import org.json4s.ParserUtil.parseDouble
 
 /**
  * JSON parser.
  */
 object JsonParser {
 
-  import java.io._
+  import java.io.*
 
   /**
    * Parsed tokens from low level pull parser.
@@ -202,13 +204,18 @@ object JsonParser {
     }
 
     def newValue(v: JValue): Unit = {
-      vals.peekAny match {
-        case (name: String, _) =>
-          vals.pop(classOf[JField])
-          val obj = vals.peek(classOf[JObject])
-          vals.replace(JObject((name, v) :: obj.obj))
-        case a: JArray => vals.replace(JArray(v :: a.arr))
-        case _ => p.fail("expected field or array")
+      if (!vals.isEmpty) {
+        vals.peekAny match {
+          case (name: String, _) =>
+            vals.pop(classOf[JField])
+            val obj = vals.peek(classOf[JObject])
+            vals.replace(JObject((name, v) :: obj.obj))
+          case a: JArray => vals.replace(JArray(v :: a.arr))
+          case _ => p.fail("expected field or array")
+        }
+      } else {
+        vals.push(v)
+        root = Some(v)
       }
     }
 
@@ -254,11 +261,12 @@ object JsonParser {
 
     private def convert[A](x: Any, expectedType: Class[A]): A = {
       if (x == null) parser.fail("expected object or array")
-      try { x.asInstanceOf[A] }
-      catch { case _: ClassCastException => parser.fail(s"unexpected $x") }
+      if (expectedType.isInstance(x)) x.asInstanceOf[A]
+      else parser.fail(s"unexpected $x")
     }
 
     def peekOption = if (stack.isEmpty) None else Some(stack.peek)
+    def isEmpty = stack.isEmpty
   }
 
   class Parser(buf: Buffer, useBigDecimalForDouble: Boolean, useBigIntForLong: Boolean) {
@@ -365,7 +373,7 @@ object JsonParser {
       End
     }
 
-    sealed abstract class BlockMode
+    sealed abstract class BlockMode extends Product with Serializable
     case object ARRAY extends BlockMode
     case object OBJECT extends BlockMode
   }

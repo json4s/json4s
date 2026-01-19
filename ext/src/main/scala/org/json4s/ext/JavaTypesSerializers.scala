@@ -17,9 +17,9 @@
 package org.json4s
 package ext
 
-import java.net.{URI, URL}
+import java.net.URI
+import java.net.URL
 import java.util.UUID
-
 import scala.util.control.NonFatal
 
 object JavaTypesSerializers {
@@ -49,7 +49,7 @@ case object URLSerializer
   extends CustomSerializer[URL](format =>
     (
       {
-        case JString(s) => new URL(s)
+        case JString(s) => new URI(s).toURL
         case JNull => null
       },
       { case x: URL =>

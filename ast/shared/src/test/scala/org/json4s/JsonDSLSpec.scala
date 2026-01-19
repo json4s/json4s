@@ -7,7 +7,7 @@ class JsonDSLSpec extends AnyWordSpec with JValueGen with Checkers {
 
   "JSON DSL Specification" should {
     "build Json" in {
-      import JsonDSL._
+      import JsonDSL.*
       check { (intValue: Int, strValue: String) =>
         (("intValue" -> intValue) ~ ("strValue" -> strValue)) == JObject(
           "intValue" -> JInt(intValue),
@@ -20,7 +20,7 @@ class JsonDSLSpec extends AnyWordSpec with JValueGen with Checkers {
       object CustomJsonDSL extends JsonDSL with DoubleMode {
         override implicit def int2jvalue(x: Int): JValue = JString(x.toString)
       }
-      import CustomJsonDSL._
+      import CustomJsonDSL.*
       check { (intValue: Int, strValue: String) =>
         (("intValue" -> intValue) ~ ("strValue" -> strValue)) == JObject(
           ("intValue", JString(intValue.toString)),
@@ -30,7 +30,7 @@ class JsonDSLSpec extends AnyWordSpec with JValueGen with Checkers {
     }
 
     "short, byte and char to jvalue" in {
-      import JsonDSL._
+      import JsonDSL.*
       check { (shortValue: Short, byteValue: Byte, charValue: Char) =>
         val dslValue = ("shortValue" -> shortValue) ~
           ("byteValue" -> byteValue) ~

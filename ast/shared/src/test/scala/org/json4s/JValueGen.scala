@@ -16,10 +16,10 @@
 
 package org.json4s
 
-import org.scalacheck._
-import Gen._
-import Arbitrary.arbitrary
 import org.json4s.JsonAST.JField
+import org.scalacheck.*
+import org.scalacheck.Arbitrary.arbitrary
+import org.scalacheck.Gen.*
 
 trait JValueGen {
   def genJValue: Gen[JValue] = frequency((5, genSimple), (1, delay(genArray)), (1, delay(genObject)))
@@ -46,7 +46,7 @@ trait JValueGen {
   def genField: Gen[JField] = genField(genJValue)
   def genFieldArray: Gen[JField] = genField(genArray)
 
-  def genJValueClass: Gen[Class[_ <: JValue]] = oneOf(
+  def genJValueClass: Gen[Class[? <: JValue]] = oneOf(
     JNull.getClass.asInstanceOf[Class[JValue]],
     JNothing.getClass.asInstanceOf[Class[JValue]],
     classOf[JInt],

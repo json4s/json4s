@@ -20,7 +20,7 @@ package org.json4s
  * Functions to convert between JSON and XML.
  */
 object Xml {
-  import scala.xml._
+  import scala.xml.*
 
   /**
    * Convert given XML to JSON.
@@ -196,7 +196,7 @@ object Xml {
   }
 
   private[json4s] class XmlNode(name: String, children: Seq[Node])
-    extends Elem(null, name, xml.Null, TopScope, children.isEmpty, children: _*)
+    extends Elem(null, name, xml.Null, TopScope, children.isEmpty, children*)
 
   private[json4s] class XmlElem(name: String, value: String)
     extends Elem(null, name, xml.Null, TopScope, false, Text(value))

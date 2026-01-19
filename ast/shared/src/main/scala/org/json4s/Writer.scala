@@ -1,7 +1,7 @@
 package org.json4s
 
-import scala.collection.immutable
 import scala.annotation.implicitNotFound
+import scala.collection.immutable
 
 @implicitNotFound(
   "No JSON serializer found for type ${T}. Try to implement an implicit Writer or JsonFormat for this type."
