@@ -140,7 +140,32 @@ object Extraction {
       val descriptor = Reflector.describeWithFormats(klass).asInstanceOf[reflect.ClassDescriptor]
       val ctorParams = descriptor.mostComprehensive.map(_.name)
       val methods = k.getMethods.toSeq.map(_.getName)
-      val iter = descriptor.properties.iterator
+      // n.b. When duplicate property names exist (due to inheritance), we want to use the property
+      // defined in the most-derived class. Thus, we group by name and pick the property whose
+      // declaring class is the most-derived (i.e. the first match in the class hierarchy when
+      // traversed from most-derived to least-derived).
+      //
+      // When we cannot find a property whose declaring class matches k, we fall back to using the
+      // first property in the group. This can happen when k is an abstract class or trait.
+      //
+      // We also preserve the original property order from descriptor.properties to ensure
+      // deterministic JSON field ordering.
+      val descriptorProperties = {
+        val preferredByName = descriptor.properties
+          .groupBy(_.name)
+          .map { case (name, props) =>
+            name -> props.find(_.field.getDeclaringClass == k).getOrElse(props.head)
+          }
+        val seen = scala.collection.mutable.Set.empty[String]
+        descriptor.properties.flatMap { prop =>
+          if (seen.contains(prop.name)) None
+          else {
+            seen += prop.name
+            preferredByName.get(prop.name)
+          }
+        }
+      }
+      val iter = descriptorProperties.iterator
       val obj = current.startObject()
 
       for {
