@@ -47,6 +47,14 @@ lazy val scalap = projectMatrix
   .settings(
     name := "json4s-scalap",
     json4sSettings,
+    Test / javacOptions := Nil,
+    Test / unmanagedSourceDirectories ++= {
+      if (scala.util.Properties.isJavaAtLeast("21")) {
+        Seq((Test / sourceDirectory).value / "jdk21")
+      } else {
+        Nil
+      }
+    },
     libraryDependencies ++= Seq(Dependencies.jaxbApi),
   )
   .jvmPlatform(
