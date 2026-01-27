@@ -1,6 +1,6 @@
 package org.json4s.scalap.scalasig
 
-import java.io.*
+import java.io.File
 import java.util.jar.JarFile
 import org.scalatest.wordspec.AnyWordSpec
 import scala.jdk.CollectionConverters.*
@@ -27,23 +27,8 @@ class ClassFileParserSpec extends AnyWordSpec {
     classes
       .collectFirst {
         case s if s.toString == "module-info.class" =>
-          getBytes(jarFile.getInputStream(s))
+          jarFile.getInputStream(s).readAllBytes()
       }
       .getOrElse(sys.error("not found"))
-  }
-
-  private def getBytes(in: InputStream): Array[Byte] = {
-    val out = new ByteArrayOutputStream()
-    val buffer = new Array[Byte](1024)
-    @annotation.tailrec
-    def read(): Unit = {
-      val byteCount = in.read(buffer)
-      if (byteCount >= 0) {
-        out.write(buffer, 0, byteCount)
-        read()
-      }
-    }
-    read()
-    out.toByteArray()
   }
 }
