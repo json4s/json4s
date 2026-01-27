@@ -8,18 +8,16 @@ import scala.jdk.CollectionConverters.*
 class ClassFileParserSpec extends AnyWordSpec {
   "ClassFileParser" should {
     "parse ConstantPackage and ConstantModule" in {
-      if (scala.util.Properties.isJavaAtLeast("9")) {
-        val clazz = classOf[javax.xml.bind.JAXB]
-        val bytes = getModuleInfo(clazz)
-        val parsed = ClassFileParser.parse(ByteCode(bytes))
-        val size = parsed.header.constants.size
-        assert(size == 32)
-        val constants = (1 to size).map { index =>
-          parsed.header.constants(index)
-        }
-        assert(constants.contains("ConstantModule: java.xml.bind"))
-        assert(constants.contains("ConstantPackage: javax/xml/bind"))
+      val clazz = classOf[javax.xml.bind.JAXB]
+      val bytes = getModuleInfo(clazz)
+      val parsed = ClassFileParser.parse(ByteCode(bytes))
+      val size = parsed.header.constants.size
+      assert(size == 32)
+      val constants = (1 to size).map { index =>
+        parsed.header.constants(index)
       }
+      assert(constants.contains("ConstantModule: java.xml.bind"))
+      assert(constants.contains("ConstantPackage: javax/xml/bind"))
     }
   }
 
