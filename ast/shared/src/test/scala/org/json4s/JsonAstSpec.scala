@@ -40,7 +40,8 @@ class JsonAstSpec extends AnyWordSpec with JValueGen with Checkers {
     }
 
     "Merge identity" in check { (json: JValue) =>
-      ((json merge JNothing) == json) && ((JNothing merge json) == json)
+      ((json merge JNothing) == json) && ((JNothing merge json) == json) &&
+      ((json merge JNull) == json) && ((JNull merge json) == json)
     }
 
     "Merge idempotency" in check { (x: JValue) =>
