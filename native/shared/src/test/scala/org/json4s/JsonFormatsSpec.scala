@@ -22,6 +22,12 @@ class NativeJsonFormatsSpec extends JsonFormatsSpec[Document]("Native") with nat
     "not escaped" in {
       assert(compact(render(json, alwaysEscapeUnicode = false)) == "{\"Script Small G\":\"\u210A\"}")
     }
+
+    "issue 1829" in {
+      // https://github.com/json4s/json4s/issues/1829
+      val json = JString("üabc\u0015d")
+      assert(compact(render(json, alwaysEscapeUnicode = true)) == """"\u00FCabc\u0015d"""")
+    }
   }
 }
 

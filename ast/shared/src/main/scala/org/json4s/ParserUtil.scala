@@ -29,11 +29,14 @@ object ParserUtil {
         case '\r' => appender.append("\\r")
         case '\t' => appender.append("\\t")
         case c =>
-          val shouldEscape = if (alwaysEscapeUnicode) {
-            c >= 0x80
-          } else {
-            (c >= '\u0000' && c <= '\u001f') || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100')
-          }
+          val shouldEscape =
+            (c >= '\u0000' && c <= '\u001f') || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100') || (
+              if (alwaysEscapeUnicode) {
+                c >= 0x80
+              } else {
+                false
+              }
+            )
           if (shouldEscape)
             appender.append("\\u%04X".format(c: Int))
           else appender.append(c)

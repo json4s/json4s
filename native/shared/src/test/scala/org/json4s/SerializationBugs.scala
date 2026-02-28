@@ -175,14 +175,14 @@ class SerializationBugs extends AnyWordSpec {
   }
 
   "Escapes control characters" in {
-    val ser = native.Serialization.write("\u0000\u001F")
-    assert(ser == "\"\\u0000\\u001F\"")
+    val ser = native.Serialization.write("\u0000\u001F \u3042")
+    assert(ser == "\"\\u0000\\u001F \u3042\"")
   }
 
   "Escapes control and unicode characters" in {
     val formats = DefaultFormats.withEscapeUnicode
-    val ser = native.Serialization.write("\u0000\u001F")(using formats)
-    assert(ser == "\"\u0000\u001F\"")
+    val ser = native.Serialization.write("\u0000\u001F \u3042")(using formats)
+    assert(ser == "\"\\u0000\\u001F \\u3042\"")
   }
 
   "classes in deeply nested objects can be serialized" in {
