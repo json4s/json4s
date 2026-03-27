@@ -1,8 +1,9 @@
 package org.json4s.scalap.scalasig
 
-import java.io.*
+import java.io.{InputStream, File, ByteArrayOutputStream}
 import java.util.jar.JarFile
 import org.scalatest.wordspec.AnyWordSpec
+
 import scala.collection.JavaConverters.*
 
 class ClassFileParserSpec extends AnyWordSpec {
