@@ -1,7 +1,6 @@
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 import sbt.*
 import sbt.Keys.*
-import sbtprojectmatrix.ProjectMatrixKeys.*
+import sbt.given
 import scala.xml.Group
 
 object build {
@@ -173,21 +172,6 @@ object build {
     if (sys.props.isDefinedAt("scala_js_wasm")) {
       println("enable wasm")
       Def.settings(
-        scalaJSLinkerConfig ~= (
-          _.withExperimentalUseWebAssembly(true).withModuleKind(ModuleKind.ESModule)
-        ),
-        jsEnv := {
-          import org.scalajs.jsenv.nodejs.NodeJSEnv
-          val config = NodeJSEnv
-            .Config()
-            .withArgs(
-              List(
-                "--experimental-wasm-exnref",
-                "--experimental-wasm-imported-strings",
-              )
-            )
-          new NodeJSEnv(config)
-        },
       )
     } else {
       Def.settings()
