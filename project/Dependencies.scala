@@ -1,4 +1,3 @@
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import sbt.*
 import sbt.Keys.*
 
@@ -13,16 +12,16 @@ object Dependencies {
     "tools.jackson.core" % "jackson-databind" % "3.1.2"
   )
   lazy val scalaz_core = Def.setting(
-    "org.scalaz" %%% "scalaz-core" % "7.3.8"
+    "org.scalaz" %% "scalaz-core" % "7.3.8"
   )
   lazy val scalatest = Def.setting(
-    Seq("org.scalatest" %%% "scalatest-wordspec" % "3.2.20" % "test")
+    Seq("org.scalatest" %% "scalatest-wordspec" % "3.2.20" % "test")
   )
   lazy val scalatestScalacheck = Def.setting(
-    Seq("org.scalatestplus" %%% "scalacheck-1-19" % "3.2.20.0" % "test")
+    Seq("org.scalatestplus" %% "scalacheck-1-19" % "3.2.20.0" % "test")
   )
 
   lazy val scalaXml = Def.setting {
-    "org.scala-lang.modules" %%% "scala-xml" % "2.4.0"
+    "org.scala-lang.modules" %% "scala-xml" % "2.4.0"
   }
 }
