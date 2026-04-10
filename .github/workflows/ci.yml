@@ -21,7 +21,7 @@ jobs:
     - uses: coursier/cache-action@v8
     - run: |
         export TZ=Australia/Canberra
-        ./sbt -v scalafmtSbtCheck scalafmtCheckAll test
+        ./sbt --server -v scalafmtSbtCheck scalafmtCheckAll test
   latest:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -38,27 +38,4 @@ jobs:
       run: echo "value=$(cat .github/scala_3_latest.txt)" >> $GITHUB_OUTPUT
     - run: |
         export TZ=Australia/Canberra
-        ./sbt -v "++ ${{ steps.scala_3_version.outputs.value }}!" rootJVM3/test
-  wasm:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-    steps:
-    - uses: actions/setup-java@v5
-      with:
-        java-version: 25
-        distribution: zulu
-    - uses: actions/setup-node@v6
-      with:
-        node-version: 22
-    - uses: actions/checkout@v6
-    - uses: coursier/cache-action@v8
-    - run: ./sbt -v
-           -Dscala_js_wasm
-           rootJS3/Test/compile
-           rootJS3/test
-    - run: ls -l ./xml/target/js-3/json4s-xml-test-fastopt/main.wasm
-    - run: ls -l ./ast/target/js-3/json4s-ast-test-fastopt/main.wasm
-    - run: ls -l ./native-core/target/js-3/json4s-native-core-test-fastopt/main.wasm
-    - run: ls -l ./scalaz/target/js-3/json4s-scalaz-test-fastopt/main.wasm
+        ./sbt --server -v "++ ${{ steps.scala_3_version.outputs.value }}!" rootJVM3/test

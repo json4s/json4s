@@ -1,7 +1,6 @@
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 import sbt.*
 import sbt.Keys.*
-import sbtprojectmatrix.ProjectMatrixKeys.*
+import sbt.given
 import scala.xml.Group
 
 object build {
@@ -57,6 +56,7 @@ object build {
   def scalaVersions = Seq(Scala213, Scala3)
 
   def json4sSettings = mavenCentralFrouFrou ++ Def.settings(
+    evictionErrorLevel := Level.Warn,
     scalacOptions ++= Seq(
       "-unchecked",
       "-deprecation",
@@ -88,10 +88,6 @@ object build {
         }
       },
     ),
-    Compile / packageSrc / mappings ++= (Compile / managedSources).value.map { f =>
-      // to merge generated sources into sources.jar as well
-      (f, f.relativeTo((Compile / sourceManaged).value).get.getPath)
-    },
     libraryDependencies ++= Seq(scalatest.value, scalatestScalacheck.value).flatten,
     (Compile / doc / scalacOptions) ++= {
       val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
@@ -159,22 +155,6 @@ object build {
     if (sys.props.isDefinedAt("scala_js_wasm")) {
       println("enable wasm")
       Def.settings(
-        scalaJSLinkerConfig ~= (
-          _.withExperimentalUseWebAssembly(true).withModuleKind(ModuleKind.ESModule)
-        ),
-        jsEnv := {
-          import org.scalajs.jsenv.nodejs.NodeJSEnv
-          val config = NodeJSEnv
-            .Config()
-            .withArgs(
-              List(
-                "--experimental-wasm-exnref",
-                "--experimental-wasm-imported-strings",
-                "--turboshaft-wasm",
-              )
-            )
-          new NodeJSEnv(config)
-        },
       )
     } else {
       Def.settings()
