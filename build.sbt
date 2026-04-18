@@ -36,10 +36,6 @@ lazy val ast = projectMatrix
     scalaVersions = scalaVersions,
     settings = nativeSettings
   )
-  .jsPlatform(
-    scalaVersions = scalaVersions,
-    settings = jsSettings
-  )
 
 lazy val scalap = projectMatrix
   .in(file("scalap"))
@@ -77,10 +73,6 @@ lazy val xml = projectMatrix
   .nativePlatform(
     scalaVersions = scalaVersions,
     settings = nativeSettings,
-  )
-  .jsPlatform(
-    scalaVersions = scalaVersions,
-    settings = jsSettings
   )
   .dependsOn(
     ast % "compile;test->test",
@@ -132,10 +124,6 @@ lazy val nativeCore = projectMatrix
   .nativePlatform(
     scalaVersions = scalaVersions,
     settings = nativeSettings,
-  )
-  .jsPlatform(
-    scalaVersions = scalaVersions,
-    settings = jsSettings
   )
   .dependsOn(ast % "compile;test->test")
 
@@ -256,10 +244,6 @@ lazy val scalaz = projectMatrix
     scalaVersions = scalaVersions,
     settings = nativeSettings,
   )
-  .jsPlatform(
-    scalaVersions = scalaVersions,
-    settings = jsSettings
-  )
   .dependsOn(
     ast % "compile;test->test",
     nativeCore % "provided->compile",
@@ -354,14 +338,6 @@ lazy val crossPlatformModules = Seq(
   scalaz,
   xml,
 )
-
-lazy val rootJS3 = project
-  .settings(
-    noPublish
-  )
-  .aggregate(
-    crossPlatformModules.map(_.finder(VirtualAxis.js)(Scala3): ProjectReference) *
-  )
 
 releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
