@@ -1,12 +1,6 @@
 import build._
 import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 
-Global / onChangedBuildSource := ReloadOnSourceChanges
-
-mavenCentralFrouFrou
-
-noPublish
-
 lazy val ast = projectMatrix
   .in(file("ast"))
   .defaultAxes()
@@ -35,10 +29,6 @@ lazy val ast = projectMatrix
   .nativePlatform(
     scalaVersions = scalaVersions,
     settings = nativeSettings
-  )
-  .jsPlatform(
-    scalaVersions = scalaVersions,
-    settings = jsSettings
   )
 
 lazy val scalap = projectMatrix
@@ -77,10 +67,6 @@ lazy val xml = projectMatrix
   .nativePlatform(
     scalaVersions = scalaVersions,
     settings = nativeSettings,
-  )
-  .jsPlatform(
-    scalaVersions = scalaVersions,
-    settings = jsSettings
   )
   .dependsOn(
     ast % "compile;test->test",
@@ -132,10 +118,6 @@ lazy val nativeCore = projectMatrix
   .nativePlatform(
     scalaVersions = scalaVersions,
     settings = nativeSettings,
-  )
-  .jsPlatform(
-    scalaVersions = scalaVersions,
-    settings = jsSettings
   )
   .dependsOn(ast % "compile;test->test")
 
@@ -256,10 +238,6 @@ lazy val scalaz = projectMatrix
     scalaVersions = scalaVersions,
     settings = nativeSettings,
   )
-  .jsPlatform(
-    scalaVersions = scalaVersions,
-    settings = jsSettings
-  )
   .dependsOn(
     ast % "compile;test->test",
     nativeCore % "provided->compile",
@@ -355,25 +333,21 @@ lazy val crossPlatformModules = Seq(
   xml,
 )
 
-lazy val rootJS3 = project
-  .settings(
-    noPublish
+lazy val json4sRoot = rootProject.autoAggregate.settings(
+  mavenCentralFrouFrou,
+  noPublish,
+  releaseProcess := Seq[ReleaseStep](
+    checkSnapshotDependencies,
+    inquireVersions,
+    runClean,
+    runTest,
+    setReleaseVersion,
+    commitReleaseVersion,
+    tagRelease,
+    releaseStepCommandAndRemaining("publishSigned"),
+    releaseStepCommandAndRemaining("sonaRelease"),
+    setNextVersion,
+    commitNextVersion,
+    pushChanges
   )
-  .aggregate(
-    crossPlatformModules.map(_.finder(VirtualAxis.js)(Scala3): ProjectReference) *
-  )
-
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  runClean,
-  runTest,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  releaseStepCommandAndRemaining("publishSigned"),
-  releaseStepCommandAndRemaining("sonaRelease"),
-  setNextVersion,
-  commitNextVersion,
-  pushChanges
 )
