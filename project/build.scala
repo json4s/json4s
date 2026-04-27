@@ -209,6 +209,7 @@ object build {
   )
 
   val nativeSettings = Def.settings(
+    evictionErrorLevel := Level.Warn,
     Seq(Compile, Test).map(c =>
       c / unmanagedSourceDirectories ++= Seq(
         projectMatrixBaseDirectory.value.getAbsoluteFile / "jvm-native" / "src" / Defaults.nameForSrc(c.name) / "scala",
