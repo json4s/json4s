@@ -170,7 +170,6 @@ object build {
               List(
                 "--experimental-wasm-exnref",
                 "--experimental-wasm-imported-strings",
-                "--turboshaft-wasm",
               )
             )
           new NodeJSEnv(config)
