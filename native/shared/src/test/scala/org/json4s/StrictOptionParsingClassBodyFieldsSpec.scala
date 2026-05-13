@@ -11,7 +11,7 @@ abstract class StrictOptionParsingClassBodyFieldsSpec[T](mod: String) extends An
 
   // Default `strictOptionParsing`: also enforces that every class-body Option field
   // appears in the input JSON.
-  implicit lazy val strictFormats: Formats = new DefaultFormats { override val strictOptionParsing = true }
+  lazy val strictFormats: Formats = new DefaultFormats { override val strictOptionParsing = true }
 
   // strictOptionParsing with the class-body Option presence check relaxed: type-mismatch
   // strictness on extracted values is preserved, but missing class-body Option keys fall
@@ -23,22 +23,30 @@ abstract class StrictOptionParsingClassBodyFieldsSpec[T](mod: String) extends An
 
   (mod + " strictOptionParsing with default class-body enforcement") should {
     "fail when a class-body Option key is missing from the JSON" in {
+      implicit val formats: Formats = strictFormats
       assertThrows[MappingException] {
-        parse(onlyNameJson).extract[ClassBodyOptionConfig](strictFormats, manifest[ClassBodyOptionConfig])
+        parse(onlyNameJson).extract[ClassBodyOptionConfig]
       }
     }
 
-    "succeed when the class-body Option key is present" in {
-      val parsed =
-        parse(nameAndIsPauseJson).extract[ClassBodyOptionConfig](strictFormats, manifest[ClassBodyOptionConfig])
-      assert(parsed.name == "foo")
+    // Even when the key IS present in the JSON, extraction still fails: `fieldsActuallySet` is
+    // only populated inside the `formats.fieldSerializer(a.getClass) foreach { ... }` block in
+    // `Extraction.setFields`, so without a registered FieldSerializer the field never gets marked
+    // as set, and the strict check at the bottom of `setFields` fires regardless of JSON content.
+    // This makes the new flag a hard requirement -- not a nice-to-have -- for round-tripping
+    // case classes that satisfy a parent trait via class-body Option overrides.
+    "fail even when the class-body Option key is present, because no FieldSerializer is registered" in {
+      implicit val formats: Formats = strictFormats
+      assertThrows[MappingException] {
+        parse(nameAndIsPauseJson).extract[ClassBodyOptionConfig]
+      }
     }
   }
 
   (mod + " strictOptionParsing with relaxStrictOptionParsingClassBodyFields") should {
     "tolerate a missing class-body Option key, falling back to the declared default" in {
-      val parsed =
-        parse(onlyNameJson).extract[ClassBodyOptionConfig](relaxedFormats, manifest[ClassBodyOptionConfig])
+      implicit val formats: Formats = relaxedFormats
+      val parsed = parse(onlyNameJson).extract[ClassBodyOptionConfig]
       assert(parsed.name == "foo")
       assert(parsed.isPause == None)
     }
@@ -46,9 +54,10 @@ abstract class StrictOptionParsingClassBodyFieldsSpec[T](mod: String) extends An
     "still fail on type mismatches in extractOpt (strictOptionParsing semantics preserved)" in {
       // A JSON value that cannot extract into Option[Int] must still throw under strict mode,
       // even with the class-body presence check relaxed.
+      implicit val formats: Formats = relaxedFormats
       val mismatchJson = """{ "opt": "not-an-int" }"""
       assertThrows[MappingException] {
-        parse(mismatchJson).extract[OptIntCtorArg](relaxedFormats, manifest[OptIntCtorArg])
+        parse(mismatchJson).extract[OptIntCtorArg]
       }
     }
   }
