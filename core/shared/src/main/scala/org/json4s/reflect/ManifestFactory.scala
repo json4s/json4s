@@ -6,6 +6,7 @@ import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.lang.reflect.TypeVariable
 import java.lang.reflect.WildcardType
+import scala.collection.immutable.ArraySeq
 import scala.reflect.Manifest
 
 object ManifestFactory {
@@ -16,7 +17,7 @@ object ManifestFactory {
       val typeArgs = pt.getActualTypeArguments map manifestOf
 
       if (pt.getOwnerType == null) {
-        manifestOf(clazz, typeArgs)
+        manifestOf(clazz, ArraySeq.unsafeWrapArray(typeArgs))
       } else {
         Manifest.classType(manifestOf(pt.getOwnerType), clazz, typeArgs*)
       }
