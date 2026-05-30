@@ -2,6 +2,7 @@ package org.json4s.scalap
 package scalasig
 
 import java.io.IOException
+import scala.util.Using
 
 object ByteCode {
   def apply(bytes: Array[Byte]) = new ByteCode(bytes, 0, bytes.length)
@@ -9,9 +10,8 @@ object ByteCode {
   def forClass(clazz: Class[?]) = {
     val name = clazz.getName
     val subPath = name.substring(name.lastIndexOf('.') + 1) + ".class"
-    val in = clazz.getResourceAsStream(subPath)
 
-    try {
+    Using.resource(clazz.getResourceAsStream(subPath)) { in =>
       var rest = in.available()
       val bytes = new Array[Byte](rest)
       while (rest > 0) {
@@ -20,9 +20,6 @@ object ByteCode {
         rest -= res
       }
       ByteCode(bytes)
-
-    } finally {
-      in.close()
     }
   }
 }
