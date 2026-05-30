@@ -52,11 +52,22 @@ object build {
   )
 
   val Scala213 = "2.13.18"
-  val Scala3 = "3.3.7"
+  val Scala3 = "3.3.8-RC2"
 
   def scalaVersions = Seq(Scala213, Scala3)
 
   def json4sSettings = mavenCentralFrouFrou ++ Def.settings(
+    scalacOptions ++= {
+      val release11 = Seq("-release:11")
+      scalaBinaryVersion.value match {
+        case "2.13" =>
+          release11
+        case _ if scalaVersion.value.startsWith("3.3.") =>
+          release11
+        case _ =>
+          Nil
+      }
+    },
     scalacOptions ++= Seq(
       "-unchecked",
       "-deprecation",
@@ -109,6 +120,13 @@ object build {
           Seq("-Xfuture", "-Ypartial-unification", "-language:higherKinds")
         case _ =>
           Nil
+      }
+    },
+    scalacOptions ++= {
+      if (scalaVersion.value.startsWith("3.3.")) {
+        Seq("-Yfuture-lazy-vals")
+      } else {
+        Nil
       }
     },
     scalacOptions ++= {
