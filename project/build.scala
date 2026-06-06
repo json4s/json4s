@@ -99,10 +99,6 @@ object build {
         }
       },
     ),
-    Compile / packageSrc / mappings ++= (Compile / managedSources).value.map { f =>
-      // to merge generated sources into sources.jar as well
-      (f, f.relativeTo((Compile / sourceManaged).value).get.getPath)
-    },
     libraryDependencies ++= Seq(scalatest.value, scalatestScalacheck.value).flatten,
     (Compile / doc / scalacOptions) ++= {
       val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
