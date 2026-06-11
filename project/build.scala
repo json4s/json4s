@@ -52,7 +52,7 @@ object build {
   )
 
   val Scala213 = "2.13.18"
-  val Scala3 = "3.3.8-RC2"
+  val Scala3 = "3.3.8"
 
   def scalaVersions = Seq(Scala213, Scala3)
 
@@ -116,13 +116,6 @@ object build {
           Seq("-Xfuture", "-Ypartial-unification", "-language:higherKinds")
         case _ =>
           Nil
-      }
-    },
-    scalacOptions ++= {
-      if (scalaVersion.value.startsWith("3.3.")) {
-        Seq("-Yfuture-lazy-vals")
-      } else {
-        Nil
       }
     },
     scalacOptions ++= {
@@ -213,6 +206,15 @@ object build {
   )
 
   val jvmSettings = Def.settings(
+    scalacOptions ++= {
+      if (scalaVersion.value.startsWith("3.3.")) {
+        Seq(
+          "-Yfuture-lazy-vals",
+        )
+      } else {
+        Nil
+      }
+    },
     Seq(Compile, Test).map(c =>
       c / unmanagedSourceDirectories ++= Seq(
         projectMatrixBaseDirectory.value.getAbsoluteFile / "jvm" / "src" / Defaults.nameForSrc(c.name) / "scala",
