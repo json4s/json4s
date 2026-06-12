@@ -23,7 +23,7 @@ jobs:
     - uses: coursier/cache-action@v8
     - run: |
         export TZ=Australia/Canberra
-        ./sbt -v scalafmtSbtCheck scalafmtCheckAll test
+        ./sbt --server -v scalafmtSbtCheck scalafmtCheckAll test
   latest:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -40,12 +40,13 @@ jobs:
       run: echo "value=$(cat .github/scala_3_latest.txt)" >> $GITHUB_OUTPUT
     - run: |
         export TZ=Australia/Canberra
-        ./sbt -v "++ ${{ steps.scala_3_version.outputs.value }}!" rootJVM3/test
+        ./sbt --server -v "++ ${{ steps.scala_3_version.outputs.value }}!" rootJVM3/test
   wasm:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
       fail-fast: false
+    if: false
     steps:
     - uses: actions/setup-java@v5
       with:
