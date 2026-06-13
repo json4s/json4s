@@ -105,6 +105,19 @@ trait Formats extends Serializable { self: Formats =>
   def strictFieldDeserialization: Boolean = false
 
   /**
+   * When `strictOptionParsing` is enabled, additionally require every class-body `Option`-typed field
+   * (i.e. a field declared in the class body rather than the primary constructor) to be populated from
+   * the input JSON; otherwise extraction fails. When set to `false`, missing class-body Option keys
+   * fall back to their declared defaults, mirroring the behavior prior to 4.0 where `Extraction.setFields`
+   * did not enforce this. Default `true` preserves 4.x semantics.
+   *
+   * Set to `false` when migrating large existing codebases that rely on additive schema evolution
+   * (e.g., trait-overridden Option members defaulting to `None`) without giving up the type-mismatch
+   * strictness that `strictOptionParsing` otherwise provides for value extraction.
+   */
+  def strictOptionParsingClassBodyFields: Boolean = true
+
+  /**
    * Setting to false preserves library's behavior prior to 3.6, where companion object constructors were only
    * considered when deserializing if there were no primary constructors. Setting to true preserves the
    * backwards-incompatible change made in 3.6 to always consider companion object constructors when deserializing
@@ -138,7 +151,8 @@ trait Formats extends Serializable { self: Formats =>
     wAlwaysEscapeUnicode: Boolean = self.alwaysEscapeUnicode,
     wConsiderCompanionConstructors: Boolean = self.considerCompanionConstructors,
     wEmptyValueStrategy: EmptyValueStrategy = self.emptyValueStrategy,
-    wStrictFieldDeserialization: Boolean = self.strictFieldDeserialization
+    wStrictFieldDeserialization: Boolean = self.strictFieldDeserialization,
+    wStrictOptionParsingClassBodyFields: Boolean = self.strictOptionParsingClassBodyFields
   ): Formats =
     new Formats {
       def dateFormat: DateFormat = wDateFormat
@@ -160,6 +174,7 @@ trait Formats extends Serializable { self: Formats =>
       override def considerCompanionConstructors: Boolean = wConsiderCompanionConstructors
       override def emptyValueStrategy: EmptyValueStrategy = wEmptyValueStrategy
       override def strictFieldDeserialization: Boolean = wStrictFieldDeserialization
+      override def strictOptionParsingClassBodyFields: Boolean = wStrictOptionParsingClassBodyFields
     }
 
   def withBigInt: Formats = copy(wWantsBigInt = true)
@@ -203,6 +218,13 @@ trait Formats extends Serializable { self: Formats =>
   def withExtractionNullStrategy(strategy: ExtractionNullStrategy): Formats = copy(wExtractionNullStrategy = strategy)
 
   def withStrictFieldDeserialization: Formats = copy(wStrictFieldDeserialization = true)
+
+  /**
+   * Relaxes the class-body Option presence check that `strictOptionParsing` enables.
+   * See [[strictOptionParsingClassBodyFields]] for the full rationale. Useful when migrating
+   * from json4s 3.6.x to 4.x in codebases that rely on additive schema evolution.
+   */
+  def relaxStrictOptionParsingClassBodyFields: Formats = copy(wStrictOptionParsingClassBodyFields = false)
 
   /**
    * Adds the specified type hints to this formats.
