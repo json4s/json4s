@@ -207,6 +207,20 @@ object build {
   )
 
   val jvmSettings = Def.settings(
+    scalacOptions ++= {
+      if (scalaVersion.value.startsWith("3.3.")) {
+        Seq(
+          "-release:11",
+          "-Yfuture-lazy-vals",
+        )
+      } else if (scalaBinaryVersion.value == "3") {
+        Nil
+      } else {
+        Seq(
+          "-release:8",
+        )
+      }
+    },
     Seq(Compile, Test).map(c =>
       c / unmanagedSourceDirectories ++= Seq(
         projectMatrixBaseDirectory.value.getAbsoluteFile / "jvm" / "src" / Defaults.nameForSrc(c.name) / "scala",
