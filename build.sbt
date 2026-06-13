@@ -1,4 +1,6 @@
 import build._
+import com.typesafe.tools.mima.core.*
+import com.typesafe.tools.mima.core.ProblemFilters.*
 import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -106,7 +108,12 @@ lazy val core = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings,
+    settings = Def.settings(
+      jvmSettings,
+      mimaBinaryIssueFilters ++= Seq(
+        ProblemFilters.exclude[DirectMissingMethodProblem]("org.json4s.jackson.JsonMethods.<clinit>")
+      ),
+    )
   )
   .dependsOn(ast % "compile;test->test")
 
@@ -188,7 +195,12 @@ lazy val jacksonCore = projectMatrix
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
-    settings = jvmSettings,
+    settings = Def.settings(
+      jvmSettings,
+      mimaBinaryIssueFilters ++= Seq(
+        ProblemFilters.exclude[DirectMissingMethodProblem]("org.json4s.jackson.JsonMethods.<clinit>")
+      ),
+    ),
   )
   .nativePlatform(
     scalaVersions = scalaVersions,
