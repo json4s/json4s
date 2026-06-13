@@ -13,7 +13,7 @@ object Dependencies {
     "tools.jackson.core" % "jackson-databind" % "3.2.0"
   )
   lazy val scalaz_core = Def.setting(
-    "org.scalaz" %%% "scalaz-core" % "7.3.8"
+    "org.scalaz" %%% "scalaz-core" % "7.3.9"
   )
   lazy val scalatest = Def.setting(
     Seq("org.scalatest" %%% "scalatest-wordspec" % "3.2.20" % "test")
