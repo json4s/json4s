@@ -13,7 +13,7 @@ object Dependencies {
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.12.7.2"
   )
   lazy val scalaz_core = Def.setting(
-    "org.scalaz" %%% "scalaz-core" % "7.3.8"
+    "org.scalaz" %%% "scalaz-core" % "7.3.9"
   )
   lazy val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.8.3"
   private def scalatestVersion = "3.2.20"
