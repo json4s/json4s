@@ -282,7 +282,7 @@ lazy val mongo = projectMatrix
     name := "json4s-mongo",
     json4sSettings,
     libraryDependencies ++= Seq(
-      "org.mongodb" % "mongo-java-driver" % "3.12.14"
+      "org.mongodb" % "mongodb-driver-sync" % "5.8.0"
     ),
   )
   .jvmPlatform(
