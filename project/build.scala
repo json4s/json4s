@@ -61,7 +61,7 @@ object build {
 
   def json4sSettings = mavenCentralFrouFrou ++ Def.settings(
     mimaPreviousArtifacts := Set(
-      organization.value %%% moduleName.value % "4.1.0",
+      organization.value %%% moduleName.value % "4.1.1",
     ),
     scalacOptions ++= Seq(
       "-unchecked",
