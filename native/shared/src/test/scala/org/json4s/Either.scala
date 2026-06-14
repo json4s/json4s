@@ -35,26 +35,28 @@ abstract class EitherTest[T](mod: String) extends AnyWordSpec with JsonMethods[T
 
     "Work for Either[Int, String]" in {
       val opt = EitherIntString(Left(39))
-      assert(Extraction.decompose(opt).extract[EitherIntString].i.left.get == 39)
+      assert(Extraction.decompose(opt).extract[EitherIntString].i == Left(39))
 
       val opt2 = EitherIntString(Right("hello"))
-      assert(Extraction.decompose(opt2).extract[EitherIntString].i.right.get == "hello")
+      assert(Extraction.decompose(opt2).extract[EitherIntString].i == Right("hello"))
     }
 
     "Work for Either[List[Int], List[String]]" in {
       val opt = EitherListStringListInt(Left(List(1, 2, 3)))
-      assert(Extraction.decompose(opt).extract[EitherListStringListInt].i.left.get == List(1, 2, 3))
+      assert(Extraction.decompose(opt).extract[EitherListStringListInt].i == Left(List(1, 2, 3)))
 
       val opt2 = EitherListStringListInt(Right(List("hello", "world")))
-      assert(Extraction.decompose(opt2).extract[EitherListStringListInt].i.right.get == List("hello", "world"))
+      assert(Extraction.decompose(opt2).extract[EitherListStringListInt].i == Right(List("hello", "world")))
     }
 
     "Work for Either[List[List[String]], List[Map[String, List[Int]]]]" in {
       val opt = EitherListListStringMapStringInt(Left(List(List("a", "b", "c"), List("d", "e", "f"))))
       assert(
-        Extraction.decompose(opt).extract[EitherListListStringMapStringInt].i.left.get == List(
-          List("a", "b", "c"),
-          List("d", "e", "f")
+        Extraction.decompose(opt).extract[EitherListListStringMapStringInt].i == Left(
+          List(
+            List("a", "b", "c"),
+            List("d", "e", "f")
+          )
         )
       )
 
@@ -67,9 +69,11 @@ abstract class EitherTest[T](mod: String) extends AnyWordSpec with JsonMethods[T
         )
       )
       assert(
-        Extraction.decompose(opt2).extract[EitherListListStringMapStringInt].i.right.get == List(
-          Map("hello" -> List(5, 4, 3, 2, 1), "world" -> List(10, 20, 30)),
-          Map("bye" -> List(10), "world" -> List(10, 20, 30))
+        Extraction.decompose(opt2).extract[EitherListListStringMapStringInt].i == Right(
+          List(
+            Map("hello" -> List(5, 4, 3, 2, 1), "world" -> List(10, 20, 30)),
+            Map("bye" -> List(10), "world" -> List(10, 20, 30))
+          )
         )
       )
     }
