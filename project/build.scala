@@ -1,7 +1,7 @@
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 import sbt.*
 import sbt.Keys.*
-import sbtprojectmatrix.ProjectMatrixKeys.*
+import sbt.given
 import scala.xml.Group
 
 object build {
@@ -102,7 +102,7 @@ object build {
     libraryDependencies ++= Seq(scalatest.value, scalatestScalacheck.value).flatten,
     (Compile / doc / scalacOptions) ++= {
       val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
-      val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
+      val hash = sys.process.Process("git rev-parse HEAD").lazyLines_!.head
       Seq(
         "-sourcepath",
         base,
@@ -170,7 +170,7 @@ object build {
           _.withESFeatures(_.withUseWebAssembly(true).withESVersion(org.scalajs.linker.interface.ESVersion.ES2022))
             .withModuleKind(ModuleKind.ESModule)
         ),
-        jsEnv := {
+        jsEnv := Def.uncached {
           import org.scalajs.jsenv.nodejs.NodeJSEnv
           val config = NodeJSEnv
             .Config()
@@ -186,7 +186,7 @@ object build {
       Def.settings()
     },
     scalacOptions += {
-      val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
+      val hash = sys.process.Process("git rev-parse HEAD").lazyLines_!.head
       val a = (LocalRootProject / baseDirectory).value.toURI.toString
       val g = "https://raw.githubusercontent.com/json4s/json4s/" + hash
       val key = CrossVersion.partialVersion(scalaVersion.value) match {

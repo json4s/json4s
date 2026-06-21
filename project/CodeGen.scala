@@ -1,5 +1,5 @@
 object CodeGen {
-  private[this] def max = 22
+  private def max = 22
 
   def format: String = {
     s"""package org.json4s
@@ -10,7 +10,7 @@ ${(2 to max).map(formatN).mkString("\n")}
 """
   }
 
-  private[this] def formatN(n: Int): String = {
+  private def formatN(n: Int): String = {
     val A = (1 to n).map("A" + _)
     def signature(name: String): String = s"""def ${name}[${A.mkString(", ")}, X](
     apply: (${A.mkString(", ")}) => X, unapply: X => (${A.mkString(", ")})
@@ -39,7 +39,7 @@ ${(2 to max).map(writerAutoN).mkString("\n")}
 """
   }
 
-  private[this] def writerAutoN(n: Int): String = {
+  private def writerAutoN(n: Int): String = {
     val A = (1 to n).map("A" + _)
     def signature(name: String): String = s"""def ${name}[${A.mkString(", ")}, X <: Product](f: X => (${A
         .mkString(", ")}))(implicit
@@ -60,7 +60,7 @@ ${(2 to max).map(writerAutoN).mkString("\n")}
 """
   }
 
-  private[this] def writerN(n: Int): String = {
+  private def writerN(n: Int): String = {
     val A = (1 to n).map("A" + _)
     def signature(name: String): String = s"""def ${name}[${A.mkString(", ")}, X](f: X => (${A
         .mkString(", ")}))(${(1 to n).map("key" + _ + ": String").mkString(", ")})(implicit
@@ -90,7 +90,7 @@ ${(2 to max).map(readerN).mkString("\n")}
 """
   }
 
-  private[this] def readerN(n: Int): String = {
+  private def readerN(n: Int): String = {
     val A = (1 to n).map("A" + _)
     val fields = (1 to n)
       .map(x =>
