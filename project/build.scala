@@ -1,9 +1,8 @@
 import com.typesafe.tools.mima.plugin.MimaKeys.*
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 import sbt.*
 import sbt.Keys.*
-import sbtprojectmatrix.ProjectMatrixKeys.*
+import sbt.given
 import scala.xml.Group
 
 object build {
@@ -27,9 +26,9 @@ object build {
 
   val mavenCentralFrouFrou = Seq(
     publishTo := (if (isSnapshot.value) None else localStaging.value),
-    homepage := Some(url("https://github.com/json4s/json4s")),
+    homepage := Some(uri("https://github.com/json4s/json4s")),
     startYear := Some(2009),
-    licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))),
+    licenses := Seq(("Apache-2.0", uri("http://www.apache.org/licenses/LICENSE-2.0"))),
     organization := "io.github.json4s",
     pomExtra := {
       pomExtra.value ++ Group(
@@ -60,9 +59,18 @@ object build {
   def scalaVersions = Seq(Scala212, Scala213, Scala3)
 
   def json4sSettings = mavenCentralFrouFrou ++ Def.settings(
-    mimaPreviousArtifacts := Set(
-      organization.value %%% moduleName.value % "4.1.1",
-    ),
+    mimaPreviousArtifacts := {
+      // https://github.com/scala-garden/mima/issues/914
+      val suffix = platform.value match {
+        case Platform.jvm =>
+          ""
+        case other =>
+          s"_${other}"
+      }
+      Set(
+        organization.value % s"${moduleName.value}${suffix}_${scalaBinaryVersion.value}" % "4.1.1",
+      )
+    },
     scalacOptions ++= Seq(
       "-unchecked",
       "-deprecation",
@@ -94,14 +102,10 @@ object build {
         }
       },
     ),
-    Compile / packageSrc / mappings ++= (Compile / managedSources).value.map { f =>
-      // to merge generated sources into sources.jar as well
-      (f, f.relativeTo((Compile / sourceManaged).value).get.getPath)
-    },
     libraryDependencies ++= Seq(scalatest.value, scalatestScalacheck.value).flatten,
     (Compile / doc / scalacOptions) ++= {
       val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
-      val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
+      val hash = sys.process.Process("git rev-parse HEAD").lazyLines_!.head
       Seq(
         "-sourcepath",
         base,
@@ -164,7 +168,7 @@ object build {
 
   val jsSettings = Def.settings(
     scalacOptions += {
-      val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
+      val hash = sys.process.Process("git rev-parse HEAD").lazyLines_!.head
       val a = (LocalRootProject / baseDirectory).value.toURI.toString
       val g = "https://raw.githubusercontent.com/json4s/json4s/" + hash
       val key = CrossVersion.partialVersion(scalaVersion.value) match {
@@ -184,6 +188,8 @@ object build {
   )
 
   val jvmSettings = Def.settings(
+    Test / baseDirectory := (LocalRootProject / baseDirectory).value,
+    Test / fork := true,
     scalacOptions ++= {
       if (scalaVersion.value.startsWith("3.3.")) {
         Seq(
@@ -207,6 +213,7 @@ object build {
   )
 
   val nativeSettings = Def.settings(
+    evictionErrorLevel := Level.Warn,
     Seq(Compile, Test).map(c =>
       c / unmanagedSourceDirectories ++= Seq(
         projectMatrixBaseDirectory.value.getAbsoluteFile / "jvm-native" / "src" / Defaults.nameForSrc(c.name) / "scala",

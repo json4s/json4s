@@ -1,12 +1,6 @@
 import build._
 import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 
-Global / onChangedBuildSource := ReloadOnSourceChanges
-
-mavenCentralFrouFrou
-
-noPublish
-
 lazy val ast = projectMatrix
   .in(file("ast"))
   .defaultAxes()
@@ -197,6 +191,7 @@ lazy val jacksonCore = projectMatrix
   .nativePlatform(
     scalaVersions = scalaVersions,
     settings = Def.settings(
+      nativeSettings,
       noPublish,
       Compile / sources := Nil,
       Test / sources := Nil,
@@ -359,17 +354,21 @@ lazy val rootJS3 = project
     crossPlatformModules.map(_.finder(VirtualAxis.js)(Scala3): ProjectReference) *
   )
 
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  runClean,
-  runTest,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  releaseStepCommandAndRemaining("publishSigned"),
-  releaseStepCommandAndRemaining("sonaRelease"),
-  setNextVersion,
-  commitNextVersion,
-  pushChanges
+lazy val json4sRoot = rootProject.autoAggregate.settings(
+  mavenCentralFrouFrou,
+  noPublish,
+  releaseProcess := Seq[ReleaseStep](
+    checkSnapshotDependencies,
+    inquireVersions,
+    runClean,
+    runTest,
+    setReleaseVersion,
+    commitReleaseVersion,
+    tagRelease,
+    releaseStepCommandAndRemaining("publishSigned"),
+    releaseStepCommandAndRemaining("sonaRelease"),
+    setNextVersion,
+    commitNextVersion,
+    pushChanges
+  )
 )
