@@ -27,7 +27,7 @@ object build {
     publishTo := (if (isSnapshot.value) None else localStaging.value),
     homepage := Some(url("https://github.com/json4s/json4s")),
     startYear := Some(2009),
-    licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))),
+    licenses := Seq(License.Apache2),
     organization := "io.github.json4s",
     pomExtra := {
       pomExtra.value ++ Group(
