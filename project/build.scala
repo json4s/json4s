@@ -167,7 +167,8 @@ object build {
       println("enable wasm")
       Def.settings(
         scalaJSLinkerConfig ~= (
-          _.withExperimentalUseWebAssembly(true).withModuleKind(ModuleKind.ESModule)
+          _.withESFeatures(_.withUseWebAssembly(true).withESVersion(org.scalajs.linker.interface.ESVersion.ES2022))
+            .withModuleKind(ModuleKind.ESModule)
         ),
         jsEnv := {
           import org.scalajs.jsenv.nodejs.NodeJSEnv
