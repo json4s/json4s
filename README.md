@@ -719,6 +719,26 @@ These settings (`strictOptionParsing`, `strictArrayExtraction` and `strictMapExt
 val formats: Formats = DefaultFormats.strict
 ```
 
+In addition to controlling `extractOpt` behavior, `strictOptionParsing` also requires (as of 4.0) that every
+class-body `Option`-typed field be populated from the input JSON during `Extraction.setFields`. This makes
+additive schema evolution painful for codebases that satisfy a parent trait via class-body overrides such as
+`override val foo: Option[T] = None`, since older serialized records will not carry the newly added key.
+You can opt out of just this presence check while keeping the rest of `strictOptionParsing`'s behavior
+(notably type-mismatch strictness during value extraction):
+
+```scala
+val formats: Formats = DefaultFormats.withStrictOptionParsing.relaxStrictOptionParsingClassBodyFields
+```
+
+or equivalently:
+
+```scala
+val formats: Formats = new DefaultFormats {
+  override val strictOptionParsing: Boolean = true
+  override val strictOptionParsingClassBodyFields: Boolean = false
+}
+```
+
 With Json4s 3.6 and higher, `apply` functions in companion objects will be evaluated for use during extraction.  If this behavior is not desired, you can disable it using the `considerCompanionConstructors` on a custom `Formats` object:
 ```scala 
 val formats: Formats = new DefaultFormats { override val considerCompanionConstructors = false }

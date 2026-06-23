@@ -646,7 +646,7 @@ object Extraction {
             }
           }
         }
-        if (formats.strictOptionParsing) {
+        if (formats.strictOptionParsing && formats.strictOptionParsingClassBodyFields) {
           val diff = fieldsToSet.filter(_.returnType.isOption).map(_.name).diff(fieldsActuallySet)
 
           if (diff.nonEmpty) {
