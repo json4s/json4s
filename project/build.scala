@@ -100,7 +100,7 @@ object build {
       },
     ),
     libraryDependencies ++= Seq(scalatest.value, scalatestScalacheck.value).flatten,
-    (Compile / doc / scalacOptions) ++= {
+    (Compile / doc / scalacOptions) ++= Def.uncached {
       val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
       val hash = sys.process.Process("git rev-parse HEAD").lazyLines_!.head
       Seq(
