@@ -25,7 +25,7 @@ object build {
 
   val mavenCentralFrouFrou = Seq(
     publishTo := (if (isSnapshot.value) None else localStaging.value),
-    homepage := Some(url("https://github.com/json4s/json4s")),
+    homepage := Some(uri("https://github.com/json4s/json4s")),
     startYear := Some(2009),
     licenses := Seq(License.Apache2),
     organization := "io.github.json4s",
