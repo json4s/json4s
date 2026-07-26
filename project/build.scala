@@ -206,6 +206,8 @@ object build {
   )
 
   val jvmSettings = Def.settings(
+    Test / baseDirectory := (LocalRootProject / baseDirectory).value,
+    Test / fork := true,
     scalacOptions ++= {
       if (scalaVersion.value.startsWith("3.3.")) {
         Seq(
