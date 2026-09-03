@@ -60,7 +60,7 @@ jobs:
            -Dscala_js_wasm
            rootJS3/Test/compile
            rootJS3/test
-    - run: ls -l ./target/out/sjs1/scala-3.3.8/json4s-scalaz/json4s-scalaz-test-fastopt/main.wasm
-    - run: ls -l ./target/out/sjs1/scala-3.3.8/json4s-xml/json4s-xml-test-fastopt/main.wasm
-    - run: ls -l ./target/out/sjs1/scala-3.3.8/json4s-native-core/json4s-native-core-test-fastopt/main.wasm
-    - run: ls -l ./target/out/sjs1/scala-3.3.8/json4s-ast/json4s-ast-test-fastopt/main.wasm
+    - run: ls -l ./target/out/sjs1/scala-3.9.0/json4s-scalaz/json4s-scalaz-test-fastopt/main.wasm
+    - run: ls -l ./target/out/sjs1/scala-3.9.0/json4s-xml/json4s-xml-test-fastopt/main.wasm
+    - run: ls -l ./target/out/sjs1/scala-3.9.0/json4s-native-core/json4s-native-core-test-fastopt/main.wasm
+    - run: ls -l ./target/out/sjs1/scala-3.9.0/json4s-ast/json4s-ast-test-fastopt/main.wasm

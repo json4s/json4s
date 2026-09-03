@@ -52,7 +52,7 @@ object build {
   )
 
   val Scala213 = "2.13.18"
-  val Scala3 = "3.3.8"
+  val Scala3 = "3.9.0"
 
   def scalaVersions = Seq(Scala213, Scala3)
 
@@ -208,15 +208,6 @@ object build {
   val jvmSettings = Def.settings(
     Test / baseDirectory := (LocalRootProject / baseDirectory).value,
     Test / fork := true,
-    scalacOptions ++= {
-      if (scalaVersion.value.startsWith("3.3.")) {
-        Seq(
-          "-Yfuture-lazy-vals",
-        )
-      } else {
-        Nil
-      }
-    },
     Seq(Compile, Test).map(c =>
       c / unmanagedSourceDirectories ++= Seq(
         projectMatrixBaseDirectory.value.getAbsoluteFile / "jvm" / "src" / Defaults.nameForSrc(c.name) / "scala",
