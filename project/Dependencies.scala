@@ -22,6 +22,6 @@ object Dependencies {
   )
 
   lazy val scalaXml = Def.setting {
-    "org.scala-lang.modules" %% "scala-xml" % "2.4.0"
+    "org.scala-lang.modules" %% "scala-xml" % "2.5.0"
   }
 }
