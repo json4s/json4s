@@ -270,6 +270,7 @@ object JsonParser {
   }
 
   class Parser(buf: Buffer, useBigDecimalForDouble: Boolean, useBigIntForLong: Boolean) {
+    import Parser.*
     import java.util.LinkedList
 
     private[this] val blocks = new LinkedList[BlockMode]()
@@ -372,10 +373,11 @@ object JsonParser {
       buf.automaticClose()
       End
     }
-
-    sealed abstract class BlockMode extends Product with Serializable
-    case object ARRAY extends BlockMode
-    case object OBJECT extends BlockMode
   }
 
+  private object Parser {
+    private sealed abstract class BlockMode extends Product with Serializable
+    private case object ARRAY extends BlockMode
+    private case object OBJECT extends BlockMode
+  }
 }
