@@ -22,6 +22,12 @@ package org.json4s
 object Xml {
   import scala.xml.*
 
+  private sealed abstract class XElem extends Product with Serializable
+  private final case class XValue(value: String) extends XElem
+  private final case class XLeaf(value: (String, XElem), attrs: List[(String, XValue)]) extends XElem
+  private final case class XNode(fields: List[(String, XElem)]) extends XElem
+  private final case class XArray(elems: List[XElem]) extends XElem
+
   /**
    * Convert given XML to JSON.
    * <p>
@@ -97,12 +103,6 @@ object Xml {
     def directChildren(n: Node): NodeSeq = n.child.filter(c => c.isInstanceOf[Elem])
     def nameOf(n: Node) = (if (n.prefix ne null) n.prefix + ":" else "") + n.label
     def buildAttrs(n: Node) = n.attributes.map((a: MetaData) => (a.key, XValue(a.value.text))).toList
-
-    sealed abstract class XElem extends Product with Serializable
-    case class XValue(value: String) extends XElem
-    case class XLeaf(value: (String, XElem), attrs: List[(String, XValue)]) extends XElem
-    case class XNode(fields: List[(String, XElem)]) extends XElem
-    case class XArray(elems: List[XElem]) extends XElem
 
     def toJValue(x: XElem): JValue = x match {
       case XValue(s) => JString(s)
