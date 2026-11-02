@@ -20,7 +20,7 @@ jobs:
         java-version: ${{matrix.java}}
         distribution: zulu
     - uses: actions/checkout@v7
-    - uses: coursier/cache-action@v8
+    - uses: coursier/cache-action@v9
     - run: |
         export TZ=Australia/Canberra
         ./sbt --server -v scalafmtSbtCheck scalafmtCheckAll mimaReportBinaryIssues test
