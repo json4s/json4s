@@ -13,12 +13,12 @@ jobs:
     steps:
     - name: Generate token
       id: generate_token
-      uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3.4.0
+      uses: actions/create-github-app-token@v3.4.0
       with:
         client-id: 89664
         private-key: ${{ secrets.JSON4S_BOT_KEY }}
     - name: Launch Scala Steward
-      uses: scala-steward-org/scala-steward-action@3e5cae868160200afda12b57c150e56cede989ab # v2.97.0
+      uses: scala-steward-org/scala-steward-action@v2.97.0
       with:
         github-token: ${{ steps.generate_token.outputs.token }}
         author-email: "74845451+json4s-bot[bot]@users.noreply.github.com"
